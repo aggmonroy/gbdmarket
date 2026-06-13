@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Wallet, Sparkles, Headphones, Wind, Refrigerator, WashingMachine, Flame, Snowflake, Microwave, CookingPot, Blender } from "lucide-react";
+import { ArrowRight, ShieldCheck, Wallet, Sparkles, Headphones, Wind, Refrigerator, WashingMachine, Flame, Snowflake, Microwave, CookingPot, Blend as Blender } from "lucide-react";
 import heroLB from "@/assets/hero-linea-blanca.jpg";
 import heroB from "@/assets/hero-bordados.jpg";
 

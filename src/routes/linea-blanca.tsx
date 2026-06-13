@@ -69,7 +69,7 @@ function LineaBlanca() {
   const brands = useMemo(() => Array.from(new Set(products.map((p: any) => p.brand).filter(Boolean))) as string[], [products]);
 
   const setSearch = (patch: Partial<{ cat: string; brand: string; q: string }>) => {
-    navigate({ search: (prev) => {
+    navigate({ search: (prev: any) => {
       const next: any = { ...prev, ...patch };
       Object.keys(next).forEach((k) => { if (!next[k]) delete next[k]; });
       return next;
