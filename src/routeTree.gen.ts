@@ -18,6 +18,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authenticated/admin.productos'
+import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated/admin.categorias'
+import { Route as AuthenticatedAdminBordadosRouteImport } from './routes/_authenticated/admin.bordados'
 
 const LineaBlancaRoute = LineaBlancaRouteImport.update({
   id: '/linea-blanca',
@@ -63,6 +66,24 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminProductosRoute =
+  AuthenticatedAdminProductosRouteImport.update({
+    id: '/productos',
+    path: '/productos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCategoriasRoute =
+  AuthenticatedAdminCategoriasRouteImport.update({
+    id: '/categorias',
+    path: '/categorias',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBordadosRoute =
+  AuthenticatedAdminBordadosRouteImport.update({
+    id: '/bordados',
+    path: '/bordados',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -72,6 +93,9 @@ export interface FileRoutesByFullPath {
   '/financiamiento': typeof FinanciamientoRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -81,6 +105,9 @@ export interface FileRoutesByTo {
   '/contacto': typeof ContactoRoute
   '/financiamiento': typeof FinanciamientoRoute
   '/linea-blanca': typeof LineaBlancaRoute
+  '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -93,6 +120,9 @@ export interface FileRoutesById {
   '/financiamiento': typeof FinanciamientoRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/_authenticated/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -105,6 +135,9 @@ export interface FileRouteTypes {
     | '/financiamiento'
     | '/linea-blanca'
     | '/admin'
+    | '/admin/bordados'
+    | '/admin/categorias'
+    | '/admin/productos'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -114,6 +147,9 @@ export interface FileRouteTypes {
     | '/contacto'
     | '/financiamiento'
     | '/linea-blanca'
+    | '/admin/bordados'
+    | '/admin/categorias'
+    | '/admin/productos'
     | '/admin'
   id:
     | '__root__'
@@ -125,6 +161,9 @@ export interface FileRouteTypes {
     | '/financiamiento'
     | '/linea-blanca'
     | '/_authenticated/admin'
+    | '/_authenticated/admin/bordados'
+    | '/_authenticated/admin/categorias'
+    | '/_authenticated/admin/productos'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -203,14 +242,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/productos': {
+      id: '/_authenticated/admin/productos'
+      path: '/productos'
+      fullPath: '/admin/productos'
+      preLoaderRoute: typeof AuthenticatedAdminProductosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/categorias': {
+      id: '/_authenticated/admin/categorias'
+      path: '/categorias'
+      fullPath: '/admin/categorias'
+      preLoaderRoute: typeof AuthenticatedAdminCategoriasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/bordados': {
+      id: '/_authenticated/admin/bordados'
+      path: '/bordados'
+      fullPath: '/admin/bordados'
+      preLoaderRoute: typeof AuthenticatedAdminBordadosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminBordadosRoute: typeof AuthenticatedAdminBordadosRoute
+  AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
+  AuthenticatedAdminProductosRoute: typeof AuthenticatedAdminProductosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminBordadosRoute: AuthenticatedAdminBordadosRoute,
+  AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
+  AuthenticatedAdminProductosRoute: AuthenticatedAdminProductosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
