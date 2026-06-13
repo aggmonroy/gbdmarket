@@ -161,7 +161,7 @@ export function ProductDetailDialog({
 
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <Stat label={fin.promoApplied ? "Total (contado)" : "Total a financiar"} value={fmtUSD(fin.totalFinanced)} />
-                <Stat label="Abono inicial (10%)" value={fmtUSD(fin.down)} />
+                <Stat label="Abono inicial" value={fmtUSD(fin.down)} />
                 <Stat label="Cuota mensual" value={fmtUSD(fin.monthly)} highlight />
                 <Stat label="Cuota quincenal" value={fmtUSD(fin.biweekly)} />
               </dl>
