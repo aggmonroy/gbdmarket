@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, type Term, type MemberType } from "@/lib/financing";
+import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, PROMO_MAX_TERM, type Term, type MemberType } from "@/lib/financing";
 import { buildWaUrl, logLead } from "@/lib/whatsapp";
-import { FileText, MessageCircle, Package } from "lucide-react";
+import { FileText, MessageCircle, Package, Sparkles } from "lucide-react";
 
 export type ProductLite = {
   id: string;
@@ -25,9 +25,10 @@ export function ProductDetailDialog({
 }: { open: boolean; onOpenChange: (b: boolean) => void; product: ProductLite | null }) {
   const [term, setTerm] = useState<Term>(12);
   const [member, setMember] = useState<MemberType>("asociado");
+  const [directDebit, setDirectDebit] = useState(false);
   const [customerName, setCustomerName] = useState("");
   if (!product) return null;
-  const fin = calcFinancing(product.price_cash, term, member);
+  const fin = calcFinancing(product.price_cash, term, member, directDebit);
 
   const sendWa = () => {
     const msg = [
@@ -35,7 +36,8 @@ export function ProductDetailDialog({
       `*${product.name}*${product.brand ? ` — ${product.brand}` : ""}${product.model ? ` ${product.model}` : ""}`,
       product.code ? `Código: ${product.code}` : null,
       `Precio contado: ${fmtUSD(product.price_cash)}`,
-      `Plazo seleccionado: ${term} meses`,
+      `Modalidad: ${MEMBER_LABEL[member]}${directDebit ? " (descuento directo)" : ""}`,
+      `Plazo seleccionado: ${term} meses${fin.promoApplied ? " · Promo sin intereses" : ""}`,
       `Abono inicial: ${fmtUSD(fin.down)}`,
       `Cuota mensual: ${fmtUSD(fin.monthly)}`,
       `Total financiado: ${fmtUSD(fin.totalFinanced)}`,
@@ -122,6 +124,21 @@ export function ProductDetailDialog({
                 ))}
               </div>
 
+              <label className="mt-3 flex items-start gap-2 rounded-md border border-border bg-background p-2.5 cursor-pointer hover:border-primary/40 transition">
+                <input
+                  type="checkbox"
+                  checked={directDebit}
+                  onChange={(e) => setDirectDebit(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-primary"
+                />
+                <span className="text-xs">
+                  <span className="font-semibold">Pago por descuento directo</span>
+                  <span className="block text-muted-foreground">
+                    Hasta {PROMO_MAX_TERM} meses al contado, sin intereses.
+                  </span>
+                </span>
+              </label>
+
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {TERMS.map((t) => (
                   <button
@@ -136,8 +153,14 @@ export function ProductDetailDialog({
                 ))}
               </div>
 
+              {fin.promoApplied && (
+                <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2 py-1 text-[11px] font-semibold uppercase tracking-wider">
+                  <Sparkles className="h-3 w-3" /> Promo sin intereses aplicada
+                </div>
+              )}
+
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <Stat label="Total a financiar" value={fmtUSD(fin.totalFinanced)} />
+                <Stat label={fin.promoApplied ? "Total (contado)" : "Total a financiar"} value={fmtUSD(fin.totalFinanced)} />
                 <Stat label="Abono inicial (10%)" value={fmtUSD(fin.down)} />
                 <Stat label="Cuota mensual" value={fmtUSD(fin.monthly)} highlight />
                 <Stat label="Cuota quincenal" value={fmtUSD(fin.biweekly)} />
