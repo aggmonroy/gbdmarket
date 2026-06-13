@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
+import { Route as GarantiasRouteImport } from './routes/garantias'
 import { Route as FinanciamientoRouteImport } from './routes/financiamiento'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as BordadosRouteImport } from './routes/bordados'
@@ -25,6 +26,11 @@ import { Route as AuthenticatedAdminBordadosRouteImport } from './routes/_authen
 const LineaBlancaRoute = LineaBlancaRouteImport.update({
   id: '/linea-blanca',
   path: '/linea-blanca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GarantiasRoute = GarantiasRouteImport.update({
+  id: '/garantias',
+  path: '/garantias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinanciamientoRoute = FinanciamientoRouteImport.update({
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/bordados': typeof BordadosRoute
   '/contacto': typeof ContactoRoute
   '/financiamiento': typeof FinanciamientoRoute
+  '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/bordados': typeof BordadosRoute
   '/contacto': typeof ContactoRoute
   '/financiamiento': typeof FinanciamientoRoute
+  '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/bordados': typeof BordadosRoute
   '/contacto': typeof ContactoRoute
   '/financiamiento': typeof FinanciamientoRoute
+  '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin/bordados': typeof AuthenticatedAdminBordadosRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/bordados'
     | '/contacto'
     | '/financiamiento'
+    | '/garantias'
     | '/linea-blanca'
     | '/admin'
     | '/admin/bordados'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/bordados'
     | '/contacto'
     | '/financiamiento'
+    | '/garantias'
     | '/linea-blanca'
     | '/admin/bordados'
     | '/admin/categorias'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/bordados'
     | '/contacto'
     | '/financiamiento'
+    | '/garantias'
     | '/linea-blanca'
     | '/_authenticated/admin'
     | '/_authenticated/admin/bordados'
@@ -174,6 +186,7 @@ export interface RootRouteChildren {
   BordadosRoute: typeof BordadosRoute
   ContactoRoute: typeof ContactoRoute
   FinanciamientoRoute: typeof FinanciamientoRoute
+  GarantiasRoute: typeof GarantiasRoute
   LineaBlancaRoute: typeof LineaBlancaRoute
 }
 
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       path: '/linea-blanca'
       fullPath: '/linea-blanca'
       preLoaderRoute: typeof LineaBlancaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/garantias': {
+      id: '/garantias'
+      path: '/garantias'
+      fullPath: '/garantias'
+      preLoaderRoute: typeof GarantiasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/financiamiento': {
@@ -302,8 +322,19 @@ const rootRouteChildren: RootRouteChildren = {
   BordadosRoute: BordadosRoute,
   ContactoRoute: ContactoRoute,
   FinanciamientoRoute: FinanciamientoRoute,
+  GarantiasRoute: GarantiasRoute,
   LineaBlancaRoute: LineaBlancaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
