@@ -1,24 +1,35 @@
 export const TERMS = [3, 6, 12, 18, 24, 36] as const;
 export type Term = typeof TERMS[number];
 
-// Tasa de financiamiento cooperativa aproximada (interés simple anual ~12%).
-// Configurable luego desde el admin si se requiere.
-const ANNUAL_RATE = 0.12;
+export type MemberType = "asociado" | "no_asociado";
+
+// Recargo aplicado al precio contado según el tipo de cliente.
+export const SURCHARGE: Record<MemberType, number> = {
+  asociado: 0.35,
+  no_asociado: 0.65,
+};
+
+export const MEMBER_LABEL: Record<MemberType, string> = {
+  asociado: "Asociado",
+  no_asociado: "No asociado",
+};
+
 const DOWN_PAYMENT_PCT = 0.1;
 
-export function calcFinancing(priceCash: number, term: Term) {
-  const down = Math.max(0, priceCash * DOWN_PAYMENT_PCT);
-  const principal = priceCash - down;
-  const interest = principal * ANNUAL_RATE * (term / 12);
-  const total = principal + interest;
-  const monthly = total / term;
+export function calcFinancing(priceCash: number, term: Term, member: MemberType) {
+  const surcharge = SURCHARGE[member];
+  const total = priceCash * (1 + surcharge);
+  const down = Math.max(0, total * DOWN_PAYMENT_PCT);
+  const principal = total - down;
+  const monthly = principal / term;
   const biweekly = monthly / 2;
   return {
+    surchargePct: surcharge,
+    surchargeAmount: round(total - priceCash),
     down: round(down),
     monthly: round(monthly),
     biweekly: round(biweekly),
-    totalFinanced: round(total + down),
-    interest: round(interest),
+    totalFinanced: round(total),
   };
 }
 

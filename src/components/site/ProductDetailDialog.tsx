@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TERMS, calcFinancing, fmtUSD, type Term } from "@/lib/financing";
+import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, SURCHARGE, type Term, type MemberType } from "@/lib/financing";
 import { buildWaUrl, logLead } from "@/lib/whatsapp";
 import { FileText, MessageCircle, Package } from "lucide-react";
 
@@ -24,9 +24,10 @@ export function ProductDetailDialog({
   open, onOpenChange, product,
 }: { open: boolean; onOpenChange: (b: boolean) => void; product: ProductLite | null }) {
   const [term, setTerm] = useState<Term>(12);
+  const [member, setMember] = useState<MemberType>("asociado");
   const [customerName, setCustomerName] = useState("");
   if (!product) return null;
-  const fin = calcFinancing(product.price_cash, term);
+  const fin = calcFinancing(product.price_cash, term, member);
 
   const sendWa = () => {
     const msg = [
@@ -106,6 +107,22 @@ export function ProductDetailDialog({
 
             <div className="mt-6 rounded-xl border border-border bg-primary-soft/40 p-4">
               <div className="text-sm font-semibold text-primary">Financiamiento Cooperativa</div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {(["asociado", "no_asociado"] as MemberType[]).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMember(m)}
+                    className={`px-2 py-2 rounded-md text-xs font-semibold border transition ${
+                      member === m ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/40"
+                    }`}
+                  >
+                    {MEMBER_LABEL[m]}
+                    <span className="block text-[10px] font-normal opacity-80">+{Math.round(SURCHARGE[m] * 100)}% recargo</span>
+                  </button>
+                ))}
+              </div>
+
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {TERMS.map((t) => (
                   <button
@@ -121,10 +138,10 @@ export function ProductDetailDialog({
               </div>
 
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <Stat label="Total a financiar" value={fmtUSD(fin.totalFinanced)} />
                 <Stat label="Abono inicial (10%)" value={fmtUSD(fin.down)} />
                 <Stat label="Cuota mensual" value={fmtUSD(fin.monthly)} highlight />
                 <Stat label="Cuota quincenal" value={fmtUSD(fin.biweekly)} />
-                <Stat label="Total financiado" value={fmtUSD(fin.totalFinanced)} />
               </dl>
 
               <Input
