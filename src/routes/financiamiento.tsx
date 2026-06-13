@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, type Term, type MemberType } from "@/lib/financing";
+import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, PROMO_MAX_TERM, type Term, type MemberType } from "@/lib/financing";
+import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/financiamiento")({
   head: () => ({
     meta: [
       { title: "Financiamiento Cooperativo · Calculadora · Cooperativa Gladys B. de Ducasa R.L." },
-      { name: "description", content: "Calcula al instante el abono inicial y cuotas para tu compra de Línea Blanca. Opciones para asociados y no asociados, de 3 a 36 meses." },
+      { name: "description", content: "Calcula al instante el abono inicial y cuotas para tu compra de Línea Blanca. Opciones para asociados y no asociados, de 3 a 24 meses." },
       { property: "og:title", content: "Calculadora de Financiamiento Cooperativo" },
       { property: "og:description", content: "Conoce las cuotas estimadas para tu compra antes de cotizar." },
       { property: "og:url", content: "/financiamiento" },
@@ -23,14 +24,25 @@ function Financiamiento() {
   const [price, setPrice] = useState(800);
   const [term, setTerm] = useState<Term>(12);
   const [member, setMember] = useState<MemberType>("asociado");
-  const fin = calcFinancing(price, term, member);
+  const [directDebit, setDirectDebit] = useState(false);
+  const fin = calcFinancing(price, term, member, directDebit);
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-14 max-w-4xl">
       <h1 className="font-display text-3xl lg:text-4xl font-bold">Financiamiento Cooperativo</h1>
       <p className="mt-3 text-muted-foreground max-w-2xl">
-        Plazos de 3 a 36 meses con cuotas quincenales o mensuales. Elige tu modalidad: asociado o no asociado.
+        Plazos de 3 a 24 meses con cuotas quincenales o mensuales. Elige tu modalidad: asociado o no asociado.
       </p>
+
+      <div className="mt-6 rounded-xl border border-primary/30 bg-primary-soft/50 p-4 flex items-start gap-3">
+        <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+        <div className="text-sm">
+          <div className="font-semibold text-primary">Promoción: hasta {PROMO_MAX_TERM} meses al contado, sin intereses</div>
+          <p className="text-foreground/80 mt-1">
+            Si autorizas el pago por <strong>descuento directo</strong> (planilla), mantienes el precio contado y no se aplica recargo en plazos de hasta {PROMO_MAX_TERM} meses.
+          </p>
+        </div>
+      </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-6">
@@ -48,6 +60,21 @@ function Financiamiento() {
               </button>
             ))}
           </div>
+
+          <label className="mt-4 flex items-start gap-3 rounded-md border border-border bg-background p-3 cursor-pointer hover:border-primary/40 transition">
+            <input
+              type="checkbox"
+              checked={directDebit}
+              onChange={(e) => setDirectDebit(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-primary"
+            />
+            <span className="text-sm">
+              <span className="font-semibold">Pago por descuento directo</span>
+              <span className="block text-xs text-muted-foreground mt-0.5">
+                Aplica promoción de hasta {PROMO_MAX_TERM} meses al contado, sin intereses.
+              </span>
+            </span>
+          </label>
 
           <div className="mt-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Precio contado del producto</div>
           <div className="mt-2 flex items-center gap-3">
@@ -70,20 +97,27 @@ function Financiamiento() {
         </div>
 
         <div className="rounded-xl border border-border bg-primary-soft/40 p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="text-sm font-semibold text-primary">Resumen estimado</div>
-            <span className="text-[11px] font-semibold uppercase tracking-wider rounded-full bg-primary/10 text-primary px-2 py-1">
-              {MEMBER_LABEL[member]}
-            </span>
+            <div className="flex items-center gap-2">
+              {fin.promoApplied && (
+                <span className="text-[11px] font-semibold uppercase tracking-wider rounded-full bg-primary text-primary-foreground px-2 py-1 inline-flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" /> Promo sin intereses
+                </span>
+              )}
+              <span className="text-[11px] font-semibold uppercase tracking-wider rounded-full bg-primary/10 text-primary px-2 py-1">
+                {MEMBER_LABEL[member]}
+              </span>
+            </div>
           </div>
           <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <Stat label="Total a financiar" value={fmtUSD(fin.totalFinanced)} />
+            <Stat label={fin.promoApplied ? "Total (precio contado)" : "Total a financiar"} value={fmtUSD(fin.totalFinanced)} />
             <Stat label="Abono inicial (10%)" value={fmtUSD(fin.down)} />
             <Stat label="Cuota mensual" value={fmtUSD(fin.monthly)} highlight />
             <Stat label="Cuota quincenal" value={fmtUSD(fin.biweekly)} />
           </dl>
           <a
-            href={`https://wa.me/50767841941?text=${encodeURIComponent(`Hola, deseo cotizar un financiamiento como ${MEMBER_LABEL[member]} por ${fmtUSD(price)} a ${term} meses. Cuota mensual estimada: ${fmtUSD(fin.monthly)}.`)}`}
+            href={`https://wa.me/50767841941?text=${encodeURIComponent(`Hola, deseo cotizar un financiamiento como ${MEMBER_LABEL[member]} por ${fmtUSD(price)} a ${term} meses${directDebit ? " con descuento directo" : ""}. Cuota mensual estimada: ${fmtUSD(fin.monthly)}.`)}`}
             target="_blank" rel="noreferrer"
             className="mt-5 inline-flex w-full items-center justify-center rounded-md bg-whatsapp px-4 py-3 text-sm font-semibold text-whatsapp-foreground hover:opacity-90"
           >
