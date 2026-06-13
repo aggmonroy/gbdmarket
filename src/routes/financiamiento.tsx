@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, SURCHARGE, type Term, type MemberType } from "@/lib/financing";
+import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, type Term, type MemberType } from "@/lib/financing";
 
 export const Route = createFileRoute("/financiamiento")({
   head: () => ({
@@ -29,7 +29,7 @@ function Financiamiento() {
     <div className="container mx-auto px-4 lg:px-8 py-14 max-w-4xl">
       <h1 className="font-display text-3xl lg:text-4xl font-bold">Financiamiento Cooperativo</h1>
       <p className="mt-3 text-muted-foreground max-w-2xl">
-        Plazos de 3 a 36 meses con cuotas quincenales o mensuales. Elige tu modalidad: asociados con recargo del 35% y no asociados con recargo del 65% sobre el precio contado.
+        Plazos de 3 a 36 meses con cuotas quincenales o mensuales. Elige tu modalidad: asociado o no asociado.
       </p>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
@@ -45,7 +45,6 @@ function Financiamiento() {
                 }`}
               >
                 {MEMBER_LABEL[m]}
-                <span className="block text-[10px] font-normal opacity-80">+{Math.round(SURCHARGE[m] * 100)}% recargo</span>
               </button>
             ))}
           </div>
@@ -74,11 +73,10 @@ function Financiamiento() {
           <div className="flex items-center justify-between">
             <div className="text-sm font-semibold text-primary">Resumen estimado</div>
             <span className="text-[11px] font-semibold uppercase tracking-wider rounded-full bg-primary/10 text-primary px-2 py-1">
-              {MEMBER_LABEL[member]} · +{Math.round(fin.surchargePct * 100)}%
+              {MEMBER_LABEL[member]}
             </span>
           </div>
           <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <Stat label="Recargo aplicado" value={fmtUSD(fin.surchargeAmount)} />
             <Stat label="Total a financiar" value={fmtUSD(fin.totalFinanced)} />
             <Stat label="Abono inicial (10%)" value={fmtUSD(fin.down)} />
             <Stat label="Cuota mensual" value={fmtUSD(fin.monthly)} highlight />
