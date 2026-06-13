@@ -32,7 +32,12 @@ export function calcFinancing(
   const promo = isPromoEligible(term, directDebit);
   const surcharge = promo ? 0 : SURCHARGE[member];
   const total = priceCash * (1 + surcharge);
-  const down = Math.max(0, total * DOWN_PAYMENT_PCT);
+
+  // El abono inicial es como mínimo el valor de una cuota mensual.
+  const minDown = total * DOWN_PAYMENT_PCT;
+  const downByMonthly = total / (term + 1); // hace down == monthly
+  const down = Math.max(minDown, downByMonthly);
+
   const principal = total - down;
   const monthly = principal / term;
   const biweekly = monthly / 2;
@@ -54,3 +59,4 @@ function round(n: number) {
 export function fmtUSD(n: number) {
   return new Intl.NumberFormat("es-PA", { style: "currency", currency: "USD" }).format(n);
 }
+
