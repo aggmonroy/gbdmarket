@@ -8,6 +8,7 @@ const nav = [
   { to: "/linea-blanca", label: "Línea Blanca" },
   { to: "/bordados", label: "Bordados" },
   { to: "/financiamiento", label: "Financiamiento" },
+  { to: "/garantias", label: "Garantías" },
   { to: "/contacto", label: "Contacto" },
 ];
 
