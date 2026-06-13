@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, SURCHARGE, type Term, type MemberType } from "@/lib/financing";
+import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, type Term, type MemberType } from "@/lib/financing";
 import { buildWaUrl, logLead } from "@/lib/whatsapp";
 import { FileText, MessageCircle, Package } from "lucide-react";
 
@@ -118,7 +118,6 @@ export function ProductDetailDialog({
                     }`}
                   >
                     {MEMBER_LABEL[m]}
-                    <span className="block text-[10px] font-normal opacity-80">+{Math.round(SURCHARGE[m] * 100)}% recargo</span>
                   </button>
                 ))}
               </div>
