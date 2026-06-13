@@ -1,4 +1,4 @@
-export const TERMS = [3, 6, 12, 18, 24, 36] as const;
+export const TERMS = [3, 6, 12, 18, 24] as const;
 export type Term = typeof TERMS[number];
 
 export type MemberType = "asociado" | "no_asociado";
@@ -16,14 +16,28 @@ export const MEMBER_LABEL: Record<MemberType, string> = {
 
 const DOWN_PAYMENT_PCT = 0.1;
 
-export function calcFinancing(priceCash: number, term: Term, member: MemberType) {
-  const surcharge = SURCHARGE[member];
+// Promo: con descuento directo, hasta 6 meses al contado sin intereses.
+export const PROMO_MAX_TERM: Term = 6;
+
+export function isPromoEligible(term: Term, directDebit: boolean) {
+  return directDebit && term <= PROMO_MAX_TERM;
+}
+
+export function calcFinancing(
+  priceCash: number,
+  term: Term,
+  member: MemberType,
+  directDebit: boolean = false,
+) {
+  const promo = isPromoEligible(term, directDebit);
+  const surcharge = promo ? 0 : SURCHARGE[member];
   const total = priceCash * (1 + surcharge);
   const down = Math.max(0, total * DOWN_PAYMENT_PCT);
   const principal = total - down;
   const monthly = principal / term;
   const biweekly = monthly / 2;
   return {
+    promoApplied: promo,
     surchargePct: surcharge,
     surchargeAmount: round(total - priceCash),
     down: round(down),
