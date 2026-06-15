@@ -67,19 +67,19 @@ function Home() {
           <img src={heroLB} alt="" className="h-full w-full object-cover" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/40" />
-        {/* Decorative gold blobs */}
-        <div className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-secondary/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+        {/* Decorative accent blobs */}
+        <div className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-amber-400/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
 
         <div className="container mx-auto relative px-4 lg:px-8 py-16 lg:py-24 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
           <div className="animate-fade-up">
-            <div className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-secondary" />
-              <span className="text-secondary">Cooperativa Gladys B. de Ducasa · Desde 1961</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              <span className="text-amber-400">Cooperativa Gladys B. de Ducasa · Desde 1961</span>
             </div>
 
             <h1 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05]">
-              Más de <span className="text-secondary">60 años</span> construyendo confianza para las familias panameñas
+              Más de <span className="text-amber-400">60 años</span> construyendo confianza para las familias panameñas
             </h1>
 
             <p className="mt-5 text-lg text-primary-foreground/90 max-w-2xl">
