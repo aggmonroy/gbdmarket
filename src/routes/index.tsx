@@ -67,19 +67,19 @@ function Home() {
           <img src={heroLB} alt="" className="h-full w-full object-cover" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/40" />
-        {/* Decorative gold blobs */}
-        <div className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-secondary/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+        {/* Decorative accent blobs */}
+        <div className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-amber-400/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
 
         <div className="container mx-auto relative px-4 lg:px-8 py-16 lg:py-24 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
           <div className="animate-fade-up">
-            <div className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-secondary" />
-              <span className="text-secondary">Cooperativa Gladys B. de Ducasa · Desde 1961</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              <span className="text-amber-400">Cooperativa Gladys B. de Ducasa · Desde 1961</span>
             </div>
 
             <h1 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05]">
-              Más de <span className="text-secondary">60 años</span> construyendo confianza para las familias panameñas
+              Más de <span className="text-amber-400">60 años</span> construyendo confianza para las familias panameñas
             </h1>
 
             <p className="mt-5 text-lg text-primary-foreground/90 max-w-2xl">
@@ -95,7 +95,7 @@ function Home() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/linea-blanca" className="inline-flex items-center gap-2 rounded-md bg-secondary px-5 py-3 text-sm font-semibold text-secondary-foreground hover:opacity-90 shadow-glow transition">
+              <Link to="/linea-blanca" className="inline-flex items-center gap-2 rounded-md bg-amber-400 px-5 py-3 text-sm font-semibold text-slate-900 hover:opacity-90 shadow-glow transition">
                 Ver Catálogo <ArrowRight className="h-4 w-4" />
               </Link>
               <Link to="/financiamiento" className="inline-flex items-center gap-2 rounded-md bg-primary-foreground px-5 py-3 text-sm font-semibold text-primary hover:bg-primary-foreground/90 transition">
@@ -121,13 +121,13 @@ function Home() {
 
           {/* Logo medallion */}
           <div className="relative hidden lg:flex justify-center items-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-transparent rounded-full blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-transparent rounded-full blur-3xl" />
             <div className="relative animate-float-slow">
-              <div className="absolute inset-0 rounded-full bg-secondary/30 blur-2xl scale-110" />
-              <div className="relative grid place-items-center h-72 w-72 xl:h-96 xl:w-96 rounded-full bg-primary-foreground/95 shadow-glow border-4 border-secondary/60">
+              <div className="absolute inset-0 rounded-full bg-amber-400/30 blur-2xl scale-110" />
+              <div className="relative grid place-items-center h-72 w-72 xl:h-96 xl:w-96 rounded-full bg-primary-foreground/95 shadow-glow border-4 border-amber-400/60">
                 <img src={logo.url} alt="Cooperativa Gladys B. de Ducasa logo institucional" className="h-56 w-56 xl:h-80 xl:w-80 object-contain" />
               </div>
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-secondary px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-secondary-foreground shadow-elevated">
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-900 shadow-elevated">
                 Respaldo cooperativo
               </div>
             </div>
@@ -150,7 +150,7 @@ function Home() {
               key={s.name}
               className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition"
             >
-              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-secondary/20 opacity-0 group-hover:opacity-100 transition" />
+              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-amber-400/20 opacity-0 group-hover:opacity-100 transition" />
               <div className="relative">
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
                   <MapPin className="h-6 w-6" />
@@ -166,18 +166,18 @@ function Home() {
       {/* COMPRAS PARA TODOS */}
       <section className="container mx-auto px-4 lg:px-8 pb-16">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-primary text-primary-foreground p-8 lg:p-12 shadow-elevated">
-          <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-secondary/30 blur-2xl" />
-          <div className="absolute -bottom-20 -left-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+          <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-amber-400/30 blur-2xl" />
+          <div className="absolute -bottom-20 -left-10 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
           <div className="relative grid lg:grid-cols-[auto_1fr_auto] items-center gap-6">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-secondary text-secondary-foreground shadow-glow shrink-0">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-amber-400 text-slate-900 shadow-glow shrink-0">
               <Tag className="h-8 w-8" />
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold uppercase tracking-widest text-secondary">Acceso abierto</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-amber-400">Acceso abierto</div>
               <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold">Compras para Todos</h2>
               <p className="mt-2 text-primary-foreground/90 max-w-3xl">
                 Vendemos al público en general, sin necesidad de ser asociado. Sin embargo, nuestros asociados
-                disfrutan de <strong className="text-secondary">beneficios exclusivos</strong>, descuentos especiales,
+                disfrutan de <strong className="text-amber-400">beneficios exclusivos</strong>, descuentos especiales,
                 facilidades de crédito y condiciones preferenciales tanto para compras al contado como financiadas.
               </p>
             </div>
@@ -247,9 +247,9 @@ function Home() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {beneficios.map(({ Icon, title, desc }) => (
               <div key={title} className="group rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-gold text-secondary-foreground shadow-soft group-hover:scale-105 transition">
-                  <Icon className="h-6 w-6" />
-                </div>
+              <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-r from-amber-300 to-yellow-500 text-slate-900 shadow-soft group-hover:scale-105 transition">
+                <Icon className="h-6 w-6" />
+              </div>
                 <div className="mt-4 font-display font-bold text-lg">{title}</div>
                 <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
               </div>
@@ -266,7 +266,7 @@ function Home() {
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent" />
           </div>
           <div className="p-8 lg:p-12 flex flex-col justify-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-secondary-foreground/80">Bordados Corporativos</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-700/80">Bordados Corporativos</span>
             <h2 className="mt-2 font-display text-3xl font-bold">Tu marca, bordada con precisión</h2>
             <p className="mt-3 text-muted-foreground">
               Uniformes empresariales, camisas polo, gorras, toallas y mochilas. Carga tu diseño o trabaja con nuestro equipo creativo.
@@ -289,7 +289,7 @@ function Home() {
 function HeroStat({ Icon, value, label }: { Icon: any; value: string; label: string }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-primary-foreground/15 bg-primary-foreground/10 backdrop-blur px-3 py-3">
-      <div className="grid h-9 w-9 place-items-center rounded-lg bg-secondary text-secondary-foreground shrink-0">
+      <div className="grid h-9 w-9 place-items-center rounded-lg bg-amber-400 text-slate-900 shrink-0">
         <Icon className="h-4.5 w-4.5" />
       </div>
       <div className="min-w-0">
