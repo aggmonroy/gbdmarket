@@ -121,13 +121,13 @@ function Home() {
 
           {/* Logo medallion */}
           <div className="relative hidden lg:flex justify-center items-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-transparent rounded-full blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-transparent rounded-full blur-3xl" />
             <div className="relative animate-float-slow">
-              <div className="absolute inset-0 rounded-full bg-secondary/30 blur-2xl scale-110" />
-              <div className="relative grid place-items-center h-72 w-72 xl:h-96 xl:w-96 rounded-full bg-primary-foreground/95 shadow-glow border-4 border-secondary/60">
+              <div className="absolute inset-0 rounded-full bg-amber-400/30 blur-2xl scale-110" />
+              <div className="relative grid place-items-center h-72 w-72 xl:h-96 xl:w-96 rounded-full bg-primary-foreground/95 shadow-glow border-4 border-amber-400/60">
                 <img src={logo.url} alt="Cooperativa Gladys B. de Ducasa logo institucional" className="h-56 w-56 xl:h-80 xl:w-80 object-contain" />
               </div>
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-secondary px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-secondary-foreground shadow-elevated">
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-900 shadow-elevated">
                 Respaldo cooperativo
               </div>
             </div>
@@ -150,7 +150,7 @@ function Home() {
               key={s.name}
               className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition"
             >
-              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-secondary/20 opacity-0 group-hover:opacity-100 transition" />
+              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-amber-400/20 opacity-0 group-hover:opacity-100 transition" />
               <div className="relative">
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
                   <MapPin className="h-6 w-6" />
@@ -166,14 +166,14 @@ function Home() {
       {/* COMPRAS PARA TODOS */}
       <section className="container mx-auto px-4 lg:px-8 pb-16">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-primary text-primary-foreground p-8 lg:p-12 shadow-elevated">
-          <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-secondary/30 blur-2xl" />
-          <div className="absolute -bottom-20 -left-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+          <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-amber-400/30 blur-2xl" />
+          <div className="absolute -bottom-20 -left-10 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
           <div className="relative grid lg:grid-cols-[auto_1fr_auto] items-center gap-6">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-secondary text-secondary-foreground shadow-glow shrink-0">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-amber-400 text-slate-900 shadow-glow shrink-0">
               <Tag className="h-8 w-8" />
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold uppercase tracking-widest text-secondary">Acceso abierto</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-amber-400">Acceso abierto</div>
               <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold">Compras para Todos</h2>
               <p className="mt-2 text-primary-foreground/90 max-w-3xl">
                 Vendemos al público en general, sin necesidad de ser asociado. Sin embargo, nuestros asociados
