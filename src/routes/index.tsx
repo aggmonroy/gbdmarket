@@ -95,7 +95,7 @@ function Home() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/linea-blanca" className="inline-flex items-center gap-2 rounded-md bg-secondary px-5 py-3 text-sm font-semibold text-secondary-foreground hover:opacity-90 shadow-glow transition">
+              <Link to="/linea-blanca" className="inline-flex items-center gap-2 rounded-md bg-amber-400 px-5 py-3 text-sm font-semibold text-slate-900 hover:opacity-90 shadow-glow transition">
                 Ver Catálogo <ArrowRight className="h-4 w-4" />
               </Link>
               <Link to="/financiamiento" className="inline-flex items-center gap-2 rounded-md bg-primary-foreground px-5 py-3 text-sm font-semibold text-primary hover:bg-primary-foreground/90 transition">
