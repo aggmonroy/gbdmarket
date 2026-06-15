@@ -223,7 +223,7 @@ function Garantias() {
                     <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
                       <Phone className="h-5 w-5" />
                     </div>
-                    <span className="text-[10px] font-semibold tracking-wider text-secondary-foreground bg-secondary/30 px-2 py-1 rounded-full">
+                    <span className="text-[10px] font-semibold tracking-wider text-slate-800 bg-amber-400/30 px-2 py-1 rounded-full">
                       OFICIAL
                     </span>
                   </div>
@@ -241,8 +241,8 @@ function Garantias() {
               ))}
 
               {/* Otras marcas */}
-              <article className="rounded-2xl border-2 border-dashed border-secondary/60 bg-secondary/10 p-5 flex flex-col">
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-secondary text-secondary-foreground">
+              <article className="rounded-2xl border-2 border-dashed border-amber-400/60 bg-amber-400/10 p-5 flex flex-col">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-400 text-slate-900">
                   <Sparkles className="h-5 w-5" />
                 </div>
                 <h3 className="mt-4 font-display text-lg font-bold">OTRAS MARCAS</h3>
@@ -345,11 +345,11 @@ function Garantias() {
       {/* SECTION 2: Help using your product */}
       <section className="mt-16">
         <div className="rounded-3xl bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground p-8 sm:p-10 shadow-soft relative overflow-hidden">
-          <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-secondary/30 blur-3xl" aria-hidden />
+          <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-amber-400/30 blur-3xl" aria-hidden />
           <div className="absolute -bottom-16 -left-10 h-56 w-56 rounded-full bg-primary-foreground/10 blur-3xl" aria-hidden />
           <div className="relative grid lg:grid-cols-2 gap-8 items-center">
             <div>
-              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider bg-amber-400 text-slate-900 px-3 py-1.5 rounded-full">
                 <GraduationCap className="h-3.5 w-3.5" /> Orientación personalizada
               </span>
               <h2 className="mt-4 font-display text-3xl sm:text-4xl font-bold leading-tight">
@@ -359,7 +359,7 @@ function Garantias() {
                 Nuestro equipo puede ayudarte a conocer las funciones, configuraciones y cuidados básicos de tu producto
                 para que aproveches al máximo tu compra.
               </p>
-              <p className="mt-3 text-secondary font-semibold">
+              <p className="mt-3 text-amber-400 font-semibold">
                 Agenda una cita y uno de nuestros especialistas te brindará orientación personalizada.
               </p>
             </div>
@@ -495,7 +495,7 @@ function ModeCard({
 function FeatureTile({ Icon, title, desc }: { Icon: any; title: string; desc: string }) {
   return (
     <div className="rounded-xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 p-4 hover:bg-primary-foreground/15 transition">
-      <div className="grid h-9 w-9 place-items-center rounded-lg bg-secondary text-secondary-foreground">
+      <div className="grid h-9 w-9 place-items-center rounded-lg bg-amber-400 text-slate-900">
         <Icon className="h-4 w-4" />
       </div>
       <div className="mt-3 font-display font-semibold text-sm">{title}</div>
