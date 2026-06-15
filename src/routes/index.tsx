@@ -177,7 +177,7 @@ function Home() {
               <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold">Compras para Todos</h2>
               <p className="mt-2 text-primary-foreground/90 max-w-3xl">
                 Vendemos al público en general, sin necesidad de ser asociado. Sin embargo, nuestros asociados
-                disfrutan de <strong className="text-secondary">beneficios exclusivos</strong>, descuentos especiales,
+                disfrutan de <strong className="text-amber-400">beneficios exclusivos</strong>, descuentos especiales,
                 facilidades de crédito y condiciones preferenciales tanto para compras al contado como financiadas.
               </p>
             </div>
