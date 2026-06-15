@@ -116,7 +116,6 @@
 
 @utility bg-gradient-hero { background-image: var(--gradient-hero); }
 @utility bg-gradient-primary { background-image: var(--gradient-primary); }
-@utility bg-gradient-gold { background-image: var(--gradient-gold); }
 @utility shadow-soft { box-shadow: var(--shadow-soft); }
 @utility shadow-elevated { box-shadow: var(--shadow-elevated); }
 @utility shadow-glow { box-shadow: var(--shadow-glow); }
