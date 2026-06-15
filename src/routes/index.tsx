@@ -247,9 +247,9 @@ function Home() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {beneficios.map(({ Icon, title, desc }) => (
               <div key={title} className="group rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-gold text-secondary-foreground shadow-soft group-hover:scale-105 transition">
-                  <Icon className="h-6 w-6" />
-                </div>
+              <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-r from-amber-300 to-yellow-500 text-slate-900 shadow-soft group-hover:scale-105 transition">
+                <Icon className="h-6 w-6" />
+              </div>
                 <div className="mt-4 font-display font-bold text-lg">{title}</div>
                 <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
               </div>
@@ -266,7 +266,7 @@ function Home() {
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent" />
           </div>
           <div className="p-8 lg:p-12 flex flex-col justify-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-secondary-foreground/80">Bordados Corporativos</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-700/80">Bordados Corporativos</span>
             <h2 className="mt-2 font-display text-3xl font-bold">Tu marca, bordada con precisión</h2>
             <p className="mt-3 text-muted-foreground">
               Uniformes empresariales, camisas polo, gorras, toallas y mochilas. Carga tu diseño o trabaja con nuestro equipo creativo.
@@ -289,7 +289,7 @@ function Home() {
 function HeroStat({ Icon, value, label }: { Icon: any; value: string; label: string }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-primary-foreground/15 bg-primary-foreground/10 backdrop-blur px-3 py-3">
-      <div className="grid h-9 w-9 place-items-center rounded-lg bg-secondary text-secondary-foreground shrink-0">
+      <div className="grid h-9 w-9 place-items-center rounded-lg bg-amber-400 text-slate-900 shrink-0">
         <Icon className="h-4.5 w-4.5" />
       </div>
       <div className="min-w-0">
