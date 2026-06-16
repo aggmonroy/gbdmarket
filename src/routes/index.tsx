@@ -1,320 +1,423 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowRight, ShieldCheck, Wallet, Sparkles, Headphones, Wind, Refrigerator,
-  WashingMachine, Flame, Snowflake, Microwave, CookingPot, Blend as Blender,
-  Users, MapPin, Truck, BadgePercent, Store, Building2, Award, Heart, Tag, Scissors,
+  ArrowRight, Sparkles, Headphones, Users, MapPin, Truck, BadgePercent,
+  Store, Building2, Award, HandHeart, CreditCard, Navigation, ShoppingBag,
+  Briefcase, MessageCircle, ChevronLeft, ChevronRight, Scissors, Wallet,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import heroLB from "@/assets/hero-linea-blanca.jpg";
-import heroB from "@/assets/hero-bordados.jpg";
+import { useEffect, useRef, useState, useCallback } from "react";
 import logo from "@/assets/gbd-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Línea Blanca y Bordados GBD · Cooperativa Gladys B. de Ducasa, R.L." },
-      { name: "description", content: "Más de 60 años construyendo confianza para las familias panameñas. Electrodomésticos, muebles, tecnología y bordados personalizados con financiamiento cooperativo." },
-      { property: "og:title", content: "Línea Blanca y Bordados GBD · Cooperativa Gladys B. de Ducasa" },
-      { property: "og:description", content: "Muebles, electrodomésticos, tecnología y bordados con respaldo cooperativo desde 1961." },
-      { property: "og:url", content: "/" },
+      { name: "description", content: "Muebles, electrodomésticos, tecnología y bordados con respaldo cooperativo desde 1961. Crédito accesible y entregas a nivel nacional." },
+      { property: "og:title", content: "Línea Blanca y Bordados GBD" },
+      { property: "og:description", content: "Equipa tu hogar o negocio con respaldo cooperativo. Más de 60 años de confianza." },
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
   component: Home,
 });
 
-const categories = [
-  { slug: "aires-acondicionados", name: "Aires Acondicionados", Icon: Wind },
-  { slug: "refrigeradoras", name: "Refrigeradoras", Icon: Refrigerator },
-  { slug: "lavadoras", name: "Lavadoras", Icon: WashingMachine },
-  { slug: "estufas", name: "Estufas", Icon: Flame },
-  { slug: "congeladores", name: "Congeladores", Icon: Snowflake },
-  { slug: "microondas", name: "Microondas", Icon: Microwave },
-  { slug: "freidoras-aire", name: "Freidoras de Aire", Icon: CookingPot },
-  { slug: "electrodomesticos-menores", name: "Menores", Icon: Blender },
+// Hero slides — escenarios reales
+const heroSlides = [
+  { img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80", title: "Transforma tu hogar con estilo", sub: "Salas ambientadas para tu familia" },
+  { img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1920&q=80", title: "Comodidad y diseño para tu descanso", sub: "Recámaras completas" },
+  { img: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1920&q=80", title: "Todo lo que necesitas para tu cocina", sub: "Cocinas modernas y equipadas" },
+  { img: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=1920&q=80", title: "Lavanderías prácticas y eficientes", sub: "Equipa cada espacio de tu hogar" },
+  { img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80", title: "Equipamos tus espacios con calidad", sub: "Terrazas, exteriores y más" },
+  { img: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1920&q=80", title: "Comedores que reúnen a tu familia", sub: "Diseño y durabilidad" },
+  { img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80", title: "Oficinas y espacios de trabajo", sub: "Productividad con estilo" },
+  { img: "https://images.unsplash.com/photo-1556909114-44e3e9399c2e?auto=format&fit=crop&w=1920&q=80", title: "Electrodomésticos premium", sub: "Marcas de confianza" },
 ];
 
 const sucursales = [
-  { name: "Sucursal Las Tablas", desc: "Atención completa en muebles, línea blanca y bordados.", Icon: Store },
-  { name: "Sucursal Tonosí", desc: "Tu tienda de confianza en la región de Azuero.", Icon: Store },
-  { name: "Punto de Venta Casa Matriz", desc: "Dentro de la Cooperativa Gladys B. de Ducasa.", Icon: Building2 },
-  { name: "Cooperativa El Progreso de Agua Buena", desc: "Punto de venta aliado para tu comunidad.", Icon: Building2 },
+  {
+    name: "Sucursal Las Tablas",
+    desc: "Muebles, línea blanca y bordados.",
+    Icon: Store,
+    map: "https://www.google.com/maps/place/Bordados+y+sublimacion+GBD/@7.7676919,-80.2781767,19.54z",
+  },
+  {
+    name: "Sucursal Tonosí",
+    desc: "Tu tienda de confianza en Azuero.",
+    Icon: Store,
+    map: "https://www.google.com/maps/place/Coop.+Gladys+B.+de+Ducasa+Tonosí/@7.4092488,-80.4388305,20z",
+  },
+  {
+    name: "Casa Matriz",
+    desc: "Punto de venta en la Cooperativa.",
+    Icon: Building2,
+    map: "https://www.google.com/maps/place/Cooperativa+Gladys+B.+de+Ducasa,+R.L./@7.7682263,-80.2776145,20z",
+  },
+  {
+    name: "Coop. El Progreso – Agua Buena",
+    desc: "Punto de venta aliado.",
+    Icon: Building2,
+    map: "https://www.google.com/maps/place/Delta+%7C+Coop.+El+Progreso/@7.837798,-80.4024705,20.5z",
+  },
 ];
 
-const hitos = [
-  { value: "1961", label: "Fundación de la Cooperativa" },
-  { value: "2008", label: "Inicio de la Mueblería y Línea Blanca" },
-  { value: "2023", label: "Inicio de la Sección de Bordados" },
-  { value: "5,000+", label: "Asociados Activos" },
-  { value: "Nacional", label: "Servicio de entregas según tu necesidad" },
+const vocacion = [
+  { Icon: HandHeart, title: "Atención personalizada" },
+  { Icon: CreditCard, title: "Crédito accesible" },
+  { Icon: Truck, title: "Entregas programadas" },
+  { Icon: Headphones, title: "Soporte postventa" },
 ];
 
-const beneficios = [
-  { Icon: ShieldCheck, title: "Más de 60 años de respaldo cooperativo", desc: "Solidez institucional desde 1961." },
-  { Icon: Wallet, title: "Crédito y financiamiento accesible", desc: "Para asociados y clientes elegibles." },
-  { Icon: Truck, title: "Entregas personalizadas", desc: "Coordinamos la entrega según tu necesidad." },
-  { Icon: Headphones, title: "Atención personalizada", desc: "Asesores reales por WhatsApp y en tienda." },
-  { Icon: Award, title: "Productos de marcas reconocidas", desc: "Trabajamos solo con marcas de confianza." },
-  { Icon: Scissors, title: "Bordados personalizados", desc: "Uniformes, gorras, polos y más." },
+const negocioImgs = [
+  "https://images.unsplash.com/photo-1564540583246-934409427776?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+];
+
+const bordadosImgs = [
+  { src: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80", label: "Uniformes empresariales" },
+  { src: "https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=800&q=80", label: "Camisas corporativas" },
+  { src: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80", label: "Gorras bordadas" },
+  { src: "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80", label: "Toallas bordadas" },
+  { src: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80", label: "Artículos promocionales" },
+  { src: "https://images.unsplash.com/photo-1503944168849-8bf86875b08c?auto=format&fit=crop&w=800&q=80", label: "Uniformes escolares" },
 ];
 
 function Home() {
   return (
     <>
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-hero text-primary-foreground">
-        <div className="absolute inset-0 opacity-20">
-          <img src={heroLB} alt="" className="h-full w-full object-cover" />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/40" />
-        {/* Decorative accent blobs */}
-        <div className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-amber-400/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
-
-        <div className="container mx-auto relative px-4 lg:px-8 py-16 lg:py-24 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
-          <div className="animate-fade-up">
-            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              <span className="text-amber-400">Cooperativa Gladys B. de Ducasa · Desde 1961</span>
-            </div>
-
-            <h1 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05]">
-              Más de <span className="text-amber-400">60 años</span> construyendo confianza para las familias panameñas
-            </h1>
-
-            <p className="mt-5 text-lg text-primary-foreground/90 max-w-2xl">
-              En <strong>Línea Blanca y Bordados GBD</strong> encontrarás muebles, electrodomésticos, tecnología,
-              artículos para el hogar y servicios de bordado personalizados, respaldados por la experiencia y
-              solidez de la Cooperativa Gladys B. de Ducasa, R.L.
-            </p>
-
-            <p className="mt-4 text-sm text-primary-foreground/75 max-w-2xl">
-              Fundada el 11 de septiembre de 1961, hemos evolucionado de una cooperativa de ahorro y crédito a
-              una organización de servicios integrales. Nuestra Sección de Línea Blanca opera desde agosto de
-              2008 y nuestra Sección de Bordados desde octubre de 2023, ofreciendo calidad y respaldo en todo Panamá.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/linea-blanca" className="inline-flex items-center gap-2 rounded-md bg-amber-400 px-5 py-3 text-sm font-semibold text-slate-900 hover:opacity-90 shadow-glow transition">
-                Ver Catálogo <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link to="/financiamiento" className="inline-flex items-center gap-2 rounded-md bg-primary-foreground px-5 py-3 text-sm font-semibold text-primary hover:bg-primary-foreground/90 transition">
-                Solicitar Crédito
-              </Link>
-              <a
-                href="https://wa.me/50767841941?text=Hola%2C%20deseo%20m%C3%A1s%20informaci%C3%B3n"
-                target="_blank" rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-md bg-whatsapp px-5 py-3 text-sm font-semibold text-whatsapp-foreground hover:bg-whatsapp/90 transition"
-              >
-                Contactar por WhatsApp
-              </a>
-            </div>
-
-            {/* Indicators */}
-            <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <HeroStat Icon={Users} value="5,000+" label="Asociados activos" />
-              <HeroStat Icon={Award} value="60+ años" label="De trayectoria" />
-              <HeroStat Icon={Truck} value="Nacional" label="Ventas y entregas" />
-              <HeroStat Icon={BadgePercent} value="Crédito" label="Asociados y clientes" />
-            </div>
-          </div>
-
-          {/* Logo medallion */}
-          <div className="relative hidden lg:flex justify-center items-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-transparent rounded-full blur-3xl" />
-            <div className="relative animate-float-slow">
-              <div className="absolute inset-0 rounded-full bg-amber-400/30 blur-2xl scale-110" />
-              <div className="relative grid place-items-center h-72 w-72 xl:h-96 xl:w-96 rounded-full bg-primary-foreground/95 shadow-glow border-4 border-amber-400/60">
-                <img src={logo.url} alt="Cooperativa Gladys B. de Ducasa logo institucional" className="h-56 w-56 xl:h-80 xl:w-80 object-contain" />
-              </div>
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-900 shadow-elevated">
-                Respaldo cooperativo
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* NUESTRA PRESENCIA */}
-      <section className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">Cobertura nacional</span>
-          <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">Nuestra Presencia</h2>
-          <p className="mt-3 text-muted-foreground">
-            Acercamos nuestros productos y servicios a más comunidades de Panamá.
-          </p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {sucursales.map((s) => (
-            <div
-              key={s.name}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition"
-            >
-              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-amber-400/20 opacity-0 group-hover:opacity-100 transition" />
-              <div className="relative">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
-                  <MapPin className="h-6 w-6" />
-                </div>
-                <div className="mt-4 font-display font-bold text-lg">{s.name}</div>
-                <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* COMPRAS PARA TODOS */}
-      <section className="container mx-auto px-4 lg:px-8 pb-16">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-primary text-primary-foreground p-8 lg:p-12 shadow-elevated">
-          <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-amber-400/30 blur-2xl" />
-          <div className="absolute -bottom-20 -left-10 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
-          <div className="relative grid lg:grid-cols-[auto_1fr_auto] items-center gap-6">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-amber-400 text-slate-900 shadow-glow shrink-0">
-              <Tag className="h-8 w-8" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-xs font-bold uppercase tracking-widest text-amber-400">Acceso abierto</div>
-              <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold">Compras para Todos</h2>
-              <p className="mt-2 text-primary-foreground/90 max-w-3xl">
-                Vendemos al público en general, sin necesidad de ser asociado. Sin embargo, nuestros asociados
-                disfrutan de <strong className="text-amber-400">beneficios exclusivos</strong>, descuentos especiales,
-                facilidades de crédito y condiciones preferenciales tanto para compras al contado como financiadas.
-              </p>
-            </div>
-            <Link to="/financiamiento" className="inline-flex items-center gap-2 rounded-md bg-primary-foreground px-5 py-3 text-sm font-semibold text-primary hover:bg-primary-foreground/90 transition shrink-0">
-              Conocer beneficios <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* TRAYECTORIA / ESTADÍSTICAS ANIMADAS */}
-      <section className="bg-card border-y border-border">
-        <div className="container mx-auto px-4 lg:px-8 py-16">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-primary">Nuestra Historia</span>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">Una trayectoria que respalda cada compra</h2>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
-            {hitos.map((h, i) => (
-              <div key={h.label} className="text-center animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-                <CountUpDisplay value={h.value} />
-                <div className="mt-2 text-sm text-muted-foreground">{h.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CATEGORÍAS LÍNEA BLANCA */}
-      <section className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-primary">Catálogo</span>
-            <h2 className="mt-2 font-display text-3xl font-bold">Explora Línea Blanca</h2>
-            <p className="text-muted-foreground mt-1">Encuentra la categoría perfecta para tu hogar.</p>
-          </div>
-          <Link to="/linea-blanca" className="inline-flex text-sm font-semibold text-primary hover:underline">Ver todo el catálogo →</Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {categories.map(({ slug, name, Icon }) => (
-            <Link
-              key={slug}
-              to="/linea-blanca"
-              search={{ cat: slug }}
-              className="group rounded-xl border border-border bg-card p-5 hover:border-primary hover:shadow-soft transition"
-            >
-              <div className="grid h-12 w-12 place-items-center rounded-lg bg-primary-soft text-primary group-hover:bg-primary group-hover:text-primary-foreground transition">
-                <Icon className="h-6 w-6" />
-              </div>
-              <div className="mt-4 font-display font-semibold">{name}</div>
-              <div className="mt-1 text-xs text-muted-foreground">Ver productos →</div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ¿POR QUÉ ELEGIRNOS? */}
-      <section className="bg-muted/40 border-y border-border">
-        <div className="container mx-auto px-4 lg:px-8 py-16">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-primary">Compromiso cooperativo</span>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">¿Por qué elegirnos?</h2>
-            <p className="mt-3 text-muted-foreground">
-              Seis razones para confiar en Línea Blanca y Bordados GBD.
-            </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {beneficios.map(({ Icon, title, desc }) => (
-              <div key={title} className="group rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition">
-              <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-r from-amber-300 to-yellow-500 text-slate-900 shadow-soft group-hover:scale-105 transition">
-                <Icon className="h-6 w-6" />
-              </div>
-                <div className="mt-4 font-display font-bold text-lg">{title}</div>
-                <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* BORDADOS BANNER */}
-      <section className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="rounded-3xl overflow-hidden grid lg:grid-cols-2 bg-card shadow-elevated border border-border">
-          <div className="relative aspect-[4/3] lg:aspect-auto">
-            <img src={heroB} alt="Bordado corporativo personalizado" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent" />
-          </div>
-          <div className="p-8 lg:p-12 flex flex-col justify-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-slate-700/80">Bordados Corporativos</span>
-            <h2 className="mt-2 font-display text-3xl font-bold">Tu marca, bordada con precisión</h2>
-            <p className="mt-3 text-muted-foreground">
-              Uniformes empresariales, camisas polo, gorras, toallas y mochilas. Carga tu diseño o trabaja con nuestro equipo creativo.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link to="/bordados" className="inline-flex items-center rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
-                Solicitar cotización
-              </Link>
-              <a href="https://wa.me/50768298538" target="_blank" rel="noreferrer" className="inline-flex items-center rounded-md border border-border px-5 py-3 text-sm font-semibold hover:bg-accent">
-                WhatsApp Bordados
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSlider />
+      <BusinessBanner />
+      <Vocacion />
+      <Sucursales />
+      <ComprasParaTodos />
+      <Trayectoria />
+      <BordadosBanner />
     </>
   );
 }
 
-function HeroStat({ Icon, value, label }: { Icon: any; value: string; label: string }) {
+/* ---------- HERO SLIDER ---------- */
+function HeroSlider() {
+  const [i, setI] = useState(0);
+  const next = useCallback(() => setI((p) => (p + 1) % heroSlides.length), []);
+  const prev = () => setI((p) => (p - 1 + heroSlides.length) % heroSlides.length);
+
+  useEffect(() => {
+    const t = setInterval(next, 5000);
+    return () => clearInterval(t);
+  }, [next]);
+
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-primary-foreground/15 bg-primary-foreground/10 backdrop-blur px-3 py-3">
-      <div className="grid h-9 w-9 place-items-center rounded-lg bg-amber-400 text-slate-900 shrink-0">
-        <Icon className="h-4.5 w-4.5" />
+    <section className="relative h-[78vh] min-h-[560px] w-full overflow-hidden bg-slate-900">
+      {heroSlides.map((s, idx) => (
+        <div
+          key={idx}
+          className={`absolute inset-0 transition-opacity duration-1000 ${idx === i ? "opacity-100" : "opacity-0"}`}
+        >
+          <img src={s.img} alt={s.title} className="h-full w-full object-cover" loading={idx === 0 ? "eager" : "lazy"} />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/55 to-slate-900/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+        </div>
+      ))}
+
+      {/* Content overlay */}
+      <div className="relative z-10 container mx-auto h-full px-4 lg:px-8 flex flex-col justify-end pb-16 lg:pb-24">
+        <div className="max-w-2xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300 backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Cooperativa Gladys B. de Ducasa · Desde 1961</span>
+          </div>
+          <h1 key={i} className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] animate-fade-up drop-shadow-2xl">
+            {heroSlides[i].title}
+          </h1>
+          <p key={`s-${i}`} className="mt-3 text-lg text-white/90 animate-fade-up">
+            {heroSlides[i].sub}
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/linea-blanca" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
+              Ver Catálogo <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/financiamiento" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-primary hover:bg-white/90 transition">
+              Solicitar Crédito
+            </Link>
+            <a
+              href="https://wa.me/50767841941?text=Hola%2C%20deseo%20m%C3%A1s%20informaci%C3%B3n"
+              target="_blank" rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
+            >
+              <MessageCircle className="h-4 w-4" /> WhatsApp
+            </a>
+            <Link to="/bordados" className="inline-flex items-center gap-2 rounded-full border-2 border-white/70 bg-white/10 backdrop-blur px-6 py-3 text-sm font-bold text-white hover:bg-white/20 transition">
+              <Scissors className="h-4 w-4" /> Ver Bordados
+            </Link>
+          </div>
+        </div>
       </div>
-      <div className="min-w-0">
-        <div className="font-display font-bold text-sm leading-tight">{value}</div>
-        <div className="text-[11px] text-primary-foreground/75 leading-tight">{label}</div>
+
+      {/* Controls */}
+      <button onClick={prev} aria-label="Anterior" className="absolute left-3 top-1/2 -translate-y-1/2 z-20 grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/30 transition">
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button onClick={next} aria-label="Siguiente" className="absolute right-3 top-1/2 -translate-y-1/2 z-20 grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/30 transition">
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      {/* Dots */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        {heroSlides.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setI(idx)}
+            aria-label={`Slide ${idx + 1}`}
+            className={`h-1.5 rounded-full transition-all ${idx === i ? "w-8 bg-amber-400" : "w-1.5 bg-white/50 hover:bg-white/80"}`}
+          />
+        ))}
       </div>
-    </div>
+    </section>
   );
 }
 
-function CountUpDisplay({ value }: { value: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+/* ---------- BUSINESS BANNER ---------- */
+function BusinessBanner() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-primary text-primary-foreground">
+      <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
+      <div className="container mx-auto px-4 lg:px-8 py-16 lg:py-20 grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/15 border border-amber-400/40 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-300">
+            <Briefcase className="h-3.5 w-3.5" /> Soluciones empresariales
+          </div>
+          <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight">
+            ¿Quieres equipar tu <span className="text-amber-400">negocio</span>?
+          </h2>
+          <p className="mt-4 text-base sm:text-lg text-primary-foreground/85 max-w-xl">
+            Ofrecemos soluciones para oficinas, restaurantes, hoteles, comercios, instituciones y emprendimientos.
+            Te ayudamos a equipar tu negocio con productos de calidad y opciones de financiamiento.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a
+              href="https://wa.me/50767841941?text=Hola%2C%20deseo%20una%20cotizaci%C3%B3n%20para%20mi%20negocio"
+              target="_blank" rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition"
+            >
+              Solicitar Cotización <ArrowRight className="h-4 w-4" />
+            </a>
+            <Link to="/contacto" className="inline-flex items-center gap-2 rounded-full bg-white/10 border-2 border-white/40 backdrop-blur px-6 py-3 text-sm font-bold text-white hover:bg-white/20 transition">
+              Hablar con un Asesor
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {negocioImgs.map((src, i) => (
+            <div key={i} className={`relative overflow-hidden rounded-2xl ${i === 0 ? "col-span-2 aspect-[2/1]" : "aspect-square"} shadow-elevated ring-2 ring-amber-400/30`}>
+              <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover hover:scale-105 transition duration-700" loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- VOCACIÓN ---------- */
+function Vocacion() {
+  return (
+    <section className="container mx-auto px-4 lg:px-8 py-16">
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <span className="text-xs font-bold uppercase tracking-widest text-primary">Nuestra vocación</span>
+        <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">Más que una venta, una experiencia de servicio</h2>
+        <p className="mt-3 text-muted-foreground">
+          Nuestro compromiso es ayudarte a encontrar la mejor solución para tu hogar, negocio o proyecto,
+          con atención personalizada antes, durante y después de tu compra.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {vocacion.map(({ Icon, title }) => (
+          <div key={title} className="group flex flex-col items-center text-center rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 text-slate-900 shadow-soft group-hover:scale-110 transition">
+              <Icon className="h-7 w-7" />
+            </div>
+            <div className="mt-4 font-display font-semibold text-sm sm:text-base">{title}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- SUCURSALES ---------- */
+function Sucursales() {
+  return (
+    <section className="bg-muted/40 border-y border-border">
+      <div className="container mx-auto px-4 lg:px-8 py-16">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Cobertura</span>
+          <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">Estamos más cerca de ti</h2>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {sucursales.map((s) => (
+            <div key={s.name} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition flex flex-col">
+              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-amber-400/20 opacity-0 group-hover:opacity-100 transition" />
+              <div className="relative flex-1">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
+                  <MapPin className="h-6 w-6" />
+                </div>
+                <div className="mt-4 font-display font-bold">{s.name}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
+              </div>
+              <a
+                href={s.map} target="_blank" rel="noreferrer"
+                className="relative mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
+              >
+                <Navigation className="h-4 w-4" /> Cómo llegar
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- COMPRAS PARA TODOS ---------- */
+function ComprasParaTodos() {
+  return (
+    <section className="container mx-auto px-4 lg:px-8 py-16">
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <span className="text-xs font-bold uppercase tracking-widest text-primary">Para todos</span>
+        <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">Compra seas asociado o no</h2>
+        <p className="mt-3 text-muted-foreground">
+          Nuestros productos están disponibles para todo público. Los asociados disfrutan de beneficios exclusivos.
+        </p>
+      </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Público General */}
+        <div className="relative overflow-hidden rounded-3xl border-2 border-border bg-card p-8 hover:border-primary transition">
+          <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary-soft text-primary">
+            <ShoppingBag className="h-7 w-7" />
+          </div>
+          <h3 className="mt-5 font-display text-2xl font-bold">Público General</h3>
+          <ul className="mt-4 space-y-2.5 text-sm">
+            {["Compra inmediata", "Entregas programadas", "Atención personalizada"].map((t) => (
+              <li key={t} className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-primary" />{t}</li>
+            ))}
+          </ul>
+        </div>
+        {/* Asociados */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-primary text-primary-foreground p-8 shadow-elevated">
+          <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-amber-400/30 blur-2xl" />
+          <div className="relative">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-amber-400 text-slate-900 shadow-glow">
+              <Wallet className="h-7 w-7" />
+            </div>
+            <h3 className="mt-5 font-display text-2xl font-bold">Asociados</h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {["Crédito cooperativo", "Promociones exclusivas", "Beneficios especiales", "Mayor facilidad de financiamiento"].map((t) => (
+                <li key={t} className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" />{t}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- TRAYECTORIA ---------- */
+function Trayectoria() {
+  const hitos = [
+    { value: "1961", label: "Fundación" },
+    { value: "2008", label: "Línea Blanca" },
+    { value: "2023", label: "Bordados" },
+    { value: "5,000+", label: "Asociados" },
+  ];
+  return (
+    <section className="bg-card border-y border-border">
+      <div className="container mx-auto px-4 lg:px-8 py-12">
+        <div className="grid lg:grid-cols-[1fr_1.3fr] gap-8 items-center">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">Trayectoria</span>
+            <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold">Más de 60 años construyendo confianza</h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Desde 1961 la Cooperativa Gladys B. de Ducasa ha trabajado por mejorar la calidad de vida de
+              asociados y clientes, evolucionando hasta una organización de servicios integrales con presencia nacional.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {hitos.map((h, i) => (
+              <div key={h.label} className="relative rounded-2xl border border-border bg-background p-4 text-center animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
+                <div className="font-display text-2xl sm:text-3xl font-extrabold bg-gradient-primary bg-clip-text text-transparent">{h.value}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{h.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- BORDADOS BANNER ---------- */
+function BordadosBanner() {
+  const [i, setI] = useState(0);
   useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(([e]) => e.isIntersecting && setVisible(true), { threshold: 0.3 });
-    obs.observe(ref.current);
-    return () => obs.disconnect();
+    const t = setInterval(() => setI((p) => (p + 1) % bordadosImgs.length), 3500);
+    return () => clearInterval(t);
   }, []);
   return (
-    <div
-      ref={ref}
-      className={`font-display text-4xl sm:text-5xl font-extrabold bg-gradient-primary bg-clip-text text-transparent transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`}
-    >
-      {value}
-    </div>
+    <section className="container mx-auto px-4 lg:px-8 py-16">
+      <div className="relative overflow-hidden rounded-3xl bg-card shadow-elevated border border-border grid lg:grid-cols-2">
+        <div className="relative aspect-[4/3] lg:aspect-auto min-h-[320px] bg-slate-900">
+          {bordadosImgs.map((b, idx) => (
+            <img
+              key={idx}
+              src={b.src}
+              alt={b.label}
+              loading="lazy"
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${idx === i ? "opacity-100" : "opacity-0"}`}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+            <span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-slate-900 shadow">{bordadosImgs[i].label}</span>
+            <div className="flex gap-1.5">
+              {bordadosImgs.map((_, idx) => (
+                <button key={idx} onClick={() => setI(idx)} aria-label={`Ver ${idx + 1}`} className={`h-1.5 rounded-full transition-all ${idx === i ? "w-6 bg-white" : "w-1.5 bg-white/60"}`} />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="p-8 lg:p-12 flex flex-col justify-center">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Bordados GBD</span>
+          <h2 className="mt-2 font-display text-3xl font-bold">Bordados personalizados para empresas y particulares</h2>
+          <p className="mt-3 text-muted-foreground">
+            Personalizamos tus prendas y artículos con acabados profesionales y atención personalizada.
+          </p>
+          <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
+            {bordadosImgs.map((b) => (
+              <li key={b.label} className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />{b.label}</li>
+            ))}
+          </ul>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a
+              href="https://wa.me/50768298538?text=Hola%2C%20deseo%20una%20cotizaci%C3%B3n%20de%20bordados"
+              target="_blank" rel="noreferrer"
+              className="inline-flex items-center rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:opacity-90 transition"
+            >
+              Solicitar Cotización
+            </a>
+            <Link to="/bordados" className="inline-flex items-center rounded-full bg-amber-400 px-5 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 transition">
+              Ver Galería
+            </Link>
+            <a
+              href="https://wa.me/50768298538" target="_blank" rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-border px-5 py-3 text-sm font-bold hover:bg-accent transition"
+            >
+              <MessageCircle className="h-4 w-4" /> Contactar Bordados
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
