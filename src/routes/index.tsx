@@ -32,30 +32,39 @@ const heroSlides = [
   { img: "https://images.unsplash.com/photo-1556909114-44e3e9399c2e?auto=format&fit=crop&w=1920&q=80", title: "Electrodomésticos premium", sub: "Marcas de confianza" },
 ];
 
+import sucLasTablas from "@/assets/sucursales/las-tablas.jpg";
+import sucTonosi from "@/assets/sucursales/tonosi.jpg";
+import sucCasaMatriz from "@/assets/sucursales/casa-matriz.jpg";
+import sucElProgreso from "@/assets/sucursales/el-progreso.jpg";
+
 const sucursales = [
   {
     name: "Sucursal Las Tablas",
-    desc: "Muebles, línea blanca y bordados.",
+    desc: "Mueblería, bordado y sublimación.",
+    img: sucLasTablas,
     Icon: Store,
-    map: "https://www.google.com/maps/place/Bordados+y+sublimacion+GBD/@7.7676919,-80.2781767,19.54z",
+    map: "https://maps.app.goo.gl/jzdT4W8stzZSA7Ho7",
   },
   {
     name: "Sucursal Tonosí",
-    desc: "Tu tienda de confianza en Azuero.",
+    desc: "Coop. Gladys B. de Ducasa · Tonosí.",
+    img: sucTonosi,
     Icon: Store,
-    map: "https://www.google.com/maps/place/Coop.+Gladys+B.+de+Ducasa+Tonosí/@7.4092488,-80.4388305,20z",
+    map: "https://maps.app.goo.gl/jzdT4W8stzZSA7Ho7",
   },
   {
     name: "Casa Matriz",
-    desc: "Punto de venta en la Cooperativa.",
+    desc: "Punto de venta principal.",
+    img: sucCasaMatriz,
     Icon: Building2,
-    map: "https://www.google.com/maps/place/Cooperativa+Gladys+B.+de+Ducasa,+R.L./@7.7682263,-80.2776145,20z",
+    map: "https://maps.app.goo.gl/GynzHz7asuzRWvVa8",
   },
   {
     name: "Coop. El Progreso – Agua Buena",
     desc: "Punto de venta aliado.",
+    img: sucElProgreso,
     Icon: Building2,
-    map: "https://www.google.com/maps/place/Delta+%7C+Coop.+El+Progreso/@7.837798,-80.4024705,20.5z",
+    map: "https://maps.app.goo.gl/BX5osGLxJx855gHw9",
   },
 ];
 
@@ -256,21 +265,34 @@ function Sucursales() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {sucursales.map((s) => (
-            <div key={s.name} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 hover:border-primary hover:shadow-elevated transition flex flex-col">
-              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-amber-400/20 opacity-0 group-hover:opacity-100 transition" />
-              <div className="relative flex-1">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
-                  <MapPin className="h-6 w-6" />
+            <div key={s.name} className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:border-primary hover:shadow-elevated transition flex flex-col">
+              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                <img
+                  src={s.img}
+                  alt={s.name}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                <div className="absolute top-3 left-3 grid h-10 w-10 place-items-center rounded-xl bg-white/95 text-primary shadow-soft">
+                  <s.Icon className="h-5 w-5" />
                 </div>
-                <div className="mt-4 font-display font-bold">{s.name}</div>
-                <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
+                <div className="absolute bottom-2 left-3 right-3 text-white">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold">
+                    <MapPin className="h-3.5 w-3.5" /> Punto de venta
+                  </div>
+                </div>
               </div>
-              <a
-                href={s.map} target="_blank" rel="noreferrer"
-                className="relative mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
-              >
-                <Navigation className="h-4 w-4" /> Cómo llegar
-              </a>
+              <div className="p-5 flex flex-col flex-1">
+                <div className="font-display font-bold leading-tight">{s.name}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
+                <a
+                  href={s.map} target="_blank" rel="noreferrer"
+                  className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
+                >
+                  <Navigation className="h-4 w-4" /> Cómo llegar
+                </a>
+              </div>
             </div>
           ))}
         </div>
