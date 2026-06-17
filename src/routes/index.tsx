@@ -32,10 +32,14 @@ const heroSlides = [
   { img: "https://images.unsplash.com/photo-1556909114-44e3e9399c2e?auto=format&fit=crop&w=1920&q=80", title: "Electrodomésticos premium", sub: "Marcas de confianza" },
 ];
 
-import sucLasTablas from "@/assets/sucursales/las-tablas.jpg";
-import sucTonosi from "@/assets/sucursales/tonosi.jpg";
-import sucCasaMatriz from "@/assets/sucursales/casa-matriz.jpg";
-import sucElProgreso from "@/assets/sucursales/el-progreso.jpg";
+import sucLasTablasAsset from "@/assets/sucursales/las-tablas.jpg.asset.json";
+import sucTonosiAsset from "@/assets/sucursales/tonosi.jpg.asset.json";
+import sucCasaMatrizAsset from "@/assets/sucursales/casa-matriz.jpg.asset.json";
+import sucElProgresoAsset from "@/assets/sucursales/el-progreso.jpg.asset.json";
+const sucLasTablas = sucLasTablasAsset.url;
+const sucTonosi = sucTonosiAsset.url;
+const sucCasaMatriz = sucCasaMatrizAsset.url;
+const sucElProgreso = sucElProgresoAsset.url;
 
 const sucursales = [
   {
