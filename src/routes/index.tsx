@@ -3,6 +3,7 @@ import {
   ArrowRight, Sparkles, Headphones, Users, MapPin, Truck, BadgePercent,
   Store, Building2, Award, HandHeart, CreditCard, Navigation, ShoppingBag,
   Briefcase, MessageCircle, ChevronLeft, ChevronRight, Scissors, Wallet,
+  ShieldCheck, Phone,
 } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import logo from "@/assets/gbd-logo.png";
@@ -147,7 +148,7 @@ function HeroSlider() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/linea-blanca" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
+            <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
               Ver Catálogo <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/financiamiento" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-primary hover:bg-white/90 transition">
@@ -160,7 +161,7 @@ function HeroSlider() {
             >
               <MessageCircle className="h-4 w-4" /> WhatsApp
             </a>
-            <Link to="/bordados" className="inline-flex items-center gap-2 rounded-full border-2 border-white/70 bg-white/10 backdrop-blur px-6 py-3 text-sm font-bold text-white hover:bg-white/20 transition">
+            <Link to="/catalogo" search={{ tab: "bordados" }} className="inline-flex items-center gap-2 rounded-full border-2 border-white/70 bg-white/10 backdrop-blur px-6 py-3 text-sm font-bold text-white hover:bg-white/20 transition">
               <Scissors className="h-4 w-4" /> Ver Bordados
             </Link>
           </div>
@@ -432,7 +433,7 @@ function BordadosBanner() {
             >
               Solicitar Cotización
             </a>
-            <Link to="/bordados" className="inline-flex items-center rounded-full bg-amber-400 px-5 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 transition">
+            <Link to="/catalogo" search={{ tab: "bordados" }} className="inline-flex items-center rounded-full bg-amber-400 px-5 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 transition">
               Ver Galería
             </Link>
             <a
