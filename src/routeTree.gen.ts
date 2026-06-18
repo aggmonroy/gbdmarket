@@ -13,6 +13,7 @@ import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
 import { Route as GarantiasRouteImport } from './routes/garantias'
 import { Route as FinanciamientoRouteImport } from './routes/financiamiento'
 import { Route as ContactoRouteImport } from './routes/contacto'
+import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as BordadosRouteImport } from './routes/bordados'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -41,6 +42,11 @@ const FinanciamientoRoute = FinanciamientoRouteImport.update({
 const ContactoRoute = ContactoRouteImport.update({
   id: '/contacto',
   path: '/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogoRoute = CatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BordadosRoute = BordadosRouteImport.update({
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bordados': typeof BordadosRoute
+  '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
   '/financiamiento': typeof FinanciamientoRoute
   '/garantias': typeof GarantiasRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bordados': typeof BordadosRoute
+  '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
   '/financiamiento': typeof FinanciamientoRoute
   '/garantias': typeof GarantiasRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
   '/bordados': typeof BordadosRoute
+  '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
   '/financiamiento': typeof FinanciamientoRoute
   '/garantias': typeof GarantiasRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/bordados'
+    | '/catalogo'
     | '/contacto'
     | '/financiamiento'
     | '/garantias'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/bordados'
+    | '/catalogo'
     | '/contacto'
     | '/financiamiento'
     | '/garantias'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/bordados'
+    | '/catalogo'
     | '/contacto'
     | '/financiamiento'
     | '/garantias'
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
   BordadosRoute: typeof BordadosRoute
+  CatalogoRoute: typeof CatalogoRoute
   ContactoRoute: typeof ContactoRoute
   FinanciamientoRoute: typeof FinanciamientoRoute
   GarantiasRoute: typeof GarantiasRoute
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       path: '/contacto'
       fullPath: '/contacto'
       preLoaderRoute: typeof ContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogo': {
+      id: '/catalogo'
+      path: '/catalogo'
+      fullPath: '/catalogo'
+      preLoaderRoute: typeof CatalogoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bordados': {
@@ -320,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
   BordadosRoute: BordadosRoute,
+  CatalogoRoute: CatalogoRoute,
   ContactoRoute: ContactoRoute,
   FinanciamientoRoute: FinanciamientoRoute,
   GarantiasRoute: GarantiasRoute,

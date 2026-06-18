@@ -6,10 +6,7 @@ import logoUrl from "@/assets/gbd-logo.png";
 
 const nav = [
   { to: "/", label: "Inicio" },
-  { to: "/linea-blanca", label: "Línea Blanca" },
-  { to: "/bordados", label: "Bordados" },
-  { to: "/financiamiento", label: "Financiamiento" },
-  { to: "/garantias", label: "Garantías" },
+  { to: "/catalogo", label: "Catálogo" },
   { to: "/contacto", label: "Contacto" },
 ];
 
