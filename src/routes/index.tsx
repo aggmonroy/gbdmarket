@@ -101,11 +101,63 @@ function Home() {
       <HeroSlider />
       <BusinessBanner />
       <Vocacion />
+      <AccesosRapidos />
       <Sucursales />
       <ComprasParaTodos />
       <Trayectoria />
       <BordadosBanner />
     </>
+  );
+}
+
+/* ---------- ACCESOS RÁPIDOS ---------- */
+function AccesosRapidos() {
+  const items = [
+    {
+      to: "/financiamiento",
+      Icon: CreditCard,
+      title: "Financiamiento",
+      desc: "Crédito cooperativo flexible de 3 a 36 meses.",
+      cta: "Solicitar crédito",
+    },
+    {
+      to: "/garantias",
+      Icon: ShieldCheck,
+      title: "Garantías",
+      desc: "Respaldo de marca y soporte postventa.",
+      cta: "Ver coberturas",
+    },
+    {
+      to: "/contacto",
+      Icon: Phone,
+      title: "Contacto",
+      desc: "Habla con un asesor por WhatsApp o teléfono.",
+      cta: "Contáctanos",
+    },
+  ];
+  return (
+    <section className="container mx-auto px-4 lg:px-8 pb-4">
+      <div className="grid md:grid-cols-3 gap-4">
+        {items.map(({ to, Icon, title, desc, cta }) => (
+          <Link
+            key={to}
+            to={to}
+            className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 hover:border-primary hover:shadow-elevated transition"
+          >
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary group-hover:bg-primary group-hover:text-primary-foreground transition">
+              <Icon className="h-6 w-6" />
+            </div>
+            <div className="flex-1">
+              <div className="font-display font-bold">{title}</div>
+              <p className="text-sm text-muted-foreground mt-0.5">{desc}</p>
+              <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                {cta} <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
