@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import logoUrl from "@/assets/gbd-logo.png";
+
 
 const nav = [
   { to: "/", label: "Inicio" },
@@ -18,7 +18,9 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
         <Link to="/" className="flex items-center gap-3 min-w-0">
-          <img src={logoUrl} alt="Cooperativa Gladys B. de Ducasa" className="h-12 w-12 shrink-0 object-contain drop-shadow-sm" />
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground font-display text-lg font-bold shadow-soft">
+            GBD
+          </div>
           <div className="leading-tight min-w-0">
             <div className="font-display text-sm font-bold text-foreground truncate">Línea Blanca y Bordados GBD</div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground truncate">Cooperativa Gladys B. de Ducasa, R.L.</div>

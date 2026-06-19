@@ -5,7 +5,7 @@ import {
   ShieldCheck, Phone,
 } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
-import logo from "@/assets/gbd-logo.png";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
