@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowRight, Sparkles, Headphones, Users, MapPin, Truck, BadgePercent,
-  Store, Building2, Award, HandHeart, CreditCard, Navigation, ShoppingBag,
-  Briefcase, MessageCircle, ChevronLeft, ChevronRight, Scissors, Wallet,
+  ArrowRight, Sparkles, MapPin, Store, Building2, CreditCard, Navigation,
+  Briefcase, MessageCircle, ChevronLeft, ChevronRight, Scissors,
   ShieldCheck, Phone,
 } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -73,12 +72,7 @@ const sucursales = [
   },
 ];
 
-const vocacion = [
-  { Icon: HandHeart, title: "Atención personalizada" },
-  { Icon: CreditCard, title: "Crédito accesible" },
-  { Icon: Truck, title: "Entregas programadas" },
-  { Icon: Headphones, title: "Soporte postventa" },
-];
+
 
 const negocioImgs = [
   "https://images.unsplash.com/photo-1564540583246-934409427776?auto=format&fit=crop&w=800&q=80",
