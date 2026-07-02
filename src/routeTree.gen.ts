@@ -20,8 +20,13 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated.admin.seo'
+import { Route as AuthenticatedAdminPromocionesRouteImport } from './routes/_authenticated.admin.promociones'
 import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authenticated.admin.productos'
+import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authenticated.admin.contenido'
+import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
+import { Route as AuthenticatedAdminBrandingRouteImport } from './routes/_authenticated.admin.branding'
 import { Route as AuthenticatedAdminBordadosRouteImport } from './routes/_authenticated.admin.bordados'
 
 const LineaBlancaRoute = LineaBlancaRouteImport.update({
@@ -78,16 +83,45 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
+  id: '/seo',
+  path: '/seo',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminPromocionesRoute =
+  AuthenticatedAdminPromocionesRouteImport.update({
+    id: '/promociones',
+    path: '/promociones',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminProductosRoute =
   AuthenticatedAdminProductosRouteImport.update({
     id: '/productos',
     path: '/productos',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminContenidoRoute =
+  AuthenticatedAdminContenidoRouteImport.update({
+    id: '/contenido',
+    path: '/contenido',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminContactoRoute =
+  AuthenticatedAdminContactoRouteImport.update({
+    id: '/contacto',
+    path: '/contacto',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCategoriasRoute =
   AuthenticatedAdminCategoriasRouteImport.update({
     id: '/categorias',
     path: '/categorias',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBrandingRoute =
+  AuthenticatedAdminBrandingRouteImport.update({
+    id: '/branding',
+    path: '/branding',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminBordadosRoute =
@@ -108,8 +142,13 @@ export interface FileRoutesByFullPath {
   '/linea-blanca': typeof LineaBlancaRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/admin/branding': typeof AuthenticatedAdminBrandingRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/contacto': typeof AuthenticatedAdminContactoRoute
+  '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
+  '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
+  '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -122,8 +161,13 @@ export interface FileRoutesByTo {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/admin/branding': typeof AuthenticatedAdminBrandingRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/contacto': typeof AuthenticatedAdminContactoRoute
+  '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
+  '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
+  '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -139,8 +183,13 @@ export interface FileRoutesById {
   '/linea-blanca': typeof LineaBlancaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/_authenticated/admin/branding': typeof AuthenticatedAdminBrandingRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
+  '/_authenticated/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/_authenticated/admin/productos': typeof AuthenticatedAdminProductosRoute
+  '/_authenticated/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
+  '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -156,8 +205,13 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/admin'
     | '/admin/bordados'
+    | '/admin/branding'
     | '/admin/categorias'
+    | '/admin/contacto'
+    | '/admin/contenido'
     | '/admin/productos'
+    | '/admin/promociones'
+    | '/admin/seo'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -170,8 +224,13 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/admin/bordados'
+    | '/admin/branding'
     | '/admin/categorias'
+    | '/admin/contacto'
+    | '/admin/contenido'
     | '/admin/productos'
+    | '/admin/promociones'
+    | '/admin/seo'
     | '/admin'
   id:
     | '__root__'
@@ -186,8 +245,13 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/_authenticated/admin'
     | '/_authenticated/admin/bordados'
+    | '/_authenticated/admin/branding'
     | '/_authenticated/admin/categorias'
+    | '/_authenticated/admin/contacto'
+    | '/_authenticated/admin/contenido'
     | '/_authenticated/admin/productos'
+    | '/_authenticated/admin/promociones'
+    | '/_authenticated/admin/seo'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -282,6 +346,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/seo': {
+      id: '/_authenticated/admin/seo'
+      path: '/seo'
+      fullPath: '/admin/seo'
+      preLoaderRoute: typeof AuthenticatedAdminSeoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/promociones': {
+      id: '/_authenticated/admin/promociones'
+      path: '/promociones'
+      fullPath: '/admin/promociones'
+      preLoaderRoute: typeof AuthenticatedAdminPromocionesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/productos': {
       id: '/_authenticated/admin/productos'
       path: '/productos'
@@ -289,11 +367,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProductosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/contenido': {
+      id: '/_authenticated/admin/contenido'
+      path: '/contenido'
+      fullPath: '/admin/contenido'
+      preLoaderRoute: typeof AuthenticatedAdminContenidoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/contacto': {
+      id: '/_authenticated/admin/contacto'
+      path: '/contacto'
+      fullPath: '/admin/contacto'
+      preLoaderRoute: typeof AuthenticatedAdminContactoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/categorias': {
       id: '/_authenticated/admin/categorias'
       path: '/categorias'
       fullPath: '/admin/categorias'
       preLoaderRoute: typeof AuthenticatedAdminCategoriasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/branding': {
+      id: '/_authenticated/admin/branding'
+      path: '/branding'
+      fullPath: '/admin/branding'
+      preLoaderRoute: typeof AuthenticatedAdminBrandingRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/bordados': {
@@ -308,15 +407,25 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBordadosRoute: typeof AuthenticatedAdminBordadosRoute
+  AuthenticatedAdminBrandingRoute: typeof AuthenticatedAdminBrandingRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
+  AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
+  AuthenticatedAdminContenidoRoute: typeof AuthenticatedAdminContenidoRoute
   AuthenticatedAdminProductosRoute: typeof AuthenticatedAdminProductosRoute
+  AuthenticatedAdminPromocionesRoute: typeof AuthenticatedAdminPromocionesRoute
+  AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBordadosRoute: AuthenticatedAdminBordadosRoute,
+  AuthenticatedAdminBrandingRoute: AuthenticatedAdminBrandingRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
+  AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
+  AuthenticatedAdminContenidoRoute: AuthenticatedAdminContenidoRoute,
   AuthenticatedAdminProductosRoute: AuthenticatedAdminProductosRoute,
+  AuthenticatedAdminPromocionesRoute: AuthenticatedAdminPromocionesRoute,
+  AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -349,13 +458,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

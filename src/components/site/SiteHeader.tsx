@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 
 const nav = [
@@ -13,17 +14,26 @@ const nav = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { branding, contact } = useSiteSettings();
+  const siteName = branding?.site_name || "Línea Blanca y Bordados GBD";
+  const tagline = branding?.site_tagline || "Cooperativa Gladys B. de Ducasa, R.L.";
+  const logoUrl = branding?.logo_url || "";
+  const whatsApp = contact?.whatsapp_lineablanca || "50767841941";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
         <Link to="/" className="flex items-center gap-3 min-w-0">
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground font-display text-lg font-bold shadow-soft">
-            GBD
-          </div>
+          {logoUrl ? (
+            <img src={logoUrl} alt={siteName} className="h-12 w-12 shrink-0 rounded-xl object-contain" />
+          ) : (
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground font-display text-lg font-bold shadow-soft">
+              GBD
+            </div>
+          )}
           <div className="leading-tight min-w-0">
-            <div className="font-display text-sm font-bold text-foreground truncate">Línea Blanca y Bordados GBD</div>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground truncate">Cooperativa Gladys B. de Ducasa, R.L.</div>
+            <div className="font-display text-sm font-bold text-foreground truncate">{siteName}</div>
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground truncate">{tagline}</div>
           </div>
         </Link>
 
@@ -47,7 +57,7 @@ export function SiteHeader() {
 
         <div className="hidden lg:flex items-center gap-2">
           <a
-            href="https://wa.me/50767841941"
+            href={`https://wa.me/${whatsApp}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-90 transition"
@@ -79,7 +89,7 @@ export function SiteHeader() {
               </Link>
             ))}
             <a
-              href="https://wa.me/50767841941"
+              href={`https://wa.me/${whatsApp}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 inline-flex justify-center items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"

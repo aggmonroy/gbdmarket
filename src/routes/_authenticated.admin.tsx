@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,11 @@ const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/productos", label: "Productos", icon: Package },
   { to: "/admin/categorias", label: "Categorías y marcas", icon: Tags },
+  { to: "/admin/promociones", label: "Promociones", icon: Tag },
+  { to: "/admin/contenido", label: "Contenido del sitio", icon: FileText },
+  { to: "/admin/branding", label: "Marca y colores", icon: Palette },
+  { to: "/admin/contacto", label: "Contacto y redes", icon: Phone },
+  { to: "/admin/seo", label: "SEO y analítica", icon: Search },
   { to: "/admin/bordados", label: "Bordados", icon: Scissors },
 ];
 

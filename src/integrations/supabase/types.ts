@@ -44,6 +44,54 @@ export type Database = {
         }
         Relationships: []
       }
+      content_blocks: {
+        Row: {
+          body: string | null
+          created_at: string
+          cta_label: string | null
+          cta_url: string | null
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          key: string
+          section: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          key: string
+          section?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          key?: string
+          section?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       embroidery_requests: {
         Row: {
           colors: string | null
@@ -165,6 +213,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      promotions: {
+        Row: {
+          created_at: string
+          description: string | null
+          discount_pct: number
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          product_ids: string[]
+          starts_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discount_pct?: number
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          product_ids?: string[]
+          starts_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discount_pct?: number
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          product_ids?: string[]
+          starts_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
