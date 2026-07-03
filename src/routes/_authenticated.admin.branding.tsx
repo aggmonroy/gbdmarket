@@ -36,7 +36,7 @@ function BrandingPage() {
 
   async function save() {
     try {
-      await saveFn({ data: { key: "branding", value: form } });
+      const publish = typeof window !== "undefined" && window.localStorage.getItem("admin_draft_mode") !== "1"; await saveFn({ data: { key: "branding", value: form, publish } }); qc.invalidateQueries({ queryKey: ["pending-drafts"] });
       toast.success("Guardado. Recarga el sitio para ver los cambios.");
       qc.invalidateQueries({ queryKey: ["setting", "branding"] });
       qc.invalidateQueries({ queryKey: ["public-settings"] });
