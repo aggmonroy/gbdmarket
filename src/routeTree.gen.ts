@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminCambiosRouteImport } from './routes/_authenticated.admin.cambios'
 import { Route as AuthenticatedAdminBrandingRouteImport } from './routes/_authenticated.admin.branding'
 import { Route as AuthenticatedAdminBordadosRouteImport } from './routes/_authenticated.admin.bordados'
+import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated.admin.auditoria'
 
 const LineaBlancaRoute = LineaBlancaRouteImport.update({
   id: '/linea-blanca',
@@ -137,6 +138,12 @@ const AuthenticatedAdminBordadosRoute =
     path: '/bordados',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAuditoriaRoute =
+  AuthenticatedAdminAuditoriaRouteImport.update({
+    id: '/auditoria',
+    path: '/auditoria',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/admin/branding': typeof AuthenticatedAdminBrandingRoute
   '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
@@ -168,6 +176,7 @@ export interface FileRoutesByTo {
   '/financiamiento': typeof FinanciamientoRoute
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
+  '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/admin/branding': typeof AuthenticatedAdminBrandingRoute
   '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
@@ -191,6 +200,7 @@ export interface FileRoutesById {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/_authenticated/admin/branding': typeof AuthenticatedAdminBrandingRoute
   '/_authenticated/admin/cambios': typeof AuthenticatedAdminCambiosRoute
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/admin'
+    | '/admin/auditoria'
     | '/admin/bordados'
     | '/admin/branding'
     | '/admin/cambios'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/financiamiento'
     | '/garantias'
     | '/linea-blanca'
+    | '/admin/auditoria'
     | '/admin/bordados'
     | '/admin/branding'
     | '/admin/cambios'
@@ -256,6 +268,7 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/_authenticated/admin'
+    | '/_authenticated/admin/auditoria'
     | '/_authenticated/admin/bordados'
     | '/_authenticated/admin/branding'
     | '/_authenticated/admin/cambios'
@@ -422,10 +435,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBordadosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/auditoria': {
+      id: '/_authenticated/admin/auditoria'
+      path: '/auditoria'
+      fullPath: '/admin/auditoria'
+      preLoaderRoute: typeof AuthenticatedAdminAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
   AuthenticatedAdminBordadosRoute: typeof AuthenticatedAdminBordadosRoute
   AuthenticatedAdminBrandingRoute: typeof AuthenticatedAdminBrandingRoute
   AuthenticatedAdminCambiosRoute: typeof AuthenticatedAdminCambiosRoute
@@ -439,6 +460,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
   AuthenticatedAdminBordadosRoute: AuthenticatedAdminBordadosRoute,
   AuthenticatedAdminBrandingRoute: AuthenticatedAdminBrandingRoute,
   AuthenticatedAdminCambiosRoute: AuthenticatedAdminCambiosRoute,
