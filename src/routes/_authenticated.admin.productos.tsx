@@ -404,11 +404,25 @@ function ProductsPage() {
             <DialogDescription>
               Columnas reconocidas: <code>nombre, marca, modelo, sku, categoria, descripcion, caracteristicas, precio, precio_financiado, stock, imagen, destacado, publicado</code>.
               Las características e imágenes pueden separarse con <code>|</code> o saltos de línea.
-              La categoría debe coincidir con un nombre o slug existente.
+              Si el <strong>SKU</strong> ya existe, el producto se actualiza; si no, se crea uno nuevo.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <Input type="file" accept=".csv,text/csv" onChange={handleFile} />
+            <div className="flex gap-2">
+              <Input type="file" accept=".csv,text/csv" onChange={handleFile} className="flex-1" />
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => {
+                  const csv = "nombre,marca,modelo,sku,categoria,descripcion,caracteristicas,precio,precio_financiado,stock,imagen,destacado,publicado\nRefrigeradora 18\"\" Inverter,Samsung,RT38,SKU-001,linea-blanca,Refrigeradora No Frost,Inverter|No Frost|18 pies,899.00,999.00,5,https://ejemplo.com/img.jpg,true,true\n";
+                  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url; a.download = "plantilla-productos.csv"; a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >Descargar plantilla</Button>
+            </div>
             <Textarea rows={10} placeholder="O pega el contenido CSV aquí…" value={csvText} onChange={(e) => setCsvText(e.target.value)} className="font-mono text-xs" />
           </div>
           <DialogFooter>
