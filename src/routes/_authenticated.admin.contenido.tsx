@@ -61,6 +61,7 @@ function ContentPage() {
 
   async function save() {
     try {
+      const publish = typeof window !== "undefined" && window.localStorage.getItem("admin_draft_mode") !== "1";
       await upsertFn({ data: {
         id: editingId ?? undefined,
         key: form.key.trim(),
@@ -73,10 +74,12 @@ function ContentPage() {
         cta_url: form.cta_url || null,
         is_active: !!form.is_active,
         display_order: Number(form.display_order) || 0,
+        publish,
       }});
-      toast.success("Guardado");
+      toast.success(publish ? "Guardado" : "Guardado como borrador");
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["admin-blocks"] });
+      qc.invalidateQueries({ queryKey: ["pending-drafts"] });
     } catch (e: any) { toast.error(e.message); }
   }
   async function remove() {
