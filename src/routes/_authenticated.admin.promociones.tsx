@@ -62,6 +62,7 @@ function PromosPage() {
   }
   async function save() {
     try {
+      const publish = typeof window !== "undefined" && window.localStorage.getItem("admin_draft_mode") !== "1";
       await saveFn({ data: {
         id: editingId ?? undefined,
         title: form.title.trim(),
@@ -72,10 +73,12 @@ function PromosPage() {
         product_ids: form.product_ids,
         image_url: form.image_url || null,
         is_active: !!form.is_active,
+        publish,
       }});
-      toast.success("Guardado");
+      toast.success(publish ? "Guardado" : "Guardado como borrador");
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["admin-promotions"] });
+      qc.invalidateQueries({ queryKey: ["pending-drafts"] });
     } catch (e: any) { toast.error(e.message); }
   }
   async function remove() {
