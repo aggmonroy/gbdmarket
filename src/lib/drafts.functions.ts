@@ -20,7 +20,8 @@ export const listPendingDrafts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
     const out: Array<{
       entity_type: string;
       entity_id: string;
@@ -74,7 +75,8 @@ export const publishDraft = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const cfg = ENTITY_TABLE[data.entity_type];
     if (!cfg) throw new Error("Tipo no soportado");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
     const { logAudit, resolveUserEmail } = await import("./audit.server");
 
     const { data: row, error: rErr } = await supabaseAdmin
@@ -115,7 +117,8 @@ export const discardDraft = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const cfg = ENTITY_TABLE[data.entity_type];
     if (!cfg) throw new Error("Tipo no soportado");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
     const { logAudit, resolveUserEmail } = await import("./audit.server");
     const { error } = await supabaseAdmin
       .from(cfg.table)
@@ -139,7 +142,8 @@ export const publishAllDrafts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
     const { logAudit, resolveUserEmail } = await import("./audit.server");
     let published = 0;
     for (const [type, cfg] of Object.entries(ENTITY_TABLE)) {
@@ -182,7 +186,8 @@ export const listAuditLog = createServerFn({ method: "GET" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
     let q = supabaseAdmin
       .from("audit_log")
       .select("*")
