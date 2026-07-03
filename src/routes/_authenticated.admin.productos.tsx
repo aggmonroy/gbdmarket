@@ -209,7 +209,8 @@ function ProductsPage() {
       const rows = parseCSV(csvText);
       if (rows.length === 0) throw new Error("No se detectaron filas. Asegúrate de incluir encabezados.");
       const res = await importFn({ data: { rows } });
-      toast.success(`Importados ${res.inserted} productos`);
+      const msg = `${res.created} creados, ${res.updated} actualizados` + (res.errors.length ? `, ${res.errors.length} errores` : "");
+      if (res.errors.length) toast.warning(msg); else toast.success(msg);
       setImportOpen(false);
       setCsvText("");
       qc.invalidateQueries({ queryKey: ["admin-products"] });
