@@ -26,6 +26,7 @@ import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authenticated.admin.contenido'
 import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
+import { Route as AuthenticatedAdminCambiosRouteImport } from './routes/_authenticated.admin.cambios'
 import { Route as AuthenticatedAdminBrandingRouteImport } from './routes/_authenticated.admin.branding'
 import { Route as AuthenticatedAdminBordadosRouteImport } from './routes/_authenticated.admin.bordados'
 
@@ -118,6 +119,12 @@ const AuthenticatedAdminCategoriasRoute =
     path: '/categorias',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCambiosRoute =
+  AuthenticatedAdminCambiosRouteImport.update({
+    id: '/cambios',
+    path: '/cambios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBrandingRoute =
   AuthenticatedAdminBrandingRouteImport.update({
     id: '/branding',
@@ -143,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
@@ -162,6 +170,7 @@ export interface FileRoutesByTo {
   '/linea-blanca': typeof LineaBlancaRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
@@ -184,6 +193,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/_authenticated/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/_authenticated/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/_authenticated/admin/contenido': typeof AuthenticatedAdminContenidoRoute
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/bordados'
     | '/admin/branding'
+    | '/admin/cambios'
     | '/admin/categorias'
     | '/admin/contacto'
     | '/admin/contenido'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/admin/bordados'
     | '/admin/branding'
+    | '/admin/cambios'
     | '/admin/categorias'
     | '/admin/contacto'
     | '/admin/contenido'
@@ -246,6 +258,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin/bordados'
     | '/_authenticated/admin/branding'
+    | '/_authenticated/admin/cambios'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/contacto'
     | '/_authenticated/admin/contenido'
@@ -388,6 +401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCategoriasRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/cambios': {
+      id: '/_authenticated/admin/cambios'
+      path: '/cambios'
+      fullPath: '/admin/cambios'
+      preLoaderRoute: typeof AuthenticatedAdminCambiosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/branding': {
       id: '/_authenticated/admin/branding'
       path: '/branding'
@@ -408,6 +428,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBordadosRoute: typeof AuthenticatedAdminBordadosRoute
   AuthenticatedAdminBrandingRoute: typeof AuthenticatedAdminBrandingRoute
+  AuthenticatedAdminCambiosRoute: typeof AuthenticatedAdminCambiosRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
   AuthenticatedAdminContenidoRoute: typeof AuthenticatedAdminContenidoRoute
@@ -420,6 +441,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBordadosRoute: AuthenticatedAdminBordadosRoute,
   AuthenticatedAdminBrandingRoute: AuthenticatedAdminBrandingRoute,
+  AuthenticatedAdminCambiosRoute: AuthenticatedAdminCambiosRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
   AuthenticatedAdminContenidoRoute: AuthenticatedAdminContenidoRoute,
