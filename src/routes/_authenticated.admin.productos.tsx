@@ -76,6 +76,8 @@ function ProductsPage() {
   const upsertFn = useServerFn(upsertProduct);
   const deleteFn = useServerFn(deleteProduct);
   const importFn = useServerFn(bulkImportProducts);
+  const publish = usePublishFlag();
+
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["admin-products"],
