@@ -155,9 +155,10 @@ function ProductsPage() {
           manual_url: form.manual_url.trim() || null,
           is_featured: form.is_featured,
           is_published: form.is_published,
+          publish,
         },
       });
-      toast.success(editingId ? "Producto actualizado" : "Producto creado");
+      toast.success(publish ? (editingId ? "Producto actualizado" : "Producto creado") : "Guardado como borrador");
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["admin-products"] });
     } catch (e: any) {
