@@ -23,6 +23,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated.admin.seo'
 import { Route as AuthenticatedAdminPromocionesRouteImport } from './routes/_authenticated.admin.promociones'
 import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authenticated.admin.productos'
+import { Route as AuthenticatedAdminPreviewRouteImport } from './routes/_authenticated.admin.preview'
 import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authenticated.admin.contenido'
 import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
@@ -102,6 +103,12 @@ const AuthenticatedAdminProductosRoute =
     path: '/productos',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPreviewRoute =
+  AuthenticatedAdminPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminContenidoRoute =
   AuthenticatedAdminContenidoRouteImport.update({
     id: '/contenido',
@@ -162,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
+  '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -183,6 +191,7 @@ export interface FileRoutesByTo {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
+  '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -207,6 +216,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/_authenticated/admin/contenido': typeof AuthenticatedAdminContenidoRoute
+  '/_authenticated/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/_authenticated/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/_authenticated/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin/categorias'
     | '/admin/contacto'
     | '/admin/contenido'
+    | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
     | '/admin/seo'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/admin/categorias'
     | '/admin/contacto'
     | '/admin/contenido'
+    | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
     | '/admin/seo'
@@ -275,6 +287,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/contacto'
     | '/_authenticated/admin/contenido'
+    | '/_authenticated/admin/preview'
     | '/_authenticated/admin/productos'
     | '/_authenticated/admin/promociones'
     | '/_authenticated/admin/seo'
@@ -393,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProductosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/preview': {
+      id: '/_authenticated/admin/preview'
+      path: '/preview'
+      fullPath: '/admin/preview'
+      preLoaderRoute: typeof AuthenticatedAdminPreviewRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/contenido': {
       id: '/_authenticated/admin/contenido'
       path: '/contenido'
@@ -453,6 +473,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
   AuthenticatedAdminContenidoRoute: typeof AuthenticatedAdminContenidoRoute
+  AuthenticatedAdminPreviewRoute: typeof AuthenticatedAdminPreviewRoute
   AuthenticatedAdminProductosRoute: typeof AuthenticatedAdminProductosRoute
   AuthenticatedAdminPromocionesRoute: typeof AuthenticatedAdminPromocionesRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
@@ -467,6 +488,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
   AuthenticatedAdminContenidoRoute: AuthenticatedAdminContenidoRoute,
+  AuthenticatedAdminPreviewRoute: AuthenticatedAdminPreviewRoute,
   AuthenticatedAdminProductosRoute: AuthenticatedAdminProductosRoute,
   AuthenticatedAdminPromocionesRoute: AuthenticatedAdminPromocionesRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
