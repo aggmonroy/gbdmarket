@@ -36,20 +36,63 @@ export const getAllSettingsPublic = createServerFn({ method: "GET" }).handler(as
   return map;
 });
 
-/** Admin: upsert a settings key. */
+/** Admin: read merged (draft over published) settings for preview + admin forms. */
+export const getAllSettingsForAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
+    const { data } = await supabaseAdmin.from("site_settings").select("key,value,draft_value,has_draft");
+    return (data ?? []) as Array<{ key: string; value: any; draft_value: any; has_draft: boolean }>;
+  });
+
+/** Admin: upsert a settings key. `publish=false` writes to draft. */
 export const upsertSetting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { key: string; value: Record<string, any> }) =>
-    z.object({ key: z.string().min(1).max(80), value: z.record(z.string(), z.any()) }).parse(d),
+  .inputValidator((d: { key: string; value: Record<string, any>; publish?: boolean }) =>
+    z
+      .object({
+        key: z.string().min(1).max(80),
+        value: z.record(z.string(), z.any()),
+        publish: z.boolean().optional().default(true),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
+    const { logAudit, resolveUserEmail } = await import("./audit.server");
+
+    const { data: existing } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", data.key)
+      .maybeSingle();
+
+    const payload = data.publish
+      ? { key: data.key, value: data.value, draft_value: null, has_draft: false }
+      : existing
+        ? { key: data.key, draft_value: data.value, has_draft: true }
+        : { key: data.key, value: {}, draft_value: data.value, has_draft: true };
+
     const { data: row, error } = await supabaseAdmin
       .from("site_settings")
-      .upsert({ key: data.key, value: data.value }, { onConflict: "key" })
+      .upsert(payload, { onConflict: "key" })
       .select()
       .single();
     if (error) throw new Error(error.message);
+
+    const email = await resolveUserEmail(supabaseAdmin, context.userId);
+    await logAudit(supabaseAdmin, {
+      entity_type: "site_setting",
+      entity_id: data.key,
+      action: data.publish ? "update" : "draft",
+      summary: `${data.publish ? "Actualizó" : "Guardó borrador de"} ajuste ${data.key}`,
+      changes: data.value,
+      user_id: context.userId,
+      user_email: email,
+    });
     return row;
   });

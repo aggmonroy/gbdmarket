@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          changes: Json | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          summary: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          summary?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          summary?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -51,6 +87,8 @@ export type Database = {
           cta_label: string | null
           cta_url: string | null
           display_order: number
+          draft_data: Json | null
+          has_draft: boolean
           id: string
           image_url: string | null
           is_active: boolean
@@ -66,6 +104,8 @@ export type Database = {
           cta_label?: string | null
           cta_url?: string | null
           display_order?: number
+          draft_data?: Json | null
+          has_draft?: boolean
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -81,6 +121,8 @@ export type Database = {
           cta_label?: string | null
           cta_url?: string | null
           display_order?: number
+          draft_data?: Json | null
+          has_draft?: boolean
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -145,7 +187,9 @@ export type Database = {
           created_at: string
           datasheet_url: string | null
           description: string | null
+          draft_data: Json | null
           features: string[] | null
+          has_draft: boolean
           id: string
           images: string[]
           is_featured: boolean
@@ -167,7 +211,9 @@ export type Database = {
           created_at?: string
           datasheet_url?: string | null
           description?: string | null
+          draft_data?: Json | null
           features?: string[] | null
+          has_draft?: boolean
           id?: string
           images?: string[]
           is_featured?: boolean
@@ -189,7 +235,9 @@ export type Database = {
           created_at?: string
           datasheet_url?: string | null
           description?: string | null
+          draft_data?: Json | null
           features?: string[] | null
+          has_draft?: boolean
           id?: string
           images?: string[]
           is_featured?: boolean
@@ -219,7 +267,9 @@ export type Database = {
           created_at: string
           description: string | null
           discount_pct: number
+          draft_data: Json | null
           ends_at: string | null
+          has_draft: boolean
           id: string
           image_url: string | null
           is_active: boolean
@@ -232,7 +282,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           discount_pct?: number
+          draft_data?: Json | null
           ends_at?: string | null
+          has_draft?: boolean
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -245,7 +297,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           discount_pct?: number
+          draft_data?: Json | null
           ends_at?: string | null
+          has_draft?: boolean
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -259,6 +313,8 @@ export type Database = {
       site_settings: {
         Row: {
           created_at: string
+          draft_value: Json | null
+          has_draft: boolean
           id: string
           key: string
           updated_at: string
@@ -266,6 +322,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          draft_value?: Json | null
+          has_draft?: boolean
           id?: string
           key: string
           updated_at?: string
@@ -273,6 +331,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          draft_value?: Json | null
+          has_draft?: boolean
           id?: string
           key?: string
           updated_at?: string

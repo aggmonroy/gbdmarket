@@ -23,11 +23,14 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated.admin.seo'
 import { Route as AuthenticatedAdminPromocionesRouteImport } from './routes/_authenticated.admin.promociones'
 import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authenticated.admin.productos'
+import { Route as AuthenticatedAdminPreviewRouteImport } from './routes/_authenticated.admin.preview'
 import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authenticated.admin.contenido'
 import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
+import { Route as AuthenticatedAdminCambiosRouteImport } from './routes/_authenticated.admin.cambios'
 import { Route as AuthenticatedAdminBrandingRouteImport } from './routes/_authenticated.admin.branding'
 import { Route as AuthenticatedAdminBordadosRouteImport } from './routes/_authenticated.admin.bordados'
+import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated.admin.auditoria'
 
 const LineaBlancaRoute = LineaBlancaRouteImport.update({
   id: '/linea-blanca',
@@ -100,6 +103,12 @@ const AuthenticatedAdminProductosRoute =
     path: '/productos',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPreviewRoute =
+  AuthenticatedAdminPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminContenidoRoute =
   AuthenticatedAdminContenidoRouteImport.update({
     id: '/contenido',
@@ -118,6 +127,12 @@ const AuthenticatedAdminCategoriasRoute =
     path: '/categorias',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCambiosRoute =
+  AuthenticatedAdminCambiosRouteImport.update({
+    id: '/cambios',
+    path: '/cambios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBrandingRoute =
   AuthenticatedAdminBrandingRouteImport.update({
     id: '/branding',
@@ -128,6 +143,12 @@ const AuthenticatedAdminBordadosRoute =
   AuthenticatedAdminBordadosRouteImport.update({
     id: '/bordados',
     path: '/bordados',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAuditoriaRoute =
+  AuthenticatedAdminAuditoriaRouteImport.update({
+    id: '/auditoria',
+    path: '/auditoria',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 
@@ -141,11 +162,14 @@ export interface FileRoutesByFullPath {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
+  '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -160,11 +184,14 @@ export interface FileRoutesByTo {
   '/financiamiento': typeof FinanciamientoRoute
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
+  '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
+  '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -182,11 +209,14 @@ export interface FileRoutesById {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin/bordados': typeof AuthenticatedAdminBordadosRoute
   '/_authenticated/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/_authenticated/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/_authenticated/admin/contenido': typeof AuthenticatedAdminContenidoRoute
+  '/_authenticated/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/_authenticated/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/_authenticated/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -204,11 +234,14 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/admin'
+    | '/admin/auditoria'
     | '/admin/bordados'
     | '/admin/branding'
+    | '/admin/cambios'
     | '/admin/categorias'
     | '/admin/contacto'
     | '/admin/contenido'
+    | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
     | '/admin/seo'
@@ -223,11 +256,14 @@ export interface FileRouteTypes {
     | '/financiamiento'
     | '/garantias'
     | '/linea-blanca'
+    | '/admin/auditoria'
     | '/admin/bordados'
     | '/admin/branding'
+    | '/admin/cambios'
     | '/admin/categorias'
     | '/admin/contacto'
     | '/admin/contenido'
+    | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
     | '/admin/seo'
@@ -244,11 +280,14 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/_authenticated/admin'
+    | '/_authenticated/admin/auditoria'
     | '/_authenticated/admin/bordados'
     | '/_authenticated/admin/branding'
+    | '/_authenticated/admin/cambios'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/contacto'
     | '/_authenticated/admin/contenido'
+    | '/_authenticated/admin/preview'
     | '/_authenticated/admin/productos'
     | '/_authenticated/admin/promociones'
     | '/_authenticated/admin/seo'
@@ -367,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProductosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/preview': {
+      id: '/_authenticated/admin/preview'
+      path: '/preview'
+      fullPath: '/admin/preview'
+      preLoaderRoute: typeof AuthenticatedAdminPreviewRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/contenido': {
       id: '/_authenticated/admin/contenido'
       path: '/contenido'
@@ -388,6 +434,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCategoriasRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/cambios': {
+      id: '/_authenticated/admin/cambios'
+      path: '/cambios'
+      fullPath: '/admin/cambios'
+      preLoaderRoute: typeof AuthenticatedAdminCambiosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/branding': {
       id: '/_authenticated/admin/branding'
       path: '/branding'
@@ -402,15 +455,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBordadosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/auditoria': {
+      id: '/_authenticated/admin/auditoria'
+      path: '/auditoria'
+      fullPath: '/admin/auditoria'
+      preLoaderRoute: typeof AuthenticatedAdminAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
   AuthenticatedAdminBordadosRoute: typeof AuthenticatedAdminBordadosRoute
   AuthenticatedAdminBrandingRoute: typeof AuthenticatedAdminBrandingRoute
+  AuthenticatedAdminCambiosRoute: typeof AuthenticatedAdminCambiosRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
   AuthenticatedAdminContenidoRoute: typeof AuthenticatedAdminContenidoRoute
+  AuthenticatedAdminPreviewRoute: typeof AuthenticatedAdminPreviewRoute
   AuthenticatedAdminProductosRoute: typeof AuthenticatedAdminProductosRoute
   AuthenticatedAdminPromocionesRoute: typeof AuthenticatedAdminPromocionesRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
@@ -418,11 +481,14 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
   AuthenticatedAdminBordadosRoute: AuthenticatedAdminBordadosRoute,
   AuthenticatedAdminBrandingRoute: AuthenticatedAdminBrandingRoute,
+  AuthenticatedAdminCambiosRoute: AuthenticatedAdminCambiosRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
   AuthenticatedAdminContenidoRoute: AuthenticatedAdminContenidoRoute,
+  AuthenticatedAdminPreviewRoute: AuthenticatedAdminPreviewRoute,
   AuthenticatedAdminProductosRoute: AuthenticatedAdminProductosRoute,
   AuthenticatedAdminPromocionesRoute: AuthenticatedAdminPromocionesRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
@@ -458,13 +524,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

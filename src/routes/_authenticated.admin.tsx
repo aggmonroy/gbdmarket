@@ -1,7 +1,13 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag } from "lucide-react";
+import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { useDraftMode } from "@/hooks/use-draft-mode";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
+import { listPendingDrafts } from "@/lib/drafts.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -25,9 +31,22 @@ const nav = [
   { to: "/admin/bordados", label: "Bordados", icon: Scissors },
 ];
 
+const workflowNav = [
+  { to: "/admin/cambios", label: "Cambios pendientes", icon: GitPullRequest, badge: true },
+  { to: "/admin/preview", label: "Vista previa", icon: Eye },
+  { to: "/admin/auditoria", label: "Auditoría", icon: FileClock },
+];
+
 function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const [draftMode, setDraftMode] = useDraftMode();
+  const pendingFn = useServerFn(listPendingDrafts);
+  const { data: pending = [] } = useQuery({
+    queryKey: ["pending-drafts"],
+    queryFn: () => pendingFn(),
+    refetchInterval: 30000,
+  });
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -42,6 +61,19 @@ function AdminLayout() {
             <div className="text-xs uppercase tracking-wider text-muted-foreground">Panel admin</div>
             <div className="font-display font-bold text-foreground">Cooperativa GBD</div>
           </div>
+
+          <div className="mx-1 mb-3 rounded-md border border-border bg-card p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-sm font-medium">Modo borrador</div>
+              <Switch checked={draftMode} onCheckedChange={setDraftMode} />
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-tight">
+              {draftMode
+                ? "Los cambios se guardan como borrador y no se muestran en el sitio hasta que los publiques."
+                : "Los cambios se publican inmediatamente en el sitio."}
+            </p>
+          </div>
+
           {nav.map((n) => {
             const active = n.exact ? pathname === n.to : pathname.startsWith(n.to);
             const Icon = n.icon;
@@ -59,6 +91,33 @@ function AdminLayout() {
               </Link>
             );
           })}
+
+          <div className="pt-3 mt-3 border-t border-border">
+            <div className="px-3 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Publicación</div>
+            {workflowNav.map((n) => {
+              const active = pathname.startsWith(n.to);
+              const Icon = n.icon;
+              return (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  className={cn(
+                    "flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    active ? "bg-primary text-primary-foreground" : "text-foreground/80 hover:bg-accent",
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Icon className="h-4 w-4" />
+                    {n.label}
+                  </span>
+                  {n.badge && pending.length > 0 && (
+                    <Badge variant={active ? "secondary" : "default"} className="h-5 px-1.5 text-[10px]">{pending.length}</Badge>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+
           <div className="pt-3 mt-3 border-t border-border space-y-1">
             <Link
               to="/"
