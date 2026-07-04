@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated.admin.seo'
 import { Route as AuthenticatedAdminReportesRouteImport } from './routes/_authenticated.admin.reportes'
 import { Route as AuthenticatedAdminPromocionesRouteImport } from './routes/_authenticated.admin.promociones'
@@ -86,6 +87,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const ApiPublicBootstrapAdminRoute = ApiPublicBootstrapAdminRouteImport.update({
+  id: '/api/public/bootstrap-admin',
+  path: '/api/public/bootstrap-admin',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
   id: '/seo',
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/_authenticated/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/admin/promociones'
     | '/admin/reportes'
     | '/admin/seo'
+    | '/api/public/bootstrap-admin'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/admin/promociones'
     | '/admin/reportes'
     | '/admin/seo'
+    | '/api/public/bootstrap-admin'
     | '/admin'
   id:
     | '__root__'
@@ -304,6 +315,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/promociones'
     | '/_authenticated/admin/reportes'
     | '/_authenticated/admin/seo'
+    | '/api/public/bootstrap-admin'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -317,6 +329,7 @@ export interface RootRouteChildren {
   FinanciamientoRoute: typeof FinanciamientoRoute
   GarantiasRoute: typeof GarantiasRoute
   LineaBlancaRoute: typeof LineaBlancaRoute
+  ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -397,6 +410,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/api/public/bootstrap-admin': {
+      id: '/api/public/bootstrap-admin'
+      path: '/api/public/bootstrap-admin'
+      fullPath: '/api/public/bootstrap-admin'
+      preLoaderRoute: typeof ApiPublicBootstrapAdminRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/seo': {
       id: '/_authenticated/admin/seo'
@@ -542,6 +562,7 @@ const rootRouteChildren: RootRouteChildren = {
   FinanciamientoRoute: FinanciamientoRoute,
   GarantiasRoute: GarantiasRoute,
   LineaBlancaRoute: LineaBlancaRoute,
+  ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
