@@ -34,7 +34,11 @@ export const listActiveBlocks = createServerFn({ method: "GET" })
       process.env.SUPABASE_PUBLISHABLE_KEY!,
       { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
     );
-    let q = sb.from("content_blocks").select("*").eq("is_active", true).order("display_order");
+    let q = sb
+      .from("content_blocks")
+      .select("id,key,section,title,subtitle,body,image_url,cta_label,cta_url,is_active,display_order,created_at,updated_at")
+      .eq("is_active", true)
+      .order("display_order");
     if (data.section) q = q.eq("section", data.section);
     const { data: rows } = await q;
     return rows ?? [];
