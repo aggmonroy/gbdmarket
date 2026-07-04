@@ -179,6 +179,45 @@ export type Database = {
         }
         Relationships: []
       }
+      page_events: {
+        Row: {
+          category_slug: string | null
+          created_at: string
+          event_type: string
+          id: string
+          meta: Json | null
+          path: string | null
+          product_id: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          category_slug?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          meta?: Json | null
+          path?: string | null
+          product_id?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          category_slug?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          meta?: Json | null
+          path?: string | null
+          product_id?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           brand: string | null

@@ -20,7 +20,9 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated.admin.seo'
+import { Route as AuthenticatedAdminReportesRouteImport } from './routes/_authenticated.admin.reportes'
 import { Route as AuthenticatedAdminPromocionesRouteImport } from './routes/_authenticated.admin.promociones'
 import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authenticated.admin.productos'
 import { Route as AuthenticatedAdminPreviewRouteImport } from './routes/_authenticated.admin.preview'
@@ -86,11 +88,22 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiPublicBootstrapAdminRoute = ApiPublicBootstrapAdminRouteImport.update({
+  id: '/api/public/bootstrap-admin',
+  path: '/api/public/bootstrap-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
   id: '/seo',
   path: '/seo',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminReportesRoute =
+  AuthenticatedAdminReportesRouteImport.update({
+    id: '/reportes',
+    path: '/reportes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPromocionesRoute =
   AuthenticatedAdminPromocionesRouteImport.update({
     id: '/promociones',
@@ -172,7 +185,9 @@ export interface FileRoutesByFullPath {
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
+  '/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -194,7 +209,9 @@ export interface FileRoutesByTo {
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
+  '/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -219,7 +236,9 @@ export interface FileRoutesById {
   '/_authenticated/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/_authenticated/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/_authenticated/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
+  '/_authenticated/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -244,7 +263,9 @@ export interface FileRouteTypes {
     | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
+    | '/admin/reportes'
     | '/admin/seo'
+    | '/api/public/bootstrap-admin'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -266,7 +287,9 @@ export interface FileRouteTypes {
     | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
+    | '/admin/reportes'
     | '/admin/seo'
+    | '/api/public/bootstrap-admin'
     | '/admin'
   id:
     | '__root__'
@@ -290,7 +313,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/preview'
     | '/_authenticated/admin/productos'
     | '/_authenticated/admin/promociones'
+    | '/_authenticated/admin/reportes'
     | '/_authenticated/admin/seo'
+    | '/api/public/bootstrap-admin'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -304,6 +329,7 @@ export interface RootRouteChildren {
   FinanciamientoRoute: typeof FinanciamientoRoute
   GarantiasRoute: typeof GarantiasRoute
   LineaBlancaRoute: typeof LineaBlancaRoute
+  ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -385,11 +411,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/bootstrap-admin': {
+      id: '/api/public/bootstrap-admin'
+      path: '/api/public/bootstrap-admin'
+      fullPath: '/api/public/bootstrap-admin'
+      preLoaderRoute: typeof ApiPublicBootstrapAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/seo': {
       id: '/_authenticated/admin/seo'
       path: '/seo'
       fullPath: '/admin/seo'
       preLoaderRoute: typeof AuthenticatedAdminSeoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/reportes': {
+      id: '/_authenticated/admin/reportes'
+      path: '/reportes'
+      fullPath: '/admin/reportes'
+      preLoaderRoute: typeof AuthenticatedAdminReportesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/promociones': {
@@ -476,6 +516,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPreviewRoute: typeof AuthenticatedAdminPreviewRoute
   AuthenticatedAdminProductosRoute: typeof AuthenticatedAdminProductosRoute
   AuthenticatedAdminPromocionesRoute: typeof AuthenticatedAdminPromocionesRoute
+  AuthenticatedAdminReportesRoute: typeof AuthenticatedAdminReportesRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -491,6 +532,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPreviewRoute: AuthenticatedAdminPreviewRoute,
   AuthenticatedAdminProductosRoute: AuthenticatedAdminProductosRoute,
   AuthenticatedAdminPromocionesRoute: AuthenticatedAdminPromocionesRoute,
+  AuthenticatedAdminReportesRoute: AuthenticatedAdminReportesRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
@@ -520,6 +562,7 @@ const rootRouteChildren: RootRouteChildren = {
   FinanciamientoRoute: FinanciamientoRoute,
   GarantiasRoute: GarantiasRoute,
   LineaBlancaRoute: LineaBlancaRoute,
+  ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
