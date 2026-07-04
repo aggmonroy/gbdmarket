@@ -16,6 +16,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { WhatsAppFloat } from "@/components/site/WhatsAppFloat";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteSettingsInjector } from "@/hooks/use-site-settings";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 function NotFoundComponent() {
   return (
@@ -124,6 +125,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useAnalytics();
 
   return (
     <QueryClientProvider client={queryClient}>

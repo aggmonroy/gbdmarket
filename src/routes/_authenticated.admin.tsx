@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye } from "lucide-react";
+import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -35,6 +35,7 @@ const workflowNav = [
   { to: "/admin/cambios", label: "Cambios pendientes", icon: GitPullRequest, badge: true },
   { to: "/admin/preview", label: "Vista previa", icon: Eye },
   { to: "/admin/auditoria", label: "Auditoría", icon: FileClock },
+  { to: "/admin/reportes", label: "Reporte de uso", icon: BarChart3 },
 ];
 
 function AdminLayout() {
