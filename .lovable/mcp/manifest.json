@@ -22,24 +22,25 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "category_slug": {
-              "description": "Optional category slug to filter (e.g. 'refrigeradoras').",
-              "type": "string"
+              "type": "string",
+              "description": "Optional category slug to filter (e.g. 'refrigeradoras')."
             },
             "search": {
-              "description": "Optional text to match against product name, brand or model.",
-              "type": "string"
+              "type": "string",
+              "description": "Optional text to match against product name, brand or model."
             },
             "limit": {
-              "description": "Max rows to return (default 20).",
               "type": "integer",
               "minimum": 1,
-              "maximum": 50
+              "maximum": 50,
+              "description": "Max rows to return (default 20)."
             }
-          }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -53,16 +54,17 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "limit": {
-              "description": "Max rows (default 20).",
               "type": "integer",
               "minimum": 1,
-              "maximum": 50
+              "maximum": 50,
+              "description": "Max rows (default 20)."
             }
-          }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
