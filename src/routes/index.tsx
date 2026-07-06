@@ -4,14 +4,15 @@ import {
   Briefcase, MessageCircle, ChevronLeft, ChevronRight, Scissors,
   ShieldCheck, Phone,
 } from "lucide-react";
-import { useEffect, useRef, useState, useCallback } from "react";
-
+import { useEffect, useState, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Línea Blanca y Bordados GBD · Cooperativa Gladys B. de Ducasa, R.L." },
-      { name: "description", content: "Muebles, electrodomésticos, tecnología y bordados con respaldo cooperativo desde 1961. Crédito accesible y entregas a nivel nacional." },
+      { name: "description", content: "Muebles, electrodomésticos, tecnología y bordados con respaldo cooperativo desde 1961. Cotizaciones personalizadas por WhatsApp." },
       { property: "og:title", content: "Línea Blanca y Bordados GBD" },
       { property: "og:description", content: "Equipa tu hogar o negocio con respaldo cooperativo. Más de 60 años de confianza." },
     ],
@@ -20,16 +21,23 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-// Hero slides — escenarios reales
-const heroSlides = [
-  { img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80", title: "Transforma tu hogar con estilo", sub: "Salas ambientadas para tu familia" },
-  { img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1920&q=80", title: "Comodidad y diseño para tu descanso", sub: "Recámaras completas" },
-  { img: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1920&q=80", title: "Todo lo que necesitas para tu cocina", sub: "Cocinas modernas y equipadas" },
-  { img: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=1920&q=80", title: "Lavanderías prácticas y eficientes", sub: "Equipa cada espacio de tu hogar" },
-  { img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80", title: "Equipamos tus espacios con calidad", sub: "Terrazas, exteriores y más" },
-  { img: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1920&q=80", title: "Comedores que reúnen a tu familia", sub: "Diseño y durabilidad" },
-  { img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80", title: "Oficinas y espacios de trabajo", sub: "Productividad con estilo" },
-  { img: "https://images.unsplash.com/photo-1556909114-44e3e9399c2e?auto=format&fit=crop&w=1920&q=80", title: "Electrodomésticos premium", sub: "Marcas de confianza" },
+// Hero slides — hogar + negocio en un solo banner
+type HeroSlide = {
+  img: string;
+  eyebrow: string;
+  title: string;
+  sub: string;
+  variant: "hogar" | "negocio";
+};
+
+const heroSlides: HeroSlide[] = [
+  { img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80", eyebrow: "Muebles y electrodomésticos", title: "Transforma tu hogar con estilo", sub: "Salas ambientadas para tu familia", variant: "hogar" },
+  { img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80", eyebrow: "Soluciones empresariales", title: "¿Quieres equipar tu negocio?", sub: "Oficinas, restaurantes, hoteles, comercios, instituciones y emprendimientos. Te ayudamos con productos de calidad y opciones de financiamiento.", variant: "negocio" },
+  { img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1920&q=80", eyebrow: "Recámaras completas", title: "Comodidad y diseño para tu descanso", sub: "Todo para amueblar cada espacio de tu hogar", variant: "hogar" },
+  { img: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1920&q=80", eyebrow: "Cocinas equipadas", title: "Todo lo que necesitas para tu cocina", sub: "Electrodomésticos y muebles modernos", variant: "hogar" },
+  { img: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1920&q=80", eyebrow: "Soluciones empresariales", title: "Amueblamos tu oficina llave en mano", sub: "Escritorios, sillería, archivo y equipamiento para tu operación.", variant: "negocio" },
+  { img: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=1920&q=80", eyebrow: "Lavandería y hogar", title: "Lavanderías prácticas y eficientes", sub: "Equipos con respaldo cooperativo", variant: "hogar" },
+  { img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80", eyebrow: "Soluciones empresariales", title: "Restaurantes, hoteles y comercios", sub: "Ambientamos tu local con muebles y electrodomésticos.", variant: "negocio" },
 ];
 
 import sucLasTablasAsset from "@/assets/sucursales/las-tablas.jpg.asset.json";
@@ -47,7 +55,7 @@ const sucursales = [
     desc: "Mueblería, bordado y sublimación.",
     img: sucLasTablas,
     Icon: Store,
-    map: "https://maps.app.goo.gl/jzdT4W8stzZSA7Ho7",
+    map: "https://maps.app.goo.gl/JM8N1SkeSidDgjkE7",
   },
   {
     name: "Sucursal Tonosí",
@@ -61,7 +69,7 @@ const sucursales = [
     desc: "Punto de venta principal.",
     img: sucCasaMatriz,
     Icon: Building2,
-    map: "https://maps.app.goo.gl/GynzHz7asuzRWvVa8",
+    map: "https://maps.app.goo.gl/qFC6py7bPr4y4qQ87",
   },
   {
     name: "Coop. El Progreso – Agua Buena",
@@ -72,12 +80,14 @@ const sucursales = [
   },
 ];
 
-
-
-const negocioImgs = [
-  "https://images.unsplash.com/photo-1564540583246-934409427776?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+// Fallback ambient gallery aligned with our catalog (muebles + electrodomésticos)
+const FALLBACK_GALLERY: { image_url: string; title: string; subtitle: string }[] = [
+  { image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80", title: "Salas modernas", subtitle: "Ambientación con nuestros muebles" },
+  { image_url: "https://images.unsplash.com/photo-1617104678098-de229db51175?auto=format&fit=crop&w=1200&q=80", title: "Comedores familiares", subtitle: "Diseño y durabilidad" },
+  { image_url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80", title: "Recámaras acogedoras", subtitle: "Descanso con estilo" },
+  { image_url: "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=1200&q=80", title: "Cocinas equipadas", subtitle: "Electrodomésticos y muebles" },
+  { image_url: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1200&q=80", title: "Lavandería en casa", subtitle: "Equipos de línea blanca" },
+  { image_url: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=1200&q=80", title: "Refrigeración", subtitle: "Marcas de confianza" },
 ];
 
 const bordadosImgs = [
@@ -93,8 +103,8 @@ function Home() {
   return (
     <>
       <HeroSlider />
-      <BusinessBanner />
       <AccesosRapidos />
+      <AmbientGallery />
       <Sucursales />
       <Trayectoria />
       <BordadosBanner />
