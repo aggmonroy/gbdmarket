@@ -190,34 +190,55 @@ function HeroSlider() {
       {/* Content overlay */}
       <div className="relative z-10 container mx-auto h-full px-4 lg:px-8 flex flex-col justify-end pb-16 lg:pb-24">
         <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300 backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Cooperativa Gladys B. de Ducasa · Desde 1961</span>
+          <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur ${
+            heroSlides[i].variant === "negocio"
+              ? "border-amber-400/60 bg-amber-400/15 text-amber-300"
+              : "border-amber-400/40 bg-amber-400/10 text-amber-300"
+          }`}>
+            {heroSlides[i].variant === "negocio" ? <Briefcase className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
+            <span>{heroSlides[i].eyebrow}</span>
           </div>
           <h1 key={i} className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] animate-fade-up drop-shadow-2xl">
             {heroSlides[i].title}
           </h1>
-          <p key={`s-${i}`} className="mt-3 text-lg text-white/90 animate-fade-up">
+          <p key={`s-${i}`} className="mt-3 text-lg text-white/90 animate-fade-up max-w-xl">
             {heroSlides[i].sub}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
-              Ver Catálogo <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link to="/financiamiento" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-primary hover:bg-white/90 transition">
-              Solicitar Crédito
-            </Link>
-            <a
-              href="https://wa.me/50767841941?text=Hola%2C%20deseo%20m%C3%A1s%20informaci%C3%B3n"
-              target="_blank" rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
-            >
-              <MessageCircle className="h-4 w-4" /> WhatsApp
-            </a>
-            <Link to="/catalogo" search={{ tab: "bordados" }} className="inline-flex items-center gap-2 rounded-full border-2 border-white/70 bg-white/10 backdrop-blur px-6 py-3 text-sm font-bold text-white hover:bg-white/20 transition">
-              <Scissors className="h-4 w-4" /> Ver Bordados
-            </Link>
+            {heroSlides[i].variant === "negocio" ? (
+              <>
+                <a
+                  href="https://wa.me/50767841941?text=Hola%2C%20deseo%20una%20cotizaci%C3%B3n%20para%20mi%20negocio"
+                  target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition"
+                >
+                  Solicitar Cotización <ArrowRight className="h-4 w-4" />
+                </a>
+                <Link to="/contacto" className="inline-flex items-center gap-2 rounded-full bg-white/10 border-2 border-white/50 backdrop-blur px-6 py-3 text-sm font-bold text-white hover:bg-white/20 transition">
+                  Hablar con un Asesor
+                </Link>
+                <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-primary hover:bg-white/90 transition">
+                  Ver Catálogo
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
+                  Ver Catálogo <ArrowRight className="h-4 w-4" />
+                </Link>
+                <a
+                  href="https://wa.me/50767841941?text=Hola%2C%20deseo%20m%C3%A1s%20informaci%C3%B3n"
+                  target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
+                >
+                  <MessageCircle className="h-4 w-4" /> WhatsApp
+                </a>
+                <Link to="/catalogo" search={{ tab: "bordados" }} className="inline-flex items-center gap-2 rounded-full border-2 border-white/70 bg-white/10 backdrop-blur px-6 py-3 text-sm font-bold text-white hover:bg-white/20 transition">
+                  <Scissors className="h-4 w-4" /> Ver Bordados
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -230,7 +251,6 @@ function HeroSlider() {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      {/* Dots */}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-2">
         {heroSlides.map((_, idx) => (
           <button
@@ -245,47 +265,59 @@ function HeroSlider() {
   );
 }
 
-/* ---------- BUSINESS BANNER ---------- */
-function BusinessBanner() {
+/* ---------- GALERÍA AMBIENTE (semanal, editable por admin) ---------- */
+function AmbientGallery() {
+  const { data } = useQuery({
+    queryKey: ["home-gallery"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("content_blocks")
+        .select("id,title,subtitle,image_url,cta_url,display_order")
+        .eq("section", "home.gallery")
+        .eq("is_active", true)
+        .order("display_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 60 * 60 * 1000,
+  });
+
+  const items = (data && data.length > 0 ? data : FALLBACK_GALLERY) as Array<{
+    id?: string; title: string | null; subtitle: string | null; image_url: string | null; cta_url?: string | null;
+  }>;
+
   return (
-    <section className="relative overflow-hidden bg-gradient-primary text-primary-foreground">
-      <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
-      <div className="container mx-auto px-4 lg:px-8 py-16 lg:py-20 grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center">
+    <section className="container mx-auto px-4 lg:px-8 pb-14 pt-6">
+      <div className="flex items-end justify-between mb-6">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/15 border border-amber-400/40 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-300">
-            <Briefcase className="h-3.5 w-3.5" /> Soluciones empresariales
-          </div>
-          <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight">
-            ¿Quieres equipar tu <span className="text-amber-400">negocio</span>?
-          </h2>
-          <p className="mt-4 text-base sm:text-lg text-primary-foreground/85 max-w-xl">
-            Ofrecemos soluciones para oficinas, restaurantes, hoteles, comercios, instituciones y emprendimientos.
-            Te ayudamos a equipar tu negocio con productos de calidad y opciones de financiamiento.
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Ambientaciones</span>
+          <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold">Así se ven nuestros productos en casa</h2>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+            Galería semanal de ambientaciones con muebles y electrodomésticos de nuestro catálogo. Solo ilustrativa — no realizamos trabajos de construcción ni acabados.
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <a
-              href="https://wa.me/50767841941?text=Hola%2C%20deseo%20una%20cotizaci%C3%B3n%20para%20mi%20negocio"
-              target="_blank" rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition"
-            >
-              Solicitar Cotización <ArrowRight className="h-4 w-4" />
-            </a>
-            <Link to="/contacto" className="inline-flex items-center gap-2 rounded-full bg-white/10 border-2 border-white/40 backdrop-blur px-6 py-3 text-sm font-bold text-white hover:bg-white/20 transition">
-              Hablar con un Asesor
-            </Link>
-          </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {negocioImgs.map((src, i) => (
-            <div key={i} className={`relative overflow-hidden rounded-2xl ${i === 0 ? "col-span-2 aspect-[2/1]" : "aspect-square"} shadow-elevated ring-2 ring-amber-400/30`}>
-              <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover hover:scale-105 transition duration-700" loading="lazy" />
+        <Link to="/catalogo" className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+          Ver catálogo <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {items.slice(0, 6).map((it, idx) => (
+          <div key={it.id ?? idx} className="group relative overflow-hidden rounded-2xl aspect-[4/3] bg-muted shadow-soft">
+            {it.image_url && (
+              <img src={it.image_url} alt={it.title ?? ""} className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition duration-700" loading="lazy" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+            <div className="absolute bottom-3 left-3 right-3 text-white">
+              <div className="font-display font-semibold leading-tight">{it.title}</div>
+              {it.subtitle && <div className="text-xs text-white/80 mt-0.5">{it.subtitle}</div>}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );
 }
+
 
 /* ---------- SUCURSALES ---------- */
 function Sucursales() {
