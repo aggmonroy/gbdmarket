@@ -37,6 +37,7 @@ import { Route as AuthenticatedAdminBrandingRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminBordadosRouteImport } from './routes/_authenticated.admin.bordados'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated.admin.auditoria'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ApiPublicHooksRefreshHomeGalleryRouteImport } from './routes/api/public/hooks/refresh-home-gallery'
 
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
@@ -191,6 +192,12 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRefreshHomeGalleryRoute =
+  ApiPublicHooksRefreshHomeGalleryRouteImport.update({
+    id: '/api/public/hooks/refresh-home-gallery',
+    path: '/api/public/hooks/refresh-home-gallery',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -248,6 +256,7 @@ export interface FileRoutesByTo {
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -279,6 +288,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/admin/seo'
     | '/api/public/bootstrap-admin'
     | '/admin/'
+    | '/api/public/hooks/refresh-home-gallery'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/admin/seo'
     | '/api/public/bootstrap-admin'
     | '/admin'
+    | '/api/public/hooks/refresh-home-gallery'
   id:
     | '__root__'
     | '/'
@@ -368,6 +380,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo'
     | '/api/public/bootstrap-admin'
     | '/_authenticated/admin/'
+    | '/api/public/hooks/refresh-home-gallery'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -385,6 +398,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
+  ApiPublicHooksRefreshHomeGalleryRoute: typeof ApiPublicHooksRefreshHomeGalleryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -585,6 +599,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/refresh-home-gallery': {
+      id: '/api/public/hooks/refresh-home-gallery'
+      path: '/api/public/hooks/refresh-home-gallery'
+      fullPath: '/api/public/hooks/refresh-home-gallery'
+      preLoaderRoute: typeof ApiPublicHooksRefreshHomeGalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -651,6 +672,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
+  ApiPublicHooksRefreshHomeGalleryRoute: ApiPublicHooksRefreshHomeGalleryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
