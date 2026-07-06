@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "gbd-market-mcp",
+      "version": "0.1.0",
+      "title": "GBD Market MCP"
+    },
+    "tools": [
+      {
+        "name": "list_products",
+        "title": "List published products",
+        "description": "List published línea blanca products from the store catalog. Returns name, brand, model, price, stock and category slug. Public data — no authentication required.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category_slug": {
+              "type": "string",
+              "description": "Optional category slug to filter (e.g. 'refrigeradoras')."
+            },
+            "search": {
+              "type": "string",
+              "description": "Optional text to match against product name, brand or model."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Max rows to return (default 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_promotions",
+        "title": "List active promotions",
+        "description": "List currently active promotions published on the site.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Max rows (default 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_contact_info",
+        "title": "Get contact info",
+        "description": "Return WhatsApp numbers and channels to contact Cooperativa Gladys B. de Ducasa's Línea Blanca and Bordados departments.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
