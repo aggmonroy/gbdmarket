@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, PROMO_MAX_TERM, type Term, type MemberType } from "@/lib/financing";
+import { Textarea } from "@/components/ui/textarea";
 import { buildWaUrl, logLead } from "@/lib/whatsapp";
-import { FileText, MessageCircle, Package, Sparkles } from "lucide-react";
+import { FileText, MessageCircle, Package } from "lucide-react";
 
 export type ProductLite = {
   id: string;
@@ -14,8 +14,8 @@ export type ProductLite = {
   code?: string | null;
   description?: string | null;
   features?: string[] | null;
-  price_cash: number;
-  stock: number;
+  price_cash?: number | null;
+  stock?: number | null;
   images: string[];
   datasheet_url?: string | null;
 };
@@ -23,33 +23,23 @@ export type ProductLite = {
 export function ProductDetailDialog({
   open, onOpenChange, product,
 }: { open: boolean; onOpenChange: (b: boolean) => void; product: ProductLite | null }) {
-  const [term, setTerm] = useState<Term>(12);
-  const [member, setMember] = useState<MemberType>("asociado");
-  const [directDebit, setDirectDebit] = useState(false);
   const [customerName, setCustomerName] = useState("");
+  const [notes, setNotes] = useState("");
   if (!product) return null;
-  const fin = calcFinancing(product.price_cash, term, member, directDebit);
 
   const sendWa = () => {
     const msg = [
       `Hola, me interesa cotizar el siguiente producto:`,
       `*${product.name}*${product.brand ? ` — ${product.brand}` : ""}${product.model ? ` ${product.model}` : ""}`,
       product.code ? `Código: ${product.code}` : null,
-      `Precio contado: ${fmtUSD(product.price_cash)}`,
-      `Modalidad: ${MEMBER_LABEL[member]}${directDebit ? " (descuento directo)" : ""}`,
-      `Plazo seleccionado: ${term} meses${fin.promoApplied ? " · Promo sin intereses" : ""}`,
-      `Abono inicial: ${fmtUSD(fin.down)}`,
-      `Cuota mensual: ${fmtUSD(fin.monthly)}`,
-      `Total financiado: ${fmtUSD(fin.totalFinanced)}`,
       customerName ? `Cliente: ${customerName}` : null,
+      notes ? `Detalles: ${notes}` : null,
     ].filter(Boolean).join("\n");
     logLead({
       channel: "linea-blanca",
       product_id: product.id,
       product_name: product.name,
       customer_name: customerName || null,
-      term_months: term,
-      total_price: fin.totalFinanced,
     });
     window.open(buildWaUrl("linea-blanca", msg), "_blank");
   };
@@ -87,14 +77,7 @@ export function ProductDetailDialog({
             <div className="flex flex-wrap items-center gap-2 text-xs">
               {product.brand && <span className="rounded-full bg-primary-soft px-2 py-1 font-medium text-primary">{product.brand}</span>}
               {product.model && <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Modelo {product.model}</span>}
-              <span className={`rounded-full px-2 py-1 font-medium ${product.stock > 0 ? "bg-[oklch(0.95_0.06_155)] text-[oklch(0.4_0.16_155)]" : "bg-destructive/10 text-destructive"}`}>
-                {product.stock > 0 ? `${product.stock} en existencia` : "Agotado"}
-              </span>
-            </div>
-
-            <div className="mt-4">
-              <div className="text-xs text-muted-foreground uppercase tracking-wide">Precio contado</div>
-              <div className="font-display text-4xl font-bold text-primary">{fmtUSD(product.price_cash)}</div>
+              {product.code && <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Código {product.code}</span>}
             </div>
 
             {product.description && <p className="mt-4 text-sm text-foreground/80 leading-relaxed">{product.description}</p>}
@@ -108,63 +91,10 @@ export function ProductDetailDialog({
             )}
 
             <div className="mt-6 rounded-xl border border-border bg-primary-soft/40 p-4">
-              <div className="text-sm font-semibold text-primary">Financiamiento Cooperativa</div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                {(["asociado", "no_asociado"] as MemberType[]).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setMember(m)}
-                    className={`px-2 py-2 rounded-md text-xs font-semibold border transition ${
-                      member === m ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/40"
-                    }`}
-                  >
-                    {MEMBER_LABEL[m]}
-                  </button>
-                ))}
-              </div>
-
-              <label className="mt-3 flex items-start gap-2 rounded-md border border-border bg-background p-2.5 cursor-pointer hover:border-primary/40 transition">
-                <input
-                  type="checkbox"
-                  checked={directDebit}
-                  onChange={(e) => setDirectDebit(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 accent-primary"
-                />
-                <span className="text-xs">
-                  <span className="font-semibold">Pago por descuento directo</span>
-                  <span className="block text-muted-foreground">
-                    Hasta {PROMO_MAX_TERM} meses al contado, sin intereses.
-                  </span>
-                </span>
-              </label>
-
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {TERMS.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTerm(t)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
-                      term === t
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background border-border hover:border-primary/40"
-                    }`}
-                  >{t} meses</button>
-                ))}
-              </div>
-
-              {fin.promoApplied && (
-                <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2 py-1 text-[11px] font-semibold uppercase tracking-wider">
-                  <Sparkles className="h-3 w-3" /> Promo sin intereses aplicada
-                </div>
-              )}
-
-              <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <Stat label={fin.promoApplied ? "Total (contado)" : "Total a financiar"} value={fmtUSD(fin.totalFinanced)} />
-                <Stat label="Abono inicial" value={fmtUSD(fin.down)} />
-                <Stat label="Cuota mensual" value={fmtUSD(fin.monthly)} highlight />
-                <Stat label="Cuota quincenal" value={fmtUSD(fin.biweekly)} />
-              </dl>
+              <div className="text-sm font-semibold text-primary">Cotización por WhatsApp</div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Todas nuestras cotizaciones y ventas se realizan de forma personalizada por WhatsApp. Envíanos tus datos y te atendemos al instante.
+              </p>
 
               <Input
                 placeholder="Tu nombre (opcional)"
@@ -173,10 +103,18 @@ export function ProductDetailDialog({
                 className="mt-4"
                 maxLength={80}
               />
+              <Textarea
+                placeholder="¿Alguna preferencia o pregunta? (opcional)"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="mt-2"
+                rows={3}
+                maxLength={500}
+              />
 
               <Button onClick={sendWa} className="mt-3 w-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
                 <MessageCircle className="mr-2 h-4 w-4" />
-                Solicitar esta cotización por WhatsApp
+                Solicitar cotización por WhatsApp
               </Button>
 
               {product.datasheet_url && (
@@ -184,7 +122,7 @@ export function ProductDetailDialog({
                   href={product.datasheet_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex w-full items-center justify-center gap-2 text-sm text-primary hover:underline"
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 text-sm text-primary hover:underline"
                 >
                   <FileText className="h-4 w-4" /> Descargar ficha técnica (PDF)
                 </a>
@@ -194,14 +132,5 @@ export function ProductDetailDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Stat({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className={`rounded-lg p-2.5 ${highlight ? "bg-primary text-primary-foreground" : "bg-background border border-border"}`}>
-      <div className={`text-[10px] uppercase tracking-wider ${highlight ? "opacity-80" : "text-muted-foreground"}`}>{label}</div>
-      <div className="font-display text-base font-bold">{value}</div>
-    </div>
   );
 }
