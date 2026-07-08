@@ -50,6 +50,102 @@ export type Database = {
         }
         Relationships: []
       }
+      bitacora: {
+        Row: {
+          categoria: string | null
+          cliente_email: string | null
+          cliente_nombre: string
+          cliente_telefono: string | null
+          consent_accepted_at: string
+          created_at: string
+          estado: Database["public"]["Enums"]["bitacora_estado"]
+          fecha_entrega: string | null
+          id: string
+          meta: Json
+          observaciones: string | null
+          origen: Database["public"]["Enums"]["bitacora_origen"]
+          producto_servicio: string | null
+          updated_at: string
+        }
+        Insert: {
+          categoria?: string | null
+          cliente_email?: string | null
+          cliente_nombre: string
+          cliente_telefono?: string | null
+          consent_accepted_at?: string
+          created_at?: string
+          estado?: Database["public"]["Enums"]["bitacora_estado"]
+          fecha_entrega?: string | null
+          id?: string
+          meta?: Json
+          observaciones?: string | null
+          origen: Database["public"]["Enums"]["bitacora_origen"]
+          producto_servicio?: string | null
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string | null
+          cliente_email?: string | null
+          cliente_nombre?: string
+          cliente_telefono?: string | null
+          consent_accepted_at?: string
+          created_at?: string
+          estado?: Database["public"]["Enums"]["bitacora_estado"]
+          fecha_entrega?: string | null
+          id?: string
+          meta?: Json
+          observaciones?: string | null
+          origen?: Database["public"]["Enums"]["bitacora_origen"]
+          producto_servicio?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      bitacora_historial: {
+        Row: {
+          bitacora_id: string
+          created_at: string
+          estado_anterior: Database["public"]["Enums"]["bitacora_estado"] | null
+          estado_nuevo: Database["public"]["Enums"]["bitacora_estado"]
+          id: string
+          nota: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bitacora_id: string
+          created_at?: string
+          estado_anterior?:
+            | Database["public"]["Enums"]["bitacora_estado"]
+            | null
+          estado_nuevo: Database["public"]["Enums"]["bitacora_estado"]
+          id?: string
+          nota?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bitacora_id?: string
+          created_at?: string
+          estado_anterior?:
+            | Database["public"]["Enums"]["bitacora_estado"]
+            | null
+          estado_nuevo?: Database["public"]["Enums"]["bitacora_estado"]
+          id?: string
+          nota?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bitacora_historial_bitacora_id_fkey"
+            columns: ["bitacora_id"]
+            isOneToOne: false
+            referencedRelation: "bitacora"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -176,6 +272,39 @@ export type Database = {
           quantity?: number
           service_type?: string
           status?: string
+        }
+        Relationships: []
+      }
+      embroidery_services: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -456,6 +585,22 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      bitacora_estado:
+        | "pendiente"
+        | "cotizado"
+        | "en_proceso"
+        | "produccion"
+        | "listo"
+        | "entregado"
+        | "garantia"
+        | "cancelado"
+      bitacora_origen:
+        | "catalogo"
+        | "financiamiento"
+        | "garantia"
+        | "contacto"
+        | "bordados"
+        | "whatsapp"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -584,6 +729,24 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      bitacora_estado: [
+        "pendiente",
+        "cotizado",
+        "en_proceso",
+        "produccion",
+        "listo",
+        "entregado",
+        "garantia",
+        "cancelado",
+      ],
+      bitacora_origen: [
+        "catalogo",
+        "financiamiento",
+        "garantia",
+        "contacto",
+        "bordados",
+        "whatsapp",
+      ],
     },
   },
 } as const
