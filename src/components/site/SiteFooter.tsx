@@ -1,6 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, MessageCircle, MapPin, Globe } from "lucide-react";
+import { Mail, MessageCircle, MapPin, Globe, Instagram, Facebook, Youtube, Music2 } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+
+function SocialIcon({ url }: { url: string }) {
+  const u = url.toLowerCase();
+  if (u.includes("instagram")) return <Instagram className="h-4 w-4" />;
+  if (u.includes("facebook") || u.includes("fb.com")) return <Facebook className="h-4 w-4" />;
+  if (u.includes("youtube") || u.includes("youtu.be")) return <Youtube className="h-4 w-4" />;
+  if (u.includes("tiktok")) return <Music2 className="h-4 w-4" />;
+  return <Globe className="h-4 w-4" />;
+}
 
 export function SiteFooter() {
   const { branding, contact } = useSiteSettings();
@@ -22,6 +31,15 @@ export function SiteFooter() {
           <p className="mt-3 text-sm text-primary-foreground/80 leading-relaxed">
             64 años sirviendo a nuestros asociados con financiamiento, garantía y atención cercana en Línea Blanca y Bordados.
           </p>
+          <div className="mt-4 flex gap-2">
+            {socials.map((s, i) => (
+              <a key={i} href={s.url} target="_blank" rel="noreferrer"
+                aria-label={s.label}
+                className="grid h-9 w-9 place-items-center rounded-full bg-primary-foreground/10 hover:bg-primary-foreground/20 transition">
+                <SocialIcon url={s.url} />
+              </a>
+            ))}
+          </div>
         </div>
 
         <div>
@@ -31,6 +49,7 @@ export function SiteFooter() {
             <li><Link to="/financiamiento" className="hover:underline">Financiamiento</Link></li>
             <li><Link to="/garantias" className="hover:underline">Garantías</Link></li>
             <li><Link to="/contacto" className="hover:underline">Contacto</Link></li>
+            <li><Link to="/privacidad" className="hover:underline">Política de privacidad</Link></li>
           </ul>
         </div>
 
@@ -63,7 +82,7 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm">
             {socials.map((s, i) => (
               <li key={i} className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
+                <SocialIcon url={s.url} />
                 <a href={s.url} target="_blank" rel="noreferrer" className="hover:underline">{s.label}</a>
               </li>
             ))}
@@ -73,7 +92,10 @@ export function SiteFooter() {
       <div className="border-t border-primary-foreground/15">
         <div className="container mx-auto px-4 py-4 text-xs text-primary-foreground/70 flex flex-wrap justify-between gap-2">
           <span>© {new Date().getFullYear()} {siteName}. Todos los derechos reservados.</span>
-          <span>RUC autorizado · Panamá</span>
+          <span className="flex items-center gap-3">
+            <Link to="/privacidad" className="hover:underline">Privacidad</Link>
+            <span>RUC autorizado · Panamá</span>
+          </span>
         </div>
       </div>
     </footer>
