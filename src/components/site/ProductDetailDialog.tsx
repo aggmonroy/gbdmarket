@@ -119,11 +119,18 @@ export function ProductDetailDialog({
               </p>
 
               <Input
-                placeholder="Tu nombre (opcional)"
+                placeholder="Tu nombre *"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="mt-4"
                 maxLength={80}
+              />
+              <Input
+                placeholder="Teléfono / WhatsApp *"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="mt-2"
+                maxLength={30}
               />
               <Textarea
                 placeholder="¿Alguna preferencia o pregunta? (opcional)"
@@ -133,6 +140,10 @@ export function ProductDetailDialog({
                 rows={3}
                 maxLength={500}
               />
+
+              <div className="mt-3">
+                <DataConsent accepted={consent} onChange={setConsent} id={`pd-consent-${product.id}`} />
+              </div>
 
               <Button onClick={sendWa} className="mt-3 w-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
                 <MessageCircle className="mr-2 h-4 w-4" />
