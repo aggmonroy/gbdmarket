@@ -1,70 +1,62 @@
+# Actualización GBD Market
 
-# Panel de administración extendido (/admin)
+Reutilizo componentes existentes y no cambio la identidad visual. Trabajo en 4 bloques.
 
-Ya existe la base: `/admin` protegido con `_authenticated`, con módulos de **Productos**, **Categorías/Marcas** y **Bordados**, más bootstrap del primer admin. Voy a extenderlo para cubrir todo el contenido editable del sitio sin volver a Lovable.
+## 1. CMS ampliado (reutilizando el panel actual)
 
-## 1. Base de datos (migración única)
+El panel `/admin` ya edita productos, categorías, contenido, promociones, branding, contacto, SEO y bordados. Amplío lo que falta sin duplicar pantallas:
 
-Nuevas tablas en `public` con GRANTs + RLS (lectura pública, escritura solo admin):
+- **Bordados GBD** → convertir la sección actual (hoy es `content_blocks` con `section='home.bordados'`) en un CRUD dedicado en `/admin/bordados-servicios`: imagen, nombre, descripción, orden, activo. Alta, edición, borrado y reordenamiento. La home lee de la nueva tabla `embroidery_services`.
+- **WhatsApp / contacto / redes** → ya existe `/admin/contacto`; verifico que cubra los dos números (Línea Blanca y Bordados), correo y URLs de redes sociales, y me aseguro de que el sitio y footer los consuman desde `site_settings` (no hardcode en `whatsapp.ts`).
+- **Textos, imágenes, banners, botones, categorías** → ya son editables vía `content_blocks`, `products`, `categories`, `promotions` y `site_settings`. Solo agrego los campos que aún estén hardcode en `index.tsx` (títulos hero, CTAs, tarjetas de financiamiento/garantías/contacto, thumbnails de categorías) como `content_blocks` con `section='home.hero'`, `home.info_cards`, `home.category_thumbs`.
 
-- **`site_settings`** (key-value JSON): una fila por clave — `branding` (logo_url, nombre, colores primario/secundario/acento), `seo` (title, description, og_image, ga4_id, meta_pixel_id), `contact` (whatsapp principal, sucursales [{nombre, telefono, direccion, maps_url}], email, horarios), `social` (facebook, instagram, tiktok, youtube).
-- **`content_blocks`** (key, title, subtitle, body, image_url, cta_label, cta_url, is_active, display_order): edita textos/banners/botones del Home, Hero slider, banners promocionales, secciones "Vocación", "Compras para todos", banner de bordados, etc. Cada bloque identificado por `key` estable (ej. `home.hero.slide1`).
-- **`promotions`** (title, description, discount_pct, starts_at, ends_at, product_ids[], is_active): promos aplicables a productos.
-- Ampliar **`products`**: ya tiene `is_published` (activar/desactivar) y `stock` — OK.
+## 2. Bitácora unificada + calendario
 
-Storage bucket **`site-assets`** (público) para logos, banners e imágenes de bloques. Bucket **`product-images`** (público) para fotos de productos. Políticas: SELECT anon, INSERT/UPDATE/DELETE solo admins.
+Reemplazo `whatsapp_leads` y `embroidery_requests` por una **única tabla `bitacora`** conectada a Catálogo, Financiamiento, Garantías, Contacto y Bordados, más cada clic de "Cotizar por WhatsApp".
 
-## 2. Server functions (`src/lib/*.functions.ts`)
+Tabla `bitacora`:
+- `id, created_at, fecha_entrega`
+- `cliente_nombre, cliente_telefono, cliente_email`
+- `producto_servicio, categoria`
+- `origen` enum: `catalogo | financiamiento | garantia | contacto | bordados | whatsapp`
+- `observaciones`
+- `estado` enum: `pendiente | cotizado | en_proceso | produccion | listo | entregado | garantia | cancelado`
+- `meta` jsonb (producto_id, monto financiado, etc.)
+- `consent_accepted_at` (obligatorio)
 
-Todos con `requireSupabaseAuth` + `has_role('admin')`:
+Tabla `bitacora_historial`: `id, bitacora_id, estado_anterior, estado_nuevo, user_id, user_email, nota, created_at`. Se llena por trigger en cada cambio de estado + inserts manuales cuando el admin agrega nota.
 
-- `site-settings.functions.ts`: `getSetting(key)` (público, sin auth), `getAllSettings` (admin), `upsertSetting(key, value)`.
-- `content-blocks.functions.ts`: `listBlocks(prefix?)` (público con filtro `is_active`), `listAllBlocks` (admin), `upsertBlock`, `deleteBlock`, `reorderBlocks`.
-- `promotions.functions.ts`: CRUD + `getActivePromotions` público.
-- `uploads.functions.ts`: `uploadAsset({ bucket, path, base64 })` → devuelve URL pública (usa `supabaseAdmin.storage`).
+Panel `/admin/bitacora`: lista con filtros por origen/estado/fecha, ficha con edición de estado, fecha de entrega, observaciones e historial visible.
 
-Los `get*` públicos usan cliente publishable + políticas `TO anon`.
+Panel `/admin/calendario`: vista mensual/semana (reutilizando `Calendar` de shadcn + agrupación por día) con badges de estado y filtro por tipo (cotización, pedido, entrega, garantía). Al hacer clic en un evento abre la ficha con selector de estado. Fuente de datos: la misma `bitacora`.
 
-## 3. UI del panel (`src/routes/_authenticated.admin.*`)
+Wiring de origen:
+- `ProductDetailDialog` (WhatsApp cotización) → insert con origen `catalogo` o `whatsapp`.
+- Formularios de `/financiamiento`, `/garantias`, `/contacto`, `/bordados` → insert con su origen.
+- Botón flotante y links WhatsApp → insert liviano con origen `whatsapp`.
 
-Nuevas páginas añadidas al sidebar existente:
+## 3. Protección de datos
 
-- `/admin/contenido` — lista de bloques agrupados por sección con edición inline (título, subtítulo, body richtext simple, imagen con uploader, CTA label/URL, activo, orden).
-- `/admin/branding` — form de logo (uploader), nombre comercial, paleta de colores con color pickers (primario/secundario/acento), preview en vivo.
-- `/admin/seo` — form de SEO por defecto + IDs de GA4 y Meta Pixel.
-- `/admin/contacto` — WhatsApp principal, lista dinámica de sucursales (nombre/tel/dirección/maps), email, redes sociales.
-- `/admin/promociones` — CRUD de promos con selector múltiple de productos.
-- Reutiliza el layout existente `_authenticated.admin.tsx` (sidebar + navegación).
+- Componente reusable `<DataConsent />` (checkbox obligatorio + link a política) que envuelvo en todos los formularios existentes. Bloquea submit hasta aceptar y guarda `consent_accepted_at` en el registro `bitacora`.
+- Nueva ruta pública `/privacidad` con la política redactada (uso para cotización/venta/garantía/atención, no se comparte salvo obligación legal, derecho a actualizar/eliminar y correo de contacto). Texto editable desde `content_blocks` `section='legal.privacy'`.
+- Link a `/privacidad` en el footer.
 
-Componente compartido `<ImageUploader>` que sube al bucket y devuelve URL.
+## 4. Ajustes menores
 
-## 4. Consumo en el sitio público
-
-- Hook `useSiteSettings()` y `useContentBlocks(prefix)` con TanStack Query.
-- `SiteHeader` lee `branding.logo_url` y nombre; footer lee redes/contacto.
-- `index.tsx` lee slides del Hero y banners desde `content_blocks` con fallback a los actuales (no rompe si la tabla está vacía).
-- `__root.tsx` head() lee `seo.*` para title/description/og por defecto.
-- Inyección de GA4 y Meta Pixel condicional en `__root.tsx` cuando existan IDs.
-- Variables CSS de tema (`--primary`, etc.) sobrescritas en runtime desde `branding` (inyectando `<style>` en root).
-
-Cambios reflejados inmediatamente vía invalidación de React Query en cada mutación admin.
-
-## 5. Seed inicial
-
-Migración incluye INSERTs con los valores actuales (logo actual, colores actuales, textos de hero, sucursales de Tonosí/Las Tablas/Casa Matriz/El Progreso, WhatsApp, etc.) para que nada se rompa al desplegar.
+- Footer: mostrar íconos de redes sociales usando URLs de `site_settings` (ya existen los campos, sólo hay que renderizarlos).
+- Home: reemplazar el párrafo del hero por el nuevo texto solicitado.
 
 ## Detalles técnicos
 
-- Tablas: `id uuid pk`, `created_at`, `updated_at` + trigger `set_updated_at`.
-- RLS: `SELECT` a `anon` en `site_settings`, `content_blocks (WHERE is_active)`, `promotions (WHERE is_active)`. `ALL` a admins vía `has_role(auth.uid(),'admin')`.
-- Storage: policies en `storage.objects` para buckets `site-assets` y `product-images`.
-- Sin dependencias nuevas — solo Supabase + shadcn ya presentes.
+- Nuevos archivos:
+  - `supabase/migrations/*` con `embroidery_services`, `bitacora`, `bitacora_historial`, enums, RLS (admin lee/edita, anon sólo insert propio con consent obligatorio vía trigger), grants, triggers de historial y `updated_at`.
+  - `src/lib/bitacora.functions.ts` (createServerFn público para inserts desde formularios; admin-only para list/update/historial).
+  - `src/lib/embroidery-services.functions.ts` (CRUD admin + list público).
+  - `src/components/site/DataConsent.tsx`.
+  - `src/routes/_authenticated.admin.bitacora.tsx`, `_authenticated.admin.calendario.tsx`, `_authenticated.admin.bordados-servicios.tsx`.
+  - `src/routes/privacidad.tsx`.
+- Editados: `index.tsx` (texto hero + lectura de bordados desde nueva tabla), `SiteFooter.tsx` (redes + link privacidad), formularios de `/contacto`, `/financiamiento`, `/garantias`, `/bordados`, `ProductDetailDialog`, `WhatsAppFloat` para registrar interacciones.
+- Los `whatsapp_leads`/`embroidery_requests` existentes se preservan (no destructivo); la app nueva escribe en `bitacora`. Opcionalmente migro los registros existentes.
+- Sin cambios en la paleta, tipografías ni estructura visual pública.
 
-## Alcance / entregables
-
-- 1 migración SQL.
-- 4 server-fn modules + 1 uploads.
-- 5 páginas admin nuevas + `ImageUploader`.
-- Refactor de `SiteHeader`, `SiteFooter`, `index.tsx`, `__root.tsx` para leer de BD.
-
-Confirma y ejecuto la migración + implementación.
+¿Procedo con esta implementación?
