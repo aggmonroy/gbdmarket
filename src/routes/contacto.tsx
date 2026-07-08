@@ -133,11 +133,17 @@ function QuoteForm() {
       const msg = lines.join("\n");
 
       try {
-        await supabase.from("whatsapp_leads").insert({
-          channel: "linea-blanca",
-          customer_name: vals.name,
-          product_name: vals.items.map(i => i.category).join(", "),
-        });
+        await register({ data: {
+          cliente_nombre: vals.name,
+          cliente_telefono: vals.phone,
+          cliente_email: vals.email,
+          producto_servicio: vals.items.map(i => `${i.category}: ${i.details}`).join(" | "),
+          categoria: "linea-blanca",
+          origen: "contacto",
+          observaciones: vals.notes || null,
+          meta: { branch: branchLabel, id_doc: vals.id_doc, items: vals.items },
+          consent: true,
+        } as any });
       } catch (e) { console.warn(e); }
       await logLead({ channel: "linea-blanca", customer_name: vals.name });
 
