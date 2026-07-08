@@ -5,8 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Shirt, Crown, Briefcase, Backpack, BadgeCheck, Upload, Loader2, MessageCircle } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { buildWaUrl, logLead } from "@/lib/whatsapp";
+import { registerBitacora } from "@/lib/bitacora.functions";
+import { DataConsent } from "@/components/site/DataConsent";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -51,12 +54,15 @@ type FormVals = z.infer<typeof schema>;
 
 function Bordados() {
   const [submitting, setSubmitting] = useState(false);
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormVals>({
+  const [consent, setConsent] = useState(false);
+  const regBitacora = useServerFn(registerBitacora);
+  const { register, handleSubmit, formState: { errors } } = useForm<FormVals>({
     resolver: zodResolver(schema),
     defaultValues: { service_type: "Bordado Corporativo", quantity: 12 },
   });
 
   const onSubmit = async (vals: FormVals) => {
+    if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setSubmitting(true);
     try {
       const { error } = await supabase.from("embroidery_requests").insert({
@@ -70,6 +76,19 @@ function Bordados() {
         notes: vals.notes || null,
       });
       if (error) throw error;
+      try {
+        await regBitacora({ data: {
+          cliente_nombre: vals.name,
+          cliente_telefono: vals.phone,
+          cliente_email: vals.email || "",
+          producto_servicio: `${vals.service_type} (x${vals.quantity})`,
+          categoria: "bordados",
+          origen: "bordados",
+          observaciones: [vals.colors && `Colores: ${vals.colors}`, vals.placement && `Ubicación: ${vals.placement}`, vals.notes].filter(Boolean).join(" · "),
+          meta: { quantity: vals.quantity, colors: vals.colors, placement: vals.placement },
+          consent: true,
+        } as any });
+      } catch (e) { console.warn(e); }
       await logLead({ channel: "bordados", customer_name: vals.name, product_name: vals.service_type });
       toast.success("Solicitud enviada. Te contactaremos por WhatsApp.");
 
