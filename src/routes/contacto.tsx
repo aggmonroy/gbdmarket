@@ -313,7 +313,9 @@ function QuoteForm() {
           )}
         </div>
 
-        <Button type="submit" disabled={submitting} size="lg" className="bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90">
+        <DataConsent accepted={consent} onChange={setConsent} id="contacto-consent" />
+
+        <Button type="submit" disabled={submitting || !consent} size="lg" className="bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90">
           {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageCircle className="mr-2 h-4 w-4" />}
           Enviar cotización por WhatsApp
         </Button>
