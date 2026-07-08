@@ -5,12 +5,15 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { logLead } from "@/lib/whatsapp";
+import { registerBitacora } from "@/lib/bitacora.functions";
+import { DataConsent } from "@/components/site/DataConsent";
 
 export const Route = createFileRoute("/contacto")({
   head: () => ({
@@ -92,7 +95,9 @@ function Contacto() {
 function QuoteForm() {
   const [submitting, setSubmitting] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
-  const { register, control, handleSubmit, formState: { errors } } = useForm<QuoteVals>({
+  const [consent, setConsent] = useState(false);
+  const register = useServerFn(registerBitacora);
+  const { register: rhfRegister, control, handleSubmit, formState: { errors } } = useForm<QuoteVals>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
       branch: "las-tablas",
@@ -102,6 +107,7 @@ function QuoteForm() {
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
   const onSubmit = async (vals: QuoteVals) => {
+    if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setSubmitting(true);
     try {
       const targetPhone = vals.branch === "tonosi" ? WA_TONOSI : WA_LAS_TABLAS;
