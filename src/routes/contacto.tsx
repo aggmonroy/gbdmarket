@@ -165,16 +165,16 @@ function QuoteForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 grid gap-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Nombre completo" error={errors.name?.message}>
-            <Input {...register("name")} placeholder="Tu nombre" />
+            <Input {...rhfRegister("name")} placeholder="Tu nombre" />
           </Field>
           <Field label="Cédula o Pasaporte" error={errors.id_doc?.message}>
-            <Input {...register("id_doc")} placeholder="8-123-456 / AB123456" />
+            <Input {...rhfRegister("id_doc")} placeholder="8-123-456 / AB123456" />
           </Field>
           <Field label="Teléfono de contacto" error={errors.phone?.message}>
-            <Input {...register("phone")} placeholder="+507 ..." />
+            <Input {...rhfRegister("phone")} placeholder="+507 ..." />
           </Field>
           <Field label="Correo electrónico" error={errors.email?.message}>
-            <Input type="email" {...register("email")} placeholder="tu@correo.com" />
+            <Input type="email" {...rhfRegister("email")} placeholder="tu@correo.com" />
           </Field>
           <Field label="Sucursal de atención" error={errors.branch?.message} className="sm:col-span-2">
             <Controller
@@ -231,7 +231,7 @@ function QuoteForm() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field label="Categoría" error={errors.items?.[idx]?.category?.message}>
                     <select
-                      {...register(`items.${idx}.category` as const)}
+                      {...rhfRegister(`items.${idx}.category` as const)}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
                       <option value="">Selecciona...</option>
@@ -240,7 +240,7 @@ function QuoteForm() {
                   </Field>
                   <Field label="Rango de precio (B/.)" error={errors.items?.[idx]?.price_range?.message}>
                     <select
-                      {...register(`items.${idx}.price_range` as const)}
+                      {...rhfRegister(`items.${idx}.price_range` as const)}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
                       <option value="">Selecciona...</option>
@@ -249,7 +249,7 @@ function QuoteForm() {
                   </Field>
                   <Field label="Detalles del producto" error={errors.items?.[idx]?.details?.message} className="sm:col-span-2">
                     <Textarea
-                      {...register(`items.${idx}.details` as const)}
+                      {...rhfRegister(`items.${idx}.details` as const)}
                       rows={2}
                       placeholder="Marca, modelo, color, capacidad, características deseadas..."
                     />
@@ -264,7 +264,7 @@ function QuoteForm() {
         </div>
 
         <Field label="Notas adicionales (opcional)">
-          <Textarea {...register("notes")} rows={3} placeholder="Forma de pago preferida, plazo, urgencia, dirección de entrega..." />
+          <Textarea {...rhfRegister("notes")} rows={3} placeholder="Forma de pago preferida, plazo, urgencia, dirección de entrega..." />
         </Field>
 
         {/* Photos */}
