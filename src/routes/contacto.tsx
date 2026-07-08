@@ -5,12 +5,15 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { logLead } from "@/lib/whatsapp";
+import { registerBitacora } from "@/lib/bitacora.functions";
+import { DataConsent } from "@/components/site/DataConsent";
 
 export const Route = createFileRoute("/contacto")({
   head: () => ({
@@ -92,7 +95,9 @@ function Contacto() {
 function QuoteForm() {
   const [submitting, setSubmitting] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
-  const { register, control, handleSubmit, formState: { errors } } = useForm<QuoteVals>({
+  const [consent, setConsent] = useState(false);
+  const register = useServerFn(registerBitacora);
+  const { register: rhfRegister, control, handleSubmit, formState: { errors } } = useForm<QuoteVals>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
       branch: "las-tablas",
@@ -102,6 +107,7 @@ function QuoteForm() {
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
   const onSubmit = async (vals: QuoteVals) => {
+    if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setSubmitting(true);
     try {
       const targetPhone = vals.branch === "tonosi" ? WA_TONOSI : WA_LAS_TABLAS;
@@ -127,11 +133,17 @@ function QuoteForm() {
       const msg = lines.join("\n");
 
       try {
-        await supabase.from("whatsapp_leads").insert({
-          channel: "linea-blanca",
-          customer_name: vals.name,
-          product_name: vals.items.map(i => i.category).join(", "),
-        });
+        await register({ data: {
+          cliente_nombre: vals.name,
+          cliente_telefono: vals.phone,
+          cliente_email: vals.email,
+          producto_servicio: vals.items.map(i => `${i.category}: ${i.details}`).join(" | "),
+          categoria: "linea-blanca",
+          origen: "contacto",
+          observaciones: vals.notes || null,
+          meta: { branch: branchLabel, id_doc: vals.id_doc, items: vals.items },
+          consent: true,
+        } as any });
       } catch (e) { console.warn(e); }
       await logLead({ channel: "linea-blanca", customer_name: vals.name });
 
@@ -159,16 +171,16 @@ function QuoteForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 grid gap-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Nombre completo" error={errors.name?.message}>
-            <Input {...register("name")} placeholder="Tu nombre" />
+            <Input {...rhfRegister("name")} placeholder="Tu nombre" />
           </Field>
           <Field label="Cédula o Pasaporte" error={errors.id_doc?.message}>
-            <Input {...register("id_doc")} placeholder="8-123-456 / AB123456" />
+            <Input {...rhfRegister("id_doc")} placeholder="8-123-456 / AB123456" />
           </Field>
           <Field label="Teléfono de contacto" error={errors.phone?.message}>
-            <Input {...register("phone")} placeholder="+507 ..." />
+            <Input {...rhfRegister("phone")} placeholder="+507 ..." />
           </Field>
           <Field label="Correo electrónico" error={errors.email?.message}>
-            <Input type="email" {...register("email")} placeholder="tu@correo.com" />
+            <Input type="email" {...rhfRegister("email")} placeholder="tu@correo.com" />
           </Field>
           <Field label="Sucursal de atención" error={errors.branch?.message} className="sm:col-span-2">
             <Controller
@@ -225,7 +237,7 @@ function QuoteForm() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field label="Categoría" error={errors.items?.[idx]?.category?.message}>
                     <select
-                      {...register(`items.${idx}.category` as const)}
+                      {...rhfRegister(`items.${idx}.category` as const)}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
                       <option value="">Selecciona...</option>
@@ -234,7 +246,7 @@ function QuoteForm() {
                   </Field>
                   <Field label="Rango de precio (B/.)" error={errors.items?.[idx]?.price_range?.message}>
                     <select
-                      {...register(`items.${idx}.price_range` as const)}
+                      {...rhfRegister(`items.${idx}.price_range` as const)}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
                       <option value="">Selecciona...</option>
@@ -243,7 +255,7 @@ function QuoteForm() {
                   </Field>
                   <Field label="Detalles del producto" error={errors.items?.[idx]?.details?.message} className="sm:col-span-2">
                     <Textarea
-                      {...register(`items.${idx}.details` as const)}
+                      {...rhfRegister(`items.${idx}.details` as const)}
                       rows={2}
                       placeholder="Marca, modelo, color, capacidad, características deseadas..."
                     />
@@ -258,7 +270,7 @@ function QuoteForm() {
         </div>
 
         <Field label="Notas adicionales (opcional)">
-          <Textarea {...register("notes")} rows={3} placeholder="Forma de pago preferida, plazo, urgencia, dirección de entrega..." />
+          <Textarea {...rhfRegister("notes")} rows={3} placeholder="Forma de pago preferida, plazo, urgencia, dirección de entrega..." />
         </Field>
 
         {/* Photos */}
@@ -301,7 +313,9 @@ function QuoteForm() {
           )}
         </div>
 
-        <Button type="submit" disabled={submitting} size="lg" className="bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90">
+        <DataConsent accepted={consent} onChange={setConsent} id="contacto-consent" />
+
+        <Button type="submit" disabled={submitting || !consent} size="lg" className="bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90">
           {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageCircle className="mr-2 h-4 w-4" />}
           Enviar cotización por WhatsApp
         </Button>

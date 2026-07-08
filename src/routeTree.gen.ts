@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
 import { Route as GarantiasRouteImport } from './routes/garantias'
@@ -33,12 +34,20 @@ import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminCambiosRouteImport } from './routes/_authenticated.admin.cambios'
+import { Route as AuthenticatedAdminCalendarioRouteImport } from './routes/_authenticated.admin.calendario'
 import { Route as AuthenticatedAdminBrandingRouteImport } from './routes/_authenticated.admin.branding'
+import { Route as AuthenticatedAdminBordadosServiciosRouteImport } from './routes/_authenticated.admin.bordados-servicios'
 import { Route as AuthenticatedAdminBordadosRouteImport } from './routes/_authenticated.admin.bordados'
+import { Route as AuthenticatedAdminBitacoraRouteImport } from './routes/_authenticated.admin.bitacora'
 import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authenticated.admin.auditoria'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicHooksRefreshHomeGalleryRouteImport } from './routes/api/public/hooks/refresh-home-gallery'
 
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
@@ -168,16 +177,34 @@ const AuthenticatedAdminCambiosRoute =
     path: '/cambios',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCalendarioRoute =
+  AuthenticatedAdminCalendarioRouteImport.update({
+    id: '/calendario',
+    path: '/calendario',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBrandingRoute =
   AuthenticatedAdminBrandingRouteImport.update({
     id: '/branding',
     path: '/branding',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminBordadosServiciosRoute =
+  AuthenticatedAdminBordadosServiciosRouteImport.update({
+    id: '/bordados-servicios',
+    path: '/bordados-servicios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBordadosRoute =
   AuthenticatedAdminBordadosRouteImport.update({
     id: '/bordados',
     path: '/bordados',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBitacoraRoute =
+  AuthenticatedAdminBitacoraRouteImport.update({
+    id: '/bitacora',
+    path: '/bitacora',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAuditoriaRoute =
@@ -209,13 +236,17 @@ export interface FileRoutesByFullPath {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
+  '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/admin/bitacora': typeof AuthenticatedAdminBitacoraRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/admin/bordados-servicios': typeof AuthenticatedAdminBordadosServiciosRoute
   '/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
@@ -239,12 +270,16 @@ export interface FileRoutesByTo {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
+  '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/admin/bitacora': typeof AuthenticatedAdminBitacoraRoute
   '/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/admin/bordados-servicios': typeof AuthenticatedAdminBordadosServiciosRoute
   '/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
@@ -270,13 +305,17 @@ export interface FileRoutesById {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
+  '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
+  '/_authenticated/admin/bitacora': typeof AuthenticatedAdminBitacoraRoute
   '/_authenticated/admin/bordados': typeof AuthenticatedAdminBordadosRoute
+  '/_authenticated/admin/bordados-servicios': typeof AuthenticatedAdminBordadosServiciosRoute
   '/_authenticated/admin/branding': typeof AuthenticatedAdminBrandingRoute
+  '/_authenticated/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/_authenticated/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
@@ -302,13 +341,17 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
+    | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/auditoria'
+    | '/admin/bitacora'
     | '/admin/bordados'
+    | '/admin/bordados-servicios'
     | '/admin/branding'
+    | '/admin/calendario'
     | '/admin/cambios'
     | '/admin/categorias'
     | '/admin/contacto'
@@ -332,12 +375,16 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
+    | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/auditoria'
+    | '/admin/bitacora'
     | '/admin/bordados'
+    | '/admin/bordados-servicios'
     | '/admin/branding'
+    | '/admin/calendario'
     | '/admin/cambios'
     | '/admin/categorias'
     | '/admin/contacto'
@@ -362,13 +409,17 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
+    | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/auditoria'
+    | '/_authenticated/admin/bitacora'
     | '/_authenticated/admin/bordados'
+    | '/_authenticated/admin/bordados-servicios'
     | '/_authenticated/admin/branding'
+    | '/_authenticated/admin/calendario'
     | '/_authenticated/admin/cambios'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/contacto'
@@ -394,6 +445,7 @@ export interface RootRouteChildren {
   GarantiasRoute: typeof GarantiasRoute
   LineaBlancaRoute: typeof LineaBlancaRoute
   McpRoute: typeof McpRoute
+  PrivacidadRoute: typeof PrivacidadRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -403,6 +455,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mcp': {
       id: '/mcp'
       path: '/mcp'
@@ -571,6 +630,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCambiosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/calendario': {
+      id: '/_authenticated/admin/calendario'
+      path: '/calendario'
+      fullPath: '/admin/calendario'
+      preLoaderRoute: typeof AuthenticatedAdminCalendarioRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/branding': {
       id: '/_authenticated/admin/branding'
       path: '/branding'
@@ -578,11 +644,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBrandingRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/bordados-servicios': {
+      id: '/_authenticated/admin/bordados-servicios'
+      path: '/bordados-servicios'
+      fullPath: '/admin/bordados-servicios'
+      preLoaderRoute: typeof AuthenticatedAdminBordadosServiciosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/bordados': {
       id: '/_authenticated/admin/bordados'
       path: '/bordados'
       fullPath: '/admin/bordados'
       preLoaderRoute: typeof AuthenticatedAdminBordadosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/bitacora': {
+      id: '/_authenticated/admin/bitacora'
+      path: '/bitacora'
+      fullPath: '/admin/bitacora'
+      preLoaderRoute: typeof AuthenticatedAdminBitacoraRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/auditoria': {
@@ -611,8 +691,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
+  AuthenticatedAdminBitacoraRoute: typeof AuthenticatedAdminBitacoraRoute
   AuthenticatedAdminBordadosRoute: typeof AuthenticatedAdminBordadosRoute
+  AuthenticatedAdminBordadosServiciosRoute: typeof AuthenticatedAdminBordadosServiciosRoute
   AuthenticatedAdminBrandingRoute: typeof AuthenticatedAdminBrandingRoute
+  AuthenticatedAdminCalendarioRoute: typeof AuthenticatedAdminCalendarioRoute
   AuthenticatedAdminCambiosRoute: typeof AuthenticatedAdminCambiosRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
@@ -627,8 +710,12 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
+  AuthenticatedAdminBitacoraRoute: AuthenticatedAdminBitacoraRoute,
   AuthenticatedAdminBordadosRoute: AuthenticatedAdminBordadosRoute,
+  AuthenticatedAdminBordadosServiciosRoute:
+    AuthenticatedAdminBordadosServiciosRoute,
   AuthenticatedAdminBrandingRoute: AuthenticatedAdminBrandingRoute,
+  AuthenticatedAdminCalendarioRoute: AuthenticatedAdminCalendarioRoute,
   AuthenticatedAdminCambiosRoute: AuthenticatedAdminCambiosRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
@@ -667,6 +754,7 @@ const rootRouteChildren: RootRouteChildren = {
   GarantiasRoute: GarantiasRoute,
   LineaBlancaRoute: LineaBlancaRoute,
   McpRoute: McpRoute,
+  PrivacidadRoute: PrivacidadRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,

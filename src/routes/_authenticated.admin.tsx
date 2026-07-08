@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye, BarChart3, ClipboardList, CalendarDays, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +21,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/admin/bitacora", label: "Bitácora", icon: ClipboardList },
+  { to: "/admin/calendario", label: "Calendario", icon: CalendarDays },
   { to: "/admin/productos", label: "Productos", icon: Package },
   { to: "/admin/categorias", label: "Categorías y marcas", icon: Tags },
   { to: "/admin/promociones", label: "Promociones", icon: Tag },
@@ -28,7 +30,8 @@ const nav = [
   { to: "/admin/branding", label: "Marca y colores", icon: Palette },
   { to: "/admin/contacto", label: "Contacto y redes", icon: Phone },
   { to: "/admin/seo", label: "SEO y analítica", icon: Search },
-  { to: "/admin/bordados", label: "Bordados", icon: Scissors },
+  { to: "/admin/bordados-servicios", label: "Bordados: servicios", icon: Sparkles },
+  { to: "/admin/bordados", label: "Bordados: solicitudes", icon: Scissors },
 ];
 
 const workflowNav = [

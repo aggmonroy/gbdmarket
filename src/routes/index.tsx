@@ -140,8 +140,8 @@ function HeroFused() {
               Inspiración para crear el hogar que siempre has soñado.
             </p>
             <p className="mt-3 text-base sm:text-lg text-white/90 max-w-2xl">
-              Descubre cómo nuestros muebles y electrodomésticos pueden transformar cada espacio de tu hogar.
-              Siempre pensando en ti, te ofrecemos ideas que combinan comodidad, funcionalidad y estilo para
+              Descubre cómo nuestros productos pueden transformar cada espacio de tu hogar.
+              Te ofrecemos ideas que combinan comodidad, funcionalidad y estilo para
               ayudarte a elegir la mejor opción para tu familia.
             </p>
             <p className="mt-2 text-xs text-white/60 italic">
