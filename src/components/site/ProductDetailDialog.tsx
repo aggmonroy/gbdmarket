@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { buildWaUrl, logLead } from "@/lib/whatsapp";
+import { registerBitacora } from "@/lib/bitacora.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { DataConsent } from "@/components/site/DataConsent";
+import { toast } from "sonner";
 import { FileText, MessageCircle, Package } from "lucide-react";
 
 export type ProductLite = {
@@ -24,17 +28,35 @@ export function ProductDetailDialog({
   open, onOpenChange, product,
 }: { open: boolean; onOpenChange: (b: boolean) => void; product: ProductLite | null }) {
   const [customerName, setCustomerName] = useState("");
+  const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [consent, setConsent] = useState(false);
+  const register = useServerFn(registerBitacora);
   if (!product) return null;
 
-  const sendWa = () => {
+  const sendWa = async () => {
+    if (!customerName.trim()) { toast.error("Ingresa tu nombre"); return; }
+    if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     const msg = [
       `Hola, me interesa cotizar el siguiente producto:`,
       `*${product.name}*${product.brand ? ` — ${product.brand}` : ""}${product.model ? ` ${product.model}` : ""}`,
       product.code ? `Código: ${product.code}` : null,
       customerName ? `Cliente: ${customerName}` : null,
+      phone ? `Teléfono: ${phone}` : null,
       notes ? `Detalles: ${notes}` : null,
     ].filter(Boolean).join("\n");
+    try {
+      await register({ data: {
+        cliente_nombre: customerName,
+        cliente_telefono: phone,
+        producto_servicio: `${product.name}${product.brand ? " · " + product.brand : ""}`,
+        categoria: "linea-blanca",
+        origen: "catalogo",
+        observaciones: notes,
+        meta: { product_id: product.id, code: product.code ?? null },
+        consent: true,
+      } as any });
+    } catch (e) { console.warn(e); }
     logLead({
       channel: "linea-blanca",
       product_id: product.id,
