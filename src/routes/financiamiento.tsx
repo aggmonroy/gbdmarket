@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { Input } from "@/components/ui/input";
 import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, PROMO_MAX_TERM, type Term, type MemberType } from "@/lib/financing";
 import { Sparkles } from "lucide-react";
+import { registerBitacora } from "@/lib/bitacora.functions";
+import { DataConsent } from "@/components/site/DataConsent";
 
 export const Route = createFileRoute("/financiamiento")({
   head: () => ({
@@ -25,7 +29,37 @@ function Financiamiento() {
   const [term, setTerm] = useState<Term>(12);
   const [member, setMember] = useState<MemberType>("asociado");
   const [directDebit, setDirectDebit] = useState(false);
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const regBit = useServerFn(registerBitacora);
   const fin = calcFinancing(price, term, member, directDebit);
+
+  async function handleSolicitar() {
+    if (!nombre.trim()) { toast.error("Ingresa tu nombre"); return; }
+    if (!telefono.trim()) { toast.error("Ingresa tu teléfono"); return; }
+    if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
+    setSending(true);
+    const detalle = `Financiamiento como ${MEMBER_LABEL[member]} por ${fmtUSD(price)} a ${term} meses${directDebit ? " con descuento directo" : ""}. Cuota mensual estimada: ${fmtUSD(fin.monthly)}.`;
+    try {
+      await regBit({ data: {
+        cliente_nombre: nombre,
+        cliente_telefono: telefono,
+        producto_servicio: `Financiamiento ${term} meses · ${fmtUSD(price)}`,
+        categoria: "financiamiento",
+        origen: "financiamiento",
+        observaciones: detalle,
+        meta: { price, term, member, directDebit, monthly: fin.monthly, biweekly: fin.biweekly, down: fin.down, totalFinanced: fin.totalFinanced },
+        consent: true,
+      } as any });
+    } catch (e) { console.warn(e); }
+    const msg = `Hola, soy ${nombre} (tel ${telefono}). Deseo cotizar un ${detalle}`;
+    window.open(`https://wa.me/50767841941?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+    toast.success("Abriendo WhatsApp con tu solicitud…");
+    setSending(false);
+  }
+
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-14 max-w-4xl">
@@ -116,13 +150,19 @@ function Financiamiento() {
             <Stat label="Cuota mensual" value={fmtUSD(fin.monthly)} highlight />
             <Stat label="Cuota quincenal" value={fmtUSD(fin.biweekly)} />
           </dl>
-          <a
-            href={`https://wa.me/50767841941?text=${encodeURIComponent(`Hola, deseo cotizar un financiamiento como ${MEMBER_LABEL[member]} por ${fmtUSD(price)} a ${term} meses${directDebit ? " con descuento directo" : ""}. Cuota mensual estimada: ${fmtUSD(fin.monthly)}.`)}`}
-            target="_blank" rel="noreferrer"
-            className="mt-5 inline-flex w-full items-center justify-center rounded-md bg-whatsapp px-4 py-3 text-sm font-semibold text-whatsapp-foreground hover:opacity-90"
+          <div className="mt-5 space-y-2">
+            <Input placeholder="Tu nombre *" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={80} />
+            <Input placeholder="Teléfono / WhatsApp *" value={telefono} onChange={(e) => setTelefono(e.target.value)} maxLength={30} />
+            <DataConsent accepted={consent} onChange={setConsent} id="fin-consent" />
+          </div>
+          <button
+            type="button"
+            onClick={handleSolicitar}
+            disabled={sending || !consent}
+            className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-whatsapp px-4 py-3 text-sm font-semibold text-whatsapp-foreground hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Solicitar esta cotización por WhatsApp
-          </a>
+          </button>
           <p className="mt-3 text-[11px] text-muted-foreground">
             *Cálculo estimado. La cotización oficial será confirmada por un asesor cooperativo según la política vigente y el perfil del cliente.
           </p>

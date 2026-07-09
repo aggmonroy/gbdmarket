@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MessageCircle, Mail, MapPin, Clock, Instagram, Globe, Plus, Trash2, Upload, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/contacto")({
   head: () => ({
     meta: [
       { title: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
-      { name: "description", content: "Cotiza tu Línea Blanca o Bordados. Las Tablas: +507 6784-1941 · Tonosí: +507 6871-1242 · Bordados: +507 6829-8538." },
+      { name: "description", content: "Cotiza tu Línea Blanca o Bordados. Las Tablas: +507 6784-1941 · Bordados: +507 6829-8538." },
       { property: "og:title", content: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
       { property: "og:description", content: "WhatsApp directo y formulario de cotización." },
     ],
@@ -29,7 +29,6 @@ export const Route = createFileRoute("/contacto")({
 });
 
 const WA_LAS_TABLAS = "50767841941";
-const WA_TONOSI = "50768711242";
 const WA_BORDADOS = "50768298538";
 
 const PRODUCT_CATEGORIES = [
@@ -53,7 +52,6 @@ const quoteSchema = z.object({
   id_doc: z.string().trim().min(4, "Cédula o pasaporte requerido").max(40),
   phone: z.string().trim().min(6, "Teléfono válido").max(30),
   email: z.string().trim().email("Correo inválido").max(255),
-  branch: z.enum(["las-tablas", "tonosi"], { message: "Selecciona la sucursal" }),
   notes: z.string().max(1500).optional().or(z.literal("")),
   items: z.array(z.object({
     category: z.string().min(1, "Categoría requerida"),
@@ -69,11 +67,11 @@ function Contacto() {
       <h1 className="font-display text-3xl lg:text-4xl font-bold">Hablemos</h1>
       <p className="mt-3 text-muted-foreground">Te respondemos por WhatsApp de inmediato. Elige el canal o completa el formulario de cotización.</p>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid gap-6 md:grid-cols-2">
         <ChannelCard title="Línea Blanca · Las Tablas" phone="+507 6784-1941" href={`https://wa.me/${WA_LAS_TABLAS}`} />
-        <ChannelCard title="Línea Blanca · Tonosí" phone="+507 6871-1242" href={`https://wa.me/${WA_TONOSI}`} />
         <ChannelCard title="Bordados" phone="+507 6829-8538" href={`https://wa.me/${WA_BORDADOS}`} />
       </div>
+
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
         <Info Icon={Mail} title="Email">lineablanca@coopgbd.com</Info>
@@ -100,7 +98,6 @@ function QuoteForm() {
   const { register: rhfRegister, control, handleSubmit, formState: { errors } } = useForm<QuoteVals>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
-      branch: "las-tablas",
       items: [{ category: "", price_range: "", details: "" }],
     },
   });
@@ -110,12 +107,9 @@ function QuoteForm() {
     if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setSubmitting(true);
     try {
-      const targetPhone = vals.branch === "tonosi" ? WA_TONOSI : WA_LAS_TABLAS;
-      const branchLabel = vals.branch === "tonosi" ? "Tonosí" : "Las Tablas";
-
       const lines = [
         "*Cotización · Línea Blanca GBD*",
-        `Sucursal: ${branchLabel}`,
+        `Sucursal: Las Tablas`,
         "",
         `Nombre: ${vals.name}`,
         `Cédula / Pasaporte: ${vals.id_doc}`,
@@ -141,13 +135,13 @@ function QuoteForm() {
           categoria: "linea-blanca",
           origen: "contacto",
           observaciones: vals.notes || null,
-          meta: { branch: branchLabel, id_doc: vals.id_doc, items: vals.items },
+          meta: { branch: "Las Tablas", id_doc: vals.id_doc, items: vals.items },
           consent: true,
         } as any });
       } catch (e) { console.warn(e); }
       await logLead({ channel: "linea-blanca", customer_name: vals.name });
 
-      const url = `https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`;
+      const url = `https://wa.me/${WA_LAS_TABLAS}?text=${encodeURIComponent(msg)}`;
       window.open(url, "_blank");
       toast.success("Abriendo WhatsApp para enviar tu cotización.");
     } catch (e: any) {
@@ -164,7 +158,7 @@ function QuoteForm() {
         <span className="text-xs font-bold uppercase tracking-widest text-primary">Cotización Línea Blanca</span>
         <h2 className="mt-2 font-display text-2xl lg:text-3xl font-bold">Solicita tu cotización personalizada</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Completa tus datos y agrega uno o varios productos. Te responderemos por WhatsApp desde la sucursal que elijas.
+          Completa tus datos y agrega uno o varios productos. Te responderemos por WhatsApp desde Las Tablas.
         </p>
       </div>
 
@@ -182,35 +176,8 @@ function QuoteForm() {
           <Field label="Correo electrónico" error={errors.email?.message}>
             <Input type="email" {...rhfRegister("email")} placeholder="tu@correo.com" />
           </Field>
-          <Field label="Sucursal de atención" error={errors.branch?.message} className="sm:col-span-2">
-            <Controller
-              control={control}
-              name="branch"
-              render={({ field }) => (
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { v: "las-tablas", label: "Las Tablas", phone: "+507 6784-1941" },
-                    { v: "tonosi", label: "Tonosí", phone: "+507 6871-1242" },
-                  ].map((opt) => (
-                    <button
-                      type="button"
-                      key={opt.v}
-                      onClick={() => field.onChange(opt.v)}
-                      className={`text-left rounded-xl border-2 px-4 py-3 transition ${
-                        field.value === opt.v
-                          ? "border-primary bg-primary-soft"
-                          : "border-border hover:border-primary/40"
-                      }`}
-                    >
-                      <div className="font-display font-bold">{opt.label}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">WhatsApp {opt.phone}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            />
-          </Field>
         </div>
+
 
         {/* Items */}
         <div>

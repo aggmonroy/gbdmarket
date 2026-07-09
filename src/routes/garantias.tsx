@@ -6,7 +6,10 @@ import {
   CheckCircle2, GraduationCap, Sparkles, MapPin, CalendarDays, Smartphone, Wrench, Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { WHATSAPP_LINEA_BLANCA } from "@/lib/whatsapp";
+import { registerBitacora } from "@/lib/bitacora.functions";
+import { DataConsent } from "@/components/site/DataConsent";
 
 export const Route = createFileRoute("/garantias")({
   head: () => ({
@@ -84,6 +87,9 @@ function Garantias() {
   const [files, setFiles] = useState<{ fotos: File[]; videos: File[] }>({ fotos: [], videos: [] });
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [agentTarget, setAgentTarget] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
+  const [consentCita, setConsentCita] = useState(false);
+  const registerBit = useServerFn(registerBitacora);
 
   const [cita, setCita] = useState<CitaData>(initialCita);
   const [citaErrors, setCitaErrors] = useState<Partial<Record<keyof CitaData, string>>>({});
@@ -116,7 +122,7 @@ function Garantias() {
     ].join("\n");
   }, [form, files, agentTarget]);
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const parsed = formSchema.safeParse(form);
     if (!parsed.success) {
@@ -129,13 +135,26 @@ function Garantias() {
       toast.error("Revisa los campos marcados");
       return;
     }
+    if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setErrors({});
+    try {
+      await registerBit({ data: {
+        cliente_nombre: form.nombre,
+        cliente_telefono: form.telefono,
+        producto_servicio: `${form.marca} ${form.modelo} · Serie ${form.serie}`,
+        categoria: "garantia",
+        origen: "garantia",
+        observaciones: form.descripcion,
+        meta: { cedula: form.cedula, factura: form.factura, fechaCompra: form.fechaCompra, lugarCompra: form.lugarCompra, agente: agentTarget ?? null },
+        consent: true,
+      } as any });
+    } catch (e) { console.warn(e); }
     toast.success("Abriendo WhatsApp con tu solicitud…");
     const url = `https://wa.me/${WHATSAPP_LINEA_BLANCA}?text=${encodeURIComponent(waMessage)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
-  function onSubmitCita(e: React.FormEvent) {
+  async function onSubmitCita(e: React.FormEvent) {
     e.preventDefault();
     const parsed = citaSchema.safeParse(cita);
     if (!parsed.success) {
@@ -148,6 +167,7 @@ function Garantias() {
       toast.error("Revisa los campos marcados");
       return;
     }
+    if (!consentCita) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setCitaErrors({});
     const msg = [
       "*Solicitud de orientación de producto*", "",
@@ -161,10 +181,24 @@ function Garantias() {
       `• Lugar de compra: ${cita.lugarCompra}`,
       cita.comentarios ? `• Comentarios: ${cita.comentarios}` : "",
     ].filter(Boolean).join("\n");
+    try {
+      await registerBit({ data: {
+        cliente_nombre: cita.nombre,
+        cliente_telefono: cita.telefono,
+        cliente_email: cita.email,
+        producto_servicio: `${cita.producto} · ${cita.marca}`,
+        categoria: "orientacion",
+        origen: "garantia",
+        observaciones: cita.comentarios || null,
+        meta: { fecha: cita.fecha, modalidad: cita.modalidad, lugarCompra: cita.lugarCompra },
+        consent: true,
+      } as any });
+    } catch (e) { console.warn(e); }
     toast.success("¡Solicitud enviada! Te contactaremos para confirmar la cita.");
     const url = `https://wa.me/${WHATSAPP_LINEA_BLANCA}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
+
 
   function openAgentForm(brand?: string) {
     setMode("agente");
@@ -329,9 +363,11 @@ function Garantias() {
             Las fotos y videos se adjuntan directamente en el chat de WhatsApp que se abrirá al enviar el reporte.
           </p>
 
+          <DataConsent accepted={consent} onChange={setConsent} id="garantia-consent" />
+
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <button type="submit"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-whatsapp px-5 py-3 text-sm font-semibold text-whatsapp-foreground hover:bg-whatsapp/90 shadow-glow">
+            <button type="submit" disabled={!consent}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-whatsapp px-5 py-3 text-sm font-semibold text-whatsapp-foreground hover:bg-whatsapp/90 shadow-glow disabled:opacity-60 disabled:cursor-not-allowed">
               <MessageCircle className="h-4 w-4" /> Enviar reporte por WhatsApp
             </button>
             <button type="button" onClick={() => { setAgentTarget(null); setMode("directo"); }}
@@ -422,9 +458,11 @@ function Garantias() {
               placeholder="Cuéntanos qué te gustaría aprender de tu producto" />
           </Field>
 
+          <DataConsent accepted={consentCita} onChange={setConsentCita} id="cita-consent" />
+
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <button type="submit"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 shadow-soft transition">
+            <button type="submit" disabled={!consentCita}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 shadow-soft transition disabled:opacity-60 disabled:cursor-not-allowed">
               <CheckCircle2 className="h-4 w-4" /> Agendar Mi Cita
             </button>
             <span className="text-xs text-muted-foreground inline-flex items-center gap-2">
