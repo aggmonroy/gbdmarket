@@ -313,13 +313,13 @@ function BordadosSection() {
                   >
                     Ver categoría <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <a
-                    href="https://wa.me/50768298538?text=Hola%2C%20deseo%20una%20cotizaci%C3%B3n%20de%20bordados"
-                    target="_blank" rel="noreferrer"
+                  <button
+                    type="button"
+                    onClick={onCotizarWa}
                     className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-5 py-2.5 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
                   >
                     <MessageCircle className="h-4 w-4" /> Cotizar por WhatsApp
-                  </a>
+                  </button>
                 </div>
               </>
             )}
