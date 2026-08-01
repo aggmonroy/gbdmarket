@@ -127,7 +127,7 @@ export async function resumenAbiertas(estados: string[]) {
     ? await sb.from("garantia_seguimientos").select("*").in("garantia_id", ids).order("fecha", { ascending: true })
     : { data: [] as any[] };
   const { data: colabs } = await sb.from("colaboradores").select("id,nombre,cedula");
-  const byId = new Map((colabs ?? []).map((c: any) => [c.id, c]));
+  const byId = new Map<string, any>((colabs ?? []).map((c: any) => [c.id as string, c]));
   return (garantias ?? []).map((g: any) => {
     const propios = (segs ?? []).filter((s: any) => s.garantia_id === g.id);
     const ultimo = propios.length ? propios[propios.length - 1].fecha : null;
