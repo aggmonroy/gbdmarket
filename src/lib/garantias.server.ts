@@ -1,0 +1,142 @@
+import type { ColaboradorRol } from "./garantias-shared";
+
+export type Sesion = { cid: string; rol: ColaboradorRol; nombre: string; exp: number };
+
+export async function admin() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin as any;
+}
+
+function secret(): string {
+  const s = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!s) throw new Error("Falta la configuración del servidor");
+  return `garantias:${s}`;
+}
+
+async function hmac(payload: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret()),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export function randomSalt(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export async function hashPin(pin: string, salt: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${salt}:${pin}:${secret()}`));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export async function signSesion(s: Omit<Sesion, "exp">): Promise<string> {
+  const payload = { ...s, exp: Date.now() + 12 * 60 * 60 * 1000 };
+  const body = btoa(JSON.stringify(payload));
+  return `${body}.${await hmac(body)}`;
+}
+
+export async function verifySesion(token: string | undefined | null): Promise<Sesion> {
+  if (!token || !token.includes(".")) throw new Error("Sesión no válida");
+  const [body, sig] = token.split(".");
+  if (sig !== (await hmac(body!))) throw new Error("Sesión no válida");
+  const payload = JSON.parse(atob(body!)) as Sesion;
+  if (!payload.exp || payload.exp < Date.now()) throw new Error("Sesión expirada, vuelve a ingresar tu PIN");
+  return payload;
+}
+
+export async function requireAdminSesion(token: string | undefined | null): Promise<Sesion> {
+  const s = await verifySesion(token);
+  if (s.rol !== "admin") throw new Error("Solo un administrador puede realizar esta acción");
+  return s;
+}
+
+/** El gerente es de solo lectura: no puede editar ni agregar seguimientos. */
+export async function requireEscritura(token: string | undefined | null): Promise<Sesion> {
+  const s = await verifySesion(token);
+  if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
+  return s;
+}
+
+export async function verificarPinColaborador(colaboradorId: string, pin: string) {
+  const sb = await admin();
+  const { data, error } = await sb
+    .from("colaboradores")
+    .select("id,nombre,rol,pin_hash,pin_salt,pin_bloqueado,activo,deleted_at")
+    .eq("id", colaboradorId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data || !data.activo || data.deleted_at) throw new Error("Colaborador no disponible");
+  if (data.pin_bloqueado) throw new Error("Tienes una solicitud de PIN pendiente de aprobación");
+  if (!data.pin_hash || !data.pin_salt) throw new Error("Aún no tienes un PIN asignado");
+  const hash = await hashPin(pin, data.pin_salt);
+  if (hash !== data.pin_hash) throw new Error("PIN incorrecto");
+  return data as { id: string; nombre: string; rol: ColaboradorRol };
+}
+
+export async function firmarUrlEvidencia(path: string): Promise<string> {
+  const sb = await admin();
+  const { data } = await sb.storage.from("garantia-evidencias").createSignedUrl(path, 60 * 60 * 24 * 7);
+  return data?.signedUrl ?? "";
+}
+
+export async function garantiaCompleta(id: string) {
+  const sb = await admin();
+  const { data: garantia, error } = await sb.from("garantias").select("*").eq("id", id).maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!garantia) throw new Error("Garantía no encontrada");
+  const [{ data: seguimientos }, { data: evidencias }, { data: cierre }, { data: colaborador }] = await Promise.all([
+    sb.from("garantia_seguimientos").select("*").eq("garantia_id", id).order("fecha", { ascending: true }),
+    sb.from("garantia_evidencias").select("*").eq("garantia_id", id).order("subido_en", { ascending: true }),
+    sb
+      .from("garantia_cierre_solicitud")
+      .select("*")
+      .eq("garantia_id", id)
+      .order("solicitado_en", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    sb.from("colaboradores").select("id,nombre,cedula").eq("id", garantia.tramitado_por).maybeSingle(),
+  ]);
+  const evidenciasFirmadas = await Promise.all(
+    (evidencias ?? []).map(async (e: any) => ({ ...e, url: await firmarUrlEvidencia(e.url_imagen) })),
+  );
+  return {
+    garantia,
+    seguimientos: seguimientos ?? [],
+    evidencias: evidenciasFirmadas,
+    cierre: cierre ?? null,
+    colaborador: colaborador ?? null,
+  };
+}
+
+export async function resumenAbiertas(estados: string[]) {
+  const sb = await admin();
+  const { data: garantias, error } = await sb
+    .from("garantias")
+    .select("*")
+    .in("estado", estados)
+    .order("fecha", { ascending: true });
+  if (error) throw new Error(error.message);
+  const ids = (garantias ?? []).map((g: any) => g.id);
+  const { data: segs } = ids.length
+    ? await sb.from("garantia_seguimientos").select("*").in("garantia_id", ids).order("fecha", { ascending: true })
+    : { data: [] as any[] };
+  const { data: colabs } = await sb.from("colaboradores").select("id,nombre,cedula");
+  const byId = new Map<string, any>((colabs ?? []).map((c: any) => [c.id as string, c]));
+  return (garantias ?? []).map((g: any) => {
+    const propios = (segs ?? []).filter((s: any) => s.garantia_id === g.id);
+    const ultimo = propios.length ? propios[propios.length - 1].fecha : null;
+    return {
+      ...g,
+      tramitado_por_nombre: byId.get(g.tramitado_por)?.nombre ?? "—",
+      seguimientos: propios,
+      total_seguimientos: propios.length,
+      ultimo_contacto: ultimo,
+    };
+  });
+}

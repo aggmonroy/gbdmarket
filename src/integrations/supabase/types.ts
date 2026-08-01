@@ -176,6 +176,89 @@ export type Database = {
         }
         Relationships: []
       }
+      colaborador_pin_solicitudes: {
+        Row: {
+          colaborador_id: string
+          estado: string
+          id: string
+          nuevo_pin_hash: string
+          nuevo_pin_salt: string
+          resuelto_en: string | null
+          resuelto_por: string | null
+          solicitado_en: string
+        }
+        Insert: {
+          colaborador_id: string
+          estado?: string
+          id?: string
+          nuevo_pin_hash: string
+          nuevo_pin_salt: string
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          solicitado_en?: string
+        }
+        Update: {
+          colaborador_id?: string
+          estado?: string
+          id?: string
+          nuevo_pin_hash?: string
+          nuevo_pin_salt?: string
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          solicitado_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "colaborador_pin_solicitudes_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      colaboradores: {
+        Row: {
+          activo: boolean
+          cedula: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          nombre: string
+          pin_bloqueado: boolean
+          pin_hash: string | null
+          pin_salt: string | null
+          rol: Database["public"]["Enums"]["colaborador_rol"]
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          cedula?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          nombre: string
+          pin_bloqueado?: boolean
+          pin_hash?: string | null
+          pin_salt?: string | null
+          rol?: Database["public"]["Enums"]["colaborador_rol"]
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          cedula?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          nombre?: string
+          pin_bloqueado?: boolean
+          pin_hash?: string | null
+          pin_salt?: string | null
+          rol?: Database["public"]["Enums"]["colaborador_rol"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_blocks: {
         Row: {
           body: string | null
@@ -307,6 +390,235 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      garantia_cierre_solicitud: {
+        Row: {
+          estado: string
+          garantia_id: string
+          id: string
+          nota_final: string | null
+          numero_documento_subsanacion: string | null
+          resuelto_en: string | null
+          resuelto_por: string | null
+          solicitado_en: string
+          solicitado_por: string | null
+          tipo_propuesto: Database["public"]["Enums"]["garantia_estado"]
+        }
+        Insert: {
+          estado?: string
+          garantia_id: string
+          id?: string
+          nota_final?: string | null
+          numero_documento_subsanacion?: string | null
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          solicitado_en?: string
+          solicitado_por?: string | null
+          tipo_propuesto: Database["public"]["Enums"]["garantia_estado"]
+        }
+        Update: {
+          estado?: string
+          garantia_id?: string
+          id?: string
+          nota_final?: string | null
+          numero_documento_subsanacion?: string | null
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          solicitado_en?: string
+          solicitado_por?: string | null
+          tipo_propuesto?: Database["public"]["Enums"]["garantia_estado"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garantia_cierre_solicitud_garantia_id_fkey"
+            columns: ["garantia_id"]
+            isOneToOne: false
+            referencedRelation: "garantias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantia_cierre_solicitud_resuelto_por_fkey"
+            columns: ["resuelto_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantia_cierre_solicitud_solicitado_por_fkey"
+            columns: ["solicitado_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      garantia_evidencias: {
+        Row: {
+          garantia_id: string
+          id: string
+          subido_en: string
+          subido_por: string | null
+          url_imagen: string
+        }
+        Insert: {
+          garantia_id: string
+          id?: string
+          subido_en?: string
+          subido_por?: string | null
+          url_imagen: string
+        }
+        Update: {
+          garantia_id?: string
+          id?: string
+          subido_en?: string
+          subido_por?: string | null
+          url_imagen?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garantia_evidencias_garantia_id_fkey"
+            columns: ["garantia_id"]
+            isOneToOne: false
+            referencedRelation: "garantias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantia_evidencias_subido_por_fkey"
+            columns: ["subido_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      garantia_seguimientos: {
+        Row: {
+          creado_en: string
+          creado_por: string | null
+          fecha: string
+          garantia_id: string
+          id: string
+          texto: string
+          via: Database["public"]["Enums"]["garantia_via"]
+        }
+        Insert: {
+          creado_en?: string
+          creado_por?: string | null
+          fecha?: string
+          garantia_id: string
+          id?: string
+          texto: string
+          via: Database["public"]["Enums"]["garantia_via"]
+        }
+        Update: {
+          creado_en?: string
+          creado_por?: string | null
+          fecha?: string
+          garantia_id?: string
+          id?: string
+          texto?: string
+          via?: Database["public"]["Enums"]["garantia_via"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garantia_seguimientos_creado_por_fkey"
+            columns: ["creado_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantia_seguimientos_garantia_id_fkey"
+            columns: ["garantia_id"]
+            isOneToOne: false
+            referencedRelation: "garantias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      garantias: {
+        Row: {
+          accion_realizada: string | null
+          cedula_cliente: string | null
+          cliente: string
+          creado_en: string
+          dentro_15_dias: boolean
+          descripcion_articulo: string | null
+          direccion_cliente: string | null
+          estado: Database["public"]["Enums"]["garantia_estado"]
+          fecha: string
+          fecha_cierre: string | null
+          fecha_facturacion: string | null
+          id: string
+          modelo_codigo: string | null
+          no_mal_uso: boolean
+          numero_factura: string | null
+          numero_garantia: string
+          tarea_vinculada_id: string | null
+          telefono_cliente: string | null
+          tramitado_por: string
+          updated_at: string
+        }
+        Insert: {
+          accion_realizada?: string | null
+          cedula_cliente?: string | null
+          cliente: string
+          creado_en?: string
+          dentro_15_dias?: boolean
+          descripcion_articulo?: string | null
+          direccion_cliente?: string | null
+          estado?: Database["public"]["Enums"]["garantia_estado"]
+          fecha?: string
+          fecha_cierre?: string | null
+          fecha_facturacion?: string | null
+          id?: string
+          modelo_codigo?: string | null
+          no_mal_uso?: boolean
+          numero_factura?: string | null
+          numero_garantia: string
+          tarea_vinculada_id?: string | null
+          telefono_cliente?: string | null
+          tramitado_por: string
+          updated_at?: string
+        }
+        Update: {
+          accion_realizada?: string | null
+          cedula_cliente?: string | null
+          cliente?: string
+          creado_en?: string
+          dentro_15_dias?: boolean
+          descripcion_articulo?: string | null
+          direccion_cliente?: string | null
+          estado?: Database["public"]["Enums"]["garantia_estado"]
+          fecha?: string
+          fecha_cierre?: string | null
+          fecha_facturacion?: string | null
+          id?: string
+          modelo_codigo?: string | null
+          no_mal_uso?: boolean
+          numero_factura?: string | null
+          numero_garantia?: string
+          tarea_vinculada_id?: string | null
+          telefono_cliente?: string | null
+          tramitado_por?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garantias_tarea_fk"
+            columns: ["tarea_vinculada_id"]
+            isOneToOne: false
+            referencedRelation: "tareas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantias_tramitado_por_fkey"
+            columns: ["tramitado_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       page_events: {
         Row: {
@@ -508,6 +820,57 @@ export type Database = {
         }
         Relationships: []
       }
+      tareas: {
+        Row: {
+          asignado_a: string | null
+          completada_en: string | null
+          created_at: string
+          descripcion: string | null
+          estado: string
+          fecha_vencimiento: string | null
+          garantia_id: string | null
+          id: string
+          titulo: string
+        }
+        Insert: {
+          asignado_a?: string | null
+          completada_en?: string | null
+          created_at?: string
+          descripcion?: string | null
+          estado?: string
+          fecha_vencimiento?: string | null
+          garantia_id?: string | null
+          id?: string
+          titulo: string
+        }
+        Update: {
+          asignado_a?: string | null
+          completada_en?: string | null
+          created_at?: string
+          descripcion?: string | null
+          estado?: string
+          fecha_vencimiento?: string | null
+          garantia_id?: string | null
+          id?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tareas_asignado_a_fkey"
+            columns: ["asignado_a"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_garantia_id_fkey"
+            columns: ["garantia_id"]
+            isOneToOne: false
+            referencedRelation: "garantias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -582,6 +945,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      next_numero_garantia: { Args: { _fecha: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -601,6 +965,13 @@ export type Database = {
         | "contacto"
         | "bordados"
         | "whatsapp"
+      colaborador_rol: "colaborador" | "admin" | "gerente"
+      garantia_estado:
+        | "proceso"
+        | "revision"
+        | "cerrada_cliente_credito"
+        | "cerrada_proveedor_cliente"
+      garantia_via: "Llamada" | "WhatsApp" | "Correo electrónico"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -747,6 +1118,14 @@ export const Constants = {
         "bordados",
         "whatsapp",
       ],
+      colaborador_rol: ["colaborador", "admin", "gerente"],
+      garantia_estado: [
+        "proceso",
+        "revision",
+        "cerrada_cliente_credito",
+        "cerrada_proveedor_cliente",
+      ],
+      garantia_via: ["Llamada", "WhatsApp", "Correo electrónico"],
     },
   },
 } as const

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as ModuloGarantiasRouteImport } from './routes/modulo-garantias'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
 import { Route as GarantiasRouteImport } from './routes/garantias'
@@ -20,6 +21,7 @@ import { Route as BordadosRouteImport } from './routes/bordados'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReporteGarantiaIdRouteImport } from './routes/reporte-garantia.$id'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -32,6 +34,7 @@ import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminPreviewRouteImport } from './routes/_authenticated.admin.preview'
 import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authenticated.admin.contenido'
 import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
+import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminCambiosRouteImport } from './routes/_authenticated.admin.cambios'
 import { Route as AuthenticatedAdminCalendarioRouteImport } from './routes/_authenticated.admin.calendario'
@@ -47,6 +50,11 @@ import { Route as ApiPublicHooksRefreshHomeGalleryRouteImport } from './routes/a
 const PrivacidadRoute = PrivacidadRouteImport.update({
   id: '/privacidad',
   path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModuloGarantiasRoute = ModuloGarantiasRouteImport.update({
+  id: '/modulo-garantias',
+  path: '/modulo-garantias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -96,6 +104,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReporteGarantiaIdRoute = ReporteGarantiaIdRouteImport.update({
+  id: '/reporte-garantia/$id',
+  path: '/reporte-garantia/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -164,6 +177,12 @@ const AuthenticatedAdminContactoRoute =
   AuthenticatedAdminContactoRouteImport.update({
     id: '/contacto',
     path: '/contacto',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminColaboradoresRoute =
+  AuthenticatedAdminColaboradoresRouteImport.update({
+    id: '/colaboradores',
+    path: '/colaboradores',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminCategoriasRoute =
@@ -242,10 +261,12 @@ export interface FileRoutesByFullPath {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
+  '/modulo-garantias': typeof ModuloGarantiasRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
@@ -256,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
@@ -277,9 +299,11 @@ export interface FileRoutesByTo {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
+  '/modulo-garantias': typeof ModuloGarantiasRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
@@ -290,6 +314,7 @@ export interface FileRoutesByTo {
   '/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
@@ -313,10 +338,12 @@ export interface FileRoutesById {
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
+  '/modulo-garantias': typeof ModuloGarantiasRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
@@ -327,6 +354,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/_authenticated/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/_authenticated/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/_authenticated/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/_authenticated/admin/preview': typeof AuthenticatedAdminPreviewRoute
@@ -350,10 +378,12 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
+    | '/modulo-garantias'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/auditoria'
@@ -364,6 +394,7 @@ export interface FileRouteTypes {
     | '/admin/calendario'
     | '/admin/cambios'
     | '/admin/categorias'
+    | '/admin/colaboradores'
     | '/admin/contacto'
     | '/admin/contenido'
     | '/admin/preview'
@@ -385,9 +416,11 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
+    | '/modulo-garantias'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/auditoria'
@@ -398,6 +431,7 @@ export interface FileRouteTypes {
     | '/admin/calendario'
     | '/admin/cambios'
     | '/admin/categorias'
+    | '/admin/colaboradores'
     | '/admin/contacto'
     | '/admin/contenido'
     | '/admin/preview'
@@ -420,10 +454,12 @@ export interface FileRouteTypes {
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
+    | '/modulo-garantias'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
+    | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/auditoria'
@@ -434,6 +470,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/calendario'
     | '/_authenticated/admin/cambios'
     | '/_authenticated/admin/categorias'
+    | '/_authenticated/admin/colaboradores'
     | '/_authenticated/admin/contacto'
     | '/_authenticated/admin/contenido'
     | '/_authenticated/admin/preview'
@@ -457,9 +494,11 @@ export interface RootRouteChildren {
   GarantiasRoute: typeof GarantiasRoute
   LineaBlancaRoute: typeof LineaBlancaRoute
   McpRoute: typeof McpRoute
+  ModuloGarantiasRoute: typeof ModuloGarantiasRoute
   PrivacidadRoute: typeof PrivacidadRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  ReporteGarantiaIdRoute: typeof ReporteGarantiaIdRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
@@ -473,6 +512,13 @@ declare module '@tanstack/react-router' {
       path: '/privacidad'
       fullPath: '/privacidad'
       preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modulo-garantias': {
+      id: '/modulo-garantias'
+      path: '/modulo-garantias'
+      fullPath: '/modulo-garantias'
+      preLoaderRoute: typeof ModuloGarantiasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -543,6 +589,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reporte-garantia/$id': {
+      id: '/reporte-garantia/$id'
+      path: '/reporte-garantia/$id'
+      fullPath: '/reporte-garantia/$id'
+      preLoaderRoute: typeof ReporteGarantiaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -627,6 +680,13 @@ declare module '@tanstack/react-router' {
       path: '/contacto'
       fullPath: '/admin/contacto'
       preLoaderRoute: typeof AuthenticatedAdminContactoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/colaboradores': {
+      id: '/_authenticated/admin/colaboradores'
+      path: '/colaboradores'
+      fullPath: '/admin/colaboradores'
+      preLoaderRoute: typeof AuthenticatedAdminColaboradoresRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/categorias': {
@@ -718,6 +778,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCalendarioRoute: typeof AuthenticatedAdminCalendarioRoute
   AuthenticatedAdminCambiosRoute: typeof AuthenticatedAdminCambiosRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
+  AuthenticatedAdminColaboradoresRoute: typeof AuthenticatedAdminColaboradoresRoute
   AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
   AuthenticatedAdminContenidoRoute: typeof AuthenticatedAdminContenidoRoute
   AuthenticatedAdminPreviewRoute: typeof AuthenticatedAdminPreviewRoute
@@ -738,6 +799,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCalendarioRoute: AuthenticatedAdminCalendarioRoute,
   AuthenticatedAdminCambiosRoute: AuthenticatedAdminCambiosRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
+  AuthenticatedAdminColaboradoresRoute: AuthenticatedAdminColaboradoresRoute,
   AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
   AuthenticatedAdminContenidoRoute: AuthenticatedAdminContenidoRoute,
   AuthenticatedAdminPreviewRoute: AuthenticatedAdminPreviewRoute,
@@ -774,10 +836,12 @@ const rootRouteChildren: RootRouteChildren = {
   GarantiasRoute: GarantiasRoute,
   LineaBlancaRoute: LineaBlancaRoute,
   McpRoute: McpRoute,
+  ModuloGarantiasRoute: ModuloGarantiasRoute,
   PrivacidadRoute: PrivacidadRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  ReporteGarantiaIdRoute: ReporteGarantiaIdRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
