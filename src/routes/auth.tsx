@@ -29,6 +29,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const checkAdmin = useServerFn(hasAnyAdmin);
   const bootstrap = useServerFn(bootstrapFirstAdmin);
   const { data: status, refetch } = useQuery({
