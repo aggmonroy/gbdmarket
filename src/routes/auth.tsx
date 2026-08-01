@@ -54,7 +54,8 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Sesión iniciada");
-        navigate({ to: "/admin" });
+        if (next) window.location.href = next;
+        else navigate({ to: "/admin" });
       }
     } catch (err: any) {
       toast.error(err.message ?? "Error de autenticación");
