@@ -854,7 +854,7 @@ function DetalleCaso({
 
             <section className="flex flex-wrap gap-2 border-t border-border pt-4">
               <Button variant="outline" asChild>
-                <Link to="/modulo-garantias/reporte/$id" params={{ id }}>
+                <Link to="/reporte-garantia/$id" params={{ id }} target="_blank">
                   <FileText className="mr-2 h-4 w-4" /> Reporte imprimible
                 </Link>
               </Button>
