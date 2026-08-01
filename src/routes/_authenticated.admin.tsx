@@ -30,6 +30,7 @@ const nav = [
   { to: "/admin/branding", label: "Marca y colores", icon: Palette },
   { to: "/admin/contacto", label: "Contacto y redes", icon: Phone },
   { to: "/admin/seo", label: "SEO y analítica", icon: Search },
+  { to: "/admin/colaboradores", label: "Colaboradores y PIN", icon: KeyRound },
   { to: "/admin/bordados-servicios", label: "Bordados: servicios", icon: Sparkles },
   { to: "/admin/bordados", label: "Bordados: solicitudes", icon: Scissors },
 ];
