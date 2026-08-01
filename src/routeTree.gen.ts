@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminPreviewRouteImport } from './routes/_authenticated.admin.preview'
 import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authenticated.admin.contenido'
 import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
+import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminCambiosRouteImport } from './routes/_authenticated.admin.cambios'
 import { Route as AuthenticatedAdminCalendarioRouteImport } from './routes/_authenticated.admin.calendario'
@@ -178,6 +179,12 @@ const AuthenticatedAdminContactoRoute =
     path: '/contacto',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminColaboradoresRoute =
+  AuthenticatedAdminColaboradoresRouteImport.update({
+    id: '/colaboradores',
+    path: '/colaboradores',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCategoriasRoute =
   AuthenticatedAdminCategoriasRouteImport.update({
     id: '/categorias',
@@ -270,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
@@ -306,6 +314,7 @@ export interface FileRoutesByTo {
   '/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
@@ -345,6 +354,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/calendario': typeof AuthenticatedAdminCalendarioRoute
   '/_authenticated/admin/cambios': typeof AuthenticatedAdminCambiosRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
+  '/_authenticated/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/_authenticated/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/_authenticated/admin/preview': typeof AuthenticatedAdminPreviewRoute
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/admin/calendario'
     | '/admin/cambios'
     | '/admin/categorias'
+    | '/admin/colaboradores'
     | '/admin/contacto'
     | '/admin/contenido'
     | '/admin/preview'
@@ -420,6 +431,7 @@ export interface FileRouteTypes {
     | '/admin/calendario'
     | '/admin/cambios'
     | '/admin/categorias'
+    | '/admin/colaboradores'
     | '/admin/contacto'
     | '/admin/contenido'
     | '/admin/preview'
@@ -458,6 +470,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/calendario'
     | '/_authenticated/admin/cambios'
     | '/_authenticated/admin/categorias'
+    | '/_authenticated/admin/colaboradores'
     | '/_authenticated/admin/contacto'
     | '/_authenticated/admin/contenido'
     | '/_authenticated/admin/preview'
@@ -669,6 +682,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminContactoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/colaboradores': {
+      id: '/_authenticated/admin/colaboradores'
+      path: '/colaboradores'
+      fullPath: '/admin/colaboradores'
+      preLoaderRoute: typeof AuthenticatedAdminColaboradoresRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/categorias': {
       id: '/_authenticated/admin/categorias'
       path: '/categorias'
@@ -758,6 +778,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCalendarioRoute: typeof AuthenticatedAdminCalendarioRoute
   AuthenticatedAdminCambiosRoute: typeof AuthenticatedAdminCambiosRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
+  AuthenticatedAdminColaboradoresRoute: typeof AuthenticatedAdminColaboradoresRoute
   AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
   AuthenticatedAdminContenidoRoute: typeof AuthenticatedAdminContenidoRoute
   AuthenticatedAdminPreviewRoute: typeof AuthenticatedAdminPreviewRoute
@@ -778,6 +799,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCalendarioRoute: AuthenticatedAdminCalendarioRoute,
   AuthenticatedAdminCambiosRoute: AuthenticatedAdminCambiosRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
+  AuthenticatedAdminColaboradoresRoute: AuthenticatedAdminColaboradoresRoute,
   AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
   AuthenticatedAdminContenidoRoute: AuthenticatedAdminContenidoRoute,
   AuthenticatedAdminPreviewRoute: AuthenticatedAdminPreviewRoute,
