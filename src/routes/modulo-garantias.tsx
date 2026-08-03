@@ -40,6 +40,7 @@ import {
   misTareasPendientes,
   numeroGarantiaPreview,
   rechazarCierre,
+  reporteTokenGarantia,
   solicitarCambioPin,
   solicitarCierre,
   subirEvidencia,
@@ -394,6 +395,8 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
       setForm({ ...vacio });
       setPin("");
       onCreada();
+      // Se abre el reporte imprimible con enlace firmado: no vuelve a pedir PIN.
+      window.open(`/reporte-garantia/${r.id}?t=${encodeURIComponent(r.reporte_token)}`, "_blank");
     },
     onError: (e: any) => toast.error(e.message ?? "No se pudo registrar"),
   });
@@ -699,6 +702,12 @@ function DetalleCaso({
     queryFn: () => getFn({ data: { token, garantia_id: id } }) as any,
   });
 
+  const rtokenFn = useServerFn(reporteTokenGarantia);
+  const { data: rtoken } = useQuery({
+    queryKey: ["reporte-token", id],
+    queryFn: () => rtokenFn({ data: { token, garantia_id: id } }) as any,
+  });
+
   const [texto, setTexto] = useState("");
   const [via, setVia] = useState<string>("Llamada");
   const [fecha, setFecha] = useState(hoy());
@@ -708,11 +717,13 @@ function DetalleCaso({
 
   const nuevoSeg = useMutation({
     mutationFn: () => segFn({ data: { token, garantia_id: id, fecha, via: via as any, texto } }) as any,
-    onSuccess: () => {
+    onSuccess: (r: any) => {
       setTexto("");
       toast.success("Seguimiento agregado");
       refetch();
       onCambio();
+      if (r?.reporte_token)
+        window.open(`/reporte-garantia/${id}?t=${encodeURIComponent(r.reporte_token)}`, "_blank");
     },
     onError: (e: any) => toast.error(e.message ?? "No se pudo agregar"),
   });
@@ -853,10 +864,17 @@ function DetalleCaso({
             </section>
 
             <section className="flex flex-wrap gap-2 border-t border-border pt-4">
-              <Button variant="outline" asChild>
-                <Link to="/reporte-garantia/$id" params={{ id }} target="_blank">
-                  <FileText className="mr-2 h-4 w-4" /> Reporte imprimible
-                </Link>
+              <Button
+                variant="outline"
+                disabled={!rtoken?.reporte_token}
+                onClick={() =>
+                  window.open(
+                    `/reporte-garantia/${id}?t=${encodeURIComponent(rtoken!.reporte_token)}`,
+                    "_blank",
+                  )
+                }
+              >
+                <FileText className="mr-2 h-4 w-4" /> Reporte imprimible
               </Button>
             </section>
 

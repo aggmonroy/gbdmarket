@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { MessageCircle, Mail, MapPin, Clock, Instagram, Globe, Plus, Trash2, Upload, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { logLead } from "@/lib/whatsapp";
-import { registerBitacora } from "@/lib/bitacora.functions";
+import { crearPreorden } from "@/lib/pedidos.functions";
 import { DataConsent } from "@/components/site/DataConsent";
 
 export const Route = createFileRoute("/contacto")({
@@ -94,7 +94,8 @@ function QuoteForm() {
   const [submitting, setSubmitting] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [consent, setConsent] = useState(false);
-  const register = useServerFn(registerBitacora);
+  const crearPre = useServerFn(crearPreorden);
+  const navigate = useNavigate();
   const { register: rhfRegister, control, handleSubmit, formState: { errors } } = useForm<QuoteVals>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
@@ -107,43 +108,25 @@ function QuoteForm() {
     if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setSubmitting(true);
     try {
-      const lines = [
-        "*Cotización · Línea Blanca GBD*",
-        `Sucursal: Las Tablas`,
-        "",
-        `Nombre: ${vals.name}`,
-        `Cédula / Pasaporte: ${vals.id_doc}`,
-        `Teléfono: ${vals.phone}`,
-        `Correo: ${vals.email}`,
-        "",
-        "*Productos solicitados:*",
-        ...vals.items.map((it, i) =>
-          `${i + 1}. ${it.category} — ${it.price_range}\n   ${it.details}`
-        ),
-      ];
-      if (vals.notes) lines.push("", `Notas: ${vals.notes}`);
-      if (files.length) lines.push("", `_Adjuntaré ${files.length} foto(s) por este chat._`);
-
-      const msg = lines.join("\n");
-
-      try {
-        await register({ data: {
-          cliente_nombre: vals.name,
-          cliente_telefono: vals.phone,
-          cliente_email: vals.email,
-          producto_servicio: vals.items.map(i => `${i.category}: ${i.details}`).join(" | "),
-          categoria: "linea-blanca",
-          origen: "contacto",
-          observaciones: vals.notes || null,
-          meta: { branch: "Las Tablas", id_doc: vals.id_doc, items: vals.items },
-          consent: true,
-        } as any });
-      } catch (e) { console.warn(e); }
+      const r: any = await crearPre({ data: {
+        cliente_nombre: vals.name,
+        cliente_telefono: vals.phone,
+        cliente_email: vals.email,
+        origen: "contacto",
+        canal: "linea-blanca",
+        categoria: "linea-blanca",
+        observaciones: [vals.notes, files.length ? `El cliente adjuntará ${files.length} foto(s) por WhatsApp.` : ""].filter(Boolean).join(" · "),
+        items: vals.items.map((it) => ({
+          cantidad: 1,
+          descripcion: `${it.category} — ${it.price_range}`,
+          detalle: it.details || "",
+        })),
+        meta: { branch: "Las Tablas", id_doc: vals.id_doc, items: vals.items },
+        consent: true,
+      } as any });
       await logLead({ channel: "linea-blanca", customer_name: vals.name });
-
-      const url = `https://wa.me/${WA_LAS_TABLAS}?text=${encodeURIComponent(msg)}`;
-      window.open(url, "_blank");
-      toast.success("Abriendo WhatsApp para enviar tu cotización.");
+      toast.success("Pre-orden generada. Revisa, imprime o envíala por WhatsApp.");
+      navigate({ to: "/pedido/$numero", params: { numero: r.numero_pedido } });
     } catch (e: any) {
       console.error(e);
       toast.error("No se pudo enviar. Intenta nuevamente.");

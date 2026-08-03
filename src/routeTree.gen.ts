@@ -20,10 +20,12 @@ import { Route as GarantiasRouteImport } from './routes/garantias'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ModuloGarantiasRouteImport } from './routes/modulo-garantias'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as PedidoNumeroRouteImport } from './routes/pedido.$numero'
 import { Route as ReporteGarantiaIdRouteImport } from './routes/reporte-garantia.$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -101,6 +103,11 @@ const ModuloGarantiasRoute = ModuloGarantiasRouteImport.update({
   path: '/modulo-garantias',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacidadRoute = PrivacidadRouteImport.update({
   id: '/privacidad',
   path: '/privacidad',
@@ -122,6 +129,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const PedidoNumeroRoute = PedidoNumeroRouteImport.update({
+  id: '/pedido/$numero',
+  path: '/pedido/$numero',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ReporteGarantiaIdRoute = ReporteGarantiaIdRouteImport.update({
   id: '/reporte-garantia/$id',
@@ -262,10 +274,12 @@ export interface FileRoutesByFullPath {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -300,9 +314,11 @@ export interface FileRoutesByTo {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -339,10 +355,12 @@ export interface FileRoutesById {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -379,10 +397,12 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/portal'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -417,9 +437,11 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/portal'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -455,10 +477,12 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/portal'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
+    | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -495,9 +519,11 @@ export interface RootRouteChildren {
   LineaBlancaRoute: typeof LineaBlancaRoute
   McpRoute: typeof McpRoute
   ModuloGarantiasRoute: typeof ModuloGarantiasRoute
+  PortalRoute: typeof PortalRoute
   PrivacidadRoute: typeof PrivacidadRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  PedidoNumeroRoute: typeof PedidoNumeroRoute
   ReporteGarantiaIdRoute: typeof ReporteGarantiaIdRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -584,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModuloGarantiasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacidad': {
       id: '/privacidad'
       path: '/privacidad'
@@ -611,6 +644,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/pedido/$numero': {
+      id: '/pedido/$numero'
+      path: '/pedido/$numero'
+      fullPath: '/pedido/$numero'
+      preLoaderRoute: typeof PedidoNumeroRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/reporte-garantia/$id': {
       id: '/reporte-garantia/$id'
@@ -837,10 +877,12 @@ const rootRouteChildren: RootRouteChildren = {
   LineaBlancaRoute: LineaBlancaRoute,
   McpRoute: McpRoute,
   ModuloGarantiasRoute: ModuloGarantiasRoute,
+  PortalRoute: PortalRoute,
   PrivacidadRoute: PrivacidadRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  PedidoNumeroRoute: PedidoNumeroRoute,
   ReporteGarantiaIdRoute: ReporteGarantiaIdRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,

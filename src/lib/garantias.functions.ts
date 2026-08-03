@@ -12,6 +12,8 @@ import {
   signSesion,
   verificarPinColaborador,
   verifySesion,
+  signReporteToken,
+  verifyReporteToken,
 } from "./garantias.server";
 import {
   cierreSchema,
@@ -130,7 +132,11 @@ export const crearGarantia = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (tarea?.id) await sb.from("garantias").update({ tarea_vinculada_id: tarea.id }).eq("id", garantia.id);
-    return { id: garantia.id as string, numero_garantia: numero as string };
+    return {
+      id: garantia.id as string,
+      numero_garantia: numero as string,
+      reporte_token: await signReporteToken(garantia.id as string),
+    };
   });
 
 export const listGarantiasAbiertas = createServerFn({ method: "POST" })
@@ -143,8 +149,7 @@ export const listGarantiasAbiertas = createServerFn({ method: "POST" })
 export const listBitacoraCerradas = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => tokenSchema.parse(d))
   .handler(async ({ data }) => {
-    const s = await verifySesion(data.token);
-    if (s.rol === "gerente") throw new Error("La bitácora de casos cerrados no está disponible para gerencia");
+    await verifySesion(data.token);
     return resumenAbiertas(["cerrada_cliente_credito", "cerrada_proveedor_cliente"]);
   });
 
@@ -168,7 +173,25 @@ export const agregarSeguimiento = createServerFn({ method: "POST" })
       creado_por: s.cid,
     });
     if (error) throw new Error(error.message);
-    return { ok: true };
+    return { ok: true, reporte_token: await signReporteToken(data.garantia_id) };
+  });
+
+/** Reporte imprimible: se abre con el enlace firmado, sin volver a pedir PIN. */
+export const getGarantiaReporte = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z.object({ garantia_id: z.string().uuid(), rt: z.string().min(1) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await verifyReporteToken(data.rt, data.garantia_id);
+    return garantiaCompleta(data.garantia_id);
+  });
+
+/** Enlace de impresión para una garantía ya existente (requiere sesión con PIN). */
+export const reporteTokenGarantia = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => idTokenSchema.parse(d))
+  .handler(async ({ data }) => {
+    await verifySesion(data.token);
+    return { reporte_token: await signReporteToken(data.garantia_id) };
   });
 
 export const subirEvidencia = createServerFn({ method: "POST" })

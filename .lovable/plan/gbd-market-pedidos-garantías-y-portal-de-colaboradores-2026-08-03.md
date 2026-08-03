@@ -1,6 +1,6 @@
 # GBD Market — Pedidos, Garantías y Portal de Colaboradores
 
-Trabajo en 5 bloques. No cambio la identidad visual del sitio público.
+Trabajo en 5 cloques optimizando tokens.  No cambio la   identidad visual del sitio público.
 
 ## 1. Pre-órdenes de pedido (Línea Blanca y Bordados)
 

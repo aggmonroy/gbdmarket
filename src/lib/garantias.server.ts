@@ -63,6 +63,25 @@ export async function requireEscritura(token: string | undefined | null): Promis
   return s;
 }
 
+/**
+ * Token de SOLO LECTURA para imprimir un reporte de garantía sin volver a pedir PIN.
+ * Se genera al crear la garantía y al guardar cada seguimiento; vive 30 días.
+ */
+export async function signReporteToken(garantiaId: string): Promise<string> {
+  const exp = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  const body = btoa(JSON.stringify({ gid: garantiaId, exp }));
+  return `${body}.${await hmac(`reporte:${body}`)}`;
+}
+
+export async function verifyReporteToken(token: string, garantiaId: string): Promise<void> {
+  if (!token.includes(".")) throw new Error("Enlace de reporte no válido");
+  const [body, sig] = token.split(".");
+  if (sig !== (await hmac(`reporte:${body!}`))) throw new Error("Enlace de reporte no válido");
+  const payload = JSON.parse(atob(body!)) as { gid: string; exp: number };
+  if (payload.gid !== garantiaId) throw new Error("Enlace de reporte no válido");
+  if (!payload.exp || payload.exp < Date.now()) throw new Error("El enlace del reporte ha expirado");
+}
+
 export async function verificarPinColaborador(colaboradorId: string, pin: string) {
   const sb = await admin();
   const { data, error } = await sb

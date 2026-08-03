@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,8 +7,8 @@ import { toast } from "sonner";
 import { Shirt, Crown, Briefcase, Backpack, BadgeCheck, Upload, Loader2, MessageCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { buildWaUrl, logLead } from "@/lib/whatsapp";
-import { registerBitacora } from "@/lib/bitacora.functions";
+import { logLead } from "@/lib/whatsapp";
+import { crearPreorden } from "@/lib/pedidos.functions";
 import { DataConsent } from "@/components/site/DataConsent";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,7 +55,8 @@ type FormVals = z.infer<typeof schema>;
 function Bordados() {
   const [submitting, setSubmitting] = useState(false);
   const [consent, setConsent] = useState(false);
-  const regBitacora = useServerFn(registerBitacora);
+  const crearPre = useServerFn(crearPreorden);
+  const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm<FormVals>({
     resolver: zodResolver(schema),
     defaultValues: { service_type: "Bordado Corporativo", quantity: 12 },
@@ -76,33 +77,21 @@ function Bordados() {
         notes: vals.notes || null,
       });
       if (error) throw error;
-      try {
-        await regBitacora({ data: {
-          cliente_nombre: vals.name,
-          cliente_telefono: vals.phone,
-          cliente_email: vals.email || "",
-          producto_servicio: `${vals.service_type} (x${vals.quantity})`,
-          categoria: "bordados",
-          origen: "bordados",
-          observaciones: [vals.colors && `Colores: ${vals.colors}`, vals.placement && `Ubicación: ${vals.placement}`, vals.notes].filter(Boolean).join(" · "),
-          meta: { quantity: vals.quantity, colors: vals.colors, placement: vals.placement },
-          consent: true,
-        } as any });
-      } catch (e) { console.warn(e); }
+      const r: any = await crearPre({ data: {
+        cliente_nombre: vals.name,
+        cliente_telefono: vals.phone,
+        cliente_email: vals.email || "",
+        origen: "bordados",
+        canal: "bordados",
+        categoria: "bordados",
+        observaciones: [vals.colors && `Colores: ${vals.colors}`, vals.placement && `Ubicación: ${vals.placement}`, vals.notes].filter(Boolean).join(" · "),
+        items: [{ cantidad: vals.quantity, descripcion: vals.service_type, detalle: vals.placement || "" }],
+        meta: { quantity: vals.quantity, colors: vals.colors, placement: vals.placement },
+        consent: true,
+      } as any });
       await logLead({ channel: "bordados", customer_name: vals.name, product_name: vals.service_type });
-      toast.success("Solicitud enviada. Te contactaremos por WhatsApp.");
-
-      const msg = [
-        "Hola, quiero cotizar un trabajo de bordado:",
-        `Servicio: ${vals.service_type}`,
-        `Cantidad: ${vals.quantity}`,
-        vals.colors ? `Colores: ${vals.colors}` : null,
-        vals.placement ? `Ubicación: ${vals.placement}` : null,
-        vals.notes ? `Notas: ${vals.notes}` : null,
-        `Nombre: ${vals.name}`,
-        `Tel: ${vals.phone}`,
-      ].filter(Boolean).join("\n");
-      window.open(buildWaUrl("bordados", msg), "_blank");
+      toast.success("Pre-orden generada. Revisa e imprime tu documento.");
+      navigate({ to: "/pedido/$numero", params: { numero: r.numero_pedido } });
     } catch (e: any) {
       toast.error("No se pudo enviar. Intenta nuevamente.");
       console.error(e);
