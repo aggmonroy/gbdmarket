@@ -56,6 +56,12 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2">
+          <Link
+            to="/portal"
+            className="inline-flex items-center rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-accent transition"
+          >
+            Colaboradores
+          </Link>
           <a
             href={`https://wa.me/${whatsApp}`}
             target="_blank"
@@ -88,6 +94,13 @@ export function SiteHeader() {
                 {n.label}
               </Link>
             ))}
+            <Link
+              to="/portal"
+              onClick={() => setOpen(false)}
+              className="px-3 py-2 rounded-md text-sm font-medium text-foreground hover:bg-accent"
+            >
+              Acceso colaboradores
+            </Link>
             <a
               href={`https://wa.me/${whatsApp}`}
               target="_blank"
