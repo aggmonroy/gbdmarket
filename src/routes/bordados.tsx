@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,6 +56,7 @@ function Bordados() {
   const [submitting, setSubmitting] = useState(false);
   const [consent, setConsent] = useState(false);
   const crearPre = useServerFn(crearPreorden);
+  const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm<FormVals>({
     resolver: zodResolver(schema),
     defaultValues: { service_type: "Bordado Corporativo", quantity: 12 },
