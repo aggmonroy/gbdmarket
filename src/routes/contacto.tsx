@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { MessageCircle, Mail, MapPin, Clock, Instagram, Globe, Plus, Trash2, Upload, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";

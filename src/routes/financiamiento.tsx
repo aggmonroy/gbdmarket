@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Input } from "@/components/ui/input";
 import { TERMS, calcFinancing, fmtUSD, MEMBER_LABEL, PROMO_MAX_TERM, type Term, type MemberType } from "@/lib/financing";
 import { Sparkles } from "lucide-react";
-import { registerBitacora } from "@/lib/bitacora.functions";
+import { crearPreorden } from "@/lib/pedidos.functions";
 import { DataConsent } from "@/components/site/DataConsent";
 
 export const Route = createFileRoute("/financiamiento")({
@@ -33,7 +33,8 @@ function Financiamiento() {
   const [telefono, setTelefono] = useState("");
   const [consent, setConsent] = useState(false);
   const [sending, setSending] = useState(false);
-  const regBit = useServerFn(registerBitacora);
+  const crearPre = useServerFn(crearPreorden);
+  const navigate = useNavigate();
   const fin = calcFinancing(price, term, member, directDebit);
 
   async function handleSolicitar() {
@@ -43,20 +44,23 @@ function Financiamiento() {
     setSending(true);
     const detalle = `Financiamiento como ${MEMBER_LABEL[member]} por ${fmtUSD(price)} a ${term} meses${directDebit ? " con descuento directo" : ""}. Cuota mensual estimada: ${fmtUSD(fin.monthly)}.`;
     try {
-      await regBit({ data: {
+      const r: any = await crearPre({ data: {
         cliente_nombre: nombre,
         cliente_telefono: telefono,
-        producto_servicio: `Financiamiento ${term} meses · ${fmtUSD(price)}`,
-        categoria: "financiamiento",
         origen: "financiamiento",
+        canal: "linea-blanca",
+        categoria: "financiamiento",
         observaciones: detalle,
+        items: [{ cantidad: 1, descripcion: `Financiamiento ${term} meses · ${fmtUSD(price)}`, detalle }],
         meta: { price, term, member, directDebit, monthly: fin.monthly, biweekly: fin.biweekly, down: fin.down, totalFinanced: fin.totalFinanced },
         consent: true,
       } as any });
-    } catch (e) { console.warn(e); }
-    const msg = `Hola, soy ${nombre} (tel ${telefono}). Deseo cotizar un ${detalle}`;
-    window.open(`https://wa.me/50767841941?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
-    toast.success("Abriendo WhatsApp con tu solicitud…");
+      toast.success("Pre-orden generada. Revisa, imprime o envíala por WhatsApp.");
+      navigate({ to: "/pedido/$numero", params: { numero: r.numero_pedido } });
+    } catch (e) {
+      console.error(e);
+      toast.error("No se pudo generar la pre-orden. Intenta nuevamente.");
+    }
     setSending(false);
   }
 
