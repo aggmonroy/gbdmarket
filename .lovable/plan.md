@@ -1,62 +1,51 @@
-# Actualización GBD Market
+# GBD Market — Pedidos, Garantías y Portal de Colaboradores
 
-Reutilizo componentes existentes y no cambio la identidad visual. Trabajo en 4 bloques.
+Trabajo en 5 bloques. No cambio la identidad visual del sitio público.
 
-## 1. CMS ampliado (reutilizando el panel actual)
+## 1. Pre-órdenes de pedido (Línea Blanca y Bordados)
 
-El panel `/admin` ya edita productos, categorías, contenido, promociones, branding, contacto, SEO y bordados. Amplío lo que falta sin duplicar pantallas:
+Hoy los formularios abren WhatsApp y registran una entrada suelta en la bitácora. Nuevo flujo:
 
-- **Bordados GBD** → convertir la sección actual (hoy es `content_blocks` con `section='home.bordados'`) en un CRUD dedicado en `/admin/bordados-servicios`: imagen, nombre, descripción, orden, activo. Alta, edición, borrado y reordenamiento. La home lee de la nueva tabla `embroidery_services`.
-- **WhatsApp / contacto / redes** → ya existe `/admin/contacto`; verifico que cubra los dos números (Línea Blanca y Bordados), correo y URLs de redes sociales, y me aseguro de que el sitio y footer los consuman desde `site_settings` (no hardcode en `whatsapp.ts`).
-- **Textos, imágenes, banners, botones, categorías** → ya son editables vía `content_blocks`, `products`, `categories`, `promotions` y `site_settings`. Solo agrego los campos que aún estén hardcode en `index.tsx` (títulos hero, CTAs, tarjetas de financiamiento/garantías/contacto, thumbnails de categorías) como `content_blocks` con `section='home.hero'`, `home.info_cards`, `home.category_thumbs`.
+1. El cliente llena el formulario igual que ahora (catálogo, ficha de producto, bordados, contacto, financiamiento).
+2. Al enviar se crea una **pre-orden** con número correlativo `PO-AAAAMMDD-0001` guardada en la bitácora.
+3. Se abre un **documento de una sola vista** en `/pedido/{numero}`: datos del cliente, lista de productos/servicios, observaciones, número y fecha. Imprimible / descargable en PDF (impresión del navegador).
+4. En ese documento hay un botón **"Enviar por WhatsApp"** que manda el texto completo del pedido al número correspondiente, exactamente como funciona hoy.
 
-## 2. Bitácora unificada + calendario
+Estados de la bitácora de pedidos: `pre_orden → en_proceso → notificado → cerrado`, más un campo de **descripción/nota de seguimiento** editable. Cualquier colaborador puede cambiar estado y agregar notas; queda historial con fecha y autor.
 
-Reemplazo `whatsapp_leads` y `embroidery_requests` por una **única tabla `bitacora`** conectada a Catálogo, Financiamiento, Garantías, Contacto y Bordados, más cada clic de "Cotizar por WhatsApp".
+## 2. Módulo de garantías: impresión sin segunda validación
 
-Tabla `bitacora`:
-- `id, created_at, fecha_entrega`
-- `cliente_nombre, cliente_telefono, cliente_email`
-- `producto_servicio, categoria`
-- `origen` enum: `catalogo | financiamiento | garantia | contacto | bordados | whatsapp`
-- `observaciones`
-- `estado` enum: `pendiente | cotizado | en_proceso | produccion | listo | entregado | garantia | cancelado`
-- `meta` jsonb (producto_id, monto financiado, etc.)
-- `consent_accepted_at` (obligatorio)
+- El reporte `/reporte-garantia/{id}` hoy exige sesión con PIN en el navegador y falla al imprimir. Paso a un **enlace firmado**: al crear la garantía o al guardar un seguimiento se genera un token de solo lectura incrustado en la URL; abrir ese enlace imprime sin pedir PIN.
+- Botón **"Imprimir reporte"** visible: al terminar el registro de una garantía y en cada seguimiento guardado.
+- El reporte incluye siempre los seguimientos al día.
+- La validación por PIN se mantiene únicamente para **registrar y editar**.
 
-Tabla `bitacora_historial`: `id, bitacora_id, estado_anterior, estado_nuevo, user_id, user_email, nota, created_at`. Se llena por trigger en cada cambio de estado + inserts manuales cuando el admin agrega nota.
+## 3. Limpieza de datos de prueba
 
-Panel `/admin/bitacora`: lista con filtros por origen/estado/fecha, ficha con edición de estado, fecha de entrega, observaciones e historial visible.
+Elimino todas las garantías registradas hasta hoy con sus seguimientos, evidencias, solicitudes de cierre y tareas vinculadas, y reinicio el correlativo.
 
-Panel `/admin/calendario`: vista mensual/semana (reutilizando `Calendar` de shadcn + agrupación por día) con badges de estado y filtro por tipo (cotización, pedido, entrega, garantía). Al hacer clic en un evento abre la ficha con selector de estado. Fuente de datos: la misma `bitacora`.
+## 4. Rol gerente y calendario de tareas del día
 
-Wiring de origen:
-- `ProductDetailDialog` (WhatsApp cotización) → insert con origen `catalogo` o `whatsapp`.
-- Formularios de `/financiamiento`, `/garantias`, `/contacto`, `/bordados` → insert con su origen.
-- Botón flotante y links WhatsApp → insert liviano con origen `whatsapp`.
+- **Gerente = solo lectura total**: ve garantías abiertas y cerradas, bitácora de pedidos, calendario y reportes; no puede crear, editar, cerrar ni agregar seguimientos. Hoy tiene bloqueada la bitácora de cerradas: se la habilito en modo lectura.
+- **Calendario con vista de día**: nueva pantalla que lista, por día, todas las tareas pendientes de **todos** los colaboradores (garantías por contactar, entregas de pedidos, seguimientos vencidos), con el nombre del responsable, alerta de +7 días sin contacto y acceso directo a la ficha. Cualquier colaborador puede darles seguimiento.
 
-## 3. Protección de datos
+## 5. Portal de colaboradores desde el inicio
 
-- Componente reusable `<DataConsent />` (checkbox obligatorio + link a política) que envuelvo en todos los formularios existentes. Bloquea submit hasta aceptar y guarda `consent_accepted_at` en el registro `bitacora`.
-- Nueva ruta pública `/privacidad` con la política redactada (uso para cotización/venta/garantía/atención, no se comparte salvo obligación legal, derecho a actualizar/eliminar y correo de contacto). Texto editable desde `content_blocks` `section='legal.privacy'`.
-- Link a `/privacidad` en el footer.
+- Botón **"Acceso colaboradores"** en el inicio (header y/o pie).
+- Pantalla de ingreso: el colaborador elige su nombre y escribe su **código PIN** (el esquema actual, sin correo ni contraseña).
+- Tras ingresar ve un **menú de áreas según su rol**:
+  - colaborador → Garantías, Bitácora de pedidos, Calendario, Mis tareas
+  - gerente → las mismas en solo lectura
+  - admin → todo lo anterior + validación de cierres y gestión de PIN
 
-## 4. Ajustes menores
+## 6. Seguridad automatizada — qué es posible
 
-- Footer: mostrar íconos de redes sociales usando URLs de `site_settings` (ya existen los campos, sólo hay que renderizarlos).
-- Home: reemplazar el párrafo del hero por el nuevo texto solicitado.
+- **Reescaneo semanal + alertas: sí.** Programo una tarea semanal que revisa las dependencias del proyecto contra la base pública de vulnerabilidades (OSV), guarda el resultado y muestra una alerta en el panel admin cuando aparece algo nuevo (crítico/alto). Si quieres aviso por correo, lo agrego después con el dominio de correo del proyecto.
+- **Bloquear releases con issues críticas: no es posible.** La publicación de Lovable no expone un paso de CI donde se pueda abortar el deploy. Lo que sí hago: una pantalla **"Estado de seguridad"** en el panel con semáforo del último escaneo, para revisar antes de publicar.
 
 ## Detalles técnicos
 
-- Nuevos archivos:
-  - `supabase/migrations/*` con `embroidery_services`, `bitacora`, `bitacora_historial`, enums, RLS (admin lee/edita, anon sólo insert propio con consent obligatorio vía trigger), grants, triggers de historial y `updated_at`.
-  - `src/lib/bitacora.functions.ts` (createServerFn público para inserts desde formularios; admin-only para list/update/historial).
-  - `src/lib/embroidery-services.functions.ts` (CRUD admin + list público).
-  - `src/components/site/DataConsent.tsx`.
-  - `src/routes/_authenticated.admin.bitacora.tsx`, `_authenticated.admin.calendario.tsx`, `_authenticated.admin.bordados-servicios.tsx`.
-  - `src/routes/privacidad.tsx`.
-- Editados: `index.tsx` (texto hero + lectura de bordados desde nueva tabla), `SiteFooter.tsx` (redes + link privacidad), formularios de `/contacto`, `/financiamiento`, `/garantias`, `/bordados`, `ProductDetailDialog`, `WhatsAppFloat` para registrar interacciones.
-- Los `whatsapp_leads`/`embroidery_requests` existentes se preservan (no destructivo); la app nueva escribe en `bitacora`. Opcionalmente migro los registros existentes.
-- Sin cambios en la paleta, tipografías ni estructura visual pública.
-
-¿Procedo con esta implementación?
+- Migración: nuevos valores de estado de bitácora (`pre_orden`, `notificado`, `cerrado`), columnas `numero_pedido`, `descripcion_seguimiento`, secuencia de correlativo diario; tabla `security_scans`; borrado de datos de prueba de garantías.
+- Nuevos archivos: `src/routes/pedido.$numero.tsx`, `src/routes/portal.tsx` (login PIN + menú por rol), `src/routes/portal.calendario.tsx`, `src/routes/api/public/hooks/security-scan.ts`, `src/lib/pedidos.functions.ts`.
+- Editados: `bitacora.functions.ts`, `garantias.functions.ts` / `.server.ts` (token de reporte de solo lectura, permisos de gerente), `reporte-garantia.$id.tsx`, `modulo-garantias.tsx`, `ProductDetailDialog.tsx`, `bordados.tsx`, `contacto.tsx`, `financiamiento.tsx`, `SiteHeader.tsx`, panel `/admin/bitacora`.
+- Sin cambios en paleta, tipografías ni estructura visual pública.
