@@ -3,8 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { buildWaUrl, logLead } from "@/lib/whatsapp";
-import { registerBitacora } from "@/lib/bitacora.functions";
+import { logLead } from "@/lib/whatsapp";
+import { crearPreorden } from "@/lib/pedidos.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { DataConsent } from "@/components/site/DataConsent";
 import { toast } from "sonner";
@@ -31,39 +31,40 @@ export function ProductDetailDialog({
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [consent, setConsent] = useState(false);
-  const register = useServerFn(registerBitacora);
+  const crear = useServerFn(crearPreorden);
   if (!product) return null;
 
   const sendWa = async () => {
     if (!customerName.trim()) { toast.error("Ingresa tu nombre"); return; }
     if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
-    const msg = [
-      `Hola, me interesa cotizar el siguiente producto:`,
-      `*${product.name}*${product.brand ? ` — ${product.brand}` : ""}${product.model ? ` ${product.model}` : ""}`,
-      product.code ? `Código: ${product.code}` : null,
-      customerName ? `Cliente: ${customerName}` : null,
-      phone ? `Teléfono: ${phone}` : null,
-      notes ? `Detalles: ${notes}` : null,
-    ].filter(Boolean).join("\n");
     try {
-      await register({ data: {
+      const r: any = await crear({ data: {
         cliente_nombre: customerName,
         cliente_telefono: phone,
-        producto_servicio: `${product.name}${product.brand ? " · " + product.brand : ""}`,
-        categoria: "linea-blanca",
         origen: "catalogo",
+        canal: "linea-blanca",
+        categoria: "linea-blanca",
         observaciones: notes,
+        items: [{
+          cantidad: 1,
+          descripcion: `${product.name}${product.brand ? " · " + product.brand : ""}${product.model ? " " + product.model : ""}`,
+          detalle: product.code ? `Código: ${product.code}` : "",
+        }],
         meta: { product_id: product.id, code: product.code ?? null },
         consent: true,
       } as any });
-    } catch (e) { console.warn(e); }
-    logLead({
-      channel: "linea-blanca",
-      product_id: product.id,
-      product_name: product.name,
-      customer_name: customerName || null,
-    });
-    window.open(buildWaUrl("linea-blanca", msg), "_blank");
+      logLead({
+        channel: "linea-blanca",
+        product_id: product.id,
+        product_name: product.name,
+        customer_name: customerName || null,
+      });
+      onOpenChange(false);
+      window.location.href = `/pedido/${r.numero_pedido}`;
+    } catch (e: any) {
+      console.error(e);
+      toast.error("No se pudo generar la pre-orden. Intenta nuevamente.");
+    }
   };
 
   return (
