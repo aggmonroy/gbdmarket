@@ -58,10 +58,12 @@ export type Database = {
           cliente_telefono: string | null
           consent_accepted_at: string
           created_at: string
+          descripcion: string | null
           estado: Database["public"]["Enums"]["bitacora_estado"]
           fecha_entrega: string | null
           id: string
           meta: Json
+          numero_pedido: string | null
           observaciones: string | null
           origen: Database["public"]["Enums"]["bitacora_origen"]
           producto_servicio: string | null
@@ -74,10 +76,12 @@ export type Database = {
           cliente_telefono?: string | null
           consent_accepted_at?: string
           created_at?: string
+          descripcion?: string | null
           estado?: Database["public"]["Enums"]["bitacora_estado"]
           fecha_entrega?: string | null
           id?: string
           meta?: Json
+          numero_pedido?: string | null
           observaciones?: string | null
           origen: Database["public"]["Enums"]["bitacora_origen"]
           producto_servicio?: string | null
@@ -90,10 +94,12 @@ export type Database = {
           cliente_telefono?: string | null
           consent_accepted_at?: string
           created_at?: string
+          descripcion?: string | null
           estado?: Database["public"]["Enums"]["bitacora_estado"]
           fecha_entrega?: string | null
           id?: string
           meta?: Json
+          numero_pedido?: string | null
           observaciones?: string | null
           origen?: Database["public"]["Enums"]["bitacora_origen"]
           producto_servicio?: string | null
@@ -790,6 +796,39 @@ export type Database = {
         }
         Relationships: []
       }
+      security_scans: {
+        Row: {
+          created_at: string
+          critical_count: number
+          findings: Json
+          high_count: number
+          id: string
+          scanned_at: string
+          source: string
+          total_packages: number
+        }
+        Insert: {
+          created_at?: string
+          critical_count?: number
+          findings?: Json
+          high_count?: number
+          id?: string
+          scanned_at?: string
+          source?: string
+          total_packages?: number
+        }
+        Update: {
+          created_at?: string
+          critical_count?: number
+          findings?: Json
+          high_count?: number
+          id?: string
+          scanned_at?: string
+          source?: string
+          total_packages?: number
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string
@@ -946,6 +985,7 @@ export type Database = {
         Returns: boolean
       }
       next_numero_garantia: { Args: { _fecha: string }; Returns: string }
+      next_numero_pedido: { Args: { _fecha: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -958,6 +998,9 @@ export type Database = {
         | "entregado"
         | "garantia"
         | "cancelado"
+        | "pre_orden"
+        | "notificado"
+        | "cerrado"
       bitacora_origen:
         | "catalogo"
         | "financiamiento"
@@ -1109,6 +1152,9 @@ export const Constants = {
         "entregado",
         "garantia",
         "cancelado",
+        "pre_orden",
+        "notificado",
+        "cerrado",
       ],
       bitacora_origen: [
         "catalogo",
