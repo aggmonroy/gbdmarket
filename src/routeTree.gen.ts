@@ -20,6 +20,7 @@ import { Route as GarantiasRouteImport } from './routes/garantias'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ModuloGarantiasRouteImport } from './routes/modulo-garantias'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -100,6 +101,11 @@ const McpRoute = McpRouteImport.update({
 const ModuloGarantiasRoute = ModuloGarantiasRouteImport.update({
   id: '/modulo-garantias',
   path: '/modulo-garantias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacidadRoute = PrivacidadRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -307,6 +314,7 @@ export interface FileRoutesByTo {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -347,6 +355,7 @@ export interface FileRoutesById {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -388,6 +397,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/portal'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -427,6 +437,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/portal'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/portal'
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -507,6 +519,7 @@ export interface RootRouteChildren {
   LineaBlancaRoute: typeof LineaBlancaRoute
   McpRoute: typeof McpRoute
   ModuloGarantiasRoute: typeof ModuloGarantiasRoute
+  PortalRoute: typeof PortalRoute
   PrivacidadRoute: typeof PrivacidadRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -595,6 +608,13 @@ declare module '@tanstack/react-router' {
       path: '/modulo-garantias'
       fullPath: '/modulo-garantias'
       preLoaderRoute: typeof ModuloGarantiasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidad': {
@@ -857,6 +877,7 @@ const rootRouteChildren: RootRouteChildren = {
   LineaBlancaRoute: LineaBlancaRoute,
   McpRoute: McpRoute,
   ModuloGarantiasRoute: ModuloGarantiasRoute,
+  PortalRoute: PortalRoute,
   PrivacidadRoute: PrivacidadRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
