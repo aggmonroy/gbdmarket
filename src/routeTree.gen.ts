@@ -24,6 +24,7 @@ import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as PedidoNumeroRouteImport } from './routes/pedido.$numero'
 import { Route as ReporteGarantiaIdRouteImport } from './routes/reporte-garantia.$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -122,6 +123,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const PedidoNumeroRoute = PedidoNumeroRouteImport.update({
+  id: '/pedido/$numero',
+  path: '/pedido/$numero',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ReporteGarantiaIdRoute = ReporteGarantiaIdRouteImport.update({
   id: '/reporte-garantia/$id',
@@ -266,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -303,6 +310,7 @@ export interface FileRoutesByTo {
   '/privacidad': typeof PrivacidadRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -343,6 +351,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -383,6 +392,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -420,6 +430,7 @@ export interface FileRouteTypes {
     | '/privacidad'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
+    | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -498,6 +510,7 @@ export interface RootRouteChildren {
   PrivacidadRoute: typeof PrivacidadRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  PedidoNumeroRoute: typeof PedidoNumeroRoute
   ReporteGarantiaIdRoute: typeof ReporteGarantiaIdRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -611,6 +624,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/pedido/$numero': {
+      id: '/pedido/$numero'
+      path: '/pedido/$numero'
+      fullPath: '/pedido/$numero'
+      preLoaderRoute: typeof PedidoNumeroRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/reporte-garantia/$id': {
       id: '/reporte-garantia/$id'
@@ -841,6 +861,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  PedidoNumeroRoute: PedidoNumeroRoute,
   ReporteGarantiaIdRoute: ReporteGarantiaIdRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
