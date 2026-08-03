@@ -4,10 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getGarantia } from "@/lib/garantias.functions";
+import { getGarantia, getGarantiaReporte } from "@/lib/garantias.functions";
 import { ESTADO_LABEL, TEXTO_CONSENTIMIENTO, siguientePaso, type GarantiaEstado } from "@/lib/garantias-shared";
 
 export const Route = createFileRoute("/reporte-garantia/$id")({
+  validateSearch: (s: Record<string, unknown>) => ({ t: typeof s.t === "string" ? s.t : undefined }),
   head: () => ({
     meta: [
       { title: "Reporte de garantía · Cooperativa GBD" },
@@ -20,8 +21,11 @@ export const Route = createFileRoute("/reporte-garantia/$id")({
 
 function ReporteGarantia() {
   const { id } = Route.useParams();
+  const { t: rt } = Route.useSearch();
   const getFn = useServerFn(getGarantia);
+  const getReporteFn = useServerFn(getGarantiaReporte);
   const [token, setToken] = useState<string | null>(null);
+  const [listo, setListo] = useState(false);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("gbd_garantias_sesion");
@@ -32,15 +36,21 @@ function ReporteGarantia() {
         setToken(null);
       }
     }
+    setListo(true);
   }, []);
 
+  // Con enlace firmado (?t=...) el reporte se imprime sin volver a pedir el PIN.
   const { data, error } = useQuery({
-    queryKey: ["reporte", id, token],
-    queryFn: () => getFn({ data: { token: token!, garantia_id: id } }) as any,
-    enabled: !!token,
+    queryKey: ["reporte", id, rt ?? token],
+    queryFn: () =>
+      (rt
+        ? getReporteFn({ data: { garantia_id: id, rt } })
+        : getFn({ data: { token: token!, garantia_id: id } })) as any,
+    enabled: !!rt || (listo && !!token),
   });
 
-  if (!token) return <p className="p-8 text-center text-sm">Ingresa al módulo de garantías con tu PIN para ver el reporte.</p>;
+  if (!rt && listo && !token)
+    return <p className="p-8 text-center text-sm">Ingresa al módulo de garantías con tu PIN para ver el reporte.</p>;
   if (error) return <p className="p-8 text-center text-sm">{(error as Error).message}</p>;
   if (!data) return <p className="p-8 text-center text-sm">Cargando reporte…</p>;
 
