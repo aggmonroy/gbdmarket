@@ -3,7 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Printer, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getPedido, ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos.functions";
+import { getPedido } from "@/lib/pedidos.functions";
+import { ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos-shared";
 import { buildWaUrl, type WaChannel } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/pedido/$numero")({
