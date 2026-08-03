@@ -1,45 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { admin, requireEscritura, verifySesion } from "./garantias.server";
-
-export const ESTADOS_PEDIDO = ["pre_orden", "en_proceso", "notificado", "cerrado"] as const;
-export type EstadoPedido = (typeof ESTADOS_PEDIDO)[number];
-
-export const ESTADO_PEDIDO_LABEL: Record<EstadoPedido, string> = {
-  pre_orden: "Pre-orden",
-  en_proceso: "En proceso",
-  notificado: "Notificado",
-  cerrado: "Cerrado",
-};
-
-const itemSchema = z.object({
-  descripcion: z.string().trim().min(1).max(300),
-  cantidad: z.number().int().min(1).max(999).default(1),
-  detalle: z.string().trim().max(400).optional().or(z.literal("")),
-});
-
-const crearSchema = z.object({
-  cliente_nombre: z.string().trim().min(2).max(200),
-  cliente_telefono: z.string().trim().max(60).optional().or(z.literal("")),
-  cliente_email: z.string().trim().max(200).optional().or(z.literal("")),
-  origen: z.enum(["catalogo", "financiamiento", "garantia", "contacto", "bordados", "whatsapp"]),
-  canal: z.enum(["linea-blanca", "bordados"]).default("linea-blanca"),
-  categoria: z.string().trim().max(120).optional().or(z.literal("")),
-  observaciones: z.string().trim().max(2000).optional().or(z.literal("")),
-  items: z.array(itemSchema).min(1).max(30),
-  meta: z.record(z.string(), z.any()).optional(),
-  consent: z.literal(true),
-});
-
-export type PreordenItem = z.infer<typeof itemSchema>;
-
-function resumenItems(items: PreordenItem[]) {
-  return items.map((i) => `${i.cantidad} x ${i.descripcion}`).join(" · ").slice(0, 400);
-}
+import {
+  agendaSchema,
+  crearPreordenSchema,
+  listPedidosSchema,
+  numeroPedidoSchema,
+  resumenItems,
+  tokenIdSchema,
+  updatePedidoSchema,
+} from "./pedidos-shared";
 
 /** Público: crea la pre-orden con número correlativo y la deja en la bitácora. */
 export const crearPreorden = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => crearSchema.parse(d))
+  .inputValidator((d: unknown) => crearPreordenSchema.parse(d))
   .handler(async ({ data }) => {
     const sb = await admin();
     const hoy = new Date().toISOString().slice(0, 10);
@@ -64,7 +37,7 @@ export const crearPreorden = createServerFn({ method: "POST" })
 
 /** Público: documento de una sola vista. El número de pedido actúa como clave. */
 export const getPedido = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ numero: z.string().trim().min(6).max(40) }).parse(d))
+  .inputValidator((d: unknown) => numeroPedidoSchema.parse(d))
   .handler(async ({ data }) => {
     const sb = await admin();
     const { data: row, error } = await sb
@@ -81,14 +54,8 @@ export const getPedido = createServerFn({ method: "POST" })
 
 /* --------------------- Portal de colaboradores (sesión por PIN) --------------------- */
 
-const listSchema = z.object({
-  token: z.string().min(1),
-  estado: z.enum(ESTADOS_PEDIDO).optional(),
-  q: z.string().trim().max(120).optional(),
-});
-
 export const listPedidos = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => listSchema.parse(d))
+  .inputValidator((d: unknown) => listPedidosSchema.parse(d))
   .handler(async ({ data }) => {
     await verifySesion(data.token);
     const sb = await admin();
@@ -108,16 +75,8 @@ export const listPedidos = createServerFn({ method: "POST" })
     return rows ?? [];
   });
 
-const updateSchema = z.object({
-  token: z.string().min(1),
-  id: z.string().uuid(),
-  estado: z.enum(ESTADOS_PEDIDO).optional(),
-  descripcion: z.string().trim().max(4000).optional(),
-  fecha_entrega: z.string().max(10).nullable().optional(),
-});
-
 export const actualizarPedido = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => updateSchema.parse(d))
+  .inputValidator((d: unknown) => updatePedidoSchema.parse(d))
   .handler(async ({ data }) => {
     const s = await requireEscritura(data.token);
     const sb = await admin();
@@ -138,7 +97,7 @@ export const actualizarPedido = createServerFn({ method: "POST" })
   });
 
 export const historialPedido = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ token: z.string().min(1), id: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => tokenIdSchema.parse(d))
   .handler(async ({ data }) => {
     await verifySesion(data.token);
     const sb = await admin();
@@ -156,7 +115,7 @@ export const historialPedido = createServerFn({ method: "POST" })
  */
 export const agendaDelDia = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
-    z.object({ token: z.string().min(1), fecha: z.string().min(10).max(10) }).parse(d),
+    agendaSchema.parse(d),
   )
   .handler(async ({ data }) => {
     await verifySesion(data.token);
@@ -183,7 +142,7 @@ export const agendaDelDia = createServerFn({ method: "POST" })
   });
 
 export const completarTarea = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ token: z.string().min(1), id: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => tokenIdSchema.parse(d))
   .handler(async ({ data }) => {
     await requireEscritura(data.token);
     const sb = await admin();
