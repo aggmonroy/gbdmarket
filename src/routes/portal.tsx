@@ -22,15 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { listColaboradoresLogin, loginConPin } from "@/lib/garantias.functions";
-import {
-  ESTADOS_PEDIDO,
-  ESTADO_PEDIDO_LABEL,
-  actualizarPedido,
-  agendaDelDia,
-  completarTarea,
-  listPedidos,
-  type EstadoPedido,
-} from "@/lib/pedidos.functions";
+import { actualizarPedido, agendaDelDia, completarTarea, listPedidos } from "@/lib/pedidos.functions";
+import { ESTADOS_PEDIDO, ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos-shared";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
