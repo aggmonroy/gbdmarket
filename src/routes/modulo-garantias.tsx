@@ -370,7 +370,7 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
 
   const ia = useMutation({
     mutationFn: async (file: File) =>
-      iaFn({ data: { token, contentType: file.type || "image/jpeg", base64: await fileToBase64(file) } }) as any,
+      iaFn({ data: { token, filename: file.name, contentType: file.type || "image/jpeg", base64: await fileToBase64(file) } }) as any,
     onSuccess: (d: any) => {
       setForm((f) => ({
         ...f,
