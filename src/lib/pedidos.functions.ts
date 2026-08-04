@@ -213,7 +213,7 @@ export const bandejaSeguimiento = createServerFn({ method: "POST" })
           estado: g.estado,
           fecha: g.fecha,
           descripcion: null,
-          documento: `/reporte-garantia/${g.id}?rt=${encodeURIComponent(await signReporteToken(g.id))}`,
+          documento: `/reporte-garantia/${g.id}?t=${encodeURIComponent(await signReporteToken(g.id))}`,
         });
       }
     }
