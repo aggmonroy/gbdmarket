@@ -101,6 +101,8 @@ function Home() {
 function HeroFused() {
   const items = useGallerySection("home.gallery", FALLBACK_AMBIENT);
   const [i, setI] = useState(0);
+  const [cotizar, setCotizar] = useState(false);
+
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
   const prev = () => setI((p) => (p - 1 + items.length) % items.length);
 
