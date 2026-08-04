@@ -328,7 +328,15 @@ export const leerFacturaIA = createServerFn({ method: "POST" })
             role: "user",
             content: [
               { type: "text", text: "Extrae los datos de esta factura." },
-              { type: "image_url", image_url: { url: `data:${data.contentType};base64,${data.base64}` } },
+              data.contentType.includes("pdf")
+                ? {
+                    type: "file",
+                    file: {
+                      filename: data.filename ?? "factura.pdf",
+                      file_data: `data:${data.contentType};base64,${data.base64}`,
+                    },
+                  }
+                : { type: "image_url", image_url: { url: `data:${data.contentType};base64,${data.base64}` } },
             ],
           },
         ],
