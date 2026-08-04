@@ -313,12 +313,22 @@ function BordadosSection() {
                   </Link>
                   <button
                     type="button"
-                    onClick={onCotizarWa}
+                    onClick={() => setCotizar(true)}
                     className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-5 py-2.5 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
                   >
                     <MessageCircle className="h-4 w-4" /> Cotizar por WhatsApp
                   </button>
                 </div>
+                <QuoteFormDialog
+                  open={cotizar}
+                  onOpenChange={setCotizar}
+                  canal="bordados"
+                  titulo="Cotizar bordados"
+                  itemInicial={current.title}
+                  detalle={current.subtitle ?? ""}
+                  meta={{ section: "home.bordados", slide_index: i }}
+                />
+
               </>
             )}
           </div>
