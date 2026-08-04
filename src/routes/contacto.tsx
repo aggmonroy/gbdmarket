@@ -234,7 +234,7 @@ function QuoteForm() {
               Seleccionar imágenes
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,application/pdf"
                 multiple
                 className="hidden"
                 onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0, 6))}

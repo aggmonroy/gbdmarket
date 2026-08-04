@@ -353,7 +353,7 @@ function Garantias() {
           </Field>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <FileField label="Fotos del equipo / daño" accept="image/*" files={files.fotos}
+            <FileField label="Fotos del equipo / daño" accept="image/*,application/pdf" files={files.fotos}
               onChange={(fs) => setFiles((p) => ({ ...p, fotos: fs }))} />
             <FileField label="Videos (opcional)" accept="video/*" files={files.videos}
               onChange={(fs) => setFiles((p) => ({ ...p, videos: fs }))} />

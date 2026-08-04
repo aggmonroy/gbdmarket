@@ -76,7 +76,7 @@ export function ImageUploader({ bucket = "site-assets", value, onChange, label =
       <input
         ref={ref}
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf"
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
