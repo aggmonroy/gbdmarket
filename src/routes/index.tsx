@@ -256,25 +256,11 @@ function GalleryThumb({ item, active, onClick }: { item: GalleryItem; active: bo
 function BordadosSection() {
   const items = useGallerySection("home.bordados", FALLBACK_BORDADOS);
   const [i, setI] = useState(0);
-  const regBit = useServerFn(registerBitacora);
+  const [cotizar, setCotizar] = useState(false);
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
   const prev = () => setI((p) => (p - 1 + items.length) % items.length);
 
-  async function onCotizarWa() {
-    const current = items[i];
-    try {
-      await regBit({ data: {
-        cliente_nombre: "Visitante web",
-        producto_servicio: current?.title || "Bordados",
-        categoria: "bordados",
-        origen: "whatsapp",
-        observaciones: `Clic en Cotizar por WhatsApp desde galería bordados${current?.subtitle ? ` · ${current.subtitle}` : ""}`,
-        meta: { section: "home.bordados", slide_index: i, title: current?.title, subtitle: current?.subtitle },
-        consent: true,
-      } as any });
-    } catch (e) { console.warn(e); }
-    window.open("https://wa.me/50768298538?text=Hola%2C%20deseo%20una%20cotizaci%C3%B3n%20de%20bordados", "_blank", "noopener,noreferrer");
-  }
+
 
 
   useEffect(() => {
