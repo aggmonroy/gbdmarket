@@ -10,6 +10,7 @@ import {
   ClipboardList,
   KeyRound,
   LayoutDashboard,
+  ListChecks,
   LogOut,
   Printer,
   ShieldCheck,
@@ -22,8 +23,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { listColaboradoresLogin, loginConPin } from "@/lib/garantias.functions";
-import { actualizarPedido, agendaDelDia, completarTarea, listPedidos } from "@/lib/pedidos.functions";
-import { ESTADOS_PEDIDO, ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos-shared";
+import { actualizarPedido, agendaDelDia, bandejaSeguimiento, completarTarea, listPedidos } from "@/lib/pedidos.functions";
+import {
+  ESTADOS_PEDIDO,
+  ESTADO_PEDIDO_LABEL,
+  TIPO_SEGUIMIENTO_LABEL,
+  TIPOS_SEGUIMIENTO,
+  type EstadoPedido,
+  type TipoSeguimiento,
+} from "@/lib/pedidos-shared";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -42,7 +50,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
-  const [vista, setVista] = useState<"menu" | "pedidos" | "calendario">("menu");
+  const [vista, setVista] = useState<"menu" | "seguimiento" | "pedidos" | "calendario">("menu");
 
   useEffect(() => {
     const raw = sessionStorage.getItem(KEY);
@@ -88,6 +96,7 @@ function Portal() {
         </header>
 
         {vista === "menu" && <Menu sesion={sesion} ir={setVista} />}
+        {vista === "seguimiento" && <Seguimiento sesion={sesion} />}
         {vista === "pedidos" && <Pedidos sesion={sesion} />}
         {vista === "calendario" && <Calendario sesion={sesion} />}
       </div>
@@ -166,10 +175,16 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion) => void }) {
 
 /* ----------------------------------- Menú ----------------------------------- */
 
-function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "pedidos" | "calendario") => void }) {
+function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos" | "calendario") => void }) {
   const rol = sesion.colaborador.rol;
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Area
+        titulo="Seguimiento consolidado"
+        texto="Todo lo pendiente en un solo lugar: pedidos de Línea Blanca, bordados y garantías."
+        icon={ListChecks}
+        onClick={() => ir("seguimiento")}
+      />
       <Area
         titulo="Trámite de garantías"
         texto={rol === "gerente" ? "Consulta de casos abiertos y cerrados (solo lectura)." : "Registra casos, seguimientos y solicita cierres."}
@@ -234,6 +249,153 @@ function Area({
     <button type="button" onClick={onClick} className="block w-full text-left">
       {inner}
     </button>
+  );
+}
+
+
+/* ------------------------------ Seguimiento ------------------------------ */
+
+function Seguimiento({ sesion }: { sesion: Sesion }) {
+  const soloLectura = sesion.colaborador.rol === "gerente";
+  const bandejaFn = useServerFn(bandejaSeguimiento);
+  const updateFn = useServerFn(actualizarPedido);
+  const [tipo, setTipo] = useState<TipoSeguimiento>("todos");
+  const [q, setQ] = useState("");
+
+  const { data: items = [], refetch } = useQuery({
+    queryKey: ["bandeja", tipo, q],
+    queryFn: () => bandejaFn({ data: { token: sesion.token, tipo, q: q || undefined } }) as any,
+  });
+
+  const guardar = useMutation({
+    mutationFn: (v: { id: string; estado?: EstadoPedido; descripcion?: string }) =>
+      updateFn({ data: { token: sesion.token, ...v } }) as any,
+    onSuccess: () => {
+      toast.success("Seguimiento guardado");
+      refetch();
+    },
+    onError: (e: any) => toast.error(e.message ?? "No se pudo guardar"),
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <ListChecks className="h-5 w-5 text-primary" /> Seguimiento consolidado
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          <Input
+            className="max-w-xs"
+            placeholder="Buscar por número, cliente o descripción"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          <Select value={tipo} onValueChange={(v) => setTipo(v as TipoSeguimiento)}>
+            <SelectTrigger className="w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TIPOS_SEGUIMIENTO.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t === "todos" ? "Todas las solicitudes" : TIPO_SEGUIMIENTO_LABEL[t]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {!(items as any[]).length && (
+          <p className="text-sm text-muted-foreground">No hay solicitudes pendientes de seguimiento.</p>
+        )}
+
+        <div className="space-y-3">
+          {(items as any[]).map((it) => (
+            <SeguimientoFila
+              key={it.key}
+              it={it}
+              soloLectura={soloLectura}
+              onGuardar={(v) => guardar.mutate({ id: it.id, ...v })}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SeguimientoFila({
+  it,
+  soloLectura,
+  onGuardar,
+}: {
+  it: any;
+  soloLectura: boolean;
+  onGuardar: (v: { estado?: EstadoPedido; descripcion?: string }) => void;
+}) {
+  const [descripcion, setDescripcion] = useState(it.descripcion ?? "");
+  const esGarantia = it.tipo === "garantia";
+  return (
+    <div className="rounded-md border border-border bg-card p-3 space-y-2">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0">
+          <Badge className="mb-1" variant={esGarantia ? "destructive" : "default"}>
+            {TIPO_SEGUIMIENTO_LABEL[it.tipo as keyof typeof TIPO_SEGUIMIENTO_LABEL]}
+          </Badge>
+          <div className="font-mono text-sm font-semibold">{it.referencia}</div>
+          <div className="text-sm">{it.cliente}</div>
+          <div className="text-xs text-muted-foreground">{it.resumen}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">
+            {ESTADO_PEDIDO_LABEL[it.estado as EstadoPedido] ?? it.estado}
+          </Badge>
+          <Button variant="outline" size="sm" asChild>
+            <a href={it.documento} target="_blank" rel="noreferrer">
+              <Printer className="mr-1 h-3.5 w-3.5" /> Imprimir / PDF
+            </a>
+          </Button>
+        </div>
+      </div>
+
+      {esGarantia ? (
+        <p className="text-xs text-muted-foreground">
+          Los seguimientos de garantías se registran en el{" "}
+          <Link to="/modulo-garantias" className="text-primary hover:underline">
+            módulo de garantías
+          </Link>
+          .
+        </p>
+      ) : (
+        !soloLectura && (
+          <div className="flex flex-wrap items-end gap-2">
+            <Select value={it.estado} onValueChange={(v) => onGuardar({ estado: v as EstadoPedido })}>
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ESTADOS_PEDIDO.map((e) => (
+                  <SelectItem key={e} value={e}>
+                    {ESTADO_PEDIDO_LABEL[e]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Textarea
+              className="min-h-[38px] flex-1"
+              placeholder="Nota de seguimiento"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+            />
+            <Button size="sm" variant="secondary" onClick={() => onGuardar({ descripcion })}>
+              Guardar nota
+            </Button>
+          </div>
+        )
+      )}
+      {soloLectura && it.descripcion && <p className="text-xs text-muted-foreground">{it.descripcion}</p>}
+    </div>
   );
 }
 

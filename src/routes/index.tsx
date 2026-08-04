@@ -6,9 +6,9 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { registerBitacora } from "@/lib/bitacora.functions";
+import { QuoteFormDialog } from "@/components/site/QuoteFormDialog";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -101,6 +101,8 @@ function Home() {
 function HeroFused() {
   const items = useGallerySection("home.gallery", FALLBACK_AMBIENT);
   const [i, setI] = useState(0);
+  const [cotizar, setCotizar] = useState(false);
+
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
   const prev = () => setI((p) => (p - 1 + items.length) % items.length);
 
@@ -154,14 +156,22 @@ function HeroFused() {
               <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
                 Ver Catálogo <ArrowRight className="h-4 w-4" />
               </Link>
-              <a
-                href="https://wa.me/50767841941?text=Hola%2C%20deseo%20m%C3%A1s%20informaci%C3%B3n"
-                target="_blank" rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => setCotizar(true)}
                 className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
               >
-                <MessageCircle className="h-4 w-4" /> WhatsApp
-              </a>
+                <MessageCircle className="h-4 w-4" /> Cotizar por WhatsApp
+              </button>
             </div>
+            <QuoteFormDialog
+              open={cotizar}
+              onOpenChange={setCotizar}
+              canal="linea-blanca"
+              titulo="Cotizar Línea Blanca"
+              meta={{ section: "home.hero" }}
+            />
+
           </div>
 
           {/* Info cards */}
@@ -244,25 +254,11 @@ function GalleryThumb({ item, active, onClick }: { item: GalleryItem; active: bo
 function BordadosSection() {
   const items = useGallerySection("home.bordados", FALLBACK_BORDADOS);
   const [i, setI] = useState(0);
-  const regBit = useServerFn(registerBitacora);
+  const [cotizar, setCotizar] = useState(false);
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
   const prev = () => setI((p) => (p - 1 + items.length) % items.length);
 
-  async function onCotizarWa() {
-    const current = items[i];
-    try {
-      await regBit({ data: {
-        cliente_nombre: "Visitante web",
-        producto_servicio: current?.title || "Bordados",
-        categoria: "bordados",
-        origen: "whatsapp",
-        observaciones: `Clic en Cotizar por WhatsApp desde galería bordados${current?.subtitle ? ` · ${current.subtitle}` : ""}`,
-        meta: { section: "home.bordados", slide_index: i, title: current?.title, subtitle: current?.subtitle },
-        consent: true,
-      } as any });
-    } catch (e) { console.warn(e); }
-    window.open("https://wa.me/50768298538?text=Hola%2C%20deseo%20una%20cotizaci%C3%B3n%20de%20bordados", "_blank", "noopener,noreferrer");
-  }
+
 
 
   useEffect(() => {
@@ -315,12 +311,22 @@ function BordadosSection() {
                   </Link>
                   <button
                     type="button"
-                    onClick={onCotizarWa}
+                    onClick={() => setCotizar(true)}
                     className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-5 py-2.5 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
                   >
                     <MessageCircle className="h-4 w-4" /> Cotizar por WhatsApp
                   </button>
                 </div>
+                <QuoteFormDialog
+                  open={cotizar}
+                  onOpenChange={setCotizar}
+                  canal="bordados"
+                  titulo="Cotizar bordados"
+                  itemInicial={current.title}
+                  detalle={current.subtitle ?? ""}
+                  meta={{ section: "home.bordados", slide_index: i }}
+                />
+
               </>
             )}
           </div>

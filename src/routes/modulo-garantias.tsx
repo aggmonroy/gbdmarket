@@ -370,7 +370,7 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
 
   const ia = useMutation({
     mutationFn: async (file: File) =>
-      iaFn({ data: { token, contentType: file.type || "image/jpeg", base64: await fileToBase64(file) } }) as any,
+      iaFn({ data: { token, filename: file.name, contentType: file.type || "image/jpeg", base64: await fileToBase64(file) } }) as any,
     onSuccess: (d: any) => {
       setForm((f) => ({
         ...f,
@@ -418,7 +418,7 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
           </Label>
           <Input
             type="file"
-            accept="image/*"
+            accept="image/*,application/pdf"
             className="mt-2"
             disabled={ia.isPending}
             onChange={(e) => {
@@ -853,7 +853,7 @@ function DetalleCaso({
               {!soloLectura && (
                 <Input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,application/pdf"
                   disabled={nuevaEv.isPending}
                   onChange={(e) => {
                     const f = e.target.files?.[0];

@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { admin, requireEscritura, verifySesion } from "./garantias.server";
+import { admin, requireEscritura, signReporteToken, verifySesion } from "./garantias.server";
 import {
   agendaSchema,
+  bandejaSchema,
   crearPreordenSchema,
   listPedidosSchema,
   numeroPedidoSchema,
@@ -152,4 +153,75 @@ export const completarTarea = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+
+/**
+ * Bandeja consolidada de seguimiento: pedidos de Línea Blanca, pedidos de
+ * Bordados y garantías abiertas en una sola lista, con enlace imprimible.
+ */
+export const bandejaSeguimiento = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => bandejaSchema.parse(d))
+  .handler(async ({ data }) => {
+    await verifySesion(data.token);
+    const sb = await admin();
+    const items: any[] = [];
+    const term = (data.q ?? "").toLowerCase();
+
+    if (data.tipo !== "garantia") {
+      const { data: pedidos, error } = await sb
+        .from("bitacora")
+        .select("*")
+        .not("numero_pedido", "is", null)
+        .neq("estado", "cerrado")
+        .order("created_at", { ascending: false })
+        .limit(400);
+      if (error) throw new Error(error.message);
+      for (const p of pedidos ?? []) {
+        const canal = ((p.meta as any)?.canal ?? p.categoria ?? "linea-blanca") === "bordados" ? "bordados" : "linea-blanca";
+        if (data.tipo !== "todos" && data.tipo !== canal) continue;
+        items.push({
+          key: `p-${p.id}`,
+          tipo: canal,
+          id: p.id,
+          referencia: p.numero_pedido,
+          cliente: p.cliente_nombre,
+          resumen: p.producto_servicio,
+          estado: p.estado,
+          fecha: p.created_at,
+          descripcion: p.descripcion,
+          documento: `/pedido/${p.numero_pedido}`,
+        });
+      }
+    }
+
+    if (data.tipo === "todos" || data.tipo === "garantia") {
+      const { data: garantias, error } = await sb
+        .from("garantias")
+        .select("id,numero_garantia,cliente,descripcion_articulo,estado,fecha")
+        .in("estado", ["proceso", "revision"])
+        .order("fecha", { ascending: false });
+      if (error) throw new Error(error.message);
+      for (const g of garantias ?? []) {
+        items.push({
+          key: `g-${g.id}`,
+          tipo: "garantia",
+          id: g.id,
+          referencia: g.numero_garantia,
+          cliente: g.cliente,
+          resumen: g.descripcion_articulo,
+          estado: g.estado,
+          fecha: g.fecha,
+          descripcion: null,
+          documento: `/reporte-garantia/${g.id}?t=${encodeURIComponent(await signReporteToken(g.id))}`,
+        });
+      }
+    }
+
+    const filtrados = term
+      ? items.filter((i) =>
+          [i.referencia, i.cliente, i.resumen].some((v: any) => (v ?? "").toLowerCase().includes(term)),
+        )
+      : items;
+    return filtrados.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
   });

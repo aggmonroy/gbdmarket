@@ -52,3 +52,18 @@ export const agendaSchema = z.object({ token: z.string().min(1), fecha: z.string
 export function resumenItems(items: PreordenItem[]) {
   return items.map((i) => `${i.cantidad} x ${i.descripcion}`).join(" · ").slice(0, 400);
 }
+
+export const TIPOS_SEGUIMIENTO = ["todos", "linea-blanca", "bordados", "garantia"] as const;
+export type TipoSeguimiento = (typeof TIPOS_SEGUIMIENTO)[number];
+
+export const TIPO_SEGUIMIENTO_LABEL: Record<Exclude<TipoSeguimiento, "todos">, string> = {
+  "linea-blanca": "Pedido Línea Blanca",
+  bordados: "Pedido Bordados",
+  garantia: "Garantía",
+};
+
+export const bandejaSchema = z.object({
+  token: z.string().min(1),
+  tipo: z.enum(TIPOS_SEGUIMIENTO).default("todos"),
+  q: z.string().trim().max(120).optional(),
+});
