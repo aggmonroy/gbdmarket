@@ -154,14 +154,22 @@ function HeroFused() {
               <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
                 Ver Catálogo <ArrowRight className="h-4 w-4" />
               </Link>
-              <a
-                href="https://wa.me/50767841941?text=Hola%2C%20deseo%20m%C3%A1s%20informaci%C3%B3n"
-                target="_blank" rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => setCotizar(true)}
                 className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
               >
-                <MessageCircle className="h-4 w-4" /> WhatsApp
-              </a>
+                <MessageCircle className="h-4 w-4" /> Cotizar por WhatsApp
+              </button>
             </div>
+            <QuoteFormDialog
+              open={cotizar}
+              onOpenChange={setCotizar}
+              canal="linea-blanca"
+              titulo="Cotizar Línea Blanca"
+              meta={{ section: "home.hero" }}
+            />
+
           </div>
 
           {/* Info cards */}
