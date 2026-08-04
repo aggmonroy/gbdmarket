@@ -9,6 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { registerBitacora } from "@/lib/bitacora.functions";
+import { QuoteFormDialog } from "@/components/site/QuoteFormDialog";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
