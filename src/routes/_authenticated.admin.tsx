@@ -1,5 +1,5 @@
-import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye, BarChart3, ClipboardList, CalendarDays, Sparkles, KeyRound } from "lucide-react";
+import { createFileRoute, Outlet, Link, useRouterState, useNavigate, redirect } from "@tanstack/react-router";
+import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye, BarChart3, ClipboardList, CalendarDays, Sparkles, KeyRound, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -8,16 +8,29 @@ import { useDraftMode } from "@/hooks/use-draft-mode";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { listPendingDrafts } from "@/lib/drafts.functions";
+import { getAdminAccess } from "@/lib/admin-auth.functions";
+import { getDeviceToken, clearDeviceToken } from "@/lib/admin-device";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  beforeLoad: async () => {
+    const state = await getAdminAccess({ data: { deviceToken: getDeviceToken() } });
+    if (!state.isStaff || !state.verified) {
+      clearDeviceToken();
+      await supabase.auth.signOut();
+      throw redirect({ to: "/auth", search: { next: "" } });
+    }
+    return { role: state.role, canEdit: state.canEdit };
+  },
   head: () => ({
     meta: [
       { title: "Panel administrativo · Cooperativa GBD" },
+      { name: "description", content: "Panel privado de gestión de la Cooperativa GBD." },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
   component: AdminLayout,
 });
+
 
 const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
