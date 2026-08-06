@@ -24,7 +24,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { listColaboradoresLogin, loginConPin } from "@/lib/garantias.functions";
-import { actualizarPedido, agendaDelDia, bandejaSeguimiento, completarTarea, listPedidos } from "@/lib/pedidos.functions";
+import { actualizarPedido, agendaDelDia, bandejaSeguimiento, listPedidos } from "@/lib/pedidos.functions";
+import { cerrarTarea } from "@/lib/tareas.functions";
 import {
   ESTADOS_PEDIDO,
   ESTADO_PEDIDO_LABEL,
@@ -544,7 +545,7 @@ function PedidoFila({
 function Calendario({ sesion }: { sesion: Sesion }) {
   const soloLectura = sesion.colaborador.rol === "gerente";
   const agendaFn = useServerFn(agendaDelDia);
-  const completarFn = useServerFn(completarTarea);
+  const completarFn = useServerFn(cerrarTarea);
   const [fecha, setFecha] = useState(hoy());
 
   const { data, refetch } = useQuery({
@@ -593,13 +594,16 @@ function Calendario({ sesion }: { sesion: Sesion }) {
           {tareas.map((t) => (
             <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border p-3">
               <div>
-                <div className="text-sm font-medium">{t.titulo}</div>
+                <div className="text-sm font-medium">
+                  {t.numero_orden ? <span className="font-mono mr-2">{t.numero_orden}</span> : null}
+                  {t.titulo}
+                </div>
                 <div className="text-xs text-muted-foreground">
                   {t.descripcion} · Responsable: {t.responsable}
                   {t.fecha_vencimiento ? ` · Vence: ${t.fecha_vencimiento}` : ""}
                 </div>
               </div>
-              {!soloLectura && (
+              {(
                 <Button size="sm" variant="outline" onClick={() => completar.mutate(t.id)}>
                   <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Completar
                 </Button>
