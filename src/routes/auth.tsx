@@ -3,8 +3,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { MailCheck, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { bootstrapFirstAdmin, hasAnyAdmin } from "@/lib/admin.functions";
+import { beginTwoFactor, getAdminAccess } from "@/lib/admin-auth.functions";
+import { getDeviceToken, clearDeviceToken } from "@/lib/admin-device";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +24,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Acceso administrativo · Cooperativa GBD" },
+      { name: "description", content: "Ingreso privado al panel administrativo de la Cooperativa GBD." },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -32,6 +36,8 @@ function AuthPage() {
   const { next } = Route.useSearch();
   const checkAdmin = useServerFn(hasAnyAdmin);
   const bootstrap = useServerFn(bootstrapFirstAdmin);
+  const access = useServerFn(getAdminAccess);
+  const startTwoFactor = useServerFn(beginTwoFactor);
   const { data: status, refetch } = useQuery({
     queryKey: ["has-admin"],
     queryFn: () => checkAdmin(),
@@ -40,6 +46,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const isBootstrap = status && !status.hasAdmin;
 
@@ -51,18 +58,65 @@ function AuthPage() {
         await bootstrap({ data: { email, password } });
         toast.success("Administrador creado. Inicia sesión.");
         await refetch();
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Sesión iniciada");
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      // Paso 2: dispositivo reconocido o verificación por correo.
+      const state = await access({ data: { deviceToken: getDeviceToken() } });
+      if (!state.isStaff) {
+        await supabase.auth.signOut();
+        throw new Error("Esta cuenta no tiene acceso al panel administrativo.");
+      }
+      if (state.verified) {
+        toast.success("Sesión iniciada en un dispositivo reconocido");
         if (next) window.location.href = next;
         else navigate({ to: "/admin" });
+        return;
       }
+
+      await startTwoFactor();
+      const { error: otpErr } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}/auth/verificar`,
+        },
+      });
+      if (otpErr) throw otpErr;
+      clearDeviceToken();
+      // Sin verificación no hay acceso: cerramos la sesión de este paso.
+      await supabase.auth.signOut();
+      setSent(true);
     } catch (err: any) {
-      toast.error(err.message ?? "Error de autenticación");
+      toast.error(err?.message ?? "Error de autenticación");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (sent) {
+    return (
+      <div className="min-h-[80vh] grid place-items-center px-4 py-12">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <MailCheck className="mx-auto h-10 w-10 text-primary" />
+            <CardTitle className="font-display text-2xl">Verificación en 2 pasos</CardTitle>
+            <CardDescription>
+              Contraseña correcta. Enviamos un enlace de verificación a <strong>{email}</strong>.
+              Ábrelo en este dispositivo para completar el ingreso; después quedará reconocido por 60 días.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" onClick={() => setSent(false)}>
+              Volver
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -107,9 +161,15 @@ function AuthPage() {
               {loading ? "Procesando..." : isBootstrap ? "Crear administrador" : "Ingresar"}
             </Button>
             {!isBootstrap && (
-              <p className="text-xs text-muted-foreground text-center">
-                ¿No tienes cuenta? Solicita una invitación a un administrador existente.
-              </p>
+              <>
+                <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Los administradores requieren verificación en 2 pasos.
+                </p>
+                <p className="text-xs text-muted-foreground text-center">
+                  ¿No tienes cuenta? Solicita una invitación a un administrador existente.
+                </p>
+              </>
             )}
           </form>
         </CardContent>
