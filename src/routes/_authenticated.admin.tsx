@@ -44,6 +44,7 @@ const nav = [
   { to: "/admin/contacto", label: "Contacto y redes", icon: Phone },
   { to: "/admin/seo", label: "SEO y analítica", icon: Search },
   { to: "/admin/colaboradores", label: "Colaboradores y PIN", icon: KeyRound },
+  { to: "/admin/usuarios", label: "Usuarios y roles", icon: Users },
   { to: "/admin/bordados-servicios", label: "Bordados: servicios", icon: Sparkles },
   { to: "/admin/bordados", label: "Bordados: solicitudes", icon: Scissors },
 ];
@@ -67,6 +68,7 @@ function AdminLayout() {
   });
 
   async function signOut() {
+    clearDeviceToken();
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: { next: "" }, replace: true });
   }
