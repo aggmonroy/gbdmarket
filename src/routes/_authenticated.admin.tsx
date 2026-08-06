@@ -55,7 +55,7 @@ function AdminLayout() {
 
   async function signOut() {
     await supabase.auth.signOut();
-    navigate({ to: "/auth", search: {}, replace: true });
+    navigate({ to: "/auth", search: { next: "" }, replace: true });
   }
 
   return (
