@@ -68,7 +68,7 @@ function AdminLayout() {
   });
 
   async function signOut() {
-    clearDeviceToken();
+    // El dispositivo sigue reconocido; solo se cierra la sesión.
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: { next: "" }, replace: true });
   }
