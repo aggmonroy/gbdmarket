@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { admin, requireEscritura, signReporteToken, verifySesion } from "./garantias.server";
+import { crearTareaDeSolicitud } from "./tareas.server";
 import {
   agendaSchema,
   bandejaSchema,
@@ -19,22 +20,35 @@ export const crearPreorden = createServerFn({ method: "POST" })
     const hoy = new Date().toISOString().slice(0, 10);
     const { data: numero, error: numError } = await sb.rpc("next_numero_pedido", { _fecha: hoy });
     if (numError) throw new Error(numError.message);
-    const { error } = await sb.from("bitacora").insert({
-      numero_pedido: numero,
-      cliente_nombre: data.cliente_nombre,
-      cliente_telefono: data.cliente_telefono || null,
-      cliente_email: data.cliente_email || null,
-      producto_servicio: resumenItems(data.items),
-      categoria: data.categoria || null,
-      origen: data.origen,
-      estado: "pre_orden",
-      observaciones: data.observaciones || null,
-      meta: { ...(data.meta ?? {}), canal: data.canal, items: data.items },
-      consent_accepted_at: new Date().toISOString(),
-    });
+    const resumen = resumenItems(data.items);
+    const { data: row, error } = await sb
+      .from("bitacora")
+      .insert({
+        numero_pedido: numero,
+        cliente_nombre: data.cliente_nombre,
+        cliente_telefono: data.cliente_telefono || null,
+        cliente_email: data.cliente_email || null,
+        producto_servicio: resumen,
+        categoria: data.categoria || null,
+        origen: data.origen,
+        estado: "pre_orden",
+        observaciones: data.observaciones || null,
+        meta: { ...(data.meta ?? {}), canal: data.canal, items: data.items },
+        consent_accepted_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
+    await crearTareaDeSolicitud({
+      bitacoraId: (row as any).id,
+      numeroPedido: numero as string,
+      cliente: data.cliente_nombre,
+      canal: data.canal,
+      resumen,
+    });
     return { numero_pedido: numero as string };
   });
+
 
 /** Público: documento de una sola vista. El número de pedido actúa como clave. */
 export const getPedido = createServerFn({ method: "POST" })
