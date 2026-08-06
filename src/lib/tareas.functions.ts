@@ -1,30 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { admin, verifySesion } from "./garantias.server";
+import { generarNumeroTarea, hoyISO, nombresColaboradores } from "./tareas.server";
 import {
   completarTareaSchema,
   crearTareaSchema,
   listTareasSchema,
   reabrirTareaSchema,
-  TIPO_TAREA_PREFIJO,
-  type TipoTarea,
 } from "./tareas-shared";
 
-const hoyISO = () => new Date().toISOString().slice(0, 10);
-
-async function nombresColaboradores(sb: any) {
-  const { data } = await sb.from("colaboradores").select("id,nombre");
-  return new Map<string, string>((data ?? []).map((c: any) => [c.id, c.nombre]));
-}
-
-/** Genera el número de orden con trazabilidad para cualquier registro. */
-export async function generarNumeroTarea(sb: any, tipo: TipoTarea) {
-  const { data, error } = await sb.rpc("next_numero_tarea", {
-    _fecha: hoyISO(),
-    _prefijo: TIPO_TAREA_PREFIJO[tipo],
-  });
-  if (error) throw new Error(error.message);
-  return data as string;
-}
 
 /**
  * Crea una tarea, tarea diaria, incidencia, recordatorio u otro registro.
