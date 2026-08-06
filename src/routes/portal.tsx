@@ -11,6 +11,7 @@ import {
   KeyRound,
   LayoutDashboard,
   ListChecks,
+  ListTodo,
   LogOut,
   Printer,
   ShieldCheck,
@@ -23,7 +24,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { listColaboradoresLogin, loginConPin } from "@/lib/garantias.functions";
-import { actualizarPedido, agendaDelDia, bandejaSeguimiento, completarTarea, listPedidos } from "@/lib/pedidos.functions";
+import { actualizarPedido, agendaDelDia, bandejaSeguimiento, listPedidos } from "@/lib/pedidos.functions";
+import { cerrarTarea } from "@/lib/tareas.functions";
 import {
   ESTADOS_PEDIDO,
   ESTADO_PEDIDO_LABEL,
@@ -32,6 +34,7 @@ import {
   type EstadoPedido,
   type TipoSeguimiento,
 } from "@/lib/pedidos-shared";
+import { TareasPanel } from "@/components/portal/TareasPanel";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -50,7 +53,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
-  const [vista, setVista] = useState<"menu" | "seguimiento" | "pedidos" | "calendario">("menu");
+  const [vista, setVista] = useState<"menu" | "seguimiento" | "pedidos" | "calendario" | "tareas">("menu");
 
   useEffect(() => {
     const raw = sessionStorage.getItem(KEY);
@@ -99,6 +102,7 @@ function Portal() {
         {vista === "seguimiento" && <Seguimiento sesion={sesion} />}
         {vista === "pedidos" && <Pedidos sesion={sesion} />}
         {vista === "calendario" && <Calendario sesion={sesion} />}
+        {vista === "tareas" && <TareasPanel sesion={sesion} />}
       </div>
     </div>
   );
@@ -175,7 +179,7 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion) => void }) {
 
 /* ----------------------------------- Menú ----------------------------------- */
 
-function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos" | "calendario") => void }) {
+function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos" | "calendario" | "tareas") => void }) {
   const rol = sesion.colaborador.rol;
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -184,6 +188,16 @@ function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos
         texto="Todo lo pendiente en un solo lugar: pedidos de Línea Blanca, bordados y garantías."
         icon={ListChecks}
         onClick={() => ir("seguimiento")}
+      />
+      <Area
+        titulo="Tareas e incidencias"
+        texto={
+          rol === "gerente"
+            ? "Asigna tareas al personal y consulta la bitácora diaria de tareas e incidencias."
+            : "Registra tus tareas del día, incidencias, recordatorios y otros registros con número de orden."
+        }
+        icon={ListTodo}
+        onClick={() => ir("tareas")}
       />
       <Area
         titulo="Trámite de garantías"
@@ -531,7 +545,7 @@ function PedidoFila({
 function Calendario({ sesion }: { sesion: Sesion }) {
   const soloLectura = sesion.colaborador.rol === "gerente";
   const agendaFn = useServerFn(agendaDelDia);
-  const completarFn = useServerFn(completarTarea);
+  const completarFn = useServerFn(cerrarTarea);
   const [fecha, setFecha] = useState(hoy());
 
   const { data, refetch } = useQuery({
@@ -580,13 +594,16 @@ function Calendario({ sesion }: { sesion: Sesion }) {
           {tareas.map((t) => (
             <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border p-3">
               <div>
-                <div className="text-sm font-medium">{t.titulo}</div>
+                <div className="text-sm font-medium">
+                  {t.numero_orden ? <span className="font-mono mr-2">{t.numero_orden}</span> : null}
+                  {t.titulo}
+                </div>
                 <div className="text-xs text-muted-foreground">
                   {t.descripcion} · Responsable: {t.responsable}
                   {t.fecha_vencimiento ? ` · Vence: ${t.fecha_vencimiento}` : ""}
                 </div>
               </div>
-              {!soloLectura && (
+              {(
                 <Button size="sm" variant="outline" onClick={() => completar.mutate(t.id)}>
                   <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Completar
                 </Button>
