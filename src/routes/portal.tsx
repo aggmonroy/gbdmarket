@@ -11,6 +11,7 @@ import {
   KeyRound,
   LayoutDashboard,
   ListChecks,
+  ListTodo,
   LogOut,
   Printer,
   ShieldCheck,
@@ -32,6 +33,7 @@ import {
   type EstadoPedido,
   type TipoSeguimiento,
 } from "@/lib/pedidos-shared";
+import { TareasPanel } from "@/components/portal/TareasPanel";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -50,7 +52,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
-  const [vista, setVista] = useState<"menu" | "seguimiento" | "pedidos" | "calendario">("menu");
+  const [vista, setVista] = useState<"menu" | "seguimiento" | "pedidos" | "calendario" | "tareas">("menu");
 
   useEffect(() => {
     const raw = sessionStorage.getItem(KEY);
@@ -99,6 +101,7 @@ function Portal() {
         {vista === "seguimiento" && <Seguimiento sesion={sesion} />}
         {vista === "pedidos" && <Pedidos sesion={sesion} />}
         {vista === "calendario" && <Calendario sesion={sesion} />}
+        {vista === "tareas" && <TareasPanel sesion={sesion} />}
       </div>
     </div>
   );
@@ -175,7 +178,7 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion) => void }) {
 
 /* ----------------------------------- Menú ----------------------------------- */
 
-function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos" | "calendario") => void }) {
+function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos" | "calendario" | "tareas") => void }) {
   const rol = sesion.colaborador.rol;
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -184,6 +187,16 @@ function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos
         texto="Todo lo pendiente en un solo lugar: pedidos de Línea Blanca, bordados y garantías."
         icon={ListChecks}
         onClick={() => ir("seguimiento")}
+      />
+      <Area
+        titulo="Tareas e incidencias"
+        texto={
+          rol === "gerente"
+            ? "Asigna tareas al personal y consulta la bitácora diaria de tareas e incidencias."
+            : "Registra tus tareas del día, incidencias, recordatorios y otros registros con número de orden."
+        }
+        icon={ListTodo}
+        onClick={() => ir("tareas")}
       />
       <Area
         titulo="Trámite de garantías"
