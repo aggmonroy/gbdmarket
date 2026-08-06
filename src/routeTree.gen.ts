@@ -47,6 +47,7 @@ import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminPromocionesRouteImport } from './routes/_authenticated.admin.promociones'
 import { Route as AuthenticatedAdminReportesRouteImport } from './routes/_authenticated.admin.reportes'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated.admin.seo'
+import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated.admin.usuarios'
 import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 import { Route as ApiPublicHooksRefreshHomeGalleryRouteImport } from './routes/api/public/hooks/refresh-home-gallery'
 
@@ -257,6 +258,12 @@ const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
   path: '/seo',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminUsuariosRoute =
+  AuthenticatedAdminUsuariosRouteImport.update({
+    id: '/usuarios',
+    path: '/usuarios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const ApiPublicBootstrapAdminRoute = ApiPublicBootstrapAdminRouteImport.update({
   id: '/api/public/bootstrap-admin',
   path: '/api/public/bootstrap-admin',
@@ -306,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
@@ -346,6 +354,7 @@ export interface FileRoutesByTo {
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
@@ -389,6 +398,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
   '/_authenticated/admin/reportes': typeof AuthenticatedAdminReportesRoute
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
@@ -432,6 +442,7 @@ export interface FileRouteTypes {
     | '/admin/promociones'
     | '/admin/reportes'
     | '/admin/seo'
+    | '/admin/usuarios'
     | '/api/public/bootstrap-admin'
     | '/admin/'
     | '/api/public/hooks/refresh-home-gallery'
@@ -472,6 +483,7 @@ export interface FileRouteTypes {
     | '/admin/promociones'
     | '/admin/reportes'
     | '/admin/seo'
+    | '/admin/usuarios'
     | '/api/public/bootstrap-admin'
     | '/admin'
     | '/api/public/hooks/refresh-home-gallery'
@@ -514,6 +526,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/promociones'
     | '/_authenticated/admin/reportes'
     | '/_authenticated/admin/seo'
+    | '/_authenticated/admin/usuarios'
     | '/api/public/bootstrap-admin'
     | '/_authenticated/admin/'
     | '/api/public/hooks/refresh-home-gallery'
@@ -811,6 +824,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSeoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/usuarios': {
+      id: '/_authenticated/admin/usuarios'
+      path: '/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/public/bootstrap-admin': {
       id: '/api/public/bootstrap-admin'
       path: '/api/public/bootstrap-admin'
@@ -845,6 +865,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPromocionesRoute: typeof AuthenticatedAdminPromocionesRoute
   AuthenticatedAdminReportesRoute: typeof AuthenticatedAdminReportesRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
+  AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
@@ -866,6 +887,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPromocionesRoute: AuthenticatedAdminPromocionesRoute,
   AuthenticatedAdminReportesRoute: AuthenticatedAdminReportesRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
+  AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
