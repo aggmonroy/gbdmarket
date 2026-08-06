@@ -862,41 +862,86 @@ export type Database = {
       tareas: {
         Row: {
           asignado_a: string | null
+          bitacora_id: string | null
           completada_en: string | null
+          completada_por: string | null
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           estado: string
+          fecha: string
           fecha_vencimiento: string | null
           garantia_id: string | null
           id: string
+          nota_cierre: string | null
+          numero_orden: string | null
+          tipo: string
           titulo: string
+          updated_at: string
         }
         Insert: {
           asignado_a?: string | null
+          bitacora_id?: string | null
           completada_en?: string | null
+          completada_por?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           estado?: string
+          fecha?: string
           fecha_vencimiento?: string | null
           garantia_id?: string | null
           id?: string
+          nota_cierre?: string | null
+          numero_orden?: string | null
+          tipo?: string
           titulo: string
+          updated_at?: string
         }
         Update: {
           asignado_a?: string | null
+          bitacora_id?: string | null
           completada_en?: string | null
+          completada_por?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           estado?: string
+          fecha?: string
           fecha_vencimiento?: string | null
           garantia_id?: string | null
           id?: string
+          nota_cierre?: string | null
+          numero_orden?: string | null
+          tipo?: string
           titulo?: string
+          updated_at?: string
         }
         Relationships: [
           {
             foreignKeyName: "tareas_asignado_a_fkey"
             columns: ["asignado_a"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_bitacora_id_fkey"
+            columns: ["bitacora_id"]
+            isOneToOne: false
+            referencedRelation: "bitacora"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_completada_por_fkey"
+            columns: ["completada_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
             referencedRelation: "colaboradores"
             referencedColumns: ["id"]
@@ -986,6 +1031,10 @@ export type Database = {
       }
       next_numero_garantia: { Args: { _fecha: string }; Returns: string }
       next_numero_pedido: { Args: { _fecha: string }; Returns: string }
+      next_numero_tarea: {
+        Args: { _fecha: string; _prefijo?: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "user"
