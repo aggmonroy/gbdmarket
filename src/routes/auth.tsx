@@ -40,6 +40,11 @@ function parseCodeInput(raw: string): { token?: string; tokenHash?: string; type
   return null;
 }
 
+/** Límites del segundo paso. */
+const RESEND_COOLDOWN_SECONDS = 60;
+const MAX_RESENDS = 3;
+const MAX_VERIFY_ATTEMPTS = 5;
+
 export const Route = createFileRoute("/auth")({
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({ next: safeNext(s.next) }),
