@@ -76,8 +76,28 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [code, setCode] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+  const [resends, setResends] = useState(0);
+  const [attemptsLeft, setAttemptsLeft] = useState(MAX_VERIFY_ATTEMPTS);
+  const [blocked, setBlocked] = useState<string | null>(null);
 
   const isBootstrap = status && !status.hasAdmin;
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
+
+  function resetTwoFactorState() {
+    setSent(false);
+    setCode("");
+    setCooldown(0);
+    setResends(0);
+    setAttemptsLeft(MAX_VERIFY_ATTEMPTS);
+    setBlocked(null);
+  }
+
 
 
   async function handleSubmit(e: React.FormEvent) {
