@@ -3,13 +3,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, Trash2, Laptop } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { listStaff, setUserRole, inviteStaff, revokeStaff } from "@/lib/admin.functions";
-import { listTrustedDevices, revokeTrustedDevice } from "@/lib/admin-auth.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Select,
@@ -29,7 +28,7 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 const ROLE_HELP: Record<Role, string> = {
-  admin: "Acceso total: contenido, usuarios y configuración. Requiere verificación en 2 pasos.",
+  admin: "Acceso total: contenido, usuarios y configuración.",
   editor: "Puede consultar el panel; los cambios los aprueba un administrador.",
   viewer: "Solo consulta de información del panel.",
 };
@@ -51,11 +50,9 @@ function UsuariosPage() {
   const setRoleFn = useServerFn(setUserRole);
   const inviteFn = useServerFn(inviteStaff);
   const revokeFn = useServerFn(revokeStaff);
-  const devicesFn = useServerFn(listTrustedDevices);
-  const revokeDeviceFn = useServerFn(revokeTrustedDevice);
 
   const { data: staff = [], isLoading } = useQuery({ queryKey: ["staff"], queryFn: () => staffFn() });
-  const { data: devices = [] } = useQuery({ queryKey: ["my-devices"], queryFn: () => devicesFn() });
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -90,14 +87,8 @@ function UsuariosPage() {
     onError: (e: any) => toast.error(e?.message ?? "No se pudo revocar el acceso"),
   });
 
-  const revokeDevice = useMutation({
-    mutationFn: (id: string) => revokeDeviceFn({ data: { id } }),
-    onSuccess: () => {
-      toast.success("Dispositivo eliminado");
-      qc.invalidateQueries({ queryKey: ["my-devices"] });
-    },
-    onError: (e: any) => toast.error(e?.message ?? "No se pudo eliminar el dispositivo"),
-  });
+
+
 
   return (
     <div className="space-y-6">
@@ -123,12 +114,8 @@ function UsuariosPage() {
                 <div className="truncate font-medium">{s.email}</div>
                 <div className="text-xs text-muted-foreground">
                   {ROLE_LABEL[s.role] ?? s.role}
-                  {s.role === "admin" && (
-                    <Badge variant="secondary" className="ml-2 h-5 gap-1 px-1.5 text-[10px]">
-                      <ShieldCheck className="h-3 w-3" /> 2 pasos
-                    </Badge>
-                  )}
                 </div>
+
               </div>
               <div className="flex items-center gap-2">
                 <Select
@@ -206,38 +193,6 @@ function UsuariosPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Mis dispositivos reconocidos</CardTitle>
-          <CardDescription>
-            En estos dispositivos no se pide el segundo paso durante 60 días. Elimínalos si pierdes el equipo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {devices.length === 0 && <p className="text-sm text-muted-foreground">Sin dispositivos registrados.</p>}
-          {devices.map((d) => (
-            <div key={d.id} className="flex items-center justify-between gap-3 rounded-md border border-border p-3">
-              <div className="flex min-w-0 items-center gap-2">
-                <Laptop className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium">{d.label ?? "Dispositivo"}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Último acceso: {new Date(d.last_seen_at).toLocaleString("es-PA")}
-                  </div>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Eliminar dispositivo"
-                onClick={() => revokeDevice.mutate(d.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
     </div>
   );
 }

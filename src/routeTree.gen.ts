@@ -22,10 +22,10 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ModuloGarantiasRouteImport } from './routes/modulo-garantias'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
-import { Route as AuthVerificarRouteImport } from './routes/auth.verificar'
 import { Route as PedidoNumeroRouteImport } from './routes/pedido.$numero'
 import { Route as ReporteGarantiaIdRouteImport } from './routes/reporte-garantia.$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -115,6 +115,11 @@ const PrivacidadRoute = PrivacidadRouteImport.update({
   path: '/privacidad',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char91DotmcpChar93ListToolsRoute =
   Char91DotmcpChar93ListToolsRouteImport.update({
     id: '/.mcp/list-tools',
@@ -131,11 +136,6 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthVerificarRoute = AuthVerificarRouteImport.update({
-  id: '/verificar',
-  path: '/verificar',
-  getParentRoute: () => AuthRoute,
 } as any)
 const PedidoNumeroRoute = PedidoNumeroRouteImport.update({
   id: '/pedido/$numero',
@@ -278,7 +278,7 @@ const ApiPublicHooksRefreshHomeGalleryRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/bordados': typeof BordadosRoute
   '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
@@ -289,10 +289,10 @@ export interface FileRoutesByFullPath {
   '/modulo-garantias': typeof ModuloGarantiasRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/auth/verificar': typeof AuthVerificarRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -320,7 +320,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/bordados': typeof BordadosRoute
   '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
@@ -331,9 +331,9 @@ export interface FileRoutesByTo {
   '/modulo-garantias': typeof ModuloGarantiasRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/auth/verificar': typeof AuthVerificarRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -363,7 +363,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/bordados': typeof BordadosRoute
   '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
@@ -374,10 +374,10 @@ export interface FileRoutesById {
   '/modulo-garantias': typeof ModuloGarantiasRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/auth/verificar': typeof AuthVerificarRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -418,10 +418,10 @@ export interface FileRouteTypes {
     | '/modulo-garantias'
     | '/portal'
     | '/privacidad'
+    | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
-    | '/auth/verificar'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -460,9 +460,9 @@ export interface FileRouteTypes {
     | '/modulo-garantias'
     | '/portal'
     | '/privacidad'
+    | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
-    | '/auth/verificar'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -502,10 +502,10 @@ export interface FileRouteTypes {
     | '/modulo-garantias'
     | '/portal'
     | '/privacidad'
+    | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
-    | '/auth/verificar'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -535,7 +535,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  AuthRoute: typeof AuthRouteWithChildren
+  AuthRoute: typeof AuthRoute
   BordadosRoute: typeof BordadosRoute
   CatalogoRoute: typeof CatalogoRoute
   ContactoRoute: typeof ContactoRoute
@@ -546,6 +546,7 @@ export interface RootRouteChildren {
   ModuloGarantiasRoute: typeof ModuloGarantiasRoute
   PortalRoute: typeof PortalRoute
   PrivacidadRoute: typeof PrivacidadRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   PedidoNumeroRoute: typeof PedidoNumeroRoute
@@ -649,6 +650,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacidadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.mcp/list-tools': {
       id: '/.mcp/list-tools'
       path: '/.mcp/list-tools'
@@ -669,13 +677,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
-    }
-    '/auth/verificar': {
-      id: '/auth/verificar'
-      path: '/verificar'
-      fullPath: '/auth/verificar'
-      preLoaderRoute: typeof AuthVerificarRouteImport
-      parentRoute: typeof AuthRoute
     }
     '/pedido/$numero': {
       id: '/pedido/$numero'
@@ -906,20 +907,10 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
-interface AuthRouteChildren {
-  AuthVerificarRoute: typeof AuthVerificarRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthVerificarRoute: AuthVerificarRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  AuthRoute: AuthRouteWithChildren,
+  AuthRoute: AuthRoute,
   BordadosRoute: BordadosRoute,
   CatalogoRoute: CatalogoRoute,
   ContactoRoute: ContactoRoute,
@@ -930,6 +921,7 @@ const rootRouteChildren: RootRouteChildren = {
   ModuloGarantiasRoute: ModuloGarantiasRoute,
   PortalRoute: PortalRoute,
   PrivacidadRoute: PrivacidadRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
