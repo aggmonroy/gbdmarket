@@ -8,7 +8,7 @@ import { listStaff, setUserRole, inviteStaff, revokeStaff } from "@/lib/admin.fu
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Select,
@@ -28,7 +28,7 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 const ROLE_HELP: Record<Role, string> = {
-  admin: "Acceso total: contenido, usuarios y configuración. Requiere verificación en 2 pasos.",
+  admin: "Acceso total: contenido, usuarios y configuración.",
   editor: "Puede consultar el panel; los cambios los aprueba un administrador.",
   viewer: "Solo consulta de información del panel.",
 };
