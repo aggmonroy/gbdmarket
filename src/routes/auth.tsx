@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { MailCheck, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { bootstrapFirstAdmin, hasAnyAdmin } from "@/lib/admin.functions";
-import { beginTwoFactor, getAdminAccess } from "@/lib/admin-auth.functions";
-import { getDeviceToken, clearDeviceToken } from "@/lib/admin-device";
+import { beginTwoFactor, completeTwoFactor, getAdminAccess } from "@/lib/admin-auth.functions";
+import { getDeviceToken, clearDeviceToken, setDeviceToken, deviceLabel } from "@/lib/admin-device";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,29 @@ function safeNext(value: unknown): string | undefined {
     : undefined;
 }
 
+/** Acepta el código de 6 dígitos o el enlace completo copiado del correo. */
+function parseCodeInput(raw: string): { token?: string; tokenHash?: string; type?: string } | null {
+  const value = raw.trim();
+  if (/^\d{6}$/.test(value)) return { token: value };
+  if (/^https?:\/\//i.test(value)) {
+    try {
+      const url = new URL(value);
+      const params = new URLSearchParams(
+        url.search.startsWith("?") ? url.search.slice(1) : url.search,
+      );
+      const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
+      const tokenHash = params.get("token_hash") ?? hash.get("token_hash") ?? params.get("token");
+      const type = params.get("type") ?? hash.get("type") ?? "email";
+      if (tokenHash) return { tokenHash, type };
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({ next: safeNext(s.next) }),
   head: () => ({
     meta: [
@@ -38,6 +60,7 @@ function AuthPage() {
   const bootstrap = useServerFn(bootstrapFirstAdmin);
   const access = useServerFn(getAdminAccess);
   const startTwoFactor = useServerFn(beginTwoFactor);
+  const complete = useServerFn(completeTwoFactor);
   const { data: status, refetch } = useQuery({
     queryKey: ["has-admin"],
     queryFn: () => checkAdmin(),
@@ -47,8 +70,10 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [code, setCode] = useState("");
 
   const isBootstrap = status && !status.hasAdmin;
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
