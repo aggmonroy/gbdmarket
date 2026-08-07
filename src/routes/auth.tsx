@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MailCheck, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +40,11 @@ function parseCodeInput(raw: string): { token?: string; tokenHash?: string; type
   return null;
 }
 
+/** Límites del segundo paso. */
+const RESEND_COOLDOWN_SECONDS = 60;
+const MAX_RESENDS = 3;
+const MAX_VERIFY_ATTEMPTS = 5;
+
 export const Route = createFileRoute("/auth")({
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({ next: safeNext(s.next) }),
@@ -71,8 +76,28 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [code, setCode] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+  const [resends, setResends] = useState(0);
+  const [attemptsLeft, setAttemptsLeft] = useState(MAX_VERIFY_ATTEMPTS);
+  const [blocked, setBlocked] = useState<string | null>(null);
 
   const isBootstrap = status && !status.hasAdmin;
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
+
+  function resetTwoFactorState() {
+    setSent(false);
+    setCode("");
+    setCooldown(0);
+    setResends(0);
+    setAttemptsLeft(MAX_VERIFY_ATTEMPTS);
+    setBlocked(null);
+  }
+
 
 
   async function handleSubmit(e: React.FormEvent) {
@@ -113,6 +138,11 @@ function AuthPage() {
       // Sin verificación no hay acceso: cerramos la sesión de este paso.
       await supabase.auth.signOut();
       setSent(true);
+      setCode("");
+      setResends(0);
+      setAttemptsLeft(MAX_VERIFY_ATTEMPTS);
+      setBlocked(null);
+      setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (err: any) {
       toast.error(err?.message ?? "Error de autenticación");
     } finally {
@@ -122,6 +152,7 @@ function AuthPage() {
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
+    if (blocked) return;
     const parsed = parseCodeInput(code);
     if (!parsed) {
       toast.error("Ingresa el código de 6 dígitos del correo (o pega el enlace completo).");
@@ -143,13 +174,25 @@ function AuthPage() {
       if (next) window.location.href = next;
       else navigate({ to: "/admin", replace: true });
     } catch (err: any) {
-      toast.error(err?.message ?? "Código inválido o vencido. Solicítalo de nuevo.");
+      const left = attemptsLeft - 1;
+      setAttemptsLeft(left);
+      setCode("");
+      if (left <= 0) {
+        setBlocked("Demasiados intentos fallidos. Vuelve a ingresar con tu contraseña.");
+        await supabase.auth.signOut();
+        toast.error("Bloqueamos este intento por seguridad. Ingresa de nuevo.");
+      } else {
+        toast.error(
+          `${err?.message ?? "Código inválido o vencido."} Te quedan ${left} intento(s).`,
+        );
+      }
     } finally {
       setLoading(false);
     }
   }
 
   async function resendCode() {
+    if (cooldown > 0 || resends >= MAX_RESENDS || blocked) return;
     setLoading(true);
     try {
       await startTwoFactor();
@@ -158,7 +201,15 @@ function AuthPage() {
         options: { shouldCreateUser: false },
       });
       if (error) throw error;
-      toast.success("Enviamos un nuevo código a tu correo");
+      await supabase.auth.signOut();
+      const used = resends + 1;
+      setResends(used);
+      setCooldown(RESEND_COOLDOWN_SECONDS);
+      toast.success(
+        used >= MAX_RESENDS
+          ? "Enviamos el último código disponible para este intento"
+          : "Enviamos un nuevo código a tu correo",
+      );
     } catch (err: any) {
       toast.error(err?.message ?? "No pudimos reenviar el código");
     } finally {
@@ -167,6 +218,7 @@ function AuthPage() {
   }
 
   if (sent) {
+    const resendsLeft = MAX_RESENDS - resends;
     return (
       <div className="min-h-[80vh] grid place-items-center px-4 py-12">
         <Card className="w-full max-w-md">
@@ -189,27 +241,42 @@ function AuthPage() {
                   placeholder="123456"
                   className="text-center text-lg tracking-[0.4em]"
                   value={code}
+                  disabled={!!blocked}
                   onChange={(e) => setCode(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
                   Si el correo solo trae un enlace, cópialo y pégalo aquí completo.
                 </p>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              {blocked ? (
+                <p className="text-sm text-destructive text-center">{blocked}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center">
+                  Intentos restantes: {attemptsLeft} · Reenvíos disponibles: {resendsLeft}
+                </p>
+              )}
+              <Button type="submit" className="w-full" disabled={loading || !!blocked}>
                 {loading ? "Verificando..." : "Verificar e ingresar"}
               </Button>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" className="flex-1" disabled={loading} onClick={resendCode}>
-                  Reenviar código
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  disabled={loading || !!blocked || cooldown > 0 || resendsLeft <= 0}
+                  onClick={resendCode}
+                >
+                  {cooldown > 0
+                    ? `Reenviar en ${cooldown}s`
+                    : resendsLeft <= 0
+                      ? "Sin reenvíos"
+                      : "Reenviar código"}
                 </Button>
                 <Button
                   type="button"
                   variant="ghost"
                   className="flex-1"
-                  onClick={() => {
-                    setSent(false);
-                    setCode("");
-                  }}
+                  onClick={resetTwoFactorState}
                 >
                   Volver
                 </Button>
@@ -218,6 +285,7 @@ function AuthPage() {
           </CardContent>
         </Card>
       </div>
+
     );
   }
 
