@@ -105,11 +105,9 @@ function AuthPage() {
       await startTwoFactor();
       const { error: otpErr } = await supabase.auth.signInWithOtp({
         email,
-        options: {
-          shouldCreateUser: false,
-          emailRedirectTo: `${window.location.origin}/auth/verificar`,
-        },
+        options: { shouldCreateUser: false },
       });
+
       if (otpErr) throw otpErr;
       clearDeviceToken();
       // Sin verificación no hay acceso: cerramos la sesión de este paso.
