@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { MailCheck, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { bootstrapFirstAdmin, hasAnyAdmin } from "@/lib/admin.functions";
-import { beginTwoFactor, getAdminAccess } from "@/lib/admin-auth.functions";
-import { getDeviceToken, clearDeviceToken } from "@/lib/admin-device";
+import { beginTwoFactor, completeTwoFactor, getAdminAccess } from "@/lib/admin-auth.functions";
+import { getDeviceToken, clearDeviceToken, setDeviceToken, deviceLabel } from "@/lib/admin-device";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,29 @@ function safeNext(value: unknown): string | undefined {
     : undefined;
 }
 
+/** Acepta el código de 6 dígitos o el enlace completo copiado del correo. */
+function parseCodeInput(raw: string): { token?: string; tokenHash?: string; type?: string } | null {
+  const value = raw.trim();
+  if (/^\d{6}$/.test(value)) return { token: value };
+  if (/^https?:\/\//i.test(value)) {
+    try {
+      const url = new URL(value);
+      const params = new URLSearchParams(
+        url.search.startsWith("?") ? url.search.slice(1) : url.search,
+      );
+      const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
+      const tokenHash = params.get("token_hash") ?? hash.get("token_hash") ?? params.get("token");
+      const type = params.get("type") ?? hash.get("type") ?? "email";
+      if (tokenHash) return { tokenHash, type };
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({ next: safeNext(s.next) }),
   head: () => ({
     meta: [
@@ -38,6 +60,7 @@ function AuthPage() {
   const bootstrap = useServerFn(bootstrapFirstAdmin);
   const access = useServerFn(getAdminAccess);
   const startTwoFactor = useServerFn(beginTwoFactor);
+  const complete = useServerFn(completeTwoFactor);
   const { data: status, refetch } = useQuery({
     queryKey: ["has-admin"],
     queryFn: () => checkAdmin(),
@@ -47,8 +70,10 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [code, setCode] = useState("");
 
   const isBootstrap = status && !status.hasAdmin;
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -80,11 +105,9 @@ function AuthPage() {
       await startTwoFactor();
       const { error: otpErr } = await supabase.auth.signInWithOtp({
         email,
-        options: {
-          shouldCreateUser: false,
-          emailRedirectTo: `${window.location.origin}/auth/verificar`,
-        },
+        options: { shouldCreateUser: false },
       });
+
       if (otpErr) throw otpErr;
       clearDeviceToken();
       // Sin verificación no hay acceso: cerramos la sesión de este paso.
@@ -97,27 +120,107 @@ function AuthPage() {
     }
   }
 
+  async function handleVerify(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = parseCodeInput(code);
+    if (!parsed) {
+      toast.error("Ingresa el código de 6 dígitos del correo (o pega el enlace completo).");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = parsed.token
+        ? await supabase.auth.verifyOtp({ email, token: parsed.token, type: "email" })
+        : await supabase.auth.verifyOtp({
+            token_hash: parsed.tokenHash!,
+            type: (parsed.type as "email" | "magiclink" | "recovery") ?? "email",
+          });
+      if (error) throw error;
+
+      const { deviceToken } = await complete({ data: { label: deviceLabel() } });
+      setDeviceToken(deviceToken);
+      toast.success("Verificación completada");
+      if (next) window.location.href = next;
+      else navigate({ to: "/admin", replace: true });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Código inválido o vencido. Solicítalo de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function resendCode() {
+    setLoading(true);
+    try {
+      await startTwoFactor();
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false },
+      });
+      if (error) throw error;
+      toast.success("Enviamos un nuevo código a tu correo");
+    } catch (err: any) {
+      toast.error(err?.message ?? "No pudimos reenviar el código");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   if (sent) {
     return (
       <div className="min-h-[80vh] grid place-items-center px-4 py-12">
-        <Card className="w-full max-w-md text-center">
-          <CardHeader>
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
             <MailCheck className="mx-auto h-10 w-10 text-primary" />
             <CardTitle className="font-display text-2xl">Verificación en 2 pasos</CardTitle>
             <CardDescription>
-              Contraseña correcta. Enviamos un enlace de verificación a <strong>{email}</strong>.
-              Ábrelo en este dispositivo para completar el ingreso; después quedará reconocido por 60 días.
+              Contraseña correcta. Enviamos un código de verificación a <strong>{email}</strong>.
+              Escríbelo aquí para completar el ingreso; después este dispositivo quedará reconocido por 60 días.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full" onClick={() => setSent(false)}>
-              Volver
-            </Button>
+            <form onSubmit={handleVerify} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="code">Código de verificación</Label>
+                <Input
+                  id="code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  className="text-center text-lg tracking-[0.4em]"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Si el correo solo trae un enlace, cópialo y pégalo aquí completo.
+                </p>
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Verificando..." : "Verificar e ingresar"}
+              </Button>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" className="flex-1" disabled={loading} onClick={resendCode}>
+                  Reenviar código
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="flex-1"
+                  onClick={() => {
+                    setSent(false);
+                    setCode("");
+                  }}
+                >
+                  Volver
+                </Button>
+              </div>
+            </form>
           </CardContent>
         </Card>
       </div>
     );
   }
+
 
   return (
     <div className="min-h-[80vh] grid place-items-center px-4 py-12">
