@@ -114,12 +114,8 @@ function UsuariosPage() {
                 <div className="truncate font-medium">{s.email}</div>
                 <div className="text-xs text-muted-foreground">
                   {ROLE_LABEL[s.role] ?? s.role}
-                  {s.role === "admin" && (
-                    <Badge variant="secondary" className="ml-2 h-5 gap-1 px-1.5 text-[10px]">
-                      <ShieldCheck className="h-3 w-3" /> 2 pasos
-                    </Badge>
-                  )}
                 </div>
+
               </div>
               <div className="flex items-center gap-2">
                 <Select
