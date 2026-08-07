@@ -9,13 +9,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { listPendingDrafts } from "@/lib/drafts.functions";
 import { getAdminAccess } from "@/lib/admin-auth.functions";
-import { getDeviceToken, clearDeviceToken } from "@/lib/admin-device";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
-    const state = await getAdminAccess({ data: { deviceToken: getDeviceToken() } });
-    if (!state.isStaff || !state.verified) {
-      clearDeviceToken();
+    const state = await getAdminAccess();
+    if (!state.isStaff) {
       await supabase.auth.signOut();
       throw redirect({ to: "/auth", search: { next: "" } });
     }
