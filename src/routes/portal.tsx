@@ -25,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { listColaboradoresLogin, loginConPin } from "@/lib/garantias.functions";
 import { actualizarPedido, agendaDelDia, bandejaSeguimiento, listPedidos } from "@/lib/pedidos.functions";
-import { cerrarTarea } from "@/lib/tareas.functions";
+import { finalizarTarea } from "@/lib/tareas.functions";
 import {
   ESTADOS_PEDIDO,
   ESTADO_PEDIDO_LABEL,
@@ -35,6 +35,7 @@ import {
   type TipoSeguimiento,
 } from "@/lib/pedidos-shared";
 import { TareasPanel } from "@/components/portal/TareasPanel";
+import { SolicitudesActivas } from "@/components/portal/SolicitudesActivas";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -99,7 +100,7 @@ function Portal() {
         </header>
 
         {vista === "menu" && <Menu sesion={sesion} ir={setVista} />}
-        {vista === "seguimiento" && <Seguimiento sesion={sesion} />}
+        {vista === "seguimiento" && <SolicitudesActivas sesion={sesion} />}
         {vista === "pedidos" && <Pedidos sesion={sesion} />}
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
@@ -154,12 +155,15 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion) => void }) {
             <Label htmlFor="pin">Código PIN</Label>
             <Input
               id="pin"
+              type="password"
+              autoComplete="off"
               inputMode="numeric"
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
               placeholder="••••"
             />
+
           </div>
           <Button className="w-full" disabled={!id || pin.length !== 4 || login.isPending} onClick={() => login.mutate()}>
             {login.isPending ? "Verificando…" : "Ingresar"}
@@ -184,11 +188,12 @@ function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <Area
-        titulo="Seguimiento consolidado"
-        texto="Todo lo pendiente en un solo lugar: pedidos de Línea Blanca, bordados y garantías."
+        titulo="Solicitudes Activas"
+        texto="Todo lo pendiente en un solo lugar: pedidos de Línea Blanca, bordados, garantías e interacciones del sitio."
         icon={ListChecks}
         onClick={() => ir("seguimiento")}
       />
+
       <Area
         titulo="Tareas e incidencias"
         texto={
@@ -545,7 +550,7 @@ function PedidoFila({
 function Calendario({ sesion }: { sesion: Sesion }) {
   const soloLectura = sesion.colaborador.rol === "gerente";
   const agendaFn = useServerFn(agendaDelDia);
-  const completarFn = useServerFn(cerrarTarea);
+  const completarFn = useServerFn(finalizarTarea);
   const [fecha, setFecha] = useState(hoy());
 
   const { data, refetch } = useQuery({

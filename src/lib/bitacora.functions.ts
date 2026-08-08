@@ -48,7 +48,18 @@ export const registerBitacora = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    return { id: (row as any)?.id as string };
+    const id = (row as any)?.id as string;
+    // Toda interacción del sitio genera una tarea pendiente de seguimiento.
+    const { crearTareaDeOrigen } = await import("./tareas.server");
+    await crearTareaDeOrigen({
+      origen: data.origen === "garantia" ? "garantia" : data.origen === "bordados" ? "bordados" : "interaccion",
+      titulo: `Contactar a ${data.cliente_nombre} · ${data.origen}`,
+      descripcion: [data.producto_servicio, data.observaciones, data.cliente_telefono, data.cliente_email]
+        .filter(Boolean)
+        .join(" · "),
+      bitacoraId: id,
+    });
+    return { id };
   });
 
 async function assertAdmin(supabase: any, userId: string) {
