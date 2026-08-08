@@ -365,7 +365,7 @@ function BordadosSection() {
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Link
                     to={current.href as any}
-                    search={(current.search ?? { tab: "bordados" }) as any}
+                    search={(current.search ?? {}) as any}
                     className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-5 py-2.5 text-sm font-bold text-slate-900 hover:bg-amber-300 transition"
                   >
                     Ver categoría <ArrowRight className="h-4 w-4" />
