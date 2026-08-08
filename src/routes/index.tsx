@@ -58,14 +58,27 @@ const FALLBACK_AMBIENT: GalleryItem[] = [
 ];
 
 
-const FALLBACK_BORDADOS: GalleryItem[] = [
-  { image_url: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1600&q=80", title: "Uniformes empresariales", subtitle: "Identidad corporativa", href: "/catalogo", search: { tab: "bordados", q: "uniforme" } },
-  { image_url: "https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=1600&q=80", title: "Camisas corporativas", subtitle: "Bordado profesional", href: "/catalogo", search: { tab: "bordados", q: "camisa" } },
-  { image_url: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=1600&q=80", title: "Gorras bordadas", subtitle: "Detalle y calidad", href: "/catalogo", search: { tab: "bordados", q: "gorra" } },
-  { image_url: "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=1600&q=80", title: "Toallas bordadas", subtitle: "Regalos personalizados", href: "/catalogo", search: { tab: "bordados", q: "toalla" } },
-  { image_url: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1600&q=80", title: "Artículos promocionales", subtitle: "Merchandising a medida", href: "/catalogo", search: { tab: "bordados", q: "promocional" } },
-  { image_url: "https://images.unsplash.com/photo-1503944168849-8bf86875b08c?auto=format&fit=crop&w=1600&q=80", title: "Uniformes escolares", subtitle: "Bordado para colegios", href: "/catalogo", search: { tab: "bordados", q: "escolar" } },
+/** Textos aleatorios que acompañan las ambientaciones de bordados. */
+const TEXTOS_BORDADOS = [
+  "Identidad corporativa",
+  "Bordado profesional",
+  "Detalle y calidad",
+  "Regalos personalizados",
+  "Merchandising a medida",
+  "Bordado para colegios",
+  "Acabados a la medida",
+  "Personalización garantizada",
 ];
+
+const IMAGENES_BORDADOS = [
+  "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1503944168849-8bf86875b08c?auto=format&fit=crop&w=1600&q=80",
+];
+
 
 function useGallerySection(section: string, fallback: GalleryItem[]) {
   const { data } = useQuery({
