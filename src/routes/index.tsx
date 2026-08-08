@@ -43,13 +43,18 @@ const sucursales = [
 type GalleryItem = { image_url: string; title: string; subtitle: string; href: string; search?: Record<string, string> };
 
 const FALLBACK_AMBIENT: GalleryItem[] = [
-  { image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1600&q=80", title: "Salas modernas", subtitle: "Muebles para tu hogar", href: "/catalogo", search: { q: "sala" } },
-  { image_url: "https://images.unsplash.com/photo-1617104678098-de229db51175?auto=format&fit=crop&w=1600&q=80", title: "Comedores familiares", subtitle: "Diseño y durabilidad", href: "/catalogo", search: { q: "comedor" } },
-  { image_url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1600&q=80", title: "Recámaras acogedoras", subtitle: "Descanso con estilo", href: "/catalogo", search: { q: "recamara" } },
-  { image_url: "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=1600&q=80", title: "Cocinas equipadas", subtitle: "Cocinas completas", href: "/catalogo", search: { cat: "estufas" } },
-  { image_url: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1600&q=80", title: "Lavandería en casa", subtitle: "Equipos de línea blanca", href: "/catalogo", search: { cat: "lavadoras" } },
-  { image_url: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=1600&q=80", title: "Refrigeración", subtitle: "Marcas de confianza", href: "/catalogo", search: { cat: "refrigeradoras" } },
+  { image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1600&q=80", title: "Sala en uso", subtitle: "Juego de sala y mesa de centro en el hogar", href: "/catalogo", search: { q: "sala" } },
+  { image_url: "https://images.unsplash.com/photo-1617104678098-de229db51175?auto=format&fit=crop&w=1600&q=80", title: "Comedor familiar", subtitle: "Juego de comedor servido en casa", href: "/catalogo", search: { q: "comedor" } },
+  { image_url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1600&q=80", title: "Recámara lista", subtitle: "Cama, colchón y cómoda en uso", href: "/catalogo", search: { q: "recamara" } },
+  { image_url: "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=1600&q=80", title: "Cocinando en casa", subtitle: "Estufa y horno en plena preparación", href: "/catalogo", search: { q: "estufa" } },
+  { image_url: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1600&q=80", title: "Día de lavado", subtitle: "Lavadora y secadora en la lavandería", href: "/catalogo", search: { q: "lavadora" } },
+  { image_url: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=1600&q=80", title: "Refrigeración en familia", subtitle: "Refrigeradora abastecida en la cocina", href: "/catalogo", search: { q: "refrigeradora" } },
+  { image_url: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1600&q=80", title: "Noche de películas", subtitle: "Smart TV y mueble de sala en uso", href: "/catalogo", search: { q: "televisor" } },
+  { image_url: "https://images.unsplash.com/photo-1631545308456-511dcbf8f97b?auto=format&fit=crop&w=1600&q=80", title: "Descanso con aire", subtitle: "Aire acondicionado climatizando la recámara", href: "/catalogo", search: { q: "aire" } },
+  { image_url: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&w=1600&q=80", title: "Home office", subtitle: "Escritorio y silla en la rutina diaria", href: "/catalogo", search: { q: "escritorio" } },
+  { image_url: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d?auto=format&fit=crop&w=1600&q=80", title: "Cocina equipada", subtitle: "Microondas y campana en el día a día", href: "/catalogo", search: { q: "microondas" } },
 ];
+
 
 const FALLBACK_BORDADOS: GalleryItem[] = [
   { image_url: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1600&q=80", title: "Uniformes empresariales", subtitle: "Identidad corporativa", href: "/catalogo", search: { tab: "bordados", q: "uniforme" } },
