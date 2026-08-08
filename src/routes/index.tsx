@@ -8,6 +8,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { QuoteFormDialog } from "@/components/site/QuoteFormDialog";
+import { DestacadosMes } from "@/components/site/DestacadosMes";
+
 
 
 export const Route = createFileRoute("/")({
@@ -43,13 +45,18 @@ const sucursales = [
 type GalleryItem = { image_url: string; title: string; subtitle: string; href: string; search?: Record<string, string> };
 
 const FALLBACK_AMBIENT: GalleryItem[] = [
-  { image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1600&q=80", title: "Salas modernas", subtitle: "Muebles para tu hogar", href: "/catalogo", search: { q: "sala" } },
-  { image_url: "https://images.unsplash.com/photo-1617104678098-de229db51175?auto=format&fit=crop&w=1600&q=80", title: "Comedores familiares", subtitle: "Diseño y durabilidad", href: "/catalogo", search: { q: "comedor" } },
-  { image_url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1600&q=80", title: "Recámaras acogedoras", subtitle: "Descanso con estilo", href: "/catalogo", search: { q: "recamara" } },
-  { image_url: "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=1600&q=80", title: "Cocinas equipadas", subtitle: "Cocinas completas", href: "/catalogo", search: { cat: "estufas" } },
-  { image_url: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1600&q=80", title: "Lavandería en casa", subtitle: "Equipos de línea blanca", href: "/catalogo", search: { cat: "lavadoras" } },
-  { image_url: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=1600&q=80", title: "Refrigeración", subtitle: "Marcas de confianza", href: "/catalogo", search: { cat: "refrigeradoras" } },
+  { image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1600&q=80", title: "Sala en uso", subtitle: "Juego de sala y mesa de centro en el hogar", href: "/catalogo", search: { q: "sala" } },
+  { image_url: "https://images.unsplash.com/photo-1617104678098-de229db51175?auto=format&fit=crop&w=1600&q=80", title: "Comedor familiar", subtitle: "Juego de comedor servido en casa", href: "/catalogo", search: { q: "comedor" } },
+  { image_url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1600&q=80", title: "Recámara lista", subtitle: "Cama, colchón y cómoda en uso", href: "/catalogo", search: { q: "recamara" } },
+  { image_url: "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=1600&q=80", title: "Cocinando en casa", subtitle: "Estufa y horno en plena preparación", href: "/catalogo", search: { q: "estufa" } },
+  { image_url: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1600&q=80", title: "Día de lavado", subtitle: "Lavadora y secadora en la lavandería", href: "/catalogo", search: { q: "lavadora" } },
+  { image_url: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=1600&q=80", title: "Refrigeración en familia", subtitle: "Refrigeradora abastecida en la cocina", href: "/catalogo", search: { q: "refrigeradora" } },
+  { image_url: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1600&q=80", title: "Noche de películas", subtitle: "Smart TV y mueble de sala en uso", href: "/catalogo", search: { q: "televisor" } },
+  { image_url: "https://images.unsplash.com/photo-1631545308456-511dcbf8f97b?auto=format&fit=crop&w=1600&q=80", title: "Descanso con aire", subtitle: "Aire acondicionado climatizando la recámara", href: "/catalogo", search: { q: "aire" } },
+  { image_url: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&w=1600&q=80", title: "Home office", subtitle: "Escritorio y silla en la rutina diaria", href: "/catalogo", search: { q: "escritorio" } },
+  { image_url: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d?auto=format&fit=crop&w=1600&q=80", title: "Cocina equipada", subtitle: "Microondas y campana en el día a día", href: "/catalogo", search: { q: "microondas" } },
 ];
+
 
 const FALLBACK_BORDADOS: GalleryItem[] = [
   { image_url: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1600&q=80", title: "Uniformes empresariales", subtitle: "Identidad corporativa", href: "/catalogo", search: { tab: "bordados", q: "uniforme" } },
@@ -76,13 +83,21 @@ function useGallerySection(section: string, fallback: GalleryItem[]) {
     staleTime: 60 * 60 * 1000,
   });
   const items: GalleryItem[] = (data && data.length > 0)
-    ? data.map((d) => ({
-        image_url: d.image_url ?? "",
-        title: d.title ?? "",
-        subtitle: d.subtitle ?? "",
-        href: d.cta_url ?? "/catalogo",
-      }))
+    ? data.map((d) => {
+        const raw = d.cta_url ?? "/catalogo";
+        const [path, qs] = raw.split("?");
+        const search: Record<string, string> = {};
+        if (qs) new URLSearchParams(qs).forEach((v, k) => { search[k] = v; });
+        return {
+          image_url: d.image_url ?? "",
+          title: d.title ?? "",
+          subtitle: d.subtitle ?? "",
+          href: path || "/catalogo",
+          search,
+        };
+      })
     : fallback;
+
   return items;
 }
 
@@ -90,6 +105,7 @@ function Home() {
   return (
     <>
       <HeroFused />
+      <DestacadosMes />
       <BordadosSection />
       <Sucursales />
       <Trayectoria />
@@ -97,11 +113,11 @@ function Home() {
   );
 }
 
+
 /* ---------- HERO FUSIONADO CON AMBIENTACIONES ---------- */
 function HeroFused() {
   const items = useGallerySection("home.gallery", FALLBACK_AMBIENT);
   const [i, setI] = useState(0);
-  const [cotizar, setCotizar] = useState(false);
 
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
   const prev = () => setI((p) => (p - 1 + items.length) % items.length);
@@ -137,9 +153,13 @@ function HeroFused() {
         {/* Content overlay */}
         <div className="relative z-10 container mx-auto h-full px-4 lg:px-8 py-16 lg:py-20 flex flex-col justify-between gap-10 min-h-[92vh]">
           <div className="max-w-3xl mt-6">
-            <h1 key={i} className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] animate-fade-up drop-shadow-2xl">
+            <div className="font-display text-5xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-amber-400 leading-none drop-shadow-2xl">
+              Mueblería
+            </div>
+            <h1 key={i} className="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] animate-fade-up drop-shadow-2xl">
               Siempre pensando en ti
             </h1>
+
             <p key={`sub-${i}`} className="mt-4 text-xl sm:text-2xl font-semibold text-amber-300 animate-fade-up">
               Inspiración para crear el hogar que siempre has soñado.
             </p>
@@ -156,21 +176,8 @@ function HeroFused() {
               <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
                 Ver Catálogo <ArrowRight className="h-4 w-4" />
               </Link>
-              <button
-                type="button"
-                onClick={() => setCotizar(true)}
-                className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
-              >
-                <MessageCircle className="h-4 w-4" /> Cotizar por WhatsApp
-              </button>
             </div>
-            <QuoteFormDialog
-              open={cotizar}
-              onOpenChange={setCotizar}
-              canal="linea-blanca"
-              titulo="Cotizar Línea Blanca"
-              meta={{ section: "home.hero" }}
-            />
+
 
           </div>
 
@@ -194,12 +201,18 @@ function HeroFused() {
             ))}
           </div>
 
-          {/* Clickable thumbnails strip */}
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-            {items.slice(0, 6).map((it, idx) => (
-              <GalleryThumb key={idx} item={it} active={idx === i} onClick={() => setI(idx)} />
+          {/* Indicadores de la galería de ambientaciones */}
+          <div className="flex flex-wrap items-center gap-2">
+            {items.map((it, idx) => (
+              <button
+                key={idx}
+                onClick={() => setI(idx)}
+                aria-label={`Ver ${it.title}`}
+                className={`h-2 rounded-full transition-all ${idx === i ? "w-8 bg-amber-400" : "w-2 bg-white/40 hover:bg-white/70"}`}
+              />
             ))}
           </div>
+
         </div>
 
         {/* Controls */}
