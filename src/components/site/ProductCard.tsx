@@ -1,16 +1,30 @@
-import { Package, MessageCircle, ShoppingCart } from "lucide-react";
+import { Package, MessageCircle, ShoppingCart, Scissors } from "lucide-react";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 import type { ProductLite } from "./ProductDetailDialog";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 
 
-export function ProductCard({ product, onClick }: { product: ProductLite & { category?: string | null }; onClick: () => void }) {
+export function ProductCard({
+  product,
+  onClick,
+  esBordado = false,
+  onSolicitarBordado,
+}: {
+  product: ProductLite & { category?: string | null };
+  onClick: () => void;
+  esBordado?: boolean;
+  onSolicitarBordado?: () => void;
+}) {
   const { add, setAbierto } = useCart();
 
   const agregar = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+    if (esBordado) {
+      onSolicitarBordado?.();
+      return;
+    }
     add({
       id: product.id,
       name: product.name,
@@ -23,6 +37,7 @@ export function ProductCard({ product, onClick }: { product: ProductLite & { cat
     toast.success("Agregado al carrito de cotización");
     setAbierto(true);
   };
+
 
   return (
     <div
