@@ -1,5 +1,7 @@
 import { Package, MessageCircle } from "lucide-react";
+import { DisponibilidadBadge } from "./DisponibilidadBadge";
 import type { ProductLite } from "./ProductDetailDialog";
+
 
 export function ProductCard({ product, onClick }: { product: ProductLite & { category?: string | null }; onClick: () => void }) {
   return (
