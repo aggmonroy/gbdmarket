@@ -301,7 +301,7 @@ function ProductsPage() {
                   <th className="py-2 pr-3">Marca</th>
                   <th className="py-2 pr-3">Categoría</th>
                   <th className="py-2 pr-3">Precio</th>
-                  <th className="py-2 pr-3">Stock</th>
+                  <th className="py-2 pr-3">Disponibilidad</th>
                   <th className="py-2 pr-3">Estado</th>
                   <th className="py-2 pr-3 text-right">Acciones</th>
                 </tr>
