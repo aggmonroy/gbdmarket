@@ -104,24 +104,7 @@ export function ProductDetailDialog({
 
         <div className="grid gap-8 md:grid-cols-2">
           <div>
-            <div className="aspect-square rounded-xl bg-muted overflow-hidden">
-              {product.images?.[0] ? (
-                <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
-              ) : (
-                <div className="grid h-full place-items-center text-muted-foreground">
-                  <Package className="h-16 w-16" />
-                </div>
-              )}
-            </div>
-            {product.images && product.images.length > 1 && (
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                {product.images.slice(0, 4).map((img, i) => (
-                  <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
-                    <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
-                  </div>
-                ))}
-              </div>
-            )}
+            <ProductGallery images={product.images ?? []} alt={product.name} />
           </div>
 
           <div>
