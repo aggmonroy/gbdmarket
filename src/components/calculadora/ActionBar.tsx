@@ -60,7 +60,7 @@ function buildResumenTexto({ tipoCliente, calculados, contadoTotal, creditoTotal
 
 
 export function ActionBar(props: Props) {
-  const { tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, mostrarDescargaImagen, cliente, capacidad, promo } = props;
+  const { tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, mostrarDescargaImagen, cliente, capacidad, promo, totalesGobierno } = props;
   const [generando, setGenerando] = useState(false);
 
 
@@ -82,8 +82,12 @@ export function ActionBar(props: Props) {
   const descargarImagen = async () => {
     setGenerando(true);
     try {
-      const dataUrl = await generarImagenCotizacion({ tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, cliente, capacidad, promo });
-      descargarArchivo(dataUrl, "cotizacion-gbd.png");
+      const dataUrl =
+        tipoCliente === "gobierno" && totalesGobierno
+          ? await generarImagenGobierno({ totales: totalesGobierno, cliente })
+          : await generarImagenCotizacion({ tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, cliente, capacidad, promo });
+      descargarArchivo(dataUrl, tipoCliente === "gobierno" ? "cotizacion-institucional-gbd.png" : "cotizacion-gbd.png");
+
     } catch (e) {
       console.error(e);
       alert("No se pudo generar la imagen. Intenta con 'Guardar / Imprimir' como alternativa.");
