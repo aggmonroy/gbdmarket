@@ -86,7 +86,7 @@ export function ActionBar(props: Props) {
         tipoCliente === "gobierno" && totalesGobierno
           ? await generarImagenGobierno({ totales: totalesGobierno, cliente })
           : await generarImagenCotizacion({ tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, cliente, capacidad, promo });
-      descargarArchivo(dataUrl, tipoCliente === "gobierno" ? "cotizacion-institucional-gbd.png" : "cotizacion-gbd.png");
+      await descargarArchivo(dataUrl, tipoCliente === "gobierno" ? "cotizacion-institucional-gbd.png" : "cotizacion-gbd.png");
 
     } catch (e) {
       console.error(e);

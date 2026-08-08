@@ -68,21 +68,17 @@ export function GobiernoForm({ producto, index, linea, onChange, onRemove, canRe
         </div>
 
         <div className="flex-1 grid grid-cols-2 gap-3">
-          <Text
-            label="Referencia / código"
-            value={producto.referencia || ""}
-            onChange={(v) => onChange(producto.id, "referencia", v)}
-            placeholder="OLLA-5L"
-          />
-          <Text
-            label="Nombre corto"
-            value={producto.nombre}
-            onChange={(v) => onChange(producto.id, "nombre", v)}
-            placeholder="Olla 5 litros"
-          />
+          <div className="col-span-2">
+            <Text
+              label="Código del producto (columna Referencia)"
+              value={producto.referencia || ""}
+              onChange={(v) => onChange(producto.id, "referencia", v)}
+              placeholder="Ej. OLLA-5L / 7501234567890"
+            />
+          </div>
           <div className="col-span-2">
             <label className="text-[10px] uppercase tracking-wide text-[#68758A] font-bold">
-              Detalle / descripción
+              Descripción del producto (columna Detalle)
             </label>
             <textarea
               value={producto.descripcion || ""}
