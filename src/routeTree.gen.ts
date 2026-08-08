@@ -26,6 +26,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as CotizacionIdRouteImport } from './routes/cotizacion.$id'
 import { Route as PedidoNumeroRouteImport } from './routes/pedido.$numero'
 import { Route as ReporteGarantiaIdRouteImport } from './routes/reporte-garantia.$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -136,6 +137,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const CotizacionIdRoute = CotizacionIdRouteImport.update({
+  id: '/cotizacion/$id',
+  path: '/cotizacion/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PedidoNumeroRoute = PedidoNumeroRouteImport.update({
   id: '/pedido/$numero',
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/cotizacion/$id': typeof CotizacionIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -334,6 +341,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/cotizacion/$id': typeof CotizacionIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -378,6 +386,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/cotizacion/$id': typeof CotizacionIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -422,6 +431,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/cotizacion/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -463,6 +473,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/cotizacion/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -506,6 +517,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
+    | '/cotizacion/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -549,6 +561,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  CotizacionIdRoute: typeof CotizacionIdRoute
   PedidoNumeroRoute: typeof PedidoNumeroRoute
   ReporteGarantiaIdRoute: typeof ReporteGarantiaIdRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -677,6 +690,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/cotizacion/$id': {
+      id: '/cotizacion/$id'
+      path: '/cotizacion/$id'
+      fullPath: '/cotizacion/$id'
+      preLoaderRoute: typeof CotizacionIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/pedido/$numero': {
       id: '/pedido/$numero'
@@ -925,6 +945,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  CotizacionIdRoute: CotizacionIdRoute,
   PedidoNumeroRoute: PedidoNumeroRoute,
   ReporteGarantiaIdRoute: ReporteGarantiaIdRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
