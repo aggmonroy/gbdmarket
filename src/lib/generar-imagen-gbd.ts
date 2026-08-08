@@ -1,4 +1,4 @@
-import type { CalculadoProducto, CapacidadInfo, ClienteInfo, PlazoCuota, TipoCliente } from "./pricing-gbd";
+import type { CalculadoProducto, CapacidadInfo, ClienteInfo, PlazoCuota, TipoCliente, TotalesGobierno } from "./pricing-gbd";
 import { esAsociado, etiquetaTipoCliente } from "./pricing-gbd";
 import { fmt } from "./pricing-gbd";
 import logoIcono from "@/assets/calculadora/logo-icono.png";
@@ -455,19 +455,252 @@ async function canvasADataUrl(canvas: HTMLCanvasElement): Promise<string> {
   }
 }
 
-/** Descarga compatible con Chrome, Firefox, Edge y Safari (incl. iOS). */
-export function descargarArchivo(url: string, nombre: string) {
+function dataUrlABlob(dataUrl: string): Blob {
+  const [head, body] = dataUrl.split(",");
+  const tipo = /:(.*?);/.exec(head)?.[1] || "image/png";
+  const bin = atob(body);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: tipo });
+}
+
+/**
+ * Descarga compatible con Chrome, Firefox, Edge, Safari y navegadores móviles.
+ * En móviles usa la hoja de compartir (guardar en Fotos/Archivos) porque la
+ * descarga directa de data: URLs suele fallar en iOS/Android.
+ */
+export async function descargarArchivo(url: string, nombre: string) {
+  let blob: Blob;
+  try {
+    blob = url.startsWith("data:") ? dataUrlABlob(url) : await (await fetch(url)).blob();
+  } catch {
+    window.open(url, "_blank");
+    return;
+  }
+
+  const file = new File([blob], nombre, { type: blob.type || "image/png" });
+  const nav = navigator as Navigator & {
+    canShare?: (data: { files?: File[] }) => boolean;
+    share?: (data: { files?: File[]; title?: string }) => Promise<void>;
+  };
+  if (nav.canShare?.({ files: [file] }) && nav.share) {
+    try {
+      await nav.share({ files: [file], title: nombre });
+      return;
+    } catch (e) {
+      if ((e as { name?: string })?.name === "AbortError") return;
+    }
+  }
+
+  const objUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url;
+  a.href = objUrl;
   a.download = nombre;
   a.rel = "noopener";
-  a.target = "_self";
   document.body.appendChild(a);
   if (typeof a.download === "undefined") {
-    window.open(url, "_blank");
+    window.open(objUrl, "_blank");
   } else {
     a.click();
   }
   document.body.removeChild(a);
-  if (url.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(url), 10000);
+  setTimeout(() => URL.revokeObjectURL(objUrl), 15000);
+  if (url.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(url), 15000);
+}
+
+
+// ============================================================
+// IMAGEN — Cotización institucional (Gobierno)
+// ============================================================
+export async function generarImagenGobierno({
+  totales,
+  cliente,
+}: {
+  totales: TotalesGobierno;
+  cliente?: ClienteInfo;
+}): Promise<string> {
+  const W = 1000;
+  const rowH = 62;
+  const imgs = await Promise.all(
+    totales.lineas.map(async (l) => {
+      if (!l.imagen) return null;
+      try {
+        return await loadImg(l.imagen);
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  const infoLineas: Array<[string, string]> = [
+    ["Fecha", new Date().toLocaleDateString("es-PA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })],
+    ["Nombre", cliente?.nombre || "—"],
+    ["Dirección", cliente?.direccion || "—"],
+    ["Teléfono", cliente?.telefono || "—"],
+    ["Condiciones de pago", cliente?.condicionesPago || "Contado"],
+    ["Observaciones", cliente?.observaciones || "VÁLIDO 30 DÍAS"],
+  ];
+
+  const headerH = 150;
+  const infoH = infoLineas.length * 22 + 24;
+  const H = headerH + 46 + infoH + 34 + (totales.lineas.length + 1) * rowH + 120;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = "#002362";
+  ctx.fillRect(0, 0, W, headerH);
+  try {
+    const logo = await loadImg(logoIcono);
+    ctx.fillStyle = "#FFFFFF";
+    roundRect(ctx, 40, 30, 90, 90, 14);
+    ctx.fill();
+    ctx.drawImage(logo, 47, 37, 76, 76);
+  } catch {
+    // sin logo
+  }
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 19px Arial";
+  ctx.fillText("Cooperativa de Servicios Integrales Gladys B. de Ducasa, R.L.", 150, 58);
+  ctx.fillStyle = "#B0C6E5";
+  ctx.font = "bold 14px Arial";
+  ctx.fillText("SECCIÓN LÍNEA BLANCA · RUC 1-236-63 DV 20", 150, 84);
+  ctx.fillText("Calle Minsin y Gringa — Las Tablas, Prov. Los Santos", 150, 106);
+  ctx.fillStyle = "#F4F9FF";
+  ctx.fillText("WhatsApp: +507 6784-1941", 150, 130);
+
+  let y = headerH + 40;
+  ctx.fillStyle = "#002362";
+  ctx.font = "bold 24px Arial";
+  ctx.fillText("Cotización institucional", 40, y);
+  y += 20;
+
+  infoLineas.forEach(([label, value]) => {
+    ctx.font = "bold 13px Arial";
+    ctx.fillStyle = "#68758A";
+    ctx.fillText(`${label}:`, 40, y + 18);
+    ctx.fillStyle = "#002362";
+    let txt = value;
+    while (ctx.measureText(txt).width > W - 260 && txt.length > 1) txt = txt.slice(0, -1);
+    ctx.fillText(txt, 220, y + 18);
+    y += 22;
+  });
+  y += 20;
+
+  // Tabla
+  const cols = [
+    { label: "Imagen", w: 70, align: "center" as const },
+    { label: "Referencia", w: 130, align: "left" as const },
+    { label: "Detalle", w: 290, align: "left" as const },
+    { label: "Cant.", w: 60, align: "center" as const },
+    { label: "P. unit.", w: 90, align: "right" as const },
+    { label: "Subtotal", w: 100, align: "right" as const },
+    { label: "ITBMS", w: 80, align: "right" as const },
+    { label: "P. Total", w: 100, align: "right" as const },
+  ];
+  const tableX = 20;
+  const tableW = cols.reduce((a, c) => a + c.w, 0);
+
+  ctx.fillStyle = "#002362";
+  ctx.fillRect(tableX, y, tableW, 30);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 12px Arial";
+  let cx = tableX;
+  cols.forEach((c) => {
+    ctx.textAlign = c.align === "right" ? "right" : c.align === "center" ? "center" : "left";
+    const tx = c.align === "right" ? cx + c.w - 8 : c.align === "center" ? cx + c.w / 2 : cx + 8;
+    ctx.fillText(c.label, tx, y + 20);
+    cx += c.w;
+  });
+  ctx.textAlign = "left";
+  y += 30;
+
+  totales.lineas.forEach((l, i) => {
+    ctx.fillStyle = i % 2 ? "#F4F9FF" : "#FFFFFF";
+    ctx.fillRect(tableX, y, tableW, rowH);
+    ctx.strokeStyle = "#DBE2EB";
+    ctx.strokeRect(tableX, y, tableW, rowH);
+
+    const values = [
+      "",
+      l.referencia || "—",
+      (l.detalle || "—").toUpperCase(),
+      String(l.cantidad),
+      l.precioUnitario.toFixed(2),
+      l.subtotal.toFixed(2),
+      l.itbms.toFixed(2),
+      fmt(l.total),
+    ];
+
+    let x = tableX;
+    cols.forEach((c, ci) => {
+      if (ci === 0) {
+        const img = imgs[i];
+        if (img) {
+          ctx.save();
+          roundRect(ctx, x + 11, y + 6, 48, 48, 6);
+          ctx.clip();
+          const scale = Math.max(48 / img.width, 48 / img.height);
+          const dw = img.width * scale;
+          const dh = img.height * scale;
+          ctx.drawImage(img, x + 11 + (48 - dw) / 2, y + 6 + (48 - dh) / 2, dw, dh);
+          ctx.restore();
+        }
+        x += c.w;
+        return;
+      }
+      ctx.font = ci === 7 ? "bold 12px Arial" : "12px Arial";
+      ctx.fillStyle = ci === 7 ? "#002362" : "#071123";
+      ctx.textAlign = c.align === "right" ? "right" : c.align === "center" ? "center" : "left";
+      const tx = c.align === "right" ? x + c.w - 8 : c.align === "center" ? x + c.w / 2 : x + 8;
+      if (ci === 2) {
+        const lines = wrapLines(ctx, values[ci], c.w - 16, 3);
+        lines.forEach((line, li) => ctx.fillText(line, tx, y + 22 + li * 15));
+      } else {
+        ctx.fillText(values[ci], tx, y + rowH / 2 + 4);
+      }
+      x += c.w;
+    });
+    ctx.textAlign = "left";
+    y += rowH;
+  });
+
+  // Fila de totales
+  ctx.fillStyle = "#E3EFFF";
+  ctx.fillRect(tableX, y, tableW, rowH);
+  ctx.strokeStyle = "#BFD6F5";
+  ctx.strokeRect(tableX, y, tableW, rowH);
+  ctx.fillStyle = "#002362";
+  ctx.font = "bold 13px Arial";
+  const anchoAntesSubtotal = cols.slice(0, 5).reduce((a, c) => a + c.w, 0);
+  ctx.textAlign = "right";
+  ctx.fillText("TOTALES", tableX + anchoAntesSubtotal - 8, y + rowH / 2 + 4);
+  let tx2 = tableX + anchoAntesSubtotal;
+  [totales.subtotal.toFixed(2), totales.itbms.toFixed(2), fmt(totales.total)].forEach((v, i) => {
+    const c = cols[5 + i];
+    ctx.fillText(v, tx2 + c.w - 8, y + rowH / 2 + 4);
+    tx2 += c.w;
+  });
+  ctx.textAlign = "left";
+  y += rowH + 26;
+
+  if (totales.descuento > 0) {
+    ctx.fillStyle = "#0C4C9E";
+    ctx.font = "bold 12px Arial";
+    ctx.fillText(`Descuento institucional aplicado: ${fmt(totales.descuento)}`, 40, y);
+    y += 22;
+  }
+
+  ctx.fillStyle = "#535E6F";
+  ctx.font = "bold 12px Arial";
+  ctx.fillText("Ana Gómez — VENDEDOR · WhatsApp: 6784-1941", 40, y + 14);
+  ctx.fillStyle = "#0C4C9E";
+  ctx.fillText("Cotización válida por 30 días o hasta agotar existencias", 40, y + 34);
+
+  return canvasADataUrl(canvas);
 }

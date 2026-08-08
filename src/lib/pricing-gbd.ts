@@ -8,16 +8,24 @@ export const MARKUP_CREDITO_ASOCIADO = 1.28; // G26 = G18*1.28
 export const MARKUP_CREDITO_TERCERO = 1.48; // P26 = G18*1.48
 export const DESC_MAX_ASOCIADO = 0.1; // N16 tope 10%
 export const DESC_MAX_TERCERO = 0.07; // N22 tope 7%
+export const DESC_MAX_GOBIERNO = 0.1; // tope 10% editable (institucional)
 export const PLAZOS = [4, 6, 8, 10, 12, 18, 24] as const;
 
-export type TipoCliente = "asociado" | "colaborador" | "tercero";
+export type TipoCliente = "asociado" | "colaborador" | "tercero" | "gobierno";
 
 // Colaboradores GBD usan las mismas reglas que asociados,
 // pero la promo a precio de etiqueta es a 6 meses (asociado: 3 meses).
 export const esAsociado = (t: TipoCliente) => t === "asociado" || t === "colaborador";
+export const esGobierno = (t: TipoCliente) => t === "gobierno";
 export const mesesPromoContado = (t: TipoCliente) => (t === "colaborador" ? 6 : 3);
 export const etiquetaTipoCliente = (t: TipoCliente) =>
-  t === "asociado" ? "Asociado" : t === "colaborador" ? "Colaborador GBD" : "No asociado";
+  t === "asociado"
+    ? "Asociado"
+    : t === "colaborador"
+      ? "Colaborador GBD"
+      : t === "gobierno"
+        ? "Gobierno / Institución"
+        : "No asociado";
 
 export interface ProductoInput {
   id: string;
@@ -30,7 +38,13 @@ export interface ProductoInput {
   descTerceroPct: number;
   imagen?: string;
   descripcion?: string;
+  // Cotización institucional (Gobierno)
+  referencia?: string;
+  cantidad?: string | number;
+  precioUnitario?: string | number;
+  descGobiernoPct?: number;
 }
+
 
 export interface ClienteInfo {
   nombre: string;
@@ -38,7 +52,11 @@ export interface ClienteInfo {
   direccion: string;
   telefono: string;
   correo: string;
+  /** Solo cotizaciones institucionales (Gobierno) */
+  condicionesPago?: string;
+  observaciones?: string;
 }
+
 
 export interface CapacidadInfo {
   ingreso: number;
@@ -207,5 +225,65 @@ export function nuevoProducto(): ProductoInput {
     descTerceroPct: DESC_MAX_TERCERO,
     imagen: "",
     descripcion: "",
+    referencia: "",
+    cantidad: "1",
+    precioUnitario: "",
+    descGobiernoPct: 0,
   };
+
+}
+
+// ============================================================
+// COTIZACIÓN INSTITUCIONAL (GOBIERNO) — siempre al contado
+// Detalle por producto: referencia, detalle, cantidad, precio
+// unitario, subtotal antes de ITBMS, ITBMS (7%) y precio total.
+// ============================================================
+export interface LineaGobierno {
+  id: string;
+  referencia: string;
+  detalle: string;
+  imagen?: string;
+  cantidad: number;
+  precioUnitarioBase: number;
+  descPct: number;
+  precioUnitario: number;
+  subtotal: number;
+  itbms: number;
+  total: number;
+}
+
+export interface TotalesGobierno {
+  lineas: LineaGobierno[];
+  subtotal: number;
+  itbms: number;
+  total: number;
+  descuento: number;
+}
+
+export function calcularGobierno(productos: ProductoInput[]): TotalesGobierno {
+  const lineas: LineaGobierno[] = productos.map((p) => {
+    const cantidad = Math.max(0, Number(p.cantidad) || 0);
+    const base = Math.max(0, Number(p.precioUnitario) || 0);
+    const descPct = Math.min(Math.max(Number(p.descGobiernoPct) || 0, 0), DESC_MAX_GOBIERNO);
+    const precioUnitario = base * (1 - descPct);
+    const subtotal = precioUnitario * cantidad;
+    const itbms = subtotal * ITBMS;
+    return {
+      id: p.id,
+      referencia: (p.referencia || "").trim(),
+      detalle: (p.descripcion || p.nombre || "").trim(),
+      imagen: p.imagen,
+      cantidad,
+      precioUnitarioBase: base,
+      descPct,
+      precioUnitario,
+      subtotal,
+      itbms,
+      total: subtotal + itbms,
+    };
+  });
+  const subtotal = lineas.reduce((a, l) => a + l.subtotal, 0);
+  const itbms = lineas.reduce((a, l) => a + l.itbms, 0);
+  const descuento = lineas.reduce((a, l) => a + (l.precioUnitarioBase - l.precioUnitario) * l.cantidad, 0);
+  return { lineas, subtotal, itbms, total: subtotal + itbms, descuento };
 }
