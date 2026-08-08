@@ -713,6 +713,39 @@ export type Database = {
           },
         ]
       }
+      home_gallery_pool: {
+        Row: {
+          created_at: string
+          cta_url: string
+          id: string
+          image_url: string
+          is_active: boolean
+          position: number
+          subtitle: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          cta_url?: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          position?: number
+          subtitle?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          cta_url?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          position?: number
+          subtitle?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       page_events: {
         Row: {
           category_slug: string | null
@@ -1231,6 +1264,7 @@ export type Database = {
         Args: { _fecha: string; _prefijo?: string }
         Returns: string
       }
+      rotar_galeria_inicio: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "viewer"
