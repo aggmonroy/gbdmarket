@@ -376,6 +376,69 @@ export type Database = {
         }
         Relationships: []
       }
+      cotizacion_solicitudes: {
+        Row: {
+          atendida_por: string | null
+          cliente: Json
+          cotizacion_id: string | null
+          created_at: string
+          estado: string
+          id: string
+          items: Json
+          notas: string | null
+          numero: string
+          resultado: Json | null
+          tarea_id: string | null
+          tipo_cliente: string
+          updated_at: string
+        }
+        Insert: {
+          atendida_por?: string | null
+          cliente?: Json
+          cotizacion_id?: string | null
+          created_at?: string
+          estado?: string
+          id?: string
+          items?: Json
+          notas?: string | null
+          numero: string
+          resultado?: Json | null
+          tarea_id?: string | null
+          tipo_cliente?: string
+          updated_at?: string
+        }
+        Update: {
+          atendida_por?: string | null
+          cliente?: Json
+          cotizacion_id?: string | null
+          created_at?: string
+          estado?: string
+          id?: string
+          items?: Json
+          notas?: string | null
+          numero?: string
+          resultado?: Json | null
+          tarea_id?: string | null
+          tipo_cliente?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cotizacion_solicitudes_atendida_por_fkey"
+            columns: ["atendida_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cotizacion_solicitudes_tarea_id_fkey"
+            columns: ["tarea_id"]
+            isOneToOne: false
+            referencedRelation: "tareas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cotizaciones: {
         Row: {
           capacidad: Json | null
@@ -1289,6 +1352,7 @@ export type Database = {
         Returns: boolean
       }
       limpiar_cotizaciones_vencidas: { Args: never; Returns: undefined }
+      next_numero_cotizacion: { Args: { _fecha: string }; Returns: string }
       next_numero_garantia: { Args: { _fecha: string }; Returns: string }
       next_numero_pedido: { Args: { _fecha: string }; Returns: string }
       next_numero_tarea: {
