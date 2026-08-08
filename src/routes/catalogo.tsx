@@ -182,16 +182,35 @@ function CatalogoCompleto() {
         {!isLoading && filtered.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((p: any) => (
-              <ProductCard key={p.id} product={p} onClick={() => setSelected(p)} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                esBordado={p.categories?.slug === BORDADOS_SLUG}
+                onSolicitarBordado={irAlFormularioBordados}
+                onClick={() => setSelected(p)}
+              />
             ))}
+          </div>
+        )}
+
+        {cat === BORDADOS_SLUG && (
+          <div className="mt-14">
+            <FormularioBordados />
           </div>
         )}
       </section>
 
-      <ProductDetailDialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)} product={selected} />
+      <ProductDetailDialog
+        open={!!selected}
+        onOpenChange={(o) => !o && setSelected(null)}
+        product={selected}
+        esBordado={(selected as any)?.categories?.slug === BORDADOS_SLUG}
+        onSolicitarBordado={irAlFormularioBordados}
+      />
     </div>
   );
 }
+
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
