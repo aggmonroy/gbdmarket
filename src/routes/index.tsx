@@ -142,9 +142,13 @@ function HeroFused() {
         {/* Content overlay */}
         <div className="relative z-10 container mx-auto h-full px-4 lg:px-8 py-16 lg:py-20 flex flex-col justify-between gap-10 min-h-[92vh]">
           <div className="max-w-3xl mt-6">
-            <h1 key={i} className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] animate-fade-up drop-shadow-2xl">
+            <div className="font-display text-5xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-amber-400 leading-none drop-shadow-2xl">
+              Mueblería
+            </div>
+            <h1 key={i} className="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] animate-fade-up drop-shadow-2xl">
               Siempre pensando en ti
             </h1>
+
             <p key={`sub-${i}`} className="mt-4 text-xl sm:text-2xl font-semibold text-amber-300 animate-fade-up">
               Inspiración para crear el hogar que siempre has soñado.
             </p>
