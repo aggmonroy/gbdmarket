@@ -19,7 +19,8 @@ const productSchema = z.object({
   features: z.array(z.string()).optional().nullable(),
   price_cash: z.number().nonnegative(),
   price_financed: z.number().nonnegative().optional().nullable(),
-  stock: z.number().int().nonnegative(),
+  stock: z.number().int().nonnegative().optional(),
+  disponibilidad: z.enum(["en_stock", "bajo_pedido"]).default("en_stock"),
   images: z.array(z.string()).optional().nullable(),
   datasheet_url: z.string().url().optional().nullable().or(z.literal("")),
   manual_url: z.string().url().optional().nullable().or(z.literal("")),
@@ -53,6 +54,7 @@ export const upsertProduct = createServerFn({ method: "POST" })
     const { publish, id, ...rest } = data;
     const payload = {
       ...rest,
+      stock: rest.disponibilidad === "en_stock" ? (rest.stock ?? 1) : 0,
       datasheet_url: rest.datasheet_url || null,
       manual_url: rest.manual_url || null,
       images: rest.images ?? [],
