@@ -308,7 +308,7 @@ export function AsesorPage({
           </>
         )}
 
-        {vista === "cliente" && (
+        {!esGobierno(tipoCliente) && vista === "cliente" && (
           <>
             <VistaCliente
               calculados={calculados}
