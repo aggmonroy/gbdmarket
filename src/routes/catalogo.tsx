@@ -49,13 +49,18 @@ function Catalogo() {
       </header>
 
       <CatalogoCompleto />
-
-      <div className="mt-16">
-        <FormularioBordados />
-      </div>
     </div>
   );
 }
+
+const BORDADOS_SLUG = "bordados";
+
+function irAlFormularioBordados() {
+  requestAnimationFrame(() => {
+    document.getElementById("cotizar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 
 /* ---------- CATÁLOGO COMPLETO ---------- */
 function CatalogoCompleto() {
@@ -112,6 +117,11 @@ function CatalogoCompleto() {
         return next;
       },
     });
+  };
+
+  const solicitarBordado = () => {
+    if (cat !== BORDADOS_SLUG) setSearch({ cat: BORDADOS_SLUG });
+    setTimeout(irAlFormularioBordados, 250);
   };
 
   return (
@@ -177,16 +187,35 @@ function CatalogoCompleto() {
         {!isLoading && filtered.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((p: any) => (
-              <ProductCard key={p.id} product={p} onClick={() => setSelected(p)} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                esBordado={p.categories?.slug === BORDADOS_SLUG}
+                onSolicitarBordado={solicitarBordado}
+                onClick={() => setSelected(p)}
+              />
             ))}
+          </div>
+        )}
+
+        {cat === BORDADOS_SLUG && (
+          <div className="mt-14">
+            <FormularioBordados />
           </div>
         )}
       </section>
 
-      <ProductDetailDialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)} product={selected} />
+      <ProductDetailDialog
+        open={!!selected}
+        onOpenChange={(o) => !o && setSelected(null)}
+        product={selected}
+        esBordado={(selected as any)?.categories?.slug === BORDADOS_SLUG}
+        onSolicitarBordado={solicitarBordado}
+      />
     </div>
   );
 }
+
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (

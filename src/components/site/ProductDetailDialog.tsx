@@ -8,7 +8,7 @@ import { crearPreorden } from "@/lib/pedidos.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { DataConsent } from "@/components/site/DataConsent";
 import { toast } from "sonner";
-import { FileText, MessageCircle, Package, ShoppingCart } from "lucide-react";
+import { FileText, MessageCircle, Package, Scissors, ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 
@@ -30,8 +30,14 @@ export type ProductLite = {
 };
 
 export function ProductDetailDialog({
-  open, onOpenChange, product,
-}: { open: boolean; onOpenChange: (b: boolean) => void; product: ProductLite | null }) {
+  open, onOpenChange, product, esBordado = false, onSolicitarBordado,
+}: {
+  open: boolean;
+  onOpenChange: (b: boolean) => void;
+  product: ProductLite | null;
+  esBordado?: boolean;
+  onSolicitarBordado?: () => void;
+}) {
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
@@ -39,6 +45,7 @@ export function ProductDetailDialog({
   const crear = useServerFn(crearPreorden);
   const { add, setAbierto } = useCart();
   if (!product) return null;
+
 
   const agregarAlCarrito = () => {
     add({
@@ -124,9 +131,12 @@ export function ProductDetailDialog({
               {product.code && <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Código {product.code}</span>}
             </div>
 
-            <div className="mt-3">
-              <DisponibilidadBadge disponibilidad={product.disponibilidad} size="md" />
-            </div>
+            {!esBordado && (
+              <div className="mt-3">
+                <DisponibilidadBadge disponibilidad={product.disponibilidad} size="md" />
+              </div>
+            )}
+
 
 
             {product.description && <p className="mt-4 text-sm text-foreground/80 leading-relaxed">{product.description}</p>}
@@ -139,62 +149,92 @@ export function ProductDetailDialog({
               </ul>
             )}
 
-            <Button onClick={agregarAlCarrito} className="mt-6 w-full" size="lg" variant="outline">
-              <ShoppingCart className="mr-2 h-4 w-4" /> Agregar al carrito de cotización
-            </Button>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Puedes sumar varios artículos y solicitar una sola cotización al final.
-            </p>
-
-            <div className="mt-4 rounded-xl border border-border bg-primary-soft/40 p-4">
-              <div className="text-sm font-semibold text-primary">Cotización por WhatsApp</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Todas nuestras cotizaciones y ventas se realizan de forma personalizada por WhatsApp. Envíanos tus datos y te atendemos al instante.
-              </p>
-
-              <Input
-                placeholder="Tu nombre *"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                className="mt-4"
-                maxLength={80}
-              />
-              <Input
-                placeholder="Teléfono / WhatsApp *"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="mt-2"
-                maxLength={30}
-              />
-              <Textarea
-                placeholder="¿Alguna preferencia o pregunta? (opcional)"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="mt-2"
-                rows={3}
-                maxLength={500}
-              />
-
-              <div className="mt-3">
-                <DataConsent accepted={consent} onChange={setConsent} id={`pd-consent-${product.id}`} />
-              </div>
-
-              <Button onClick={sendWa} className="mt-3 w-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Solicitar cotización por WhatsApp
-              </Button>
-
-              {product.datasheet_url && (
-                <a
-                  href={product.datasheet_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-flex w-full items-center justify-center gap-2 text-sm text-primary hover:underline"
+            {esBordado ? (
+              <div className="mt-6 rounded-xl border border-border bg-primary-soft/40 p-4">
+                <div className="text-sm font-semibold text-primary">Pedido de bordado</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Los artículos de bordado se cotizan con el formulario de pedido de bordados, según el diseño, la cantidad
+                  y la ubicación del bordado.
+                </p>
+                <Button
+                  onClick={() => { onOpenChange(false); onSolicitarBordado?.(); }}
+                  className="mt-3 w-full"
+                  size="lg"
                 >
-                  <FileText className="h-4 w-4" /> Descargar ficha técnica (PDF)
-                </a>
-              )}
-            </div>
+                  <Scissors className="mr-2 h-4 w-4" /> Solicitar pedido de bordado
+                </Button>
+                {product.datasheet_url && (
+                  <a
+                    href={product.datasheet_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex w-full items-center justify-center gap-2 text-sm text-primary hover:underline"
+                  >
+                    <FileText className="h-4 w-4" /> Descargar ficha técnica (PDF)
+                  </a>
+                )}
+              </div>
+            ) : (
+              <>
+                <Button onClick={agregarAlCarrito} className="mt-6 w-full" size="lg" variant="outline">
+                  <ShoppingCart className="mr-2 h-4 w-4" /> Agregar al carrito de cotización
+                </Button>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Puedes sumar varios artículos y solicitar una sola cotización al final.
+                </p>
+
+                <div className="mt-4 rounded-xl border border-border bg-primary-soft/40 p-4">
+                  <div className="text-sm font-semibold text-primary">Cotización por WhatsApp</div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Todas nuestras cotizaciones y ventas se realizan de forma personalizada por WhatsApp. Envíanos tus datos y te atendemos al instante.
+                  </p>
+
+                  <Input
+                    placeholder="Tu nombre *"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="mt-4"
+                    maxLength={80}
+                  />
+                  <Input
+                    placeholder="Teléfono / WhatsApp *"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="mt-2"
+                    maxLength={30}
+                  />
+                  <Textarea
+                    placeholder="¿Alguna preferencia o pregunta? (opcional)"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="mt-2"
+                    rows={3}
+                    maxLength={500}
+                  />
+
+                  <div className="mt-3">
+                    <DataConsent accepted={consent} onChange={setConsent} id={`pd-consent-${product.id}`} />
+                  </div>
+
+                  <Button onClick={sendWa} className="mt-3 w-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Solicitar cotización por WhatsApp
+                  </Button>
+
+                  {product.datasheet_url && (
+                    <a
+                      href={product.datasheet_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex w-full items-center justify-center gap-2 text-sm text-primary hover:underline"
+                    >
+                      <FileText className="h-4 w-4" /> Descargar ficha técnica (PDF)
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
+
           </div>
         </div>
       </DialogContent>
