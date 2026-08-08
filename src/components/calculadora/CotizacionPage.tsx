@@ -119,31 +119,50 @@ export function CotizacionPage({ id }: { id: string }) {
             {diasRestantes > 0 ? `Vence en ${diasRestantes} día${diasRestantes === 1 ? "" : "s"}` : "Vence hoy"}
           </p>
         </div>
-        <VistaCliente
-          calculados={calculados}
-          totales={totales}
-          tipoCliente={datos.tipo_cliente}
-          plazoElegido={plazoElegido}
-          setPlazoElegido={setPlazoElegido}
-          cliente={datos.cliente ?? undefined}
-        />
-        <ActionBar
-          tipoCliente={datos.tipo_cliente}
-          calculados={calculados}
-          contadoTotal={contadoTotal}
-          creditoTotal={creditoTotal}
-          plazoElegido={plazoElegido}
-          cuota={totales.planTotal.find((r) => r.meses === plazoElegido)}
-          planTotal={totales.planTotal}
-          mostrarDescargaImagen
-          cliente={datos.cliente ?? undefined}
-          
-          promo={
-            esAsociado(datos.tipo_cliente)
-              ? { precioEtiqueta: totales.precioContado, cuota3m: totales.cuotaPromoContado, meses: totales.mesesPromo }
-              : undefined
-          }
-        />
+        {esGob && totalesGob ? (
+          <>
+            <VistaGobierno totales={totalesGob} cliente={datos.cliente ?? undefined} />
+            <ActionBar
+              tipoCliente="gobierno"
+              calculados={[]}
+              contadoTotal={totalesGob.total}
+              creditoTotal={totalesGob.total}
+              plazoElegido={0}
+              planTotal={[]}
+              mostrarDescargaImagen
+              cliente={datos.cliente ?? undefined}
+              totalesGobierno={totalesGob}
+            />
+          </>
+        ) : (
+          <>
+            <VistaCliente
+              calculados={calculados}
+              totales={totales}
+              tipoCliente={datos.tipo_cliente}
+              plazoElegido={plazoElegido}
+              setPlazoElegido={setPlazoElegido}
+              cliente={datos.cliente ?? undefined}
+            />
+            <ActionBar
+              tipoCliente={datos.tipo_cliente}
+              calculados={calculados}
+              contadoTotal={contadoTotal}
+              creditoTotal={creditoTotal}
+              plazoElegido={plazoElegido}
+              cuota={totales.planTotal.find((r) => r.meses === plazoElegido)}
+              planTotal={totales.planTotal}
+              mostrarDescargaImagen
+              cliente={datos.cliente ?? undefined}
+              promo={
+                esAsociado(datos.tipo_cliente)
+                  ? { precioEtiqueta: totales.precioContado, cuota3m: totales.cuotaPromoContado, meses: totales.mesesPromo }
+                  : undefined
+              }
+            />
+          </>
+        )}
+
 
       </div>
     </div>
