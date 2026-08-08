@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Share2, Download, Image as ImageIcon } from "lucide-react";
 import { etiquetaTipoCliente, fmt, telefonoAWhatsapp, type CalculadoProducto, type CapacidadInfo, type ClienteInfo, type PlazoCuota, type TipoCliente } from "@/lib/pricing-gbd";
-import { generarImagenCotizacion } from "@/lib/generar-imagen-gbd";
+import { descargarArchivo, generarImagenCotizacion } from "@/lib/generar-imagen-gbd";
 
 interface Props {
   tipoCliente: TipoCliente;
