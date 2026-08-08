@@ -5,10 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import {
-  Search, SlidersHorizontal, Shirt, Crown, Briefcase, Backpack,
-  BadgeCheck, Upload, Loader2, MessageCircle, Package, Scissors,
-} from "lucide-react";
+import { Search, SlidersHorizontal, Loader2, MessageCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -21,7 +18,6 @@ import { buildWaUrl } from "@/lib/whatsapp";
 import { crearSolicitudBordado } from "@/lib/embroidery.functions";
 
 const searchSchema = z.object({
-  tab: z.enum(["linea-blanca", "bordados"]).optional(),
   cat: z.string().optional(),
   brand: z.string().optional(),
   q: z.string().optional(),
@@ -31,10 +27,10 @@ export const Route = createFileRoute("/catalogo")({
   validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
-      { title: "Catálogo · Línea Blanca y Bordados · Cooperativa Gladys B. de Ducasa, R.L." },
-      { name: "description", content: "Catálogo unificado: electrodomésticos, muebles y bordados personalizados con financiamiento cooperativo en Panamá." },
-      { property: "og:title", content: "Catálogo · Línea Blanca y Bordados GBD" },
-      { property: "og:description", content: "Todo nuestro catálogo en un solo lugar." },
+      { title: "Catálogo Completo · Cooperativa Gladys B. de Ducasa, R.L." },
+      { name: "description", content: "Catálogo unificado: electrodomésticos, muebles y bordados personalizados. Busca por categoría o por nombre del producto." },
+      { property: "og:title", content: "Catálogo Completo GBD" },
+      { property: "og:description", content: "Todo nuestro catálogo en un solo lugar, con búsqueda por categoría y por nombre." },
     ],
     links: [{ rel: "canonical", href: "/catalogo" }],
   }),
@@ -42,53 +38,26 @@ export const Route = createFileRoute("/catalogo")({
 });
 
 function Catalogo() {
-  const { tab = "linea-blanca" } = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const activeTab = tab;
-
-  const setTab = (t: "linea-blanca" | "bordados") =>
-    navigate({ search: (prev: any) => ({ ...prev, tab: t }) });
-
   return (
     <div className="container mx-auto px-4 lg:px-8 py-10">
       <header className="mb-8">
         <h1 className="font-display text-3xl lg:text-4xl font-bold">Nuestro Catálogo</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl">
-          Explora nuestra Línea Blanca y servicios de Bordado Personalizado en un solo lugar.
+          Todo nuestro catálogo en un solo lugar. Busca por categoría o escribe el nombre del producto.
         </p>
       </header>
 
-      {/* Tabs */}
-      <div className="mb-8 inline-flex rounded-full border border-border bg-card p-1 shadow-soft">
-        <button
-          onClick={() => setTab("linea-blanca")}
-          className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-            activeTab === "linea-blanca"
-              ? "bg-primary text-primary-foreground shadow"
-              : "text-foreground/70 hover:text-primary"
-          }`}
-        >
-          <Package className="h-4 w-4" /> Línea Blanca
-        </button>
-        <button
-          onClick={() => setTab("bordados")}
-          className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-            activeTab === "bordados"
-              ? "bg-primary text-primary-foreground shadow"
-              : "text-foreground/70 hover:text-primary"
-          }`}
-        >
-          <Scissors className="h-4 w-4" /> Bordados
-        </button>
-      </div>
+      <CatalogoCompleto />
 
-      {activeTab === "linea-blanca" ? <LineaBlancaPanel /> : <BordadosPanel />}
+      <div className="mt-16">
+        <FormularioBordados />
+      </div>
     </div>
   );
 }
 
-/* ---------- LÍNEA BLANCA PANEL ---------- */
-function LineaBlancaPanel() {
+/* ---------- CATÁLOGO COMPLETO ---------- */
+function CatalogoCompleto() {
   const { cat, brand, q } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [selected, setSelected] = useState<ProductLite | null>(null);
@@ -105,7 +74,11 @@ function LineaBlancaPanel() {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products", cat, brand],
     queryFn: async () => {
-      let qb = supabase.from("products").select("id,category_id,name,brand,model,code,description,features,price_cash,price_financed,stock,images,datasheet_url,manual_url,is_featured,is_published,views_count,quote_count,created_at,updated_at, categories(slug,name)").eq("is_published", true).order("is_featured", { ascending: false });
+      let qb = supabase
+        .from("products")
+        .select("id,category_id,name,brand,model,code,description,features,price_cash,price_financed,stock,images,datasheet_url,manual_url,is_featured,is_published,views_count,quote_count,created_at,updated_at, categories(slug,name)")
+        .eq("is_published", true)
+        .order("is_featured", { ascending: false });
       if (cat) {
         const catId = (await supabase.from("categories").select("id").eq("slug", cat).maybeSingle()).data?.id;
         if (catId) qb = qb.eq("category_id", catId);
@@ -121,7 +94,7 @@ function LineaBlancaPanel() {
     if (!q) return products;
     const needle = q.toLowerCase();
     return products.filter((p: any) =>
-      [p.name, p.brand, p.model, p.code].filter(Boolean).join(" ").toLowerCase().includes(needle)
+      [p.name, p.brand, p.model, p.code, p.categories?.name].filter(Boolean).join(" ").toLowerCase().includes(needle)
     );
   }, [products, q]);
 
@@ -134,7 +107,7 @@ function LineaBlancaPanel() {
     navigate({
       search: (prev: any) => {
         const next: any = { ...prev, ...patch };
-        Object.keys(next).forEach((k) => { if (!next[k] && k !== "tab") delete next[k]; });
+        Object.keys(next).forEach((k) => { if (!next[k]) delete next[k]; });
         return next;
       },
     });
@@ -146,7 +119,7 @@ function LineaBlancaPanel() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar producto..."
+            placeholder="Buscar por nombre..."
             value={q ?? ""}
             onChange={(e) => setSearch({ q: e.target.value })}
             className="pl-9"
@@ -186,9 +159,9 @@ function LineaBlancaPanel() {
 
         {!isLoading && filtered.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-12 text-center">
-            <h3 className="font-display font-semibold text-lg">Aún no hay productos cargados en esta categoría</h3>
+            <h3 className="font-display font-semibold text-lg">No encontramos productos con esa búsqueda</h3>
             <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-              Estamos cargando el inventario. Mientras tanto, escríbenos por WhatsApp y te asesoramos directamente.
+              Prueba con otra categoría o escríbenos por WhatsApp y te asesoramos directamente.
             </p>
             <a
               href="https://wa.me/50767841941"
@@ -236,61 +209,45 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
   );
 }
 
-/* ---------- BORDADOS PANEL ---------- */
-const bordadoServices = [
-  { Icon: Briefcase, title: "Bordado Corporativo", desc: "Logos institucionales con definición profesional." },
-  { Icon: Shirt, title: "Uniformes Empresariales", desc: "Camisas, chompas y polos para tu equipo." },
-  { Icon: BadgeCheck, title: "Camisas Polo", desc: "Bordado de logos en piezas individuales o por lote." },
-  { Icon: Crown, title: "Gorras", desc: "Bordado frontal y lateral en distintos materiales." },
-  { Icon: Shirt, title: "Toallas", desc: "Nombres, iniciales y monogramas." },
-  { Icon: Backpack, title: "Mochilas", desc: "Personalización para colegios y empresas." },
-];
-
-const bordadoSchema = z.object({
+/* ---------- FORMULARIO DE COTIZACIÓN ---------- */
+const cotizacionSchema = z.object({
   name: z.string().trim().min(2, "Tu nombre").max(100),
   phone: z.string().trim().min(6, "Teléfono válido").max(30),
   email: z.string().trim().email("Email inválido").max(255).optional().or(z.literal("")),
-  service_type: z.string().min(2).max(80),
-  quantity: z.coerce.number().int().min(1).max(100000),
-  colors: z.string().max(200).optional().or(z.literal("")),
-  placement: z.string().max(120).optional().or(z.literal("")),
-  notes: z.string().max(1000).optional().or(z.literal("")),
+  address: z.string().trim().min(3, "Indica tu dirección").max(300),
+  description: z.string().trim().min(5, "Describe tu pedido").max(2000),
 });
-type BordadoVals = z.infer<typeof bordadoSchema>;
+type CotizacionVals = z.infer<typeof cotizacionSchema>;
 
-function BordadosPanel() {
+function FormularioBordados() {
   const [submitting, setSubmitting] = useState(false);
   const crearBordado = useServerFn(crearSolicitudBordado);
-  const { register, handleSubmit, formState: { errors } } = useForm<BordadoVals>({
-    resolver: zodResolver(bordadoSchema),
-    defaultValues: { service_type: "Bordado Corporativo", quantity: 12 },
+  const { register, handleSubmit, formState: { errors } } = useForm<CotizacionVals>({
+    resolver: zodResolver(cotizacionSchema),
   });
 
-  const onSubmit = async (vals: BordadoVals) => {
+  const onSubmit = async (vals: CotizacionVals) => {
     setSubmitting(true);
     try {
       await crearBordado({ data: {
         name: vals.name,
         phone: vals.phone,
         email: vals.email || "",
-        service_type: vals.service_type,
-        quantity: vals.quantity,
-        colors: vals.colors || "",
-        placement: vals.placement || "",
-        notes: vals.notes || "",
+        service_type: "Solicitud de cotización",
+        quantity: 1,
+        placement: vals.address,
+        notes: vals.description,
         consent: true,
       } as any });
       toast.success("Solicitud enviada. Te contactaremos por WhatsApp.");
 
       const msg = [
-        "Hola, quiero cotizar un trabajo de bordado:",
-        `Servicio: ${vals.service_type}`,
-        `Cantidad: ${vals.quantity}`,
-        vals.colors ? `Colores: ${vals.colors}` : null,
-        vals.placement ? `Ubicación: ${vals.placement}` : null,
-        vals.notes ? `Notas: ${vals.notes}` : null,
+        "Hola, quiero solicitar una cotización:",
         `Nombre: ${vals.name}`,
         `Tel: ${vals.phone}`,
+        vals.email ? `Correo: ${vals.email}` : null,
+        `Dirección: ${vals.address}`,
+        `Pedido: ${vals.description}`,
       ].filter(Boolean).join("\n");
       window.open(buildWaUrl("bordados", msg), "_blank");
     } catch (e: any) {
@@ -302,81 +259,35 @@ function BordadosPanel() {
   };
 
   return (
-    <div className="space-y-12">
-      <section>
-        <h2 className="font-display text-2xl font-bold">Nuestros servicios de Bordado</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Personalizamos prendas y artículos con acabados profesionales.
-        </p>
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-          {bordadoServices.map(({ Icon, title, desc }) => (
-            <div key={title} className="rounded-xl border border-border bg-card p-5 hover:shadow-soft hover:border-primary/40 transition">
-              <div className="grid h-11 w-11 place-items-center rounded-lg bg-primary-soft text-primary">
-                <Icon className="h-5 w-5" />
-              </div>
-              <div className="mt-4 font-display font-semibold">{title}</div>
-              <div className="mt-1 text-sm text-muted-foreground">{desc}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+    <section id="cotizar" className="rounded-2xl border border-border bg-card p-6 lg:p-10 shadow-soft max-w-3xl mx-auto">
+      <h2 className="font-display text-2xl font-bold">Solicita tu cotización</h2>
+      <p className="text-sm text-muted-foreground mt-1">
+        Completa el formulario y recibirás respuesta por WhatsApp de inmediato.
+      </p>
 
-      <section id="cotizar" className="rounded-2xl border border-border bg-card p-6 lg:p-10 shadow-soft max-w-3xl mx-auto">
-        <h2 className="font-display text-2xl font-bold">Solicita tu cotización</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Completa el formulario y recibirás respuesta por WhatsApp de inmediato.
-        </p>
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-6 grid gap-4 sm:grid-cols-2">
+        <Field label="Nombre" error={errors.name?.message}>
+          <Input {...register("name")} placeholder="Tu nombre o empresa" />
+        </Field>
+        <Field label="WhatsApp" error={errors.phone?.message}>
+          <Input {...register("phone")} placeholder="+507 ..." />
+        </Field>
+        <Field label="Email (opcional)" error={errors.email?.message}>
+          <Input type="email" {...register("email")} placeholder="tu@correo.com" />
+        </Field>
+        <Field label="Dirección" error={errors.address?.message}>
+          <Input {...register("address")} placeholder="Provincia, distrito, barrio..." />
+        </Field>
+        <Field label="Descripción del pedido" error={errors.description?.message} className="sm:col-span-2">
+          <Textarea {...register("description")} rows={4} placeholder="Cuéntanos qué necesitas: productos, cantidades, colores, fechas..." />
+        </Field>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 grid gap-4 sm:grid-cols-2">
-          <Field label="Nombre" error={errors.name?.message}>
-            <Input {...register("name")} placeholder="Tu nombre o empresa" />
-          </Field>
-          <Field label="WhatsApp" error={errors.phone?.message}>
-            <Input {...register("phone")} placeholder="+507 ..." />
-          </Field>
-          <Field label="Email (opcional)" error={errors.email?.message}>
-            <Input type="email" {...register("email")} placeholder="tu@correo.com" />
-          </Field>
-          <Field label="Tipo de servicio" error={errors.service_type?.message}>
-            <select {...register("service_type")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-              {bordadoServices.map((s) => <option key={s.title}>{s.title}</option>)}
-              <option>Personalización de Artículos</option>
-            </select>
-          </Field>
-          <Field label="Cantidad" error={errors.quantity?.message}>
-            <Input type="number" min={1} {...register("quantity")} />
-          </Field>
-          <Field label="Colores deseados" error={errors.colors?.message}>
-            <Input {...register("colors")} placeholder="Ej: azul, blanco, dorado" />
-          </Field>
-          <Field label="Ubicación del bordado" error={errors.placement?.message} className="sm:col-span-2">
-            <Input {...register("placement")} placeholder="Ej: pecho izquierdo, gorra frontal, espalda" />
-          </Field>
-          <Field label="Notas adicionales" error={errors.notes?.message} className="sm:col-span-2">
-            <Textarea {...register("notes")} rows={3} placeholder="Detalles del diseño, urgencia, etc." />
-          </Field>
-
-          <div className="sm:col-span-2 rounded-lg border border-dashed border-border bg-muted/30 p-4 text-sm flex items-start gap-3">
-            <Upload className="h-5 w-5 mt-0.5 text-primary" />
-            <div>
-              <div className="font-medium">¿Tienes el diseño listo?</div>
-              <div className="text-muted-foreground">
-                Envíalo por WhatsApp al{" "}
-                <a className="text-primary underline" href="https://wa.me/50768298538" target="_blank" rel="noreferrer">
-                  +507 6829-8538
-                </a>{" "}
-                después de enviar este formulario.
-              </div>
-            </div>
-          </div>
-
-          <Button type="submit" disabled={submitting} className="sm:col-span-2 bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
-            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageCircle className="mr-2 h-4 w-4" />}
-            Solicitar Cotización por WhatsApp
-          </Button>
-        </form>
-      </section>
-    </div>
+        <Button type="submit" disabled={submitting} className="sm:col-span-2 bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
+          {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageCircle className="mr-2 h-4 w-4" />}
+          Solicitar Cotización por WhatsApp
+        </Button>
+      </form>
+    </section>
   );
 }
 

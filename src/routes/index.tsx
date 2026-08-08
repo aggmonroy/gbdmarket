@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight, MapPin, Store, Building2, CreditCard, Navigation,
-  MessageCircle, ChevronLeft, ChevronRight, Scissors,
+  ChevronLeft, ChevronRight, Scissors,
   ShieldCheck, Phone,
 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { QuoteFormDialog } from "@/components/site/QuoteFormDialog";
+
 import { DestacadosMes } from "@/components/site/DestacadosMes";
 
 
@@ -58,14 +58,27 @@ const FALLBACK_AMBIENT: GalleryItem[] = [
 ];
 
 
-const FALLBACK_BORDADOS: GalleryItem[] = [
-  { image_url: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1600&q=80", title: "Uniformes empresariales", subtitle: "Identidad corporativa", href: "/catalogo", search: { tab: "bordados", q: "uniforme" } },
-  { image_url: "https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=1600&q=80", title: "Camisas corporativas", subtitle: "Bordado profesional", href: "/catalogo", search: { tab: "bordados", q: "camisa" } },
-  { image_url: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=1600&q=80", title: "Gorras bordadas", subtitle: "Detalle y calidad", href: "/catalogo", search: { tab: "bordados", q: "gorra" } },
-  { image_url: "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=1600&q=80", title: "Toallas bordadas", subtitle: "Regalos personalizados", href: "/catalogo", search: { tab: "bordados", q: "toalla" } },
-  { image_url: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1600&q=80", title: "Artículos promocionales", subtitle: "Merchandising a medida", href: "/catalogo", search: { tab: "bordados", q: "promocional" } },
-  { image_url: "https://images.unsplash.com/photo-1503944168849-8bf86875b08c?auto=format&fit=crop&w=1600&q=80", title: "Uniformes escolares", subtitle: "Bordado para colegios", href: "/catalogo", search: { tab: "bordados", q: "escolar" } },
+/** Textos aleatorios que acompañan las ambientaciones de bordados. */
+const TEXTOS_BORDADOS = [
+  "Identidad corporativa",
+  "Bordado profesional",
+  "Detalle y calidad",
+  "Regalos personalizados",
+  "Merchandising a medida",
+  "Bordado para colegios",
+  "Acabados a la medida",
+  "Personalización garantizada",
 ];
+
+const IMAGENES_BORDADOS = [
+  "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1503944168849-8bf86875b08c?auto=format&fit=crop&w=1600&q=80",
+];
+
 
 function useGallerySection(section: string, fallback: GalleryItem[]) {
   const { data } = useQuery({
@@ -265,11 +278,46 @@ function GalleryThumb({ item, active, onClick }: { item: GalleryItem; active: bo
 
 /* ---------- BORDADOS (galería estilo hero) ---------- */
 function BordadosSection() {
-  const items = useGallerySection("home.bordados", FALLBACK_BORDADOS);
+  const { data: bordados = [] } = useQuery({
+    queryKey: ["home-bordados-productos"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id,name,images,categories!inner(slug)")
+        .eq("is_published", true)
+        .eq("categories.slug", "bordados")
+        .limit(12);
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 30 * 60 * 1000,
+  });
+
+  const items: GalleryItem[] = useMemo(() => {
+    const texto = (idx: number) => TEXTOS_BORDADOS[(idx * 3 + 1) % TEXTOS_BORDADOS.length];
+    const conImagen = (bordados as any[]).filter((p) => (p.images?.[0] ?? "").length > 0);
+    if (conImagen.length > 0) {
+      return conImagen.map((p, idx) => ({
+        image_url: p.images[0] as string,
+        title: p.name as string,
+        subtitle: texto(idx),
+        href: "/catalogo",
+        search: { q: p.name as string },
+      }));
+    }
+    return IMAGENES_BORDADOS.map((image_url, idx) => ({
+      image_url,
+      title: "Bordados GBD",
+      subtitle: texto(idx),
+      href: "/catalogo",
+      search: { q: "bordado" },
+    }));
+  }, [bordados]);
+
   const [i, setI] = useState(0);
-  const [cotizar, setCotizar] = useState(false);
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
   const prev = () => setI((p) => (p - 1 + items.length) % items.length);
+
 
 
 
@@ -317,28 +365,13 @@ function BordadosSection() {
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Link
                     to={current.href as any}
-                    search={(current.search ?? { tab: "bordados" }) as any}
+                    search={(current.search ?? {}) as any}
                     className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-5 py-2.5 text-sm font-bold text-slate-900 hover:bg-amber-300 transition"
                   >
                     Ver categoría <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => setCotizar(true)}
-                    className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-5 py-2.5 text-sm font-bold text-whatsapp-foreground hover:opacity-90 transition"
-                  >
-                    <MessageCircle className="h-4 w-4" /> Cotizar por WhatsApp
-                  </button>
                 </div>
-                <QuoteFormDialog
-                  open={cotizar}
-                  onOpenChange={setCotizar}
-                  canal="bordados"
-                  titulo="Cotizar bordados"
-                  itemInicial={current.title}
-                  detalle={current.subtitle ?? ""}
-                  meta={{ section: "home.bordados", slide_index: i }}
-                />
+
 
               </>
             )}
