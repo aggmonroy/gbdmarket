@@ -9,6 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { crearSolicitudBordado } from "@/lib/embroidery.functions";
 import { crearPreorden } from "@/lib/pedidos.functions";
 import { DataConsent } from "@/components/site/DataConsent";
+import { BordadoPolicy } from "@/components/site/BordadoPolicy";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
