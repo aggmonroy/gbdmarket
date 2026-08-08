@@ -55,7 +55,7 @@ export function CotizacionCarrito({
   const items: any[] = data.items ?? [];
   const productos: ProductoInput[] = items.map((i, idx) => ({
     id: `${data.id}-${idx}`,
-    nombre: `${i.cantidad > 1 ? `${i.cantidad} × ` : ""}${i.nombre}${i.marca ? ` · ${i.marca}` : ""}${i.modelo ? ` ${i.modelo}` : ""}`,
+    nombre: i.nombre || "",
     precioProveedor: "",
     precioEtiqueta: "",
     flete: "0",
@@ -63,7 +63,11 @@ export function CotizacionCarrito({
     descAsociadoPct: DESC_MAX_ASOCIADO,
     descTerceroPct: DESC_MAX_TERCERO,
     imagen: i.imagen || "",
-    descripcion: i.codigo ? `Código: ${i.codigo}` : "",
+    descripcion: i.nombre || "",
+    referencia: i.modelo || i.codigo || "",
+    cantidad: String(i.cantidad || 1),
+    precioUnitario: "",
+    descGobiernoPct: 0,
   }));
 
   const cliente = {

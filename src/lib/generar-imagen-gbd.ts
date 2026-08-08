@@ -535,6 +535,8 @@ export async function generarImagenGobierno({
   const infoLineas: Array<[string, string]> = [
     ["Fecha", new Date().toLocaleDateString("es-PA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })],
     ["Nombre", cliente?.nombre || "—"],
+    ["RUC", cliente?.ruc || "—"],
+    ["Cédula", cliente?.cedula || "—"],
     ["Dirección", cliente?.direccion || "—"],
     ["Teléfono", cliente?.telefono || "—"],
     ["Condiciones de pago", cliente?.condicionesPago || "Contado"],

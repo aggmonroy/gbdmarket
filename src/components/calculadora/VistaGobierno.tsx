@@ -41,6 +41,8 @@ export function VistaGobierno({
         <Line label="Fecha" value={fechaTexto} />
         {numero && <Line label="Cotización N°" value={numero} />}
         <Line label="Nombre" value={cliente?.nombre || "—"} />
+        <Line label="RUC" value={cliente?.ruc || "—"} />
+        <Line label="Cédula" value={cliente?.cedula || "—"} />
         <Line label="Teléfono" value={cliente?.telefono || "—"} />
         <Line label="Dirección" value={cliente?.direccion || "—"} />
         <Line label="Condiciones de pago" value={cliente?.condicionesPago || "Contado"} />
@@ -117,7 +119,7 @@ export function VistaGobierno({
             <p>WhatsApp: 6784-1941</p>
           </div>
           <div className="bg-[#002362] text-white rounded-xl px-5 py-3 text-right">
-            <p className="text-[10px] uppercase font-bold text-[#B0C6E5]">Total a pagar (contado)</p>
+            <p className="text-[10px] uppercase font-bold text-[#B0C6E5]">Total a pagar</p>
             <p className="text-2xl font-bold">{fmt(totales.total)}</p>
           </div>
         </div>
