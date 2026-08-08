@@ -20,6 +20,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { PromocionesMes } from "@/components/admin/PromocionesMes";
+
 
 export const Route = createFileRoute("/_authenticated/admin/promociones")({
   component: PromosPage,
