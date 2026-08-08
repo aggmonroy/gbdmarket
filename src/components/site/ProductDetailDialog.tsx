@@ -20,6 +20,8 @@ export type ProductLite = {
   features?: string[] | null;
   price_cash?: number | null;
   stock?: number | null;
+  disponibilidad?: string | null;
+
   images: string[];
   datasheet_url?: string | null;
 };
