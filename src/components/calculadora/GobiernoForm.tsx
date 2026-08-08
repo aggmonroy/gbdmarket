@@ -70,15 +70,15 @@ export function GobiernoForm({ producto, index, linea, onChange, onRemove, canRe
         <div className="flex-1 grid grid-cols-2 gap-3">
           <div className="col-span-2">
             <Text
-              label="Código del producto (columna Referencia)"
+              label="Modelo del artículo"
               value={producto.referencia || ""}
               onChange={(v) => onChange(producto.id, "referencia", v)}
-              placeholder="Ej. OLLA-5L / 7501234567890"
+              placeholder="Ej. WD-5000 / OLLA-5L"
             />
           </div>
           <div className="col-span-2">
             <label className="text-[10px] uppercase tracking-wide text-[#68758A] font-bold">
-              Descripción del producto (columna Detalle)
+              Nombre del producto
             </label>
             <textarea
               value={producto.descripcion || ""}
@@ -95,7 +95,7 @@ export function GobiernoForm({ producto, index, linea, onChange, onRemove, canRe
             onChange={(v) => onChange(producto.id, "cantidad", v)}
           />
           <Num
-            label="Precio unitario (B/.)"
+            label="Precio unitario etiqueta (incl. ITBMS)"
             value={producto.precioUnitario ?? ""}
             onChange={(v) => onChange(producto.id, "precioUnitario", v)}
           />
