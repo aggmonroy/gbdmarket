@@ -14,6 +14,7 @@ import {
   ListChecks,
   ListTodo,
   LogOut,
+  Package,
   Printer,
   ShieldCheck,
 } from "lucide-react";
@@ -38,6 +39,7 @@ import {
 import { TareasPanel } from "@/components/portal/TareasPanel";
 import { SolicitudesActivas } from "@/components/portal/SolicitudesActivas";
 import { CasosCerrados } from "@/components/portal/CasosCerrados";
+import { CatalogoPortal } from "@/components/portal/CatalogoPortal";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -56,7 +58,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
-  const [vista, setVista] = useState<"menu" | "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas">("menu");
+  const [vista, setVista] = useState<"menu" | "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas" | "catalogo">("menu");
 
   useEffect(() => {
     const raw = sessionStorage.getItem(KEY);
@@ -107,6 +109,7 @@ function Portal() {
         {vista === "pedidos" && <Pedidos sesion={sesion} />}
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
+        {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
       </div>
     </div>
   );
@@ -191,7 +194,7 @@ function Menu({
   ir,
 }: {
   sesion: Sesion;
-  ir: (v: "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas") => void;
+  ir: (v: "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas" | "catalogo") => void;
 }) {
   const rol = sesion.colaborador.rol;
   return (
@@ -236,6 +239,12 @@ function Menu({
         texto="Tareas pendientes de todos los colaboradores y entregas programadas."
         icon={CalendarDays}
         onClick={() => ir("calendario")}
+      />
+      <Area
+        titulo="Catálogo de productos"
+        texto="Crea y edita productos de Línea Blanca y Bordados, con lectura automática del enlace del proveedor."
+        icon={Package}
+        onClick={() => ir("catalogo")}
       />
       {rol === "admin" && (
         <Area
