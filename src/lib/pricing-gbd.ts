@@ -8,16 +8,24 @@ export const MARKUP_CREDITO_ASOCIADO = 1.28; // G26 = G18*1.28
 export const MARKUP_CREDITO_TERCERO = 1.48; // P26 = G18*1.48
 export const DESC_MAX_ASOCIADO = 0.1; // N16 tope 10%
 export const DESC_MAX_TERCERO = 0.07; // N22 tope 7%
+export const DESC_MAX_GOBIERNO = 0.1; // tope 10% editable (institucional)
 export const PLAZOS = [4, 6, 8, 10, 12, 18, 24] as const;
 
-export type TipoCliente = "asociado" | "colaborador" | "tercero";
+export type TipoCliente = "asociado" | "colaborador" | "tercero" | "gobierno";
 
 // Colaboradores GBD usan las mismas reglas que asociados,
 // pero la promo a precio de etiqueta es a 6 meses (asociado: 3 meses).
 export const esAsociado = (t: TipoCliente) => t === "asociado" || t === "colaborador";
+export const esGobierno = (t: TipoCliente) => t === "gobierno";
 export const mesesPromoContado = (t: TipoCliente) => (t === "colaborador" ? 6 : 3);
 export const etiquetaTipoCliente = (t: TipoCliente) =>
-  t === "asociado" ? "Asociado" : t === "colaborador" ? "Colaborador GBD" : "No asociado";
+  t === "asociado"
+    ? "Asociado"
+    : t === "colaborador"
+      ? "Colaborador GBD"
+      : t === "gobierno"
+        ? "Gobierno / Institución"
+        : "No asociado";
 
 export interface ProductoInput {
   id: string;
@@ -30,7 +38,13 @@ export interface ProductoInput {
   descTerceroPct: number;
   imagen?: string;
   descripcion?: string;
+  // Cotización institucional (Gobierno)
+  referencia?: string;
+  cantidad?: string | number;
+  precioUnitario?: string | number;
+  descGobiernoPct?: number;
 }
+
 
 export interface ClienteInfo {
   nombre: string;
