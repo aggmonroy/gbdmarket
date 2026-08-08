@@ -83,13 +83,21 @@ function useGallerySection(section: string, fallback: GalleryItem[]) {
     staleTime: 60 * 60 * 1000,
   });
   const items: GalleryItem[] = (data && data.length > 0)
-    ? data.map((d) => ({
-        image_url: d.image_url ?? "",
-        title: d.title ?? "",
-        subtitle: d.subtitle ?? "",
-        href: d.cta_url ?? "/catalogo",
-      }))
+    ? data.map((d) => {
+        const raw = d.cta_url ?? "/catalogo";
+        const [path, qs] = raw.split("?");
+        const search: Record<string, string> = {};
+        if (qs) new URLSearchParams(qs).forEach((v, k) => { search[k] = v; });
+        return {
+          image_url: d.image_url ?? "",
+          title: d.title ?? "",
+          subtitle: d.subtitle ?? "",
+          href: path || "/catalogo",
+          search,
+        };
+      })
     : fallback;
+
   return items;
 }
 
