@@ -8,7 +8,8 @@ import { crearPreorden } from "@/lib/pedidos.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { DataConsent } from "@/components/site/DataConsent";
 import { toast } from "sonner";
-import { FileText, MessageCircle, Package } from "lucide-react";
+import { FileText, MessageCircle, Package, ShoppingCart } from "lucide-react";
+import { useCart } from "@/lib/cart";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 
 
@@ -36,7 +37,23 @@ export function ProductDetailDialog({
   const [notes, setNotes] = useState("");
   const [consent, setConsent] = useState(false);
   const crear = useServerFn(crearPreorden);
+  const { add, setAbierto } = useCart();
   if (!product) return null;
+
+  const agregarAlCarrito = () => {
+    add({
+      id: product.id,
+      name: product.name,
+      brand: product.brand ?? null,
+      model: product.model ?? null,
+      code: product.code ?? null,
+      image: product.images?.[0] ?? null,
+      disponibilidad: product.disponibilidad ?? null,
+    });
+    toast.success("Agregado al carrito de cotización");
+    onOpenChange(false);
+    setAbierto(true);
+  };
 
   const sendWa = async () => {
     if (!customerName.trim()) { toast.error("Ingresa tu nombre"); return; }
@@ -122,7 +139,14 @@ export function ProductDetailDialog({
               </ul>
             )}
 
-            <div className="mt-6 rounded-xl border border-border bg-primary-soft/40 p-4">
+            <Button onClick={agregarAlCarrito} className="mt-6 w-full" size="lg" variant="outline">
+              <ShoppingCart className="mr-2 h-4 w-4" /> Agregar al carrito de cotización
+            </Button>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Puedes sumar varios artículos y solicitar una sola cotización al final.
+            </p>
+
+            <div className="mt-4 rounded-xl border border-border bg-primary-soft/40 p-4">
               <div className="text-sm font-semibold text-primary">Cotización por WhatsApp</div>
               <p className="mt-1 text-xs text-muted-foreground">
                 Todas nuestras cotizaciones y ventas se realizan de forma personalizada por WhatsApp. Envíanos tus datos y te atendemos al instante.
