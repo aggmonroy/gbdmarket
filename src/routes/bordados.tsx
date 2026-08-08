@@ -55,6 +55,7 @@ type FormVals = z.infer<typeof schema>;
 function Bordados() {
   const [submitting, setSubmitting] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
   const crearPre = useServerFn(crearPreorden);
   const crearBordado = useServerFn(crearSolicitudBordado);
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ function Bordados() {
   });
 
   const onSubmit = async (vals: FormVals) => {
+    if (!policyAccepted) { toast.error("Debes aceptar las condiciones de bordado y tiempos de entrega"); return; }
     if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setSubmitting(true);
     try {
@@ -77,6 +79,7 @@ function Bordados() {
         placement: vals.placement || "",
         notes: vals.notes || "",
         consent: true,
+        policy_accepted: true,
         sin_tarea: true,
       } as any });
       const r: any = await crearPre({ data: {
