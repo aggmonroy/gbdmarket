@@ -19,6 +19,7 @@ import {
   normalizarEstado,
 } from "@/lib/tareas-shared";
 import { ReporteRango } from "./ReporteRango";
+import { SeguimientoDialog } from "./SeguimientoDialog";
 
 type Sesion = { token: string; colaborador: { id: string; nombre: string; rol: string } };
 
@@ -130,6 +131,16 @@ export function SolicitudesActivas({ sesion }: { sesion: Sesion }) {
                         </a>
                       </Button>
                     )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SeguimientoDialog
+                      token={sesion.token}
+                      tareaId={t.id}
+                      titulo={`${t.numero_orden} · ${t.titulo}`}
+                      soloLectura={soloLectura}
+                      onSaved={() => refetch()}
+                    />
                   </div>
 
                   {!soloLectura && (
