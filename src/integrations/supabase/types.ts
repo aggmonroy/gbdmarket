@@ -949,6 +949,54 @@ export type Database = {
         }
         Relationships: []
       }
+      tarea_seguimientos: {
+        Row: {
+          creado_por: string | null
+          created_at: string
+          fecha: string
+          id: string
+          tarea_id: string
+          texto: string
+          via: string
+          via_detalle: string | null
+        }
+        Insert: {
+          creado_por?: string | null
+          created_at?: string
+          fecha?: string
+          id?: string
+          tarea_id: string
+          texto: string
+          via: string
+          via_detalle?: string | null
+        }
+        Update: {
+          creado_por?: string | null
+          created_at?: string
+          fecha?: string
+          id?: string
+          tarea_id?: string
+          texto?: string
+          via?: string
+          via_detalle?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarea_seguimientos_creado_por_fkey"
+            columns: ["creado_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tarea_seguimientos_tarea_id_fkey"
+            columns: ["tarea_id"]
+            isOneToOne: false
+            referencedRelation: "tareas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tareas: {
         Row: {
           aceptada_en: string | null
@@ -1211,7 +1259,13 @@ export type Database = {
         | "revision"
         | "cerrada_cliente_credito"
         | "cerrada_proveedor_cliente"
-      garantia_via: "Llamada" | "WhatsApp" | "Correo electrónico"
+      garantia_via:
+        | "Llamada"
+        | "WhatsApp"
+        | "Correo electrónico"
+        | "Personalmente"
+        | "A domicilio"
+        | "Otro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1368,7 +1422,14 @@ export const Constants = {
         "cerrada_cliente_credito",
         "cerrada_proveedor_cliente",
       ],
-      garantia_via: ["Llamada", "WhatsApp", "Correo electrónico"],
+      garantia_via: [
+        "Llamada",
+        "WhatsApp",
+        "Correo electrónico",
+        "Personalmente",
+        "A domicilio",
+        "Otro",
+      ],
     },
   },
 } as const
