@@ -8,7 +8,8 @@ export async function admin() {
 }
 
 function secret(): string {
-  const s = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Secreto estable del portal: no depende de llaves que pueden rotar al remixar el proyecto.
+  const s = process.env['PORTAL_PIN_SECRET'] ?? process.env['SUPABASE_SERVICE_ROLE_KEY'];
   if (!s) throw new Error("Falta la configuración del servidor");
   return `garantias:${s}`;
 }
