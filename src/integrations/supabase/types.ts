@@ -376,6 +376,36 @@ export type Database = {
         }
         Relationships: []
       }
+      cotizaciones: {
+        Row: {
+          capacidad: Json | null
+          cliente: Json | null
+          creado_en: string
+          id: string
+          modo: string
+          productos: Json
+          tipo_cliente: string
+        }
+        Insert: {
+          capacidad?: Json | null
+          cliente?: Json | null
+          creado_en?: string
+          id?: string
+          modo: string
+          productos: Json
+          tipo_cliente: string
+        }
+        Update: {
+          capacidad?: Json | null
+          cliente?: Json | null
+          creado_en?: string
+          id?: string
+          modo?: string
+          productos?: Json
+          tipo_cliente?: string
+        }
+        Relationships: []
+      }
       embroidery_requests: {
         Row: {
           colors: string | null
@@ -1146,6 +1176,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      limpiar_cotizaciones_vencidas: { Args: never; Returns: undefined }
       next_numero_garantia: { Args: { _fecha: string }; Returns: string }
       next_numero_pedido: { Args: { _fecha: string }; Returns: string }
       next_numero_tarea: {
