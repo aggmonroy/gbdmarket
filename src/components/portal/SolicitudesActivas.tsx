@@ -24,7 +24,13 @@ import { SeguimientoDialog } from "./SeguimientoDialog";
 type Sesion = { token: string; colaborador: { id: string; nombre: string; rol: string } };
 
 /** Dashboard clickeable de todo lo pendiente: pedidos, bordados, garantías e interacciones. */
-export function SolicitudesActivas({ sesion }: { sesion: Sesion }) {
+export function SolicitudesActivas({
+  sesion,
+  onAbrirCotizacion,
+}: {
+  sesion: Sesion;
+  onAbrirCotizacion?: (tareaId: string) => void;
+}) {
   const rol = sesion.colaborador.rol;
   const soloLectura = rol === "gerente";
   const listFn = useServerFn(solicitudesActivas);
@@ -124,6 +130,11 @@ export function SolicitudesActivas({ sesion }: { sesion: Sesion }) {
                         {t.apoyo && ` · Apoyo: ${t.apoyo}`} · Abierta hace {diasEntre(t.created_at) ?? 0} día(s)
                       </p>
                     </div>
+                    {t.origen === "cotizacion" && onAbrirCotizacion && (
+                      <Button size="sm" onClick={() => onAbrirCotizacion(t.id)}>
+                        Abrir calculadora de precios
+                      </Button>
+                    )}
                     {t.documento_url && (
                       <Button variant="outline" size="sm" asChild>
                         <a href={t.documento_url} target="_blank" rel="noreferrer">
