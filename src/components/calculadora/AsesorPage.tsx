@@ -146,10 +146,34 @@ export function AsesorPage({
             >
               <Users size={16} /> No asociado (tercero)
             </button>
+            <button
+              onClick={() => setTipoCliente("gobierno")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold border transition-colors ${
+                tipoCliente === "gobierno" ? "bg-[#1F6DD8] text-white border-[#1F6DD8]" : "bg-white text-[#535E6F] border-[#DBE2EB]"
+              }`}
+            >
+              <Landmark size={16} /> Gobierno
+            </button>
           </div>
         </div>
 
-        {vista === "asesor" && (
+        {esGobierno(tipoCliente) && (
+          <GobiernoSeccion
+            vista={vista}
+            productos={productos}
+            cliente={cliente}
+            updateCliente={updateCliente}
+            updateProducto={updateProducto}
+            removeProducto={removeProducto}
+            addProducto={addProducto}
+            finalizando={finalizando}
+            etiquetaFinalizar={etiquetaFinalizar}
+            onFinalizar={onFinalizar ? () => onFinalizar({ tipoCliente, cliente, productos }) : undefined}
+          />
+        )}
+
+        {!esGobierno(tipoCliente) && vista === "asesor" && (
+
           <>
             <div className="bg-white rounded-xl border border-[#DBE2EB] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F] mb-2 flex items-center gap-1.5">
