@@ -59,27 +59,27 @@ export function DestacadosMes() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,brand,images,is_featured,views_count,categories(slug)")
+        .select("id,name,brand,images,categories(slug)")
         .eq("is_published", true)
-        .order("is_featured", { ascending: false })
-        .order("views_count", { ascending: false })
-        .limit(12);
+        .limit(200);
       if (error) throw error;
       return data ?? [];
     },
     staleTime: 30 * 60 * 1000,
   });
 
-  const deDb: Destacado[] = (data ?? [])
-    .filter((p) => (p as any).categories?.slug !== "bordados")
-    .slice(0, 5)
-    .map((p) => ({
-      name: p.name,
-      brand: p.brand,
-      image_url: p.images?.[0] ?? null,
-      nota: "Destacado del mes",
-      search: { q: p.name },
-    }));
+  const elegibles = (data ?? []).filter((p) => (p as any).categories?.slug !== "bordados");
+
+  // Selección aleatoria del catálogo (excluye bordados)
+  const azar = [...elegibles].sort(() => Math.random() - 0.5);
+
+  const deDb: Destacado[] = azar.slice(0, 5).map((p) => ({
+    name: p.name,
+    brand: p.brand,
+    image_url: p.images?.[0] ?? null,
+    nota: "Promoción del mes",
+    search: { q: p.name },
+  }));
 
   const items = deDb.length >= 5 ? deDb : CURADOS;
 
@@ -89,11 +89,9 @@ export function DestacadosMes() {
         <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary">
           <Sparkles className="h-3.5 w-3.5" /> Selección del mes
         </span>
-        <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">Productos destacados del mes</h2>
-        <p className="mt-3 text-muted-foreground">
-          Los artículos con mayor demanda según las tendencias del mercado.
-        </p>
+        <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">PROMOCIONES DEL MES</h2>
       </div>
+
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {items.map((it) => (
