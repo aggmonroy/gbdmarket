@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Printer, FileDown } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { getCotizacion, eliminarCotizacion } from "@/lib/cotizaciones.functions";
 import {
   calcularProducto,
   calcularTotales,
@@ -37,15 +37,11 @@ export function ImprimirPage({ id }: { id: string }) {
         setEstado("no-encontrado");
         return;
       }
-      const { data, error } = await supabase
-        .from("cotizaciones")
-        .select("tipo_cliente, productos, creado_en, cliente, capacidad")
-        .eq("id", id)
-        .eq("modo", "imprimir")
-        .maybeSingle();
+      const data = await getCotizacion({ data: { id, modo: "imprimir" } }).catch(() => null);
 
       if (!activo) return;
-      if (error || !data) {
+      if (!data) {
+        const error = new Error("Documento no encontrado");
         console.error("Error cargando documento para imprimir:", error);
         setEstado("no-encontrado");
         return;
@@ -60,8 +56,9 @@ export function ImprimirPage({ id }: { id: string }) {
 
   const eliminarEnlace = useCallback(async () => {
     if (id) {
-      const { error } = await supabase.from("cotizaciones").delete().eq("id", id);
-      if (error) console.error("No se pudo eliminar la cotización:", error);
+      await eliminarCotizacion({ data: { id } }).catch((error) =>
+        console.error("No se pudo eliminar la cotización:", error),
+      );
     }
     setEstado("usado");
   }, [id]);

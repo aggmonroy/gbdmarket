@@ -4,13 +4,22 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { verifySesion } from "./garantias.server";
 
 const ALLOWED_BUCKETS = new Set(["site-assets", "product-images"]);
+// Bucket propio del portal por PIN: nunca toca el branding ni el catálogo público.
+const PORTAL_BUCKET = "portal-uploads";
 // ~30 years in seconds — practical "forever" for a signed URL.
 const SIGNED_URL_TTL = 60 * 60 * 24 * 365 * 30;
 
 const fileSchema = z.object({
   bucket: z.string().refine((b) => ALLOWED_BUCKETS.has(b), "Bucket no permitido"),
   filename: z.string().min(1).max(200),
-  contentType: z.string().min(1).max(160),
+  contentType: z
+    .string()
+    .min(1)
+    .max(160)
+    .refine(
+      (t) => !/svg|xhtml|text\/html|javascript/i.test(t),
+      "Formato no permitido: convierte la imagen a PNG o JPG",
+    ),
   base64: z.string().min(1).max(36_000_000), // ~26 MB decodificados
 });
 
@@ -54,6 +63,7 @@ export const uploadAssetPortal = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const s = await verifySesion(data.token);
     if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
-    const { token, ...rest } = data;
-    return guardar(rest);
+    const { token, bucket, ...rest } = data;
+    // Solo un administrador con sesión real puede escribir en los buckets del sitio.
+    return guardar({ ...rest, bucket: s.rol === "admin" ? bucket : PORTAL_BUCKET });
   });

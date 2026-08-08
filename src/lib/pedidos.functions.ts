@@ -64,7 +64,19 @@ export const getPedido = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("No encontramos este pedido");
-    return row as any;
+    // El número de pedido es secuencial y adivinable: nunca exponer el contacto completo.
+    const maskTel = (v: string | null) => (v ? `••••${v.replace(/\D/g, "").slice(-4)}` : v);
+    const maskMail = (v: string | null) => {
+      if (!v || !v.includes("@")) return v;
+      const [u, d] = v.split("@");
+      return `${(u ?? "").slice(0, 2)}•••@${d}`;
+    };
+    const r = row as any;
+    return {
+      ...r,
+      cliente_telefono: maskTel(r.cliente_telefono ?? null),
+      cliente_email: maskMail(r.cliente_email ?? null),
+    } as any;
   });
 
 /* --------------------- Portal de colaboradores (sesión por PIN) --------------------- */

@@ -12,36 +12,6 @@ async function assertAdmin(supabase: any, userId: string) {
  * Bootstrap the very first admin. Creates an auth user via admin API and
  * grants admin role. Only succeeds if no admin user exists yet.
  */
-export const bootstrapFirstAdmin = createServerFn({ method: "POST" })
-  .inputValidator((d: { email: string; password: string }) =>
-    z.object({
-      email: z.string().email(),
-      password: z.string().min(8).max(72),
-    }).parse(d),
-  )
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { count, error: cErr } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
-    if (cErr) throw new Error(cErr.message);
-    if ((count ?? 0) > 0) throw new Error("Ya existe un administrador. Pide una invitación.");
-
-    const { data: created, error: uErr } = await supabaseAdmin.auth.admin.createUser({
-      email: data.email,
-      password: data.password,
-      email_confirm: true,
-    });
-    if (uErr || !created.user) throw new Error(uErr?.message ?? "No se pudo crear el usuario");
-
-    const { error: rErr } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: created.user.id, role: "admin" });
-    if (rErr) throw new Error(rErr.message);
-    return { ok: true };
-  });
-
 /** Returns whether the cooperative already has at least one admin (for UI). */
 export const hasAnyAdmin = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

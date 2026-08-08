@@ -44,19 +44,75 @@ function textoDePagina(html: string) {
   return { texto, imagenes: [...new Set([...og, ...imgs])].slice(0, 10) };
 }
 
+/**
+ * Guardia anti-SSRF: solo https público, sin IP privadas ni endpoints de metadatos.
+ */
+const BLOQUEADOS = [
+  /^localhost$/i,
+  /\.local$/i,
+  /^169\.254\./,
+  /^127\./,
+  /^10\./,
+  /^192\.168\./,
+  /^172\.(1[6-9]|2\d|3[01])\./,
+  /^0\./,
+  /^metadata\./i,
+  /^\[?::1\]?$/,
+  /^\[?f[cd]/i,
+];
+
+function urlSegura(raw: string): URL {
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    throw new Error("El enlace no es válido.");
+  }
+  if (u.protocol !== "https:") throw new Error("Solo se permiten enlaces https públicos.");
+  const host = u.hostname.toLowerCase();
+  if (!host.includes(".") || BLOQUEADOS.some((r) => r.test(host))) {
+    throw new Error("Ese enlace apunta a una dirección interna y no se puede leer.");
+  }
+  return u;
+}
+
 export async function leerFichaDesdeUrl(url: string, categorias: string[]): Promise<FichaProducto> {
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) throw new Error("Falta la configuración de IA en el servidor");
 
-  const res = await fetch(url, {
+  const segura = urlSegura(url);
+
+  const res = await fetch(segura.toString(), {
     headers: { "user-agent": "Mozilla/5.0 (compatible; GBDMarketBot/1.0)", accept: "text/html,*/*" },
-    redirect: "follow",
+    redirect: "manual",
   }).catch(() => null);
+  if (res && res.status >= 300 && res.status < 400) {
+    const loc = res.headers.get("location");
+    if (!loc) throw new Error("No se pudo leer la página del proveedor. Revisa el enlace.");
+    const dest = urlSegura(new URL(loc, segura).toString());
+    const res2 = await fetch(dest.toString(), {
+      headers: { "user-agent": "Mozilla/5.0 (compatible; GBDMarketBot/1.0)", accept: "text/html,*/*" },
+      redirect: "manual",
+    }).catch(() => null);
+    if (!res2 || !res2.ok) throw new Error("No se pudo leer la página del proveedor. Revisa el enlace.");
+    const html2 = await res2.text();
+    const t2 = textoDePagina(html2);
+    if (t2.texto.length < 80) throw new Error("La página del proveedor no devolvió contenido legible.");
+    return generarFicha(t2, dest.toString(), categorias, key);
+  }
   if (!res || !res.ok) throw new Error("No se pudo leer la página del proveedor. Revisa el enlace.");
   const html = await res.text();
-  const { texto, imagenes } = textoDePagina(html);
-  if (texto.length < 80) throw new Error("La página del proveedor no devolvió contenido legible.");
+  const t = textoDePagina(html);
+  if (t.texto.length < 80) throw new Error("La página del proveedor no devolvió contenido legible.");
+  return generarFicha(t, segura.toString(), categorias, key);
+}
 
+async function generarFicha(
+  { texto, imagenes }: { texto: string; imagenes: string[] },
+  url: string,
+  categorias: string[],
+  key: string,
+): Promise<FichaProducto> {
   const ai = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", "Lovable-API-Key": key },

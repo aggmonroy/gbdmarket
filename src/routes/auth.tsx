@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { bootstrapFirstAdmin, hasAnyAdmin } from "@/lib/admin.functions";
+import { hasAnyAdmin } from "@/lib/admin.functions";
 import { getAdminAccess } from "@/lib/admin-auth.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,9 +35,8 @@ function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
   const checkAdmin = useServerFn(hasAnyAdmin);
-  const bootstrap = useServerFn(bootstrapFirstAdmin);
   const access = useServerFn(getAdminAccess);
-  const { data: status, refetch } = useQuery({
+  const { data: status } = useQuery({
     queryKey: ["has-admin"],
     queryFn: () => checkAdmin(),
   });
@@ -47,19 +46,12 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [recovering, setRecovering] = useState(false);
 
-  const isBootstrap = status && !status.hasAdmin;
+  const necesitaConfiguracion = status && !status.hasAdmin;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      if (isBootstrap) {
-        await bootstrap({ data: { email, password } });
-        toast.success("Administrador creado. Inicia sesión.");
-        await refetch();
-        return;
-      }
-
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
@@ -143,11 +135,11 @@ function AuthPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="font-display text-2xl">
-            {isBootstrap ? "Configurar primer administrador" : "Acceso administrativo"}
+            Acceso administrativo
           </CardTitle>
           <CardDescription>
-            {isBootstrap
-              ? "Crea la cuenta del primer administrador para gestionar el catálogo."
+            {necesitaConfiguracion
+              ? "Aún no hay administradores configurados. Solicita al equipo técnico la configuración inicial."
               : "Solo el personal autorizado de la cooperativa puede ingresar."}
           </CardDescription>
         </CardHeader>
@@ -169,7 +161,7 @@ function AuthPage() {
               <Input
                 id="password"
                 type="password"
-                autoComplete={isBootstrap ? "new-password" : "current-password"}
+                autoComplete="current-password"
                 required
                 minLength={8}
                 value={password}
@@ -177,10 +169,9 @@ function AuthPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Procesando..." : isBootstrap ? "Crear administrador" : "Ingresar"}
+              {loading ? "Procesando..." : "Ingresar"}
             </Button>
-            {!isBootstrap && (
-              <>
+            <>
                 <Button
                   type="button"
                   variant="link"
@@ -193,7 +184,6 @@ function AuthPage() {
                   ¿No tienes cuenta? Solicita una invitación a un administrador existente.
                 </p>
               </>
-            )}
           </form>
         </CardContent>
       </Card>
