@@ -23,6 +23,12 @@ export const solicitudPinSchema = z.object({
   nuevo_pin: pin4,
 });
 
+/** Solicitud de cambio de PIN escribiendo la cédula (portal de colaboradores). */
+export const solicitudPinCedulaSchema = z.object({
+  cedula: z.string().trim().min(3).max(40),
+  nuevo_pin: pin4,
+});
+
 export const crearGarantiaSchema = z.object({
   token: z.string().min(1),
   pin: pin4,

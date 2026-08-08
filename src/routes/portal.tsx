@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { loginConCedula } from "@/lib/garantias.functions";
+import { loginConCedula, solicitarCambioPinPorCedula } from "@/lib/garantias.functions";
 import { agendaDelDia } from "@/lib/pedidos.functions";
 import { ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos-shared";
 import { TareasPanel } from "@/components/portal/TareasPanel";
@@ -116,9 +116,11 @@ function Portal() {
 
 function Ingreso({ onLogin }: { onLogin: (s: Sesion, recordar: boolean) => void }) {
   const loginFn = useServerFn(loginConCedula);
+  const solicitarFn = useServerFn(solicitarCambioPinPorCedula);
   const [cedula, setCedula] = useState("");
   const [pin, setPin] = useState("");
   const [recordar, setRecordar] = useState(false);
+  const [modoOlvido, setModoOlvido] = useState(false);
 
   const login = useMutation({
     mutationFn: () => loginFn({ data: { cedula, pin, recordar } }) as any,
@@ -126,17 +128,30 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion, recordar: boolean) => void 
     onError: (e: any) => toast.error(e.message ?? "No se pudo ingresar"),
   });
 
+  const solicitud = useMutation({
+    mutationFn: () => solicitarFn({ data: { cedula, nuevo_pin: pin } }) as any,
+    onSuccess: () => {
+      toast.success("Solicitud enviada. Un administrador debe aprobarla.");
+      setModoOlvido(false);
+      setPin("");
+    },
+    onError: (e: any) => toast.error(e.message ?? "No se pudo enviar la solicitud"),
+  });
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
-            <KeyRound className="h-5 w-5 text-primary" /> Acceso de colaboradores
+            <KeyRound className="h-5 w-5 text-primary" />
+            {modoOlvido ? "Solicitar nuevo PIN" : "Acceso de colaboradores"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Escribe tu número de cédula y tu código PIN de 4 dígitos.
+            {modoOlvido
+              ? "Escribe tu cédula y el nuevo PIN que quieres usar. Un administrador debe aprobar el cambio."
+              : "Escribe tu número de cédula y tu código PIN de 4 dígitos."}
           </p>
           <div className="space-y-2">
             <Label htmlFor="cedula">Cédula</Label>
@@ -149,11 +164,11 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion, recordar: boolean) => void 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="pin">Código PIN</Label>
+            <Label htmlFor="pin">{modoOlvido ? "Nuevo PIN (4 dígitos)" : "Código PIN"}</Label>
             <Input
               id="pin"
               type="password"
-              autoComplete="current-password"
+              autoComplete={modoOlvido ? "new-password" : "current-password"}
               inputMode="numeric"
               maxLength={4}
               value={pin}
@@ -161,29 +176,42 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion, recordar: boolean) => void 
               placeholder="••••"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              className="h-4 w-4 accent-primary"
-              checked={recordar}
-              onChange={(e) => setRecordar(e.target.checked)}
-            />
-            Mantener sesión iniciada en este equipo de confianza
-          </label>
+          {!modoOlvido && (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-primary"
+                checked={recordar}
+                onChange={(e) => setRecordar(e.target.checked)}
+              />
+              Mantener sesión iniciada en este equipo de confianza
+            </label>
+          )}
           <Button
             className="w-full"
-            disabled={cedula.trim().length < 3 || pin.length !== 4 || login.isPending}
-            onClick={() => login.mutate()}
+            disabled={
+              cedula.trim().length < 3 || pin.length !== 4 || login.isPending || solicitud.isPending
+            }
+            onClick={() => (modoOlvido ? solicitud.mutate() : login.mutate())}
           >
-            {login.isPending ? "Verificando…" : "Ingresar"}
+            {modoOlvido
+              ? solicitud.isPending
+                ? "Enviando…"
+                : "Enviar solicitud de PIN"
+              : login.isPending
+                ? "Verificando…"
+                : "Ingresar"}
           </Button>
-          <p className="text-center text-xs text-muted-foreground">
-            ¿Olvidaste tu PIN? Solicita el cambio desde el{" "}
-            <Link to="/modulo-garantias" className="text-primary hover:underline">
-              módulo de garantías
-            </Link>
-            .
-          </p>
+          <button
+            type="button"
+            className="w-full text-sm text-muted-foreground underline"
+            onClick={() => {
+              setModoOlvido((v) => !v);
+              setPin("");
+            }}
+          >
+            {modoOlvido ? "Volver al ingreso" : "¿Olvidaste tu PIN?"}
+          </button>
         </CardContent>
       </Card>
     </div>

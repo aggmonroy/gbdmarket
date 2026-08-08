@@ -28,6 +28,7 @@ import {
   resolverPinSchema,
   seguimientoSchema,
   solicitudPinSchema,
+  solicitudPinCedulaSchema,
   tokenSchema,
 } from "./garantias.schemas";
 
@@ -74,6 +75,31 @@ export const solicitarCambioPin = createServerFn({ method: "POST" })
     if (!c || !c.activo || c.deleted_at) throw new Error("Colaborador no disponible");
     if (!c.cedula) throw new Error("No tienes cédula registrada. Pide al administrador que fije tu PIN.");
     if (c.cedula.replace(/\s/g, "") !== data.cedula.replace(/\s/g, "")) throw new Error("La cédula no coincide");
+    const salt = randomSalt();
+    const hash = await hashPin(data.nuevo_pin, salt);
+    const { error } = await sb.from("colaborador_pin_solicitudes").insert({
+      colaborador_id: c.id,
+      nuevo_pin_hash: hash,
+      nuevo_pin_salt: salt,
+    });
+    if (error) throw new Error("Ya tienes una solicitud pendiente de aprobación");
+    await sb.from("colaboradores").update({ pin_bloqueado: true }).eq("id", c.id);
+    return { ok: true };
+  });
+
+/** Solicitud de cambio de PIN desde el portal de colaboradores (solo cédula). */
+export const solicitarCambioPinPorCedula = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => solicitudPinCedulaSchema.parse(d))
+  .handler(async ({ data }) => {
+    const sb = await admin();
+    const norm = (v: string) => v.replace(/[^0-9a-zA-Z]/g, "").toLowerCase();
+    const { data: lista } = await sb
+      .from("colaboradores")
+      .select("id,cedula")
+      .eq("activo", true)
+      .is("deleted_at", null);
+    const c = (lista ?? []).find((x: any) => x.cedula && norm(x.cedula) === norm(data.cedula));
+    if (!c) throw new Error("No encontramos una cuenta con esa cédula");
     const salt = randomSalt();
     const hash = await hashPin(data.nuevo_pin, salt);
     const { error } = await sb.from("colaborador_pin_solicitudes").insert({

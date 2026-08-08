@@ -33,15 +33,12 @@ import {
   getGarantia,
   leerFacturaIA,
   listBitacoraCerradas,
-  listColaboradoresLogin,
   listGarantiasAbiertas,
   listSolicitudesCierre,
-  loginConPin,
   misTareasPendientes,
   numeroGarantiaPreview,
   rechazarCierre,
   reporteTokenGarantia,
-  solicitarCambioPin,
   solicitarCierre,
   subirEvidencia,
   validarCierre,
@@ -74,22 +71,25 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function useSesion() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
+  const [listo, setListo] = useState(false);
   useEffect(() => {
-    const raw = sessionStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) ?? sessionStorage.getItem(KEY);
     if (raw) {
       try {
         setSesion(JSON.parse(raw));
       } catch {
+        localStorage.removeItem(KEY);
         sessionStorage.removeItem(KEY);
       }
     }
+    setListo(true);
   }, []);
-  const guardar = (s: Sesion | null) => {
-    if (s) sessionStorage.setItem(KEY, JSON.stringify(s));
-    else sessionStorage.removeItem(KEY);
-    setSesion(s);
+  const salir = () => {
+    localStorage.removeItem(KEY);
+    sessionStorage.removeItem(KEY);
+    setSesion(null);
   };
-  return [sesion, guardar] as const;
+  return { sesion, listo, salir };
 }
 
 async function fileToBase64(file: File): Promise<string> {
@@ -100,39 +100,15 @@ async function fileToBase64(file: File): Promise<string> {
 }
 
 function ModuloGarantias() {
-  const [sesion, setSesion] = useSesion();
-  if (!sesion) return <PantallaPin onLogin={setSesion} />;
-  return <Panel sesion={sesion} onSalir={() => setSesion(null)} />;
+  const { sesion, listo, salir } = useSesion();
+  if (!listo) return null;
+  if (!sesion) return <SinSesion />;
+  return <Panel sesion={sesion} onSalir={salir} />;
 }
 
-/* ------------------------------- Ingreso por PIN ------------------------------- */
+/* ------------------------- Sin sesión: entrar por Colaboradores ------------------------- */
 
-function PantallaPin({ onLogin }: { onLogin: (s: Sesion) => void }) {
-  const colaboradoresFn = useServerFn(listColaboradoresLogin);
-  const loginFn = useServerFn(loginConPin);
-  const solicitarFn = useServerFn(solicitarCambioPin);
-  const { data: colaboradores = [] } = useQuery({ queryKey: ["colab-login"], queryFn: () => colaboradoresFn() });
-  const [id, setId] = useState("");
-  const [pin, setPin] = useState("");
-  const [modoOlvido, setModoOlvido] = useState(false);
-  const [cedula, setCedula] = useState("");
-
-  const login = useMutation({
-    mutationFn: () => loginFn({ data: { colaborador_id: id, pin } }),
-    onSuccess: (r: any) => onLogin(r),
-    onError: (e: any) => toast.error(e.message ?? "No se pudo ingresar"),
-  });
-  const solicitud = useMutation({
-    mutationFn: () => solicitarFn({ data: { colaborador_id: id, cedula, nuevo_pin: pin } }),
-    onSuccess: () => {
-      toast.success("Solicitud enviada. Un administrador debe aprobarla.");
-      setModoOlvido(false);
-      setPin("");
-      setCedula("");
-    },
-    onError: (e: any) => toast.error(e.message ?? "No se pudo enviar la solicitud"),
-  });
-
+function SinSesion() {
   return (
     <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md">
@@ -141,60 +117,14 @@ function PantallaPin({ onLogin }: { onLogin: (s: Sesion) => void }) {
             <KeyRound className="h-5 w-5 text-primary" />
             Trámite de garantías
           </CardTitle>
-          <p className="text-sm text-muted-foreground">Ingresa con tu PIN de colaborador.</p>
+          <p className="text-sm text-muted-foreground">
+            El ingreso y el cambio de PIN se realizan desde el acceso de Colaboradores.
+          </p>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Colaborador</Label>
-            <Select value={id} onValueChange={setId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona tu nombre" />
-              </SelectTrigger>
-              <SelectContent>
-                {colaboradores.map((c: any) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {modoOlvido && (
-            <div className="space-y-2">
-              <Label>Cédula registrada</Label>
-              <Input value={cedula} onChange={(e) => setCedula(e.target.value)} placeholder="8-888-8888" />
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Label>{modoOlvido ? "Nuevo PIN (4 dígitos)" : "PIN (4 dígitos)"}</Label>
-            <Input
-              value={pin}
-              inputMode="numeric"
-              maxLength={4}
-              type="password"
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              placeholder="••••"
-            />
-          </div>
-
-          <Button
-            className="w-full"
-            disabled={!id || pin.length !== 4 || login.isPending || solicitud.isPending}
-            onClick={() => (modoOlvido ? solicitud.mutate() : login.mutate())}
-          >
-            {(login.isPending || solicitud.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {modoOlvido ? "Enviar solicitud de PIN" : "Ingresar"}
+        <CardContent className="space-y-3">
+          <Button asChild className="w-full">
+            <Link to="/portal">Ir al acceso de Colaboradores</Link>
           </Button>
-
-          <button
-            type="button"
-            className="w-full text-sm text-muted-foreground underline"
-            onClick={() => setModoOlvido((v) => !v)}
-          >
-            {modoOlvido ? "Volver al ingreso normal" : "Olvidé mi PIN"}
-          </button>
           <Link to="/" className="block text-center text-xs text-muted-foreground hover:underline">
             Volver al sitio
           </Link>
