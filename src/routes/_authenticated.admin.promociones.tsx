@@ -103,7 +103,10 @@ function PromosPage() {
         <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" /> Nueva promoción</Button>
       </div>
 
+      <PromocionesMes />
+
       <Card>
+
         <CardHeader><CardTitle className="text-base">{rows.length} promoción(es)</CardTitle>
           <CardDescription>Marcar como inactiva para ocultar del sitio.</CardDescription></CardHeader>
         <CardContent>
