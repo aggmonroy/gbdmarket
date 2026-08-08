@@ -98,6 +98,9 @@ function ProductsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [csvText, setCsvText] = useState("");
   const [importing, setImporting] = useState(false);
+  const [enlaceIA, setEnlaceIA] = useState("");
+  const [leyendo, setLeyendo] = useState(false);
+  const leerFichaFn = useServerFn(leerFichaProveedor);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
