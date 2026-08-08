@@ -4,7 +4,7 @@ import {
   MessageCircle, ChevronLeft, ChevronRight, Scissors,
   ShieldCheck, Phone,
 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { QuoteFormDialog } from "@/components/site/QuoteFormDialog";
