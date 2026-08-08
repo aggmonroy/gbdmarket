@@ -1,6 +1,6 @@
-import type { CalculadoProducto, CapacidadInfo, ClienteInfo, PlazoCuota, TipoCliente } from "./pricing";
-import { esAsociado, etiquetaTipoCliente } from "./pricing";
-import { fmt } from "./pricing";
+import type { CalculadoProducto, CapacidadInfo, ClienteInfo, PlazoCuota, TipoCliente } from "./pricing-gbd";
+import { esAsociado, etiquetaTipoCliente } from "./pricing-gbd";
+import { fmt } from "./pricing-gbd";
 import logoIcono from "@/assets/calculadora/logo-icono.png";
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
