@@ -1,0 +1,5 @@
+UPDATE public.colaboradores SET pin_hash='9fae8fa53968013c681b057c98a8a0da95377d9bdba56c3a1c2106002a801c69', pin_salt='7dfbdb7a07fdbccd4c41441b29169765', pin_bloqueado=false WHERE id='b768b60f-09f6-4cf4-918b-9d063e3837bc';
+UPDATE public.colaboradores SET pin_hash='3643f078a426be0a48b02250daa7563059b0e926ccdb1225989018210b04abc5', pin_salt='b1e155c12e1fd0a8a2ac20e80a31af2d', pin_bloqueado=false WHERE id='7caf31e3-e834-4321-b118-7dbf3650db04';
+UPDATE public.colaboradores SET pin_hash='b264ca66a352cbab38073db127663246668b437f4a258bfa6c28f29fcb870865', pin_salt='e6499b3b8298b0c75544b2b76082280c', pin_bloqueado=false WHERE id='53531ce2-e568-4c07-88cb-990d82741eb0';
+UPDATE public.colaboradores SET pin_hash='fe47c93406188dae3b557c30c9d5f3ccabe9274035836be385956f397b3f144e', pin_salt='edba8ce9d52462d744fc3e6b81d45b98', pin_bloqueado=false WHERE id='892709bd-0950-4e18-8187-d0f432901667';
+DELETE FROM public.colaborador_pin_solicitudes WHERE estado = 'pendiente';
