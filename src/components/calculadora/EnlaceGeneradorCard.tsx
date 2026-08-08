@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link2, Copy, Check, Printer, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { telefonoAWhatsapp, type CalculadoProducto, type CapacidadInfo, type ClienteInfo, type TipoCliente } from "@/lib/pricing";
+import { telefonoAWhatsapp, type CalculadoProducto, type CapacidadInfo, type ClienteInfo, type TipoCliente } from "@/lib/pricing-gbd";
 
 interface Props {
   tipoCliente: TipoCliente;
@@ -84,11 +84,11 @@ export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, ca
   const Icono = esImprimir ? Printer : Link2;
 
   return (
-    <div className="bg-white rounded-xl border border-[#E4DDC9] p-4">
-      <p className="text-xs uppercase tracking-wide text-[#8A836C] font-bold mb-1 flex items-center gap-1.5">
+    <div className="bg-white rounded-xl border border-[#DBE2EB] p-4">
+      <p className="text-xs uppercase tracking-wide text-[#68758A] font-bold mb-1 flex items-center gap-1.5">
         <Icono size={14} /> {esImprimir ? "Enlace para imprimir" : "Enlace para el cliente"}
       </p>
-      <p className="text-[11px] text-[#B0A98C] mb-3">
+      <p className="text-[11px] text-[#8793A5] mb-3">
         {esImprimir
           ? "Genera un enlace de un solo uso: abre una página lista para imprimir y se elimina automáticamente en cuanto se imprime."
           : "Genera un enlace temporal (válido 30 días) donde el cliente ve su cotización en modo lectura, sin precios internos."}
@@ -99,7 +99,7 @@ export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, ca
           onClick={generar}
           disabled={estado === "generando"}
           className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-white font-bold text-sm transition-colors disabled:opacity-60 ${
-            esImprimir ? "bg-[#C97B3D] hover:bg-[#B36A2F]" : "bg-[#1F3A38] hover:bg-[#2E524F]"
+            esImprimir ? "bg-[#1F6DD8] hover:bg-[#0054BD]" : "bg-[#002362] hover:bg-[#003581]"
           }`}
         >
           <Icono size={16} /> {estado === "generando" ? "Generando enlace..." : "Generar enlace"}
@@ -120,11 +120,11 @@ export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, ca
               readOnly
               value={enlace}
               onClick={(e) => e.currentTarget.select()}
-              className="flex-1 min-w-0 border border-[#E4DDC9] rounded-lg px-2.5 py-2 text-xs text-[#6B6552] bg-[#F5F1E8]"
+              className="flex-1 min-w-0 border border-[#DBE2EB] rounded-lg px-2.5 py-2 text-xs text-[#535E6F] bg-[#F4F9FF]"
             />
             <button
               onClick={copiar}
-              className="shrink-0 flex items-center gap-1 px-3 rounded-lg border border-[#E4DDC9] text-xs font-bold text-[#1F3A38] hover:bg-[#F5F1E8]"
+              className="shrink-0 flex items-center gap-1 px-3 rounded-lg border border-[#DBE2EB] text-xs font-bold text-[#002362] hover:bg-[#F4F9FF]"
             >
               {copiado ? <Check size={14} /> : <Copy size={14} />}
               {copiado ? "Copiado" : "Copiar"}
@@ -137,12 +137,12 @@ export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, ca
             >
               <Share2 size={14} /> Enviar enlace por WhatsApp
             </button>
-            <button onClick={generar} className="px-3 rounded-lg border border-[#E4DDC9] text-xs font-bold text-[#6B6552] hover:bg-[#F5F1E8]">
+            <button onClick={generar} className="px-3 rounded-lg border border-[#DBE2EB] text-xs font-bold text-[#535E6F] hover:bg-[#F4F9FF]">
               Regenerar
             </button>
           </div>
           {esImprimir && (
-            <p className="text-[10px] text-[#B0A98C]">Este enlace deja de funcionar en cuanto alguien lo imprime desde ese link.</p>
+            <p className="text-[10px] text-[#8793A5]">Este enlace deja de funcionar en cuanto alguien lo imprime desde ese link.</p>
           )}
         </div>
       )}

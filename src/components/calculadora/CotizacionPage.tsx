@@ -9,10 +9,10 @@ import {
   type ProductoInput,
   type TipoCliente,
   esAsociado,
-} from "@/lib/pricing";
+} from "@/lib/pricing-gbd";
 import { VistaCliente } from "@/components/VistaCliente";
 import { ActionBar } from "@/components/ActionBar";
-import logoIcono from "@/assets/logo-icono.png";
+import logoIcono from "@/assets/calculadora/logo-icono.png";
 
 interface CotizacionRow {
   tipo_cliente: TipoCliente;
@@ -63,21 +63,21 @@ export function CotizacionPage({ id }: { id: string }) {
 
   if (estado === "cargando") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F1E8]">
-        <p className="text-[#1F3A38] font-bold text-sm">Cargando cotización...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#F4F9FF]">
+        <p className="text-[#002362] font-bold text-sm">Cargando cotización...</p>
       </div>
     );
   }
 
   if (estado === "no-encontrado" || estado === "expirado" || !datos) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F1E8] px-6 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#F4F9FF] px-6 text-center">
         <div>
           <img src={logoIcono} alt="GBD" className="h-16 w-16 mx-auto mb-4 rounded-xl shadow-sm" />
-          <p className="font-bold text-[#1F3A38] text-lg mb-1">
+          <p className="font-bold text-[#002362] text-lg mb-1">
             {estado === "expirado" ? "Este enlace ya expiró" : "No encontramos esta cotización"}
           </p>
-          <p className="text-sm text-[#8A836C]">
+          <p className="text-sm text-[#68758A]">
             {estado === "expirado"
               ? "Las cotizaciones son válidas por 30 días. Solicita a tu asesor un nuevo enlace."
               : "Verifica el enlace o solicita a tu asesor que te lo reenvíe."}
@@ -94,8 +94,8 @@ export function CotizacionPage({ id }: { id: string }) {
   const diasRestantes = Math.max(0, 30 - Math.floor((Date.now() - new Date(datos.creado_en).getTime()) / (1000 * 60 * 60 * 24)));
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] text-[#26261F]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <div className="bg-[#1F3A38] text-[#F5F1E8]">
+    <div className="min-h-screen bg-[#F4F9FF] text-[#071123]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div className="bg-[#002362] text-[#F4F9FF]">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <img src={logoIcono} alt="Cooperativa Gladys B. de Ducasa" className="h-14 w-14 rounded-lg bg-white/95 p-1 shadow-sm shrink-0" />
@@ -103,7 +103,7 @@ export function CotizacionPage({ id }: { id: string }) {
               <p className="text-sm sm:text-base font-bold">
                 Cooperativa de Servicios Integrales Gladys B. De Ducasa, R.L.
               </p>
-              <p className="text-xs sm:text-sm font-bold text-[#9FBFB9]">
+              <p className="text-xs sm:text-sm font-bold text-[#B0C6E5]">
                 Sección Línea Blanca y Bordados
               </p>
             </div>
@@ -112,8 +112,8 @@ export function CotizacionPage({ id }: { id: string }) {
       </div>
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         <div className="text-center">
-          <h1 className="text-xl font-bold text-[#1F3A38]">Tu cotización</h1>
-          <p className="text-xs text-[#8A836C] font-bold mt-1">
+          <h1 className="text-xl font-bold text-[#002362]">Tu cotización</h1>
+          <p className="text-xs text-[#68758A] font-bold mt-1">
             {diasRestantes > 0 ? `Vence en ${diasRestantes} día${diasRestantes === 1 ? "" : "s"}` : "Vence hoy"}
           </p>
         </div>

@@ -9,7 +9,7 @@ import {
   type TipoCliente,
   esAsociado,
   mesesPromoContado,
-} from "@/lib/pricing";
+} from "@/lib/pricing-gbd";
 
 
 interface Props {
@@ -38,17 +38,17 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
   };
 
   return (
-    <div className="bg-white rounded-xl border border-[#E4DDC9] overflow-hidden">
+    <div className="bg-white rounded-xl border border-[#DBE2EB] overflow-hidden">
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
           <input
             value={producto.nombre}
             onChange={(e) => onChange(producto.id, "nombre", e.target.value)}
             placeholder={`Producto ${index + 1} (ej. Sofá seccional 3 cuerpos)`}
-            className="font-bold text-sm bg-transparent border-b border-transparent focus:border-[#C97B3D] outline-none flex-1 mr-2"
+            className="font-bold text-sm bg-transparent border-b border-transparent focus:border-[#1F6DD8] outline-none flex-1 mr-2"
           />
           {canRemove && (
-            <button onClick={() => onRemove(producto.id)} className="text-[#B0725A] p-1">
+            <button onClick={() => onRemove(producto.id)} className="text-[#0054BD] p-1">
               <Trash2 size={16} />
             </button>
           )}
@@ -64,7 +64,7 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
               onChange={(e) => onImagen(e.target.files?.[0] ?? null)}
             />
             {producto.imagen ? (
-              <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#E4DDC9]">
+              <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#DBE2EB]">
                 <img src={producto.imagen} alt="Producto" className="w-full h-full object-cover" />
                 <button
                   onClick={() => onChange(producto.id, "imagen", "")}
@@ -77,7 +77,7 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
             ) : (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="w-20 h-20 rounded-lg border-2 border-dashed border-[#C9BFA0] text-[#8A836C] hover:border-[#C97B3D] hover:text-[#C97B3D] flex flex-col items-center justify-center gap-1 text-[10px] font-bold"
+                className="w-20 h-20 rounded-lg border-2 border-dashed border-[#B6C2D4] text-[#68758A] hover:border-[#1F6DD8] hover:text-[#1F6DD8] flex flex-col items-center justify-center gap-1 text-[10px] font-bold"
               >
                 <ImagePlus size={18} />
                 Foto
@@ -85,14 +85,14 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
             )}
           </div>
           <div className="flex-1">
-            <label className="text-[10px] uppercase tracking-wide text-[#8A836C] font-bold">Descripción</label>
+            <label className="text-[10px] uppercase tracking-wide text-[#68758A] font-bold">Descripción</label>
             <textarea
               value={producto.descripcion || ""}
               onChange={(e) => onChange(producto.id, "descripcion", e.target.value)}
               placeholder="Marca, modelo, medidas, color, etc."
               rows={3}
               maxLength={400}
-              className="w-full mt-0.5 border border-[#E4DDC9] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#C97B3D] resize-none"
+              className="w-full mt-0.5 border border-[#DBE2EB] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#1F6DD8] resize-none"
             />
           </div>
         </div>
@@ -122,14 +122,14 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
           />
         </div>
 
-        <div className="mt-3 flex items-center justify-between bg-[#F5F1E8] rounded-lg px-3 py-2.5">
-          <span className="text-xs text-[#6B6552] font-bold">Precio de venta a contado</span>
-          <span className="font-bold text-[#1F3A38]">{fmt(calc.precioContado)}</span>
+        <div className="mt-3 flex items-center justify-between bg-[#F4F9FF] rounded-lg px-3 py-2.5">
+          <span className="text-xs text-[#535E6F] font-bold">Precio de venta a contado</span>
+          <span className="font-bold text-[#002362]">{fmt(calc.precioContado)}</span>
         </div>
 
         <button
           onClick={() => setExpandido((e) => !e)}
-          className="mt-2 w-full flex items-center justify-center gap-1 text-xs text-[#8A836C] py-1"
+          className="mt-2 w-full flex items-center justify-center gap-1 text-xs text-[#68758A] py-1"
         >
           {expandido ? "Ocultar detalle interno" : "Ver detalle interno"}
           {expandido ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -138,15 +138,15 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
       </div>
 
       {expandido && (
-        <div className="bg-[#FBF9F3] border-t border-[#E4DDC9] p-4 space-y-3 text-sm">
+        <div className="bg-[#F8FBFF] border-t border-[#DBE2EB] p-4 space-y-3 text-sm">
           <div className="grid grid-cols-2 gap-2 text-xs">
             <Row label="Margen aplicado" value="Fijo interno (no visible al cliente)" mono />
             <Row label="Precio sin ITBMS" value={fmt(calc.preSinItbms)} mono />
             <Row label="Monto ITBMS" value={fmt(calc.itbmsMonto)} mono />
           </div>
 
-          <div className="border-t border-[#E4DDC9] pt-3">
-            <p className="text-xs font-bold text-[#6B6552] mb-1.5">Descuento al contado</p>
+          <div className="border-t border-[#DBE2EB] pt-3">
+            <p className="text-xs font-bold text-[#535E6F] mb-1.5">Descuento al contado</p>
             <div className="flex items-center gap-3">
               <input
                 type="range"
@@ -182,8 +182,8 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
             </div>
           </div>
 
-          <div className="border-t border-[#E4DDC9] pt-3">
-            <p className="text-xs font-bold text-[#6B6552] mb-1.5">
+          <div className="border-t border-[#DBE2EB] pt-3">
+            <p className="text-xs font-bold text-[#535E6F] mb-1.5">
               Precio de crédito {esAsociado(tipoCliente) ? "asociado" : "tercero"}
             </p>
             <Row
@@ -193,8 +193,8 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
             />
             <div className="grid grid-cols-4 gap-1.5 mt-2">
               {(esAsociado(tipoCliente) ? calc.planAsociado : calc.planTercero).map((row) => (
-                <div key={row.meses} className="bg-white border border-[#E4DDC9] rounded-md px-1.5 py-1.5 text-center">
-                  <p className="text-[9px] text-[#8A836C]">{row.meses}m</p>
+                <div key={row.meses} className="bg-white border border-[#DBE2EB] rounded-md px-1.5 py-1.5 text-center">
+                  <p className="text-[9px] text-[#68758A]">{row.meses}m</p>
                   <p className="text-[11px] font-bold">{fmt(row.cuotaMensual)}</p>
                 </div>
               ))}
@@ -203,9 +203,9 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
 
 
           {esAsociado(tipoCliente) && (
-            <div className="border-t border-[#E4DDC9] pt-3">
-              <p className="text-xs font-bold text-[#6B6552] mb-1">{mesesPromoContado(tipoCliente)} meses al precio de etiqueta ({fmt(calc.precioContado)})</p>
-              <p className="text-[10px] text-[#8A836C] mb-1.5">Solo {tipoCliente === "colaborador" ? "colaboradores GBD" : "asociados"} con capacidad comprobada</p>
+            <div className="border-t border-[#DBE2EB] pt-3">
+              <p className="text-xs font-bold text-[#535E6F] mb-1">{mesesPromoContado(tipoCliente)} meses al precio de etiqueta ({fmt(calc.precioContado)})</p>
+              <p className="text-[10px] text-[#68758A] mb-1.5">Solo {tipoCliente === "colaborador" ? "colaboradores GBD" : "asociados"} con capacidad comprobada</p>
               <div className="flex gap-4 text-xs">
                 <Row label="Abono inicial" value={fmt(calc.precioContado / mesesPromoContado(tipoCliente))} mono />
                 <Row label="Letra quincenal" value={fmt(calc.precioContado / mesesPromoContado(tipoCliente) / 2)} mono />
@@ -231,15 +231,15 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-wide text-[#8A836C] font-bold">{label}</label>
+      <label className="text-[10px] uppercase tracking-wide text-[#68758A] font-bold">{label}</label>
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="0.00"
-        className="w-full mt-0.5 border border-[#E4DDC9] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#C97B3D]"
+        className="w-full mt-0.5 border border-[#DBE2EB] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#1F6DD8]"
       />
-      {hint && <p className="text-[9px] text-[#B0A98C] mt-0.5">{hint}</p>}
+      {hint && <p className="text-[9px] text-[#8793A5] mt-0.5">{hint}</p>}
     </div>
   );
 }
@@ -247,8 +247,8 @@ function Field({
 function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[#8A836C]">{label}</span>
-      <span className={`font-bold text-[#26261F] ${mono ? "tabular-nums" : ""}`}>{value}</span>
+      <span className="text-[#68758A]">{label}</span>
+      <span className={`font-bold text-[#071123] ${mono ? "tabular-nums" : ""}`}>{value}</span>
     </div>
   );
 }

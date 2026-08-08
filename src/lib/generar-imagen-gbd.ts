@@ -1,7 +1,7 @@
 import type { CalculadoProducto, CapacidadInfo, ClienteInfo, PlazoCuota, TipoCliente } from "./pricing";
 import { esAsociado, etiquetaTipoCliente } from "./pricing";
 import { fmt } from "./pricing";
-import logoIcono from "@/assets/logo-icono.png";
+import logoIcono from "@/assets/calculadora/logo-icono.png";
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -138,10 +138,10 @@ export async function generarImagenCotizacion({
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
 
-  ctx.fillStyle = "#F5F1E8";
+  ctx.fillStyle = "#F4F9FF";
   ctx.fillRect(0, 0, W, H);
 
-  ctx.fillStyle = "#1F3A38";
+  ctx.fillStyle = "#002362";
   ctx.fillRect(0, 0, W, 150);
 
   try {
@@ -158,22 +158,22 @@ export async function generarImagenCotizacion({
   ctx.font = "bold 20px Arial";
   ctx.fillText("Cooperativa de Servicios Integrales", 150, 60);
   ctx.fillText("Gladys B. De Ducasa, R.L.", 150, 86);
-  ctx.fillStyle = "#9FBFB9";
+  ctx.fillStyle = "#B0C6E5";
   ctx.font = "bold 15px Arial";
   ctx.fillText("Sección Línea Blanca y Bordados", 150, 110);
 
-  ctx.fillStyle = "#F5F1E8";
+  ctx.fillStyle = "#F4F9FF";
   ctx.font = "bold 13px Arial";
   ctx.fillText("WhatsApp: +507 6784-1941", 150, 132);
 
   let y = 190;
-  ctx.fillStyle = "#1F3A38";
+  ctx.fillStyle = "#002362";
   ctx.font = "bold 30px Arial";
   ctx.fillText("Cotización", 40, y);
 
   const fecha = new Date().toLocaleDateString("es-PA", { year: "numeric", month: "long", day: "numeric" });
   ctx.font = "bold 13px Arial";
-  ctx.fillStyle = "#8A836C";
+  ctx.fillStyle = "#68758A";
   ctx.fillText(`Fecha: ${fecha}  ·  Tipo: ${etiquetaTipoCliente(tipoCliente)}`, 40, y + 24);
   y += 50;
 
@@ -181,21 +181,21 @@ export async function generarImagenCotizacion({
     ctx.fillStyle = "#FFFFFF";
     roundRect(ctx, 40, y, 770, clienteBoxH, 10);
     ctx.fill();
-    ctx.strokeStyle = "#E4DDC9";
+    ctx.strokeStyle = "#DBE2EB";
     ctx.stroke();
-    ctx.fillStyle = "#8A836C";
+    ctx.fillStyle = "#68758A";
     ctx.font = "bold 12px Arial";
     ctx.fillText("DATOS DEL CLIENTE", 56, y + 24);
 
     const etiquetaTipo = etiquetaTipoCliente(tipoCliente).toUpperCase();
     ctx.font = "bold 12px Arial";
     const tw = ctx.measureText(etiquetaTipo).width;
-    ctx.fillStyle = "#F5F1E8";
+    ctx.fillStyle = "#F4F9FF";
     roundRect(ctx, 794 - tw - 20, y + 10, tw + 20, 22, 11);
     ctx.fill();
-    ctx.strokeStyle = "#E4DDC9";
+    ctx.strokeStyle = "#DBE2EB";
     ctx.stroke();
-    ctx.fillStyle = "#1F3A38";
+    ctx.fillStyle = "#002362";
     ctx.fillText(etiquetaTipo, 794 - tw - 10, y + 25);
 
     camposCliente.forEach(([label, value], i) => {
@@ -204,9 +204,9 @@ export async function generarImagenCotizacion({
       const x = 56 + col * 380;
       const yy = y + 48 + fila * 22;
       ctx.font = "bold 12px Arial";
-      ctx.fillStyle = "#8A836C";
+      ctx.fillStyle = "#68758A";
       ctx.fillText(label, x, yy);
-      ctx.fillStyle = "#1F3A38";
+      ctx.fillStyle = "#002362";
       ctx.font = "bold 13px Arial";
       const maxW = 360 - 90;
       let txt = value;
@@ -218,7 +218,7 @@ export async function generarImagenCotizacion({
   }
 
 
-  ctx.fillStyle = "#1F3A38";
+  ctx.fillStyle = "#002362";
   ctx.font = "bold 16px Arial";
   ctx.fillText("Productos cotizados", 40, y);
   y += 18;
@@ -231,7 +231,7 @@ export async function generarImagenCotizacion({
     ctx.fillStyle = "#FFFFFF";
     roundRect(ctx, 40, y, 770, rowH, 10);
     ctx.fill();
-    ctx.strokeStyle = "#E4DDC9";
+    ctx.strokeStyle = "#DBE2EB";
     ctx.stroke();
 
     if (hasImg && img) {
@@ -254,14 +254,14 @@ export async function generarImagenCotizacion({
     const textMaxW = 770 - (textLeft - 40) - 16;
 
     let ty = y + 34;
-    ctx.fillStyle = "#1F3A38";
+    ctx.fillStyle = "#002362";
     ctx.font = "bold 15px Arial";
     ctx.fillText(nombre || `Producto ${i + 1}`, textLeft, ty);
     ty += 6;
 
     if (descripcion) {
       ctx.font = "bold 12px Arial";
-      ctx.fillStyle = "#6B6552";
+      ctx.fillStyle = "#535E6F";
       const lines = wrapLines(ctx, descripcion, textMaxW, 3);
       for (const line of lines) {
         ty += 16;
@@ -274,23 +274,23 @@ export async function generarImagenCotizacion({
     const precioFinal = esAsociado(tipoCliente) ? calc.promoAsociado : calc.promoTercero;
     const precioCredito = esAsociado(tipoCliente) ? calc.precioCreditoAsociado : calc.precioCreditoTercero;
     ctx.font = "bold 13px Arial";
-    ctx.fillStyle = "#8A836C";
+    ctx.fillStyle = "#68758A";
     ctx.fillText("Contado:", textLeft, ty);
-    ctx.fillStyle = "#1F3A38";
+    ctx.fillStyle = "#002362";
     ctx.fillText(fmt(precioFinal), textLeft + 74, ty);
-    ctx.fillStyle = "#8A836C";
+    ctx.fillStyle = "#68758A";
     ctx.fillText("Crédito:", textLeft + 240, ty);
-    ctx.fillStyle = "#1F3A38";
+    ctx.fillStyle = "#002362";
     ctx.fillText(fmt(precioCredito), textLeft + 310, ty);
 
     y += rowH + 10;
   });
 
   y += 4;
-  ctx.fillStyle = "#1F3A38";
+  ctx.fillStyle = "#002362";
   roundRect(ctx, 40, y, 770, 90, 14);
   ctx.fill();
-  ctx.fillStyle = "#9FBFB9";
+  ctx.fillStyle = "#B0C6E5";
   ctx.font = "bold 13px Arial";
   ctx.fillText("TOTAL PAGO AL CONTADO", 60, y + 32);
   ctx.fillStyle = "#FFFFFF";
@@ -298,7 +298,7 @@ export async function generarImagenCotizacion({
   ctx.fillText(fmt(contadoTotal), 60, y + 68);
   y += 116;
 
-  ctx.fillStyle = "#1F3A38";
+  ctx.fillStyle = "#002362";
   ctx.font = "bold 16px Arial";
   ctx.fillText(`Plazos disponibles a crédito (total ${fmt(creditoTotal)})`, 40, y);
   y += 16;
@@ -312,16 +312,16 @@ export async function generarImagenCotizacion({
     ctx.fillStyle = "#FFFFFF";
     roundRect(ctx, bx, by, colW - 10, 56, 10);
     ctx.fill();
-    ctx.strokeStyle = "#E4DDC9";
+    ctx.strokeStyle = "#DBE2EB";
     ctx.stroke();
 
-    ctx.fillStyle = "#1F3A38";
+    ctx.fillStyle = "#002362";
     ctx.font = "bold 14px Arial";
     ctx.fillText(`${row.meses} meses`, bx + 14, by + 22);
     ctx.font = "bold 15px Arial";
     ctx.fillText(fmt(row.cuotaMensual) + "/mes", bx + 14, by + 42);
     ctx.font = "bold 11px Arial";
-    ctx.fillStyle = "#8A836C";
+    ctx.fillStyle = "#68758A";
     ctx.fillText(fmt(row.letraQuincenal) + " quinc.", bx + 190, by + 42);
   });
 
@@ -329,10 +329,10 @@ export async function generarImagenCotizacion({
 
   if (promo) {
     const boxH = 150;
-    ctx.fillStyle = "#FBEDE0";
+    ctx.fillStyle = "#E3EFFF";
     roundRect(ctx, 40, y, 770, boxH, 14);
     ctx.fill();
-    ctx.strokeStyle = "#C97B3D";
+    ctx.strokeStyle = "#1F6DD8";
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.lineWidth = 1;
@@ -340,7 +340,7 @@ export async function generarImagenCotizacion({
     ctx.save();
     roundRect(ctx, 40, y, 770, boxH, 14);
     ctx.clip();
-    ctx.fillStyle = "#C97B3D";
+    ctx.fillStyle = "#1F6DD8";
     ctx.fillRect(40, y, 770, 52);
     ctx.restore();
 
@@ -355,10 +355,10 @@ export async function generarImagenCotizacion({
     ctx.font = "bold 17px Arial";
     ctx.fillText(`${promo.meses} meses a precio de contado`, W / 2, y + 43);
 
-    ctx.fillStyle = "#9C5A24";
+    ctx.fillStyle = "#0C4C9E";
     ctx.font = "bold 11px Arial";
     ctx.fillText("PRECIO DE ETIQUETA", W / 2, y + 72);
-    ctx.fillStyle = "#1F3A38";
+    ctx.fillStyle = "#002362";
     ctx.font = "bold 26px Arial";
     ctx.fillText(fmt(promo.precioEtiqueta), W / 2, y + 99);
 
@@ -373,12 +373,12 @@ export async function generarImagenCotizacion({
       ctx.fillStyle = "#FFFFFF";
       roundRect(ctx, bx, by, bw, 34, 10);
       ctx.fill();
-      ctx.strokeStyle = "#E9CDAE";
+      ctx.strokeStyle = "#BFD6F5";
       ctx.stroke();
-      ctx.fillStyle = "#9C5A24";
+      ctx.fillStyle = "#0C4C9E";
       ctx.font = "bold 10px Arial";
       ctx.fillText(label, bx + bw / 2, by + 14);
-      ctx.fillStyle = "#1F3A38";
+      ctx.fillStyle = "#002362";
       ctx.font = "bold 15px Arial";
       ctx.fillText(value, bx + bw / 2, by + 29);
     });
@@ -399,24 +399,24 @@ export async function generarImagenCotizacion({
     ctx.strokeStyle = border;
     ctx.stroke();
 
-    ctx.fillStyle = "#6B6552";
+    ctx.fillStyle = "#535E6F";
     ctx.font = "bold 12px Arial";
     ctx.fillText("EVALUACIÓN DE CAPACIDAD DE PAGO", 56, y + 22);
 
-    ctx.fillStyle = "#1F3A38";
+    ctx.fillStyle = "#002362";
     ctx.font = "bold 15px Arial";
     const resultado = capacidad.aprueba ? "Dentro del límite legal" : "Excede el límite legal";
     ctx.fillText(`Resultado: ${resultado}`, 56, y + 48);
 
     ctx.font = "bold 13px Arial";
-    ctx.fillStyle = "#26261F";
+    ctx.fillStyle = "#071123";
     const col1x = 56;
     const col2x = 440;
     let ly = y + 74;
     const line = (label: string, value: string, x: number, yy: number) => {
-      ctx.fillStyle = "#8A836C";
+      ctx.fillStyle = "#68758A";
       ctx.fillText(label, x, yy);
-      ctx.fillStyle = "#1F3A38";
+      ctx.fillStyle = "#002362";
       ctx.fillText(value, x + 170, yy);
     };
     line("Ingreso mensual:", fmt(capacidad.ingreso), col1x, ly);
@@ -430,10 +430,10 @@ export async function generarImagenCotizacion({
     y += boxH + 16;
   }
 
-  ctx.fillStyle = "#FBEDE0";
+  ctx.fillStyle = "#E3EFFF";
   roundRect(ctx, 40, y, 770, 42, 21);
   ctx.fill();
-  ctx.fillStyle = "#9C5A24";
+  ctx.fillStyle = "#0C4C9E";
   ctx.font = "bold 13px Arial";
   ctx.textAlign = "center";
   ctx.fillText("Cotización válida por 30 días o hasta agotar existencias", W / 2, y + 26);

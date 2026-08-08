@@ -13,7 +13,7 @@ import {
   type ProductoInput,
   type TipoCliente,
   esAsociado,
-} from "@/lib/pricing";
+} from "@/lib/pricing-gbd";
 import { Header } from "@/components/Header";
 import { ProductoForm } from "@/components/ProductoForm";
 import { VistaCliente } from "@/components/VistaCliente";
@@ -78,11 +78,11 @@ export function AsesorPage() {
   const creditoTotal = esAsociado(tipoCliente) ? totales.precioCreditoAsociado : totales.precioCreditoTercero;
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] text-[#26261F]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#F4F9FF] text-[#071123]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       <Header>
         <button
           onClick={() => setVista(vista === "asesor" ? "cliente" : "asesor")}
-          className="flex items-center gap-2 bg-[#C97B3D] hover:bg-[#B36A2F] transition-colors px-4 py-2.5 rounded-full text-sm font-bold shadow-md"
+          className="flex items-center gap-2 bg-[#1F6DD8] hover:bg-[#0054BD] transition-colors px-4 py-2.5 rounded-full text-sm font-bold shadow-md"
         >
           {vista === "asesor" ? <Eye size={16} /> : <EyeOff size={16} />}
           {vista === "asesor" ? "Vista Asesor" : "Vista Cliente"}
@@ -90,13 +90,13 @@ export function AsesorPage() {
       </Header>
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        <div className="bg-white rounded-xl border border-[#E4DDC9] p-4">
-          <p className="text-xs font-bold uppercase tracking-wide text-[#6B6552] mb-2">Tipo de cliente</p>
+        <div className="bg-white rounded-xl border border-[#DBE2EB] p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F] mb-2">Tipo de cliente</p>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setTipoCliente("asociado")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold border transition-colors ${
-                tipoCliente === "asociado" ? "bg-[#C97B3D] text-white border-[#C97B3D]" : "bg-white text-[#6B6552] border-[#E4DDC9]"
+                tipoCliente === "asociado" ? "bg-[#1F6DD8] text-white border-[#1F6DD8]" : "bg-white text-[#535E6F] border-[#DBE2EB]"
               }`}
             >
               <UserCheck size={16} /> Asociado
@@ -104,7 +104,7 @@ export function AsesorPage() {
             <button
               onClick={() => setTipoCliente("colaborador")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold border transition-colors ${
-                tipoCliente === "colaborador" ? "bg-[#C97B3D] text-white border-[#C97B3D]" : "bg-white text-[#6B6552] border-[#E4DDC9]"
+                tipoCliente === "colaborador" ? "bg-[#1F6DD8] text-white border-[#1F6DD8]" : "bg-white text-[#535E6F] border-[#DBE2EB]"
               }`}
             >
               <BadgeCheck size={16} /> Colaborador GBD
@@ -112,7 +112,7 @@ export function AsesorPage() {
             <button
               onClick={() => setTipoCliente("tercero")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold border transition-colors ${
-                tipoCliente === "tercero" ? "bg-[#C97B3D] text-white border-[#C97B3D]" : "bg-white text-[#6B6552] border-[#E4DDC9]"
+                tipoCliente === "tercero" ? "bg-[#1F6DD8] text-white border-[#1F6DD8]" : "bg-white text-[#535E6F] border-[#DBE2EB]"
               }`}
             >
               <Users size={16} /> No asociado (tercero)
@@ -122,8 +122,8 @@ export function AsesorPage() {
 
         {vista === "asesor" && (
           <>
-            <div className="bg-white rounded-xl border border-[#E4DDC9] p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-[#6B6552] mb-2 flex items-center gap-1.5">
+            <div className="bg-white rounded-xl border border-[#DBE2EB] p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F] mb-2 flex items-center gap-1.5">
                 <User size={14} /> Datos del cliente
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -135,7 +135,7 @@ export function AsesorPage() {
                   <ClienteField label="Dirección" value={cliente.direccion} onChange={(v) => updateCliente("direccion", v)} />
                 </div>
               </div>
-              <p className="text-[10px] text-[#B0A98C] mt-2">
+              <p className="text-[10px] text-[#8793A5] mt-2">
                 Si escribes el teléfono, el botón de WhatsApp abrirá directamente el chat de ese cliente.
               </p>
             </div>
@@ -156,62 +156,62 @@ export function AsesorPage() {
               ))}
               <button
                 onClick={addProducto}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-[#C9BFA0] text-[#6B6552] hover:border-[#C97B3D] hover:text-[#C97B3D] transition-colors text-sm font-bold"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-[#B6C2D4] text-[#535E6F] hover:border-[#1F6DD8] hover:text-[#1F6DD8] transition-colors text-sm font-bold"
               >
                 <Plus size={18} /> Agregar otro producto
               </button>
             </div>
 
-            <div className="bg-[#1F3A38] text-[#F5F1E8] rounded-xl p-5">
-              <p className="text-xs uppercase tracking-wide text-[#9FBFB9] font-bold mb-3">
+            <div className="bg-[#002362] text-[#F4F9FF] rounded-xl p-5">
+              <p className="text-xs uppercase tracking-wide text-[#B0C6E5] font-bold mb-3">
                 Total cotización ({productos.length} producto{productos.length > 1 ? "s" : ""})
               </p>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <p className="text-[11px] text-[#9FBFB9]">Precio de contado</p>
+                  <p className="text-[11px] text-[#B0C6E5]">Precio de contado</p>
                   <p className="text-lg font-bold">{fmt(totales.precioContado)}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] text-[#9FBFB9]">Contado con descuento aplicado</p>
+                  <p className="text-[11px] text-[#B0C6E5]">Contado con descuento aplicado</p>
                   <p className="text-lg font-bold">{fmt(contadoTotal)}</p>
                 </div>
               </div>
 
-              <p className="text-[11px] text-[#9FBFB9] mb-2">
+              <p className="text-[11px] text-[#B0C6E5] mb-2">
                 Plan de cuotas — precio de crédito:{" "}
-                <span className="font-bold text-[#F5F1E8]">{fmt(creditoTotal)}</span>
+                <span className="font-bold text-[#F4F9FF]">{fmt(creditoTotal)}</span>
               </p>
 
               <div className="grid grid-cols-4 gap-2">
                 {totales.planTotal.map((row) => (
-                  <div key={row.meses} className="bg-[#2E524F] rounded-lg px-2 py-2 text-center">
-                    <p className="text-[10px] text-[#9FBFB9]">{row.meses} meses</p>
+                  <div key={row.meses} className="bg-[#003581] rounded-lg px-2 py-2 text-center">
+                    <p className="text-[10px] text-[#B0C6E5]">{row.meses} meses</p>
                     <p className="text-sm font-bold">{fmt(row.cuotaMensual)}</p>
-                    <p className="text-[10px] text-[#9FBFB9]">{fmt(row.letraQuincenal)} quinc.</p>
+                    <p className="text-[10px] text-[#B0C6E5]">{fmt(row.letraQuincenal)} quinc.</p>
                   </div>
                 ))}
               </div>
 
               {esAsociado(tipoCliente) && (
-                <div className="mt-3 rounded-xl overflow-hidden border-2 border-[#C97B3D]">
-                  <div className="bg-[#C97B3D] text-white px-3 py-1.5 text-center">
+                <div className="mt-3 rounded-xl overflow-hidden border-2 border-[#1F6DD8]">
+                  <div className="bg-[#1F6DD8] text-white px-3 py-1.5 text-center">
                     <p className="text-[10px] uppercase tracking-widest font-bold">{tipoCliente === "colaborador" ? "¡Promoción para colaboradores GBD!" : "¡Promoción para asociados!"}</p>
                     <p className="text-sm font-bold">{totales.mesesPromo} meses a precio de contado</p>
                   </div>
-                  <div className="bg-[#FBEDE0] px-3 py-3 text-center text-[#1F3A38]">
-                    <p className="text-[10px] uppercase font-bold text-[#9C5A24]">Precio de etiqueta</p>
+                  <div className="bg-[#E3EFFF] px-3 py-3 text-center text-[#002362]">
+                    <p className="text-[10px] uppercase font-bold text-[#0C4C9E]">Precio de etiqueta</p>
                     <p className="text-xl font-bold mb-2">{fmt(totales.precioContado)}</p>
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-white rounded-lg border border-[#E9CDAE] px-2 py-1.5">
-                        <p className="text-[10px] uppercase font-bold text-[#9C5A24]">Abono inicial</p>
+                      <div className="bg-white rounded-lg border border-[#BFD6F5] px-2 py-1.5">
+                        <p className="text-[10px] uppercase font-bold text-[#0C4C9E]">Abono inicial</p>
                         <p className="text-sm font-bold">{fmt(totales.cuotaPromoContado)}</p>
                       </div>
-                      <div className="bg-white rounded-lg border border-[#E9CDAE] px-2 py-1.5">
-                        <p className="text-[10px] uppercase font-bold text-[#9C5A24]">Quincenal</p>
+                      <div className="bg-white rounded-lg border border-[#BFD6F5] px-2 py-1.5">
+                        <p className="text-[10px] uppercase font-bold text-[#0C4C9E]">Quincenal</p>
                         <p className="text-sm font-bold">{fmt(totales.cuotaPromoContado / 2)}</p>
                       </div>
                     </div>
-                    <p className="text-[10px] text-[#9C5A24] mt-2">Sujeto a capacidad comprobada</p>
+                    <p className="text-[10px] text-[#0C4C9E] mt-2">Sujeto a capacidad comprobada</p>
                   </div>
                 </div>
               )}
@@ -219,7 +219,7 @@ export function AsesorPage() {
 
             <button
               onClick={() => setModalCapacidad(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#C97B3D] hover:bg-[#B36A2F] text-white font-bold transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#1F6DD8] hover:bg-[#0054BD] text-white font-bold transition-colors"
             >
               <Calculator size={18} /> Evaluar capacidad de pago
             </button>
@@ -280,42 +280,42 @@ export function AsesorPage() {
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg">Evaluar capacidad de pago</h3>
-              <button onClick={() => setModalCapacidad(false)} className="text-[#8A836C]">
+              <button onClick={() => setModalCapacidad(false)} className="text-[#68758A]">
                 <X size={20} />
               </button>
             </div>
-            <p className="text-xs text-[#8A836C] leading-relaxed bg-[#F5F1E8] rounded-lg p-3">
+            <p className="text-xs text-[#68758A] leading-relaxed bg-[#F4F9FF] rounded-lg p-3">
               <AlertTriangle size={13} className="inline mr-1 -mt-0.5" />
               Este cálculo aplica el tope legal panameño de endeudamiento vigente. Confírmalo contra política de la
               cooperativa antes de usarlo como aprobación final.
             </p>
 
             <div>
-              <label className="text-xs font-bold text-[#6B6552]">Ingreso mensual del cliente (B/.)</label>
+              <label className="text-xs font-bold text-[#535E6F]">Ingreso mensual del cliente (B/.)</label>
               <input
                 type="number"
                 value={ingreso}
                 onChange={(e) => setIngreso(e.target.value)}
-                className="w-full mt-1 border border-[#E4DDC9] rounded-lg px-3 py-2 text-sm"
+                className="w-full mt-1 border border-[#DBE2EB] rounded-lg px-3 py-2 text-sm"
                 placeholder="0.00"
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-[#6B6552]">Deuda mensual actual comprometida (B/.)</label>
+              <label className="text-xs font-bold text-[#535E6F]">Deuda mensual actual comprometida (B/.)</label>
               <input
                 type="number"
                 value={deudaActual}
                 onChange={(e) => setDeudaActual(e.target.value)}
-                className="w-full mt-1 border border-[#E4DDC9] rounded-lg px-3 py-2 text-sm"
+                className="w-full mt-1 border border-[#DBE2EB] rounded-lg px-3 py-2 text-sm"
                 placeholder="0.00"
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-[#6B6552]">Plazo a evaluar</label>
+              <label className="text-xs font-bold text-[#535E6F]">Plazo a evaluar</label>
               <select
                 value={plazoElegido}
                 onChange={(e) => setPlazoElegido(Number(e.target.value))}
-                className="w-full mt-1 border border-[#E4DDC9] rounded-lg px-3 py-2 text-sm"
+                className="w-full mt-1 border border-[#DBE2EB] rounded-lg px-3 py-2 text-sm"
               >
                 {PLAZOS.map((m) => (
                   <option key={m} value={m}>
@@ -325,18 +325,18 @@ export function AsesorPage() {
               </select>
             </div>
 
-            <div className="rounded-lg p-3 bg-[#F5F1E8] space-y-1 text-sm">
+            <div className="rounded-lg p-3 bg-[#F4F9FF] space-y-1 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#6B6552]">Tope legal</span>
+                <span className="text-[#535E6F]">Tope legal</span>
                 <span className="font-bold">{fmt((Number(ingreso) || 0) * capacidad.tope)}</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#6B6552]">Disponible tras deuda actual</span>
+                <span className="text-[#535E6F]">Disponible tras deuda actual</span>
                 <span className="font-bold">{fmt(capacidad.limiteCuota)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#6B6552]">Cuota propuesta ({plazoElegido} meses)</span>
+                <span className="text-[#535E6F]">Cuota propuesta ({plazoElegido} meses)</span>
                 <span className="font-bold">{fmt(capacidad.cuotaProp)}</span>
               </div>
             </div>
@@ -374,13 +374,13 @@ function ClienteField({
 }) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-wide text-[#8A836C] font-bold">{label}</label>
+      <label className="text-[10px] uppercase tracking-wide text-[#68758A] font-bold">{label}</label>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         inputMode={inputMode}
-        className="w-full mt-0.5 border border-[#E4DDC9] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#C97B3D]"
+        className="w-full mt-0.5 border border-[#DBE2EB] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#1F6DD8]"
       />
     </div>
   );

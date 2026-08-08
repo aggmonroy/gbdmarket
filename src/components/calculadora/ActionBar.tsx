@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Share2, Download, Image as ImageIcon } from "lucide-react";
-import { etiquetaTipoCliente, fmt, telefonoAWhatsapp, type CalculadoProducto, type CapacidadInfo, type ClienteInfo, type PlazoCuota, type TipoCliente } from "@/lib/pricing";
-import { generarImagenCotizacion } from "@/lib/generarImagen";
+import { etiquetaTipoCliente, fmt, telefonoAWhatsapp, type CalculadoProducto, type CapacidadInfo, type ClienteInfo, type PlazoCuota, type TipoCliente } from "@/lib/pricing-gbd";
+import { generarImagenCotizacion } from "@/lib/generar-imagen-gbd";
 
 interface Props {
   tipoCliente: TipoCliente;
@@ -87,14 +87,14 @@ export function ActionBar(props: Props) {
         <button
           onClick={descargarImagen}
           disabled={generando}
-          className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 rounded-xl bg-[#C97B3D] hover:bg-[#B36A2F] disabled:opacity-60 text-white font-bold text-sm transition-colors shadow-sm"
+          className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 rounded-xl bg-[#1F6DD8] hover:bg-[#0054BD] disabled:opacity-60 text-white font-bold text-sm transition-colors shadow-sm"
         >
           <ImageIcon size={16} /> {generando ? "Generando..." : "Descargar imagen"}
         </button>
       )}
       <button
         onClick={imprimir}
-        className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 rounded-xl bg-white border-2 border-[#1F3A38] text-[#1F3A38] font-bold text-sm hover:bg-[#F5F1E8] transition-colors"
+        className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 rounded-xl bg-white border-2 border-[#002362] text-[#002362] font-bold text-sm hover:bg-[#F4F9FF] transition-colors"
       >
         <Download size={16} /> Guardar / Imprimir
       </button>
