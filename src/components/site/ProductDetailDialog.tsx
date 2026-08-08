@@ -9,6 +9,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { DataConsent } from "@/components/site/DataConsent";
 import { toast } from "sonner";
 import { FileText, MessageCircle, Package } from "lucide-react";
+import { DisponibilidadBadge } from "./DisponibilidadBadge";
+
 
 export type ProductLite = {
   id: string;
@@ -20,6 +22,8 @@ export type ProductLite = {
   features?: string[] | null;
   price_cash?: number | null;
   stock?: number | null;
+  disponibilidad?: string | null;
+
   images: string[];
   datasheet_url?: string | null;
 };
@@ -102,6 +106,11 @@ export function ProductDetailDialog({
               {product.model && <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Modelo {product.model}</span>}
               {product.code && <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Código {product.code}</span>}
             </div>
+
+            <div className="mt-3">
+              <DisponibilidadBadge disponibilidad={product.disponibilidad} size="md" />
+            </div>
+
 
             {product.description && <p className="mt-4 text-sm text-foreground/80 leading-relaxed">{product.description}</p>}
 

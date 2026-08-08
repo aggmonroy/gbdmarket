@@ -55,7 +55,7 @@ export function DestacadosMes() {
     name: p.name,
     brand: p.brand,
     image_url: p.images?.[0] ?? null,
-    nota: "En stock — promoción del mes",
+    nota: p.disponibilidad === "en_stock" ? "Disponible para entrega inmediata" : "Compra bajo pedido",
     search: { q: p.name },
   }));
 
