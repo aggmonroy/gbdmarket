@@ -225,7 +225,12 @@ export function nuevoProducto(): ProductoInput {
     descTerceroPct: DESC_MAX_TERCERO,
     imagen: "",
     descripcion: "",
+    referencia: "",
+    cantidad: "1",
+    precioUnitario: "",
+    descGobiernoPct: 0,
   };
+
 }
 
 // ============================================================
