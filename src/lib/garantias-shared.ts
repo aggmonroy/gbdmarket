@@ -10,7 +10,13 @@ export type GarantiaEstado =
   | "cerrada_cliente_credito"
   | "cerrada_proveedor_cliente";
 
-export type GarantiaVia = "Llamada" | "WhatsApp" | "Correo electrónico";
+export type GarantiaVia =
+  | "Personalmente"
+  | "A domicilio"
+  | "WhatsApp"
+  | "Llamada"
+  | "Correo electrónico"
+  | "Otro";
 export type ColaboradorRol = "colaborador" | "admin" | "gerente";
 
 export const ESTADO_LABEL: Record<GarantiaEstado, string> = {
