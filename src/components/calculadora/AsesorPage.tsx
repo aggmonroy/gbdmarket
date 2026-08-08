@@ -78,7 +78,7 @@ export function AsesorPage() {
   const creditoTotal = esAsociado(tipoCliente) ? totales.precioCreditoAsociado : totales.precioCreditoTercero;
 
   return (
-    <div className="min-h-screen bg-[#F4F9FF] text-[#071123]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="rounded-xl overflow-hidden border border-[#DBE2EB] bg-[#F4F9FF] text-[#071123]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       <Header>
         <button
           onClick={() => setVista(vista === "asesor" ? "cliente" : "asesor")}
