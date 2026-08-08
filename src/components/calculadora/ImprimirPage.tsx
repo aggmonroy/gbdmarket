@@ -135,7 +135,10 @@ export function ImprimirPage({ id }: { id: string }) {
     );
   }
 
+  const esGob = datos.tipo_cliente === "gobierno";
+  const totalesGob = esGob ? calcularGobierno(datos.productos) : null;
   const calculados = datos.productos.map((p) => ({ ...p, calc: calcularProducto(p) }));
+
   const totales = calcularTotales(calculados, datos.tipo_cliente);
   const contadoTotal = esAsociado(datos.tipo_cliente) ? totales.promoAsociado : totales.promoTercero;
   const tipo_cliente_asociado = esAsociado(datos.tipo_cliente);
