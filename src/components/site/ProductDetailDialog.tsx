@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { FileText, MessageCircle, Package, Scissors, ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
+import { ProductGallery } from "./ProductGallery";
 
 
 export type ProductLite = {
