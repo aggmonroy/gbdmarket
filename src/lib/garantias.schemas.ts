@@ -2,13 +2,20 @@ import { z } from "zod";
 
 const ESTADOS = ["proceso", "revision", "cerrada_cliente_credito", "cerrada_proveedor_cliente"] as const;
 const CIERRES = ["cerrada_cliente_credito", "cerrada_proveedor_cliente"] as const;
-const VIAS = ["Llamada", "WhatsApp", "Correo electrónico"] as const;
+const VIAS = ["Personalmente", "A domicilio", "WhatsApp", "Llamada", "Correo electrónico", "Otro"] as const;
 const ROLES = ["colaborador", "admin", "gerente"] as const;
 
 export const tokenSchema = z.object({ token: z.string().min(1) });
 export const pin4 = z.string().regex(/^\d{4}$/, "El PIN debe tener 4 dígitos");
 
 export const loginSchema = z.object({ colaborador_id: z.string().uuid(), pin: pin4 });
+
+/** Ingreso al portal escribiendo la cédula (sin lista de nombres). */
+export const loginCedulaSchema = z.object({
+  cedula: z.string().trim().min(3).max(40),
+  pin: pin4,
+  recordar: z.boolean().default(false),
+});
 
 export const solicitudPinSchema = z.object({
   colaborador_id: z.string().uuid(),

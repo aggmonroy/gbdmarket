@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { admin, verifySesion } from "./garantias.server";
-import { ABIERTOS, aplicarVisibilidad, decorar, generarNumeroTarea, hoyISO } from "./tareas.server";
+import { ABIERTOS, aplicarVisibilidad, decorar, generarNumeroTarea, hoyISO, nombresColaboradores } from "./tareas.server";
 import {
   aceptarTareaSchema,
   apoyoTareaSchema,
@@ -8,6 +8,8 @@ import {
   casosCerradosSchema,
   completarTareaSchema,
   crearTareaSchema,
+  listSeguimientosTareaSchema,
+  seguimientoTareaSchema,
   listTareasSchema,
   reabrirTareaSchema,
   reporteRespuestaSchema,
@@ -219,6 +221,52 @@ export const reabrirTarea = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+/* --------------------------- Seguimientos --------------------------- */
+
+/**
+ * Registra una acción de seguimiento sobre la tarea (pedidos de Línea Blanca,
+ * bordados, garantías o registros internos) indicando la vía de contacto.
+ */
+export const registrarSeguimientoTarea = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => seguimientoTareaSchema.parse(d))
+  .handler(async ({ data }) => {
+    const s = await verifySesion(data.token);
+    if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
+    const sb = await admin();
+    const { data: t } = await sb.from("tareas").select("id,estado").eq("id", data.id).maybeSingle();
+    if (!t) throw new Error("Tarea no encontrada");
+    const { error } = await sb.from("tarea_seguimientos").insert({
+      tarea_id: data.id,
+      fecha: data.fecha || hoyISO(),
+      via: data.via,
+      via_detalle: data.via === "Otro" ? data.via_detalle || null : null,
+      texto: data.texto,
+      creado_por: s.cid,
+    });
+    if (error) throw new Error(error.message);
+    if (t.estado === "pendiente")
+      await sb
+        .from("tareas")
+        .update({ estado: "aceptada", asignado_a: s.cid, aceptada_en: new Date().toISOString() })
+        .eq("id", data.id);
+    return { ok: true };
+  });
+
+export const listSeguimientosTarea = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => listSeguimientosTareaSchema.parse(d))
+  .handler(async ({ data }) => {
+    await verifySesion(data.token);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("tarea_seguimientos")
+      .select("*")
+      .eq("tarea_id", data.id)
+      .order("created_at", { ascending: true });
+    if (error) throw new Error(error.message);
+    const nombres = await nombresColaboradores(sb);
+    return (rows ?? []).map((r: any) => ({ ...r, autor: r.creado_por ? nombres.get(r.creado_por) ?? "—" : "Sistema" }));
   });
 
 /* ----------------------- Solicitudes activas / cerradas ----------------------- */
