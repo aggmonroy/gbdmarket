@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { listColaboradoresLogin } from "@/lib/garantias.functions";
-import { cerrarTarea, crearTarea, listTareas, reabrirTarea } from "@/lib/tareas.functions";
+import { crearTarea, finalizarTarea, listTareas, reabrirTarea } from "@/lib/tareas.functions";
 import {
   ESTADO_TAREA_LABEL,
   ESTADOS_TAREA,
@@ -30,7 +30,7 @@ export function TareasPanel({ sesion }: { sesion: Sesion }) {
 
   const listFn = useServerFn(listTareas);
   const crearFn = useServerFn(crearTarea);
-  const cerrarFn = useServerFn(cerrarTarea);
+  const cerrarFn = useServerFn(finalizarTarea);
   const reabrirFn = useServerFn(reabrirTarea);
   const colabsFn = useServerFn(listColaboradoresLogin);
 

@@ -730,6 +730,7 @@ export type Database = {
           created_at: string
           datasheet_url: string | null
           description: string | null
+          disponibilidad: string
           draft_data: Json | null
           features: string[] | null
           has_draft: boolean
@@ -754,6 +755,7 @@ export type Database = {
           created_at?: string
           datasheet_url?: string | null
           description?: string | null
+          disponibilidad?: string
           draft_data?: Json | null
           features?: string[] | null
           has_draft?: boolean
@@ -778,6 +780,7 @@ export type Database = {
           created_at?: string
           datasheet_url?: string | null
           description?: string | null
+          disponibilidad?: string
           draft_data?: Json | null
           features?: string[] | null
           has_draft?: boolean
@@ -918,63 +921,97 @@ export type Database = {
       }
       tareas: {
         Row: {
+          aceptada_en: string | null
+          apoyo_a: string | null
           asignado_a: string | null
           bitacora_id: string | null
+          cerrada_en: string | null
           completada_en: string | null
           completada_por: string | null
           creado_por: string | null
           created_at: string
           descripcion: string | null
+          documento_url: string | null
+          embroidery_request_id: string | null
           estado: string
           fecha: string
           fecha_vencimiento: string | null
+          finalizada_apoyo_en: string | null
+          finalizada_responsable_en: string | null
           garantia_id: string | null
           id: string
           nota_cierre: string | null
           numero_orden: string | null
+          origen: string | null
           tipo: string
           titulo: string
           updated_at: string
+          whatsapp_lead_id: string | null
         }
         Insert: {
+          aceptada_en?: string | null
+          apoyo_a?: string | null
           asignado_a?: string | null
           bitacora_id?: string | null
+          cerrada_en?: string | null
           completada_en?: string | null
           completada_por?: string | null
           creado_por?: string | null
           created_at?: string
           descripcion?: string | null
+          documento_url?: string | null
+          embroidery_request_id?: string | null
           estado?: string
           fecha?: string
           fecha_vencimiento?: string | null
+          finalizada_apoyo_en?: string | null
+          finalizada_responsable_en?: string | null
           garantia_id?: string | null
           id?: string
           nota_cierre?: string | null
           numero_orden?: string | null
+          origen?: string | null
           tipo?: string
           titulo: string
           updated_at?: string
+          whatsapp_lead_id?: string | null
         }
         Update: {
+          aceptada_en?: string | null
+          apoyo_a?: string | null
           asignado_a?: string | null
           bitacora_id?: string | null
+          cerrada_en?: string | null
           completada_en?: string | null
           completada_por?: string | null
           creado_por?: string | null
           created_at?: string
           descripcion?: string | null
+          documento_url?: string | null
+          embroidery_request_id?: string | null
           estado?: string
           fecha?: string
           fecha_vencimiento?: string | null
+          finalizada_apoyo_en?: string | null
+          finalizada_responsable_en?: string | null
           garantia_id?: string | null
           id?: string
           nota_cierre?: string | null
           numero_orden?: string | null
+          origen?: string | null
           tipo?: string
           titulo?: string
           updated_at?: string
+          whatsapp_lead_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tareas_apoyo_a_fkey"
+            columns: ["apoyo_a"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tareas_asignado_a_fkey"
             columns: ["asignado_a"]
@@ -1004,10 +1041,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "tareas_embroidery_request_id_fkey"
+            columns: ["embroidery_request_id"]
+            isOneToOne: false
+            referencedRelation: "embroidery_requests"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tareas_garantia_id_fkey"
             columns: ["garantia_id"]
             isOneToOne: false
             referencedRelation: "garantias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_whatsapp_lead_id_fkey"
+            columns: ["whatsapp_lead_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_leads"
             referencedColumns: ["id"]
           },
         ]
@@ -1037,8 +1088,11 @@ export type Database = {
         Row: {
           channel: string
           created_at: string
+          customer_email: string | null
           customer_name: string | null
+          customer_phone: string | null
           id: string
+          notes: string | null
           product_id: string | null
           product_name: string | null
           term_months: number | null
@@ -1047,8 +1101,11 @@ export type Database = {
         Insert: {
           channel: string
           created_at?: string
+          customer_email?: string | null
           customer_name?: string | null
+          customer_phone?: string | null
           id?: string
+          notes?: string | null
           product_id?: string | null
           product_name?: string | null
           term_months?: number | null
@@ -1057,8 +1114,11 @@ export type Database = {
         Update: {
           channel?: string
           created_at?: string
+          customer_email?: string | null
           customer_name?: string | null
+          customer_phone?: string | null
           id?: string
+          notes?: string | null
           product_id?: string | null
           product_name?: string | null
           term_months?: number | null

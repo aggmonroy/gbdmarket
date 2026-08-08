@@ -19,13 +19,45 @@ export const TIPO_TAREA_PREFIJO: Record<TipoTarea, string> = {
   otro: "OTR",
 };
 
-export const ESTADOS_TAREA = ["pendiente", "completada"] as const;
+/* ------------------------------- Estados ------------------------------- */
+
+export const ESTADOS_TAREA = ["pendiente", "aceptada", "en_proceso", "finalizada"] as const;
 export type EstadoTarea = (typeof ESTADOS_TAREA)[number];
 
 export const ESTADO_TAREA_LABEL: Record<EstadoTarea, string> = {
   pendiente: "Pendiente",
-  completada: "Completada",
+  aceptada: "Aceptada",
+  en_proceso: "En proceso",
+  finalizada: "Finalizada",
 };
+
+/** Los registros históricos usan "completada"; se muestran como finalizados. */
+export function normalizarEstado(estado: string): EstadoTarea {
+  return estado === "completada" ? "finalizada" : (estado as EstadoTarea);
+}
+
+/* ------------------------------- Orígenes ------------------------------- */
+
+export const ORIGENES_TAREA = [
+  "linea-blanca",
+  "bordados",
+  "garantia",
+  "interaccion",
+  "whatsapp",
+  "interno",
+] as const;
+export type OrigenTarea = (typeof ORIGENES_TAREA)[number];
+
+export const ORIGEN_TAREA_LABEL: Record<OrigenTarea, string> = {
+  "linea-blanca": "Pedido Línea Blanca",
+  bordados: "Bordados",
+  garantia: "Garantía",
+  interaccion: "Interacción del sitio",
+  whatsapp: "Contacto por WhatsApp",
+  interno: "Registro interno",
+};
+
+/* ------------------------------- Esquemas ------------------------------- */
 
 export const crearTareaSchema = z.object({
   token: z.string().min(1),
@@ -53,3 +85,49 @@ export const completarTareaSchema = z.object({
 });
 
 export const reabrirTareaSchema = z.object({ token: z.string().min(1), id: z.string().uuid() });
+
+export const aceptarTareaSchema = z.object({ token: z.string().min(1), id: z.string().uuid() });
+
+export const asignarTareaSchema = z.object({
+  token: z.string().min(1),
+  id: z.string().uuid(),
+  colaborador_id: z.string().uuid(),
+});
+
+export const apoyoTareaSchema = z.object({
+  token: z.string().min(1),
+  id: z.string().uuid(),
+  colaborador_id: z.string().uuid().nullable().optional(),
+});
+
+export const solicitudesActivasSchema = z.object({
+  token: z.string().min(1),
+  origen: z.enum(["todos", ...ORIGENES_TAREA]).default("todos"),
+  estado: z.enum(["todos", ...ESTADOS_TAREA]).default("todos"),
+  q: z.string().trim().max(120).optional(),
+});
+
+export const casosCerradosSchema = z.object({
+  token: z.string().min(1),
+  origen: z.enum(["todos", ...ORIGENES_TAREA]).default("todos"),
+  desde: z.string().max(10).optional().or(z.literal("")),
+  hasta: z.string().max(10).optional().or(z.literal("")),
+  q: z.string().trim().max(120).optional(),
+});
+
+export const reporteRespuestaSchema = z.object({
+  token: z.string().min(1),
+  ambito: z.enum(["activas", "cerradas"]).default("cerradas"),
+  desde: z.string().min(10).max(10),
+  hasta: z.string().min(10).max(10),
+  origen: z.enum(["todos", ...ORIGENES_TAREA]).default("todos"),
+});
+
+/** Días transcurridos entre dos fechas ISO (o hasta hoy si no hay cierre). */
+export function diasEntre(desde: string | null | undefined, hasta?: string | null) {
+  if (!desde) return null;
+  const a = new Date(desde).getTime();
+  const b = hasta ? new Date(hasta).getTime() : Date.now();
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+  return Math.max(0, Math.round(((b - a) / 86400000) * 10) / 10);
+}

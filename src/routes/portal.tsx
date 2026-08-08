@@ -25,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { listColaboradoresLogin, loginConPin } from "@/lib/garantias.functions";
 import { actualizarPedido, agendaDelDia, bandejaSeguimiento, listPedidos } from "@/lib/pedidos.functions";
-import { cerrarTarea } from "@/lib/tareas.functions";
+import { finalizarTarea } from "@/lib/tareas.functions";
 import {
   ESTADOS_PEDIDO,
   ESTADO_PEDIDO_LABEL,
@@ -545,7 +545,7 @@ function PedidoFila({
 function Calendario({ sesion }: { sesion: Sesion }) {
   const soloLectura = sesion.colaborador.rol === "gerente";
   const agendaFn = useServerFn(agendaDelDia);
-  const completarFn = useServerFn(cerrarTarea);
+  const completarFn = useServerFn(finalizarTarea);
   const [fecha, setFecha] = useState(hoy());
 
   const { data, refetch } = useQuery({
