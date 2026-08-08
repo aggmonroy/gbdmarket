@@ -76,7 +76,8 @@ export function GobiernoSeccion({
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Campo label="Nombre / entidad" value={cliente.nombre} onChange={(v) => updateCliente("nombre", v)} placeholder="IPTA TONOSÍ" />
-          <Campo label="RUC o cédula" value={cliente.cedula} onChange={(v) => updateCliente("cedula", v)} />
+          <Campo label="RUC" value={cliente.ruc || ""} onChange={(v) => updateCliente("ruc", v)} />
+          <Campo label="Cédula" value={cliente.cedula} onChange={(v) => updateCliente("cedula", v)} />
           <Campo label="Teléfono" value={cliente.telefono} onChange={(v) => updateCliente("telefono", v)} />
           <Campo label="Correo electrónico" value={cliente.correo} onChange={(v) => updateCliente("correo", v)} />
           <Campo label="Dirección" value={cliente.direccion} onChange={(v) => updateCliente("direccion", v)} placeholder="TONOSÍ" />
@@ -128,13 +129,6 @@ export function GobiernoSeccion({
         modo="ver"
         cliente={cliente}
       />
-      <EnlaceGeneradorCard
-        tipoCliente="gobierno"
-        calculados={productos.map((p) => ({ ...p, calc: null as never }))}
-        modo="imprimir"
-        cliente={cliente}
-      />
-
       {onFinalizar && (
         <button
           disabled={finalizando}

@@ -49,6 +49,8 @@ export interface ProductoInput {
 export interface ClienteInfo {
   nombre: string;
   cedula: string;
+  /** Registro Único de Contribuyente para instituciones */
+  ruc?: string;
   direccion: string;
   telefono: string;
   correo: string;
@@ -69,7 +71,7 @@ export interface CapacidadInfo {
 }
 
 export function clienteVacio(): ClienteInfo {
-  return { nombre: "", cedula: "", direccion: "", telefono: "", correo: "" };
+  return { nombre: "", cedula: "", ruc: "", direccion: "", telefono: "", correo: "" };
 }
 
 export function soloDigitos(s: string): string {
@@ -273,6 +275,8 @@ export function calcularGobierno(productos: ProductoInput[]): TotalesGobierno {
     const itbms = subtotal * ITBMS;
     return {
       id: p.id,
+      // Los artículos provenientes del catálogo conservan modelo/código y
+      // nombre aunque todavía no hayan sido editados en el formulario.
       referencia: (p.referencia || "").trim(),
       detalle: (p.descripcion || p.nombre || "").trim(),
       imagen: p.imagen,

@@ -278,8 +278,6 @@ export function AsesorPage({
             </button>
 
             <EnlaceGeneradorCard tipoCliente={tipoCliente} calculados={calculados} modo="ver" cliente={cliente} capacidad={capacidadInfo} />
-            <EnlaceGeneradorCard tipoCliente={tipoCliente} calculados={calculados} modo="imprimir" cliente={cliente} capacidad={capacidadInfo} />
-
             {onFinalizar && (
               <button
                 disabled={finalizando}
