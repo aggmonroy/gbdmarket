@@ -374,12 +374,14 @@ export const listColaboradoresAdmin = createServerFn({ method: "GET" })
     const sb = await admin();
     const { data: colaboradores } = await sb
       .from("colaboradores")
-      .select("*")
+      // Nunca enviar pin_hash / pin_salt al navegador.
+      .select("id,nombre,cedula,rol,pin_bloqueado,activo,created_at,updated_at")
       .is("deleted_at", null)
       .order("nombre");
     const { data: solicitudes } = await sb
       .from("colaborador_pin_solicitudes")
-      .select("*")
+      // Sin nuevo_pin_hash / nuevo_pin_salt.
+      .select("id,colaborador_id,estado,solicitado_en,resuelto_en,resuelto_por")
       .eq("estado", "pendiente")
       .order("solicitado_en");
     return { colaboradores: colaboradores ?? [], solicitudes: solicitudes ?? [] };

@@ -53,7 +53,8 @@ export const uploadAssetPortal = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => fileSchema.extend({ token: z.string().min(1) }).parse(d))
   .handler(async ({ data }) => {
     const s = await verifySesion(data.token);
-    if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
+    // Los buckets del sitio (branding y catálogo) son solo para administradores.
+    if (s.rol !== "admin") throw new Error("Solo un administrador puede subir archivos del sitio");
     const { token, ...rest } = data;
     return guardar(rest);
   });
