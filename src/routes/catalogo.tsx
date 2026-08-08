@@ -9,6 +9,7 @@ import {
   Search, SlidersHorizontal, Shirt, Crown, Briefcase, Backpack,
   BadgeCheck, Upload, Loader2, MessageCircle, Package, Scissors,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/site/ProductCard";
 import { ProductDetailDialog, type ProductLite } from "@/components/site/ProductDetailDialog";

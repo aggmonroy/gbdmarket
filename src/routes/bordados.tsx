@@ -6,7 +6,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Shirt, Crown, Briefcase, Backpack, BadgeCheck, Upload, Loader2, MessageCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 import { crearSolicitudBordado } from "@/lib/embroidery.functions";
 import { crearPreorden } from "@/lib/pedidos.functions";
 import { DataConsent } from "@/components/site/DataConsent";
