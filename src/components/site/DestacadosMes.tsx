@@ -11,77 +11,55 @@ type Destacado = {
   search: Record<string, string>;
 };
 
-/**
- * Selección basada en tendencias de mercado de línea blanca y mueblería
- * (se usa cuando el catálogo aún no tiene productos destacados publicados).
- */
-const CURADOS: Destacado[] = [
-  {
-    name: "Refrigeradora No Frost Inverter",
-    brand: "Línea Blanca",
-    image_url: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=900&q=80",
-    nota: "La más buscada del mes: ahorro de energía",
-    search: { q: "refrigeradora" },
-  },
-  {
-    name: "Lavadora automática de carga superior",
-    brand: "Línea Blanca",
-    image_url: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=900&q=80",
-    nota: "Tendencia en hogares familiares",
-    search: { q: "lavadora" },
-  },
-  {
-    name: "Juego de sala 3-2-1 en tela",
-    brand: "Mueblería",
-    image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=80",
-    nota: "Favorito para renovar la sala",
-    search: { q: "sala" },
-  },
-  {
-    name: "Smart TV 55\" 4K",
-    brand: "Tecnología",
-    image_url: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=900&q=80",
-    nota: "Alta demanda en entretenimiento",
-    search: { q: "televisor" },
-  },
-  {
-    name: "Aire acondicionado Inverter 12,000 BTU",
-    brand: "Climatización",
-    image_url: "https://images.unsplash.com/photo-1631545308456-511dcbf8f97b?auto=format&fit=crop&w=900&q=80",
-    nota: "Top de temporada por el clima",
-    search: { q: "aire" },
-  },
-];
+function periodoActual() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
 
+/**
+ * Promociones del mes: 12 artículos EN STOCK elegidos por el administrador
+ * (la selección del mes siguiente se hace entre el 20 y el 30 de cada mes).
+ * Si aún no hay selección guardada, se muestran artículos en stock del catálogo.
+ */
 export function DestacadosMes() {
   const { data } = useQuery({
-    queryKey: ["home-destacados-mes"],
+    queryKey: ["home-promos-mes", periodoActual()],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id,name,brand,images,categories(slug)")
-        .eq("is_published", true)
-        .limit(200);
-      if (error) throw error;
-      return data ?? [];
+      const periodo = periodoActual();
+      const [sel, prods] = await Promise.all([
+        supabase.from("promociones_mes").select("product_ids").eq("periodo", periodo).maybeSingle(),
+        supabase
+          .from("products")
+          .select("id,name,brand,images,disponibilidad,categories(slug)")
+          .eq("is_published", true)
+          .eq("disponibilidad", "en_stock")
+          .limit(200),
+      ]);
+      const elegibles = (prods.data ?? []).filter(
+        (p) => (p as any).categories?.slug !== "bordados",
+      );
+      const ids = sel.data?.product_ids ?? [];
+      if (ids.length > 0) {
+        const orden = new Map(ids.map((id: string, i: number) => [id, i]));
+        const escogidos = elegibles
+          .filter((p) => orden.has(p.id))
+          .sort((a, b) => (orden.get(a.id)! - orden.get(b.id)!));
+        if (escogidos.length > 0) return escogidos;
+      }
+      return elegibles;
     },
     staleTime: 30 * 60 * 1000,
   });
 
-  const elegibles = (data ?? []).filter((p) => (p as any).categories?.slug !== "bordados");
-
-  // Selección aleatoria del catálogo (excluye bordados)
-  const azar = [...elegibles].sort(() => Math.random() - 0.5);
-
-  const deDb: Destacado[] = azar.slice(0, 5).map((p) => ({
+  const items: Destacado[] = (data ?? []).slice(0, 12).map((p) => ({
     name: p.name,
     brand: p.brand,
     image_url: p.images?.[0] ?? null,
-    nota: "Promoción del mes",
+    nota: "En stock — promoción del mes",
     search: { q: p.name },
   }));
 
-  const items = deDb.length >= 5 ? deDb : CURADOS;
+  if (items.length === 0) return null;
 
   return (
     <section className="container mx-auto px-4 lg:px-8 py-16">
@@ -92,8 +70,7 @@ export function DestacadosMes() {
         <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">PROMOCIONES DEL MES</h2>
       </div>
 
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {items.map((it) => (
           <Link
             key={it.name}
