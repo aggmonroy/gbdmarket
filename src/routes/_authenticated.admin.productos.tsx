@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Upload, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   listAllProducts,
@@ -11,6 +11,7 @@ import {
   bulkImportProducts,
 } from "@/lib/products-admin.functions";
 import { listAllCategories } from "@/lib/categories-admin.functions";
+import { leerFichaProveedor } from "@/lib/ai-product.functions";
 import { usePublishFlag } from "@/hooks/use-draft-mode";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,7 +62,7 @@ const empty = {
   features: "",
   price_cash: "",
   price_financed: "",
-  stock: "0",
+  disponibilidad: "en_stock",
   images: "",
   datasheet_url: "",
   manual_url: "",
@@ -97,6 +98,9 @@ function ProductsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [csvText, setCsvText] = useState("");
   const [importing, setImporting] = useState(false);
+  const [enlaceIA, setEnlaceIA] = useState("");
+  const [leyendo, setLeyendo] = useState(false);
+  const leerFichaFn = useServerFn(leerFichaProveedor);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -124,7 +128,7 @@ function ProductsPage() {
       features: (p.features ?? []).join("\n"),
       price_cash: String(p.price_cash ?? ""),
       price_financed: p.price_financed != null ? String(p.price_financed) : "",
-      stock: String(p.stock ?? 0),
+      disponibilidad: (p.disponibilidad ?? "en_stock") as string,
       images: (p.images ?? []).join("\n"),
       datasheet_url: p.datasheet_url ?? "",
       manual_url: p.manual_url ?? "",
@@ -132,6 +136,34 @@ function ProductsPage() {
       is_published: !!p.is_published,
     });
     setOpen(true);
+  }
+
+  async function leerFicha() {
+    const url = enlaceIA.trim();
+    if (!url) { toast.error("Pega el enlace del proveedor"); return; }
+    setLeyendo(true);
+    try {
+      const f: any = await leerFichaFn({ data: { url } });
+      const cat = categories.find(
+        (c: any) => c.name?.toLowerCase() === String(f.categoria ?? "").toLowerCase(),
+      );
+      setForm((prev: any) => ({
+        ...prev,
+        name: f.name || prev.name,
+        brand: f.brand || prev.brand,
+        model: f.model || prev.model,
+        code: f.code || prev.code,
+        category_id: cat?.id ?? prev.category_id,
+        description: f.description || prev.description,
+        features: (f.features ?? []).join("\n") || prev.features,
+        images: (f.images ?? []).join("\n") || prev.images,
+      }));
+      toast.success("Ficha generada. Revisa y completa precio y disponibilidad.");
+    } catch (e: any) {
+      toast.error(e?.message ?? "No se pudo leer el enlace");
+    } finally {
+      setLeyendo(false);
+    }
   }
 
   async function handleSave() {
@@ -149,7 +181,7 @@ function ProductsPage() {
           features: form.features.split("\n").map((s: string) => s.trim()).filter(Boolean),
           price_cash: Number(form.price_cash) || 0,
           price_financed: form.price_financed ? Number(form.price_financed) : null,
-          stock: parseInt(form.stock || "0", 10) || 0,
+          disponibilidad: form.disponibilidad as "en_stock" | "bajo_pedido",
           images: form.images.split("\n").map((s: string) => s.trim()).filter(Boolean),
           datasheet_url: form.datasheet_url.trim() || null,
           manual_url: form.manual_url.trim() || null,
@@ -269,7 +301,7 @@ function ProductsPage() {
                   <th className="py-2 pr-3">Marca</th>
                   <th className="py-2 pr-3">Categoría</th>
                   <th className="py-2 pr-3">Precio</th>
-                  <th className="py-2 pr-3">Stock</th>
+                  <th className="py-2 pr-3">Disponibilidad</th>
                   <th className="py-2 pr-3">Estado</th>
                   <th className="py-2 pr-3 text-right">Acciones</th>
                 </tr>
@@ -291,7 +323,9 @@ function ProductsPage() {
                     <td className="py-2 pr-3">{p.categories?.name ?? "—"}</td>
                     <td className="py-2 pr-3">${Number(p.price_cash).toFixed(2)}</td>
                     <td className="py-2 pr-3">
-                      <span className={p.stock <= 2 ? "text-destructive font-semibold" : ""}>{p.stock}</span>
+                      {p.disponibilidad === "bajo_pedido"
+                        ? <Badge variant="outline">Bajo pedido</Badge>
+                        : <Badge variant="secondary">En stock</Badge>}
                     </td>
                     <td className="py-2 pr-3 space-x-1">
                       {p.is_published ? <Badge variant="secondary">Publicado</Badge> : <Badge variant="outline">Oculto</Badge>}
@@ -318,6 +352,26 @@ function ProductsPage() {
           <DialogHeader>
             <DialogTitle>{editingId ? "Editar producto" : "Nuevo producto"}</DialogTitle>
           </DialogHeader>
+
+          <div className="rounded-md border border-dashed border-primary/40 bg-primary-soft/30 p-3 space-y-2">
+            <Label className="flex items-center gap-2 text-sm font-semibold text-primary">
+              <Sparkles className="h-4 w-4" /> Lectura con IA desde el enlace del proveedor
+            </Label>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Input
+                placeholder="https://proveedor.com/producto/..."
+                value={enlaceIA}
+                onChange={(e) => setEnlaceIA(e.target.value)}
+              />
+              <Button type="button" variant="secondary" disabled={leyendo} onClick={leerFicha}>
+                {leyendo ? "Leyendo…" : "Generar ficha"}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              La IA completa nombre, marca, modelo, código, categoría, descripción, características e imágenes. El precio y la
+              disponibilidad se llenan a mano y todo queda editable.
+            </p>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2 space-y-2">
               <Label>Nombre *</Label>
@@ -356,8 +410,14 @@ function ProductsPage() {
               <Input type="number" step="0.01" value={form.price_financed} onChange={(e) => setForm({ ...form, price_financed: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>Stock</Label>
-              <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+              <Label>Disponibilidad</Label>
+              <Select value={form.disponibilidad} onValueChange={(v) => setForm({ ...form, disponibilidad: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en_stock">Artículo en stock</SelectItem>
+                  <SelectItem value="bajo_pedido">Artículo bajo pedido</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="sm:col-span-2 space-y-2">
               <Label>Descripción</Label>

@@ -1,14 +1,11 @@
 import { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
-import { buildWaUrl, defaultGreeting, logLead } from "@/lib/whatsapp";
+import { defaultGreeting, type WaChannel } from "@/lib/whatsapp";
+import { WhatsAppLeadDialog } from "./WhatsAppLeadDialog";
 
 export function WhatsAppFloat() {
   const [open, setOpen] = useState(false);
-
-  const openChat = (channel: "linea-blanca" | "bordados") => {
-    logLead({ channel });
-    window.open(buildWaUrl(channel, defaultGreeting(channel)), "_blank");
-  };
+  const [canal, setCanal] = useState<WaChannel | null>(null);
 
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
@@ -20,7 +17,7 @@ export function WhatsAppFloat() {
           </div>
           <div className="p-2">
             <button
-              onClick={() => openChat("linea-blanca")}
+              onClick={() => { setCanal("linea-blanca"); setOpen(false); }}
               className="w-full text-left rounded-lg px-3 py-3 hover:bg-accent transition flex items-center gap-3"
             >
               <span className="grid h-9 w-9 place-items-center rounded-full bg-primary-soft text-primary">LB</span>
@@ -30,7 +27,7 @@ export function WhatsAppFloat() {
               </span>
             </button>
             <button
-              onClick={() => openChat("bordados")}
+              onClick={() => { setCanal("bordados"); setOpen(false); }}
               className="w-full text-left rounded-lg px-3 py-3 hover:bg-accent transition flex items-center gap-3"
             >
               <span className="grid h-9 w-9 place-items-center rounded-full bg-primary-soft text-primary">B</span>
@@ -50,6 +47,15 @@ export function WhatsAppFloat() {
       >
         {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-7 w-7" />}
       </button>
+
+      {canal && (
+        <WhatsAppLeadDialog
+          open
+          onOpenChange={(b) => !b && setCanal(null)}
+          channel={canal}
+          mensaje={defaultGreeting(canal)}
+        />
+      )}
     </div>
   );
 }

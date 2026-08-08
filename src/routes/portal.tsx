@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   AlertTriangle,
+  Archive,
   CalendarDays,
   CheckCircle2,
   ClipboardList,
@@ -36,6 +37,7 @@ import {
 } from "@/lib/pedidos-shared";
 import { TareasPanel } from "@/components/portal/TareasPanel";
 import { SolicitudesActivas } from "@/components/portal/SolicitudesActivas";
+import { CasosCerrados } from "@/components/portal/CasosCerrados";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -54,7 +56,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
-  const [vista, setVista] = useState<"menu" | "seguimiento" | "pedidos" | "calendario" | "tareas">("menu");
+  const [vista, setVista] = useState<"menu" | "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas">("menu");
 
   useEffect(() => {
     const raw = sessionStorage.getItem(KEY);
@@ -101,6 +103,7 @@ function Portal() {
 
         {vista === "menu" && <Menu sesion={sesion} ir={setVista} />}
         {vista === "seguimiento" && <SolicitudesActivas sesion={sesion} />}
+        {vista === "cerrados" && <CasosCerrados sesion={sesion} />}
         {vista === "pedidos" && <Pedidos sesion={sesion} />}
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
@@ -183,7 +186,13 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion) => void }) {
 
 /* ----------------------------------- Menú ----------------------------------- */
 
-function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos" | "calendario" | "tareas") => void }) {
+function Menu({
+  sesion,
+  ir,
+}: {
+  sesion: Sesion;
+  ir: (v: "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas") => void;
+}) {
   const rol = sesion.colaborador.rol;
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -211,7 +220,13 @@ function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos
         to="/modulo-garantias"
       />
       <Area
-        titulo="Bitácora de pedidos"
+        titulo="Bitácora de casos cerrados"
+        texto="Casos ya cerrados: consulta por rango de fechas, cliente o número, con detalle imprimible."
+        icon={Archive}
+        onClick={() => ir("cerrados")}
+      />
+      <Area
+        titulo="Pre-órdenes"
         texto="Pre-órdenes de Línea Blanca y Bordados con su estado y seguimiento."
         icon={ClipboardList}
         onClick={() => ir("pedidos")}

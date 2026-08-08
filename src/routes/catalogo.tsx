@@ -9,6 +9,7 @@ import {
   Search, SlidersHorizontal, Shirt, Crown, Briefcase, Backpack,
   BadgeCheck, Upload, Loader2, MessageCircle, Package, Scissors,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/site/ProductCard";
 import { ProductDetailDialog, type ProductLite } from "@/components/site/ProductDetailDialog";
@@ -16,7 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { buildWaUrl, logLead } from "@/lib/whatsapp";
+import { buildWaUrl } from "@/lib/whatsapp";
+import { crearSolicitudBordado } from "@/lib/embroidery.functions";
 
 const searchSchema = z.object({
   tab: z.enum(["linea-blanca", "bordados"]).optional(),
@@ -258,6 +260,7 @@ type BordadoVals = z.infer<typeof bordadoSchema>;
 
 function BordadosPanel() {
   const [submitting, setSubmitting] = useState(false);
+  const crearBordado = useServerFn(crearSolicitudBordado);
   const { register, handleSubmit, formState: { errors } } = useForm<BordadoVals>({
     resolver: zodResolver(bordadoSchema),
     defaultValues: { service_type: "Bordado Corporativo", quantity: 12 },
@@ -266,18 +269,17 @@ function BordadosPanel() {
   const onSubmit = async (vals: BordadoVals) => {
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("embroidery_requests").insert({
+      await crearBordado({ data: {
         name: vals.name,
         phone: vals.phone,
-        email: vals.email || null,
+        email: vals.email || "",
         service_type: vals.service_type,
         quantity: vals.quantity,
-        colors: vals.colors || null,
-        placement: vals.placement || null,
-        notes: vals.notes || null,
-      });
-      if (error) throw error;
-      await logLead({ channel: "bordados", customer_name: vals.name, product_name: vals.service_type });
+        colors: vals.colors || "",
+        placement: vals.placement || "",
+        notes: vals.notes || "",
+        consent: true,
+      } as any });
       toast.success("Solicitud enviada. Te contactaremos por WhatsApp.");
 
       const msg = [

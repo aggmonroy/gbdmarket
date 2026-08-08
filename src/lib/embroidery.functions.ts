@@ -13,6 +13,8 @@ const solicitudSchema = z.object({
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
   design_url: z.string().trim().max(2000).optional().or(z.literal("")),
   consent: z.literal(true),
+  /** Cuando la pre-orden ya generó la tarea, evitamos duplicarla. */
+  sin_tarea: z.boolean().optional(),
 });
 
 /**
@@ -40,6 +42,8 @@ export const crearSolicitudBordado = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
+
+    if (data.sin_tarea) return { id: (row as any).id as string };
 
     const { crearTareaDeOrigen } = await import("./tareas.server");
     await crearTareaDeOrigen({
