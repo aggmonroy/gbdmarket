@@ -14,11 +14,11 @@ import {
   type TipoCliente,
   esAsociado,
 } from "@/lib/pricing-gbd";
-import { Header } from "@/components/Header";
-import { ProductoForm } from "@/components/ProductoForm";
-import { VistaCliente } from "@/components/VistaCliente";
-import { ActionBar } from "@/components/ActionBar";
-import { EnlaceGeneradorCard } from "@/components/EnlaceGeneradorCard";
+import { Header } from "@/components/calculadora/Header";
+import { ProductoForm } from "@/components/calculadora/ProductoForm";
+import { VistaCliente } from "@/components/calculadora/VistaCliente";
+import { ActionBar } from "@/components/calculadora/ActionBar";
+import { EnlaceGeneradorCard } from "@/components/calculadora/EnlaceGeneradorCard";
 
 
 export function AsesorPage() {

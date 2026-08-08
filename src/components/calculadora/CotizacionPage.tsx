@@ -10,8 +10,8 @@ import {
   type TipoCliente,
   esAsociado,
 } from "@/lib/pricing-gbd";
-import { VistaCliente } from "@/components/VistaCliente";
-import { ActionBar } from "@/components/ActionBar";
+import { VistaCliente } from "@/components/calculadora/VistaCliente";
+import { ActionBar } from "@/components/calculadora/ActionBar";
 import logoIcono from "@/assets/calculadora/logo-icono.png";
 
 interface CotizacionRow {
