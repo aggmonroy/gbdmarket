@@ -65,7 +65,7 @@ export function GobiernoSeccion({
     <div className="space-y-5">
       <div className="bg-[#E3EFFF] border border-[#BFD6F5] rounded-xl px-4 py-3">
         <p className="text-xs font-bold text-[#0C4C9E]">
-          Cotización institucional: siempre al contado, con detalle por renglón (referencia, cantidad, precio
+          Cotización institucional: siempre al contado, con detalle por renglón (modelo, cantidad, precio
           unitario, subtotal, ITBMS 7% y total). Descuento editable hasta 10%.
         </p>
       </div>
