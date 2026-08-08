@@ -154,12 +154,15 @@ function Ingreso({ onLogin }: { onLogin: (s: Sesion) => void }) {
             <Label htmlFor="pin">Código PIN</Label>
             <Input
               id="pin"
+              type="password"
+              autoComplete="off"
               inputMode="numeric"
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
               placeholder="••••"
             />
+
           </div>
           <Button className="w-full" disabled={!id || pin.length !== 4 || login.isPending} onClick={() => login.mutate()}>
             {login.isPending ? "Verificando…" : "Ingresar"}
@@ -184,11 +187,12 @@ function Menu({ sesion, ir }: { sesion: Sesion; ir: (v: "seguimiento" | "pedidos
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <Area
-        titulo="Seguimiento consolidado"
-        texto="Todo lo pendiente en un solo lugar: pedidos de Línea Blanca, bordados y garantías."
+        titulo="Solicitudes Activas"
+        texto="Todo lo pendiente en un solo lugar: pedidos de Línea Blanca, bordados, garantías e interacciones del sitio."
         icon={ListChecks}
         onClick={() => ir("seguimiento")}
       />
+
       <Area
         titulo="Tareas e incidencias"
         texto={
