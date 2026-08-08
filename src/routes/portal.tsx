@@ -8,24 +8,19 @@ import {
   Archive,
   CalendarDays,
   Calculator,
-  CheckCircle2,
-  ClipboardList,
   KeyRound,
   LayoutDashboard,
   ListChecks,
   ListTodo,
   LogOut,
   Package,
-  Printer,
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { loginConCedula } from "@/lib/garantias.functions";
 import { agendaDelDia } from "@/lib/pedidos.functions";
 import { ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos-shared";
