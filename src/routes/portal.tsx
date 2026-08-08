@@ -58,7 +58,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
-  const [vista, setVista] = useState<"menu" | "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas" | "catalogo">("menu");
+  const [vista, setVista] = useState<"menu" | "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas" | "catalogo" | "calculadora">("menu");
 
   useEffect(() => {
     const raw = sessionStorage.getItem(KEY);
