@@ -83,11 +83,14 @@ export function CotizacionPage({ id }: { id: string }) {
     );
   }
 
+  const esGob = datos.tipo_cliente === "gobierno";
+  const totalesGob = esGob ? calcularGobierno(datos.productos) : null;
   const calculados = datos.productos.map((p) => ({ ...p, calc: calcularProducto(p) }));
   const totales = calcularTotales(calculados, datos.tipo_cliente);
   const contadoTotal = esAsociado(datos.tipo_cliente) ? totales.promoAsociado : totales.promoTercero;
   const creditoTotal = esAsociado(datos.tipo_cliente) ? totales.precioCreditoAsociado : totales.precioCreditoTercero;
   const diasRestantes = Math.max(0, 30 - Math.floor((Date.now() - new Date(datos.creado_en).getTime()) / (1000 * 60 * 60 * 24)));
+
 
   return (
     <div className="min-h-screen bg-[#F4F9FF] text-[#071123]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
