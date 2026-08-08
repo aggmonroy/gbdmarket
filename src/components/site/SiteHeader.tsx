@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { CartButton } from "@/components/site/CartButton";
 
 
 const nav = [
@@ -56,6 +57,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2">
+          <CartButton />
           <Link
             to="/portal"
             className="inline-flex items-center rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-accent transition"
@@ -72,6 +74,8 @@ export function SiteHeader() {
           </a>
         </div>
 
+        <div className="flex items-center gap-2 lg:hidden">
+          <CartButton />
         <button
           aria-label="Menú"
           onClick={() => setOpen(!open)}
@@ -79,6 +83,7 @@ export function SiteHeader() {
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
+        </div>
       </div>
 
       {open && (

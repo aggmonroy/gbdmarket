@@ -17,6 +17,7 @@ import { WhatsAppFloat } from "@/components/site/WhatsAppFloat";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteSettingsInjector } from "@/hooks/use-site-settings";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { CartProvider } from "@/lib/cart";
 
 function NotFoundComponent() {
   return (
@@ -129,6 +130,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <CartProvider>
       <SiteSettingsInjector />
       <div className="flex min-h-screen flex-col">
         <SiteHeader />
@@ -139,6 +141,7 @@ function RootComponent() {
         <WhatsAppFloat />
         <Toaster richColors position="top-right" />
       </div>
+      </CartProvider>
     </QueryClientProvider>
   );
 }
