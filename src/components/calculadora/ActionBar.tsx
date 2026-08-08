@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Share2, Download, Image as ImageIcon } from "lucide-react";
-import { etiquetaTipoCliente, fmt, telefonoAWhatsapp, type CalculadoProducto, type CapacidadInfo, type ClienteInfo, type PlazoCuota, type TipoCliente } from "@/lib/pricing-gbd";
-import { descargarArchivo, generarImagenCotizacion } from "@/lib/generar-imagen-gbd";
+import { etiquetaTipoCliente, fmt, telefonoAWhatsapp, type CalculadoProducto, type CapacidadInfo, type ClienteInfo, type PlazoCuota, type TipoCliente, type TotalesGobierno } from "@/lib/pricing-gbd";
+import { descargarArchivo, generarImagenCotizacion, generarImagenGobierno } from "@/lib/generar-imagen-gbd";
 
 interface Props {
   tipoCliente: TipoCliente;
@@ -15,11 +15,32 @@ interface Props {
   cliente?: ClienteInfo;
   capacidad?: CapacidadInfo;
   promo?: { precioEtiqueta: number; cuota3m: number; meses: number };
+  totalesGobierno?: TotalesGobierno;
 }
 
 
-function buildResumenTexto({ tipoCliente, calculados, contadoTotal, creditoTotal, plazoElegido, cuota, cliente }: Props) {
+function buildResumenTexto({ tipoCliente, calculados, contadoTotal, creditoTotal, plazoElegido, cuota, cliente, totalesGobierno }: Props) {
   const saludo = cliente?.nombre ? `Hola ${cliente.nombre.split(" ")[0]},\n\n` : "";
+
+  if (tipoCliente === "gobierno" && totalesGobierno) {
+    const lineas = [
+      `${saludo}*Cooperativa Gladys B. de Ducasa R.L. — Sección Línea Blanca*`,
+      "Cotización institucional (pago al contado)",
+      "",
+      ...totalesGobierno.lineas.map(
+        (l) =>
+          `- ${l.referencia ? l.referencia + " · " : ""}${l.detalle} | ${l.cantidad} x ${l.precioUnitario.toFixed(2)} = ${fmt(l.total)} (ITBMS ${l.itbms.toFixed(2)})`
+      ),
+      "",
+      `Subtotal: ${fmt(totalesGobierno.subtotal)}`,
+      `ITBMS (7%): ${fmt(totalesGobierno.itbms)}`,
+      `*Total: ${fmt(totalesGobierno.total)}*`,
+      "",
+      "Cotización válida por 30 días o hasta agotar existencias.",
+    ];
+    return lineas.join("\n");
+  }
+
   const lineas = [
     `${saludo}*Cooperativa Gladys B. de Ducasa R.L. — Línea Blanca*`,
     `Cotización (${etiquetaTipoCliente(tipoCliente)})`,
@@ -37,8 +58,9 @@ function buildResumenTexto({ tipoCliente, calculados, contadoTotal, creditoTotal
   return lineas.join("\n");
 }
 
+
 export function ActionBar(props: Props) {
-  const { tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, mostrarDescargaImagen, cliente, capacidad, promo } = props;
+  const { tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, mostrarDescargaImagen, cliente, capacidad, promo, totalesGobierno } = props;
   const [generando, setGenerando] = useState(false);
 
 
@@ -60,8 +82,12 @@ export function ActionBar(props: Props) {
   const descargarImagen = async () => {
     setGenerando(true);
     try {
-      const dataUrl = await generarImagenCotizacion({ tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, cliente, capacidad, promo });
-      descargarArchivo(dataUrl, "cotizacion-gbd.png");
+      const dataUrl =
+        tipoCliente === "gobierno" && totalesGobierno
+          ? await generarImagenGobierno({ totales: totalesGobierno, cliente })
+          : await generarImagenCotizacion({ tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, cliente, capacidad, promo });
+      descargarArchivo(dataUrl, tipoCliente === "gobierno" ? "cotizacion-institucional-gbd.png" : "cotizacion-gbd.png");
+
     } catch (e) {
       console.error(e);
       alert("No se pudo generar la imagen. Intenta con 'Guardar / Imprimir' como alternativa.");
