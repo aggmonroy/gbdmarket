@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 import { DestacadosMes } from "@/components/site/DestacadosMes";
+import { BordadoPolicy } from "@/components/site/BordadoPolicy";
 
 
 
@@ -338,6 +339,9 @@ function BordadosSection() {
         <p className="mt-3 text-muted-foreground">
           Personalizamos tus prendas y artículos con acabados profesionales y atención personalizada.
         </p>
+        <div className="mt-5">
+          <BordadoPolicy compact />
+        </div>
       </div>
 
       <div className="relative overflow-hidden rounded-3xl shadow-elevated border border-border bg-slate-900">

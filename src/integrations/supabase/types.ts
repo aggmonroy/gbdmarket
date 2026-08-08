@@ -417,6 +417,7 @@ export type Database = {
           notes: string | null
           phone: string
           placement: string | null
+          policy_accepted: boolean
           quantity: number
           service_type: string
           status: string
@@ -431,6 +432,7 @@ export type Database = {
           notes?: string | null
           phone: string
           placement?: string | null
+          policy_accepted?: boolean
           quantity?: number
           service_type: string
           status?: string
@@ -445,6 +447,7 @@ export type Database = {
           notes?: string | null
           phone?: string
           placement?: string | null
+          policy_accepted?: boolean
           quantity?: number
           service_type?: string
           status?: string

@@ -10,6 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/site/ProductCard";
 import { ProductDetailDialog, type ProductLite } from "@/components/site/ProductDetailDialog";
+import { BordadoPolicy } from "@/components/site/BordadoPolicy";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -221,12 +222,14 @@ type CotizacionVals = z.infer<typeof cotizacionSchema>;
 
 function FormularioBordados() {
   const [submitting, setSubmitting] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
   const crearBordado = useServerFn(crearSolicitudBordado);
   const { register, handleSubmit, formState: { errors } } = useForm<CotizacionVals>({
     resolver: zodResolver(cotizacionSchema),
   });
 
   const onSubmit = async (vals: CotizacionVals) => {
+    if (!policyAccepted) { toast.error("Debes aceptar las condiciones de bordado y tiempos de entrega"); return; }
     setSubmitting(true);
     try {
       await crearBordado({ data: {
@@ -238,6 +241,7 @@ function FormularioBordados() {
         placement: vals.address,
         notes: vals.description,
         consent: true,
+        policy_accepted: true,
       } as any });
       toast.success("Solicitud enviada. Te contactaremos por WhatsApp.");
 
@@ -265,7 +269,11 @@ function FormularioBordados() {
         Completa el formulario y recibirás respuesta por WhatsApp de inmediato.
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-4">
+        <BordadoPolicy compact />
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-4 grid gap-4 sm:grid-cols-2">
         <Field label="Nombre" error={errors.name?.message}>
           <Input {...register("name")} placeholder="Tu nombre o empresa" />
         </Field>
@@ -282,7 +290,11 @@ function FormularioBordados() {
           <Textarea {...register("description")} rows={4} placeholder="Cuéntanos qué necesitas: productos, cantidades, colores, fechas..." />
         </Field>
 
-        <Button type="submit" disabled={submitting} className="sm:col-span-2 bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
+        <div className="sm:col-span-2">
+          <BordadoPolicy accepted={policyAccepted} onChange={setPolicyAccepted} id="catalogo-bordado-policy" />
+        </div>
+
+        <Button type="submit" disabled={submitting || !policyAccepted} className="sm:col-span-2 bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
           {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageCircle className="mr-2 h-4 w-4" />}
           Solicitar Cotización por WhatsApp
         </Button>

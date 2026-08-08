@@ -13,6 +13,7 @@ const solicitudSchema = z.object({
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
   design_url: z.string().trim().max(2000).optional().or(z.literal("")),
   consent: z.literal(true),
+  policy_accepted: z.boolean().default(false),
   /** Cuando la pre-orden ya generó la tarea, evitamos duplicarla. */
   sin_tarea: z.boolean().optional(),
 });
@@ -37,6 +38,7 @@ export const crearSolicitudBordado = createServerFn({ method: "POST" })
         placement: data.placement || null,
         notes: data.notes || null,
         design_url: data.design_url || null,
+        policy_accepted: data.policy_accepted,
         status: "new",
       })
       .select("id")

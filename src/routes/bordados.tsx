@@ -9,6 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { crearSolicitudBordado } from "@/lib/embroidery.functions";
 import { crearPreorden } from "@/lib/pedidos.functions";
 import { DataConsent } from "@/components/site/DataConsent";
+import { BordadoPolicy } from "@/components/site/BordadoPolicy";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ type FormVals = z.infer<typeof schema>;
 function Bordados() {
   const [submitting, setSubmitting] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
   const crearPre = useServerFn(crearPreorden);
   const crearBordado = useServerFn(crearSolicitudBordado);
   const navigate = useNavigate();
@@ -63,6 +65,7 @@ function Bordados() {
   });
 
   const onSubmit = async (vals: FormVals) => {
+    if (!policyAccepted) { toast.error("Debes aceptar las condiciones de bordado y tiempos de entrega"); return; }
     if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setSubmitting(true);
     try {
@@ -76,6 +79,7 @@ function Bordados() {
         placement: vals.placement || "",
         notes: vals.notes || "",
         consent: true,
+        policy_accepted: true,
         sin_tarea: true,
       } as any });
       const r: any = await crearPre({ data: {
@@ -115,6 +119,9 @@ function Bordados() {
           <p className="mt-4 text-primary-foreground/85 max-w-2xl">
             Atendemos empresas, colegios, equipos deportivos y clientes particulares en Panamá. Carga tu diseño y recibe una cotización en horas.
           </p>
+          <div className="mt-6 max-w-2xl">
+            <BordadoPolicy compact />
+          </div>
         </div>
       </section>
 
@@ -176,9 +183,13 @@ function Bordados() {
             </div>
 
             <div className="sm:col-span-2">
+              <BordadoPolicy accepted={policyAccepted} onChange={setPolicyAccepted} id="bordados-policy" />
+            </div>
+
+            <div className="sm:col-span-2">
               <DataConsent accepted={consent} onChange={setConsent} id="bordados-consent" />
             </div>
-            <Button type="submit" disabled={submitting || !consent} className="sm:col-span-2 bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
+            <Button type="submit" disabled={submitting || !policyAccepted || !consent} className="sm:col-span-2 bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageCircle className="mr-2 h-4 w-4" />}
               Solicitar Cotización por WhatsApp
             </Button>
