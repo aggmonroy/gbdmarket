@@ -76,7 +76,7 @@ function CatalogoCompleto() {
     queryFn: async () => {
       let qb = supabase
         .from("products")
-        .select("id,category_id,name,brand,model,code,description,features,price_cash,price_financed,stock,images,datasheet_url,manual_url,is_featured,is_published,views_count,quote_count,created_at,updated_at, categories(slug,name)")
+        .select("id,category_id,name,brand,model,code,description,features,price_cash,price_financed,stock,images,datasheet_url,manual_url,is_featured,is_published,views_count,quote_count,disponibilidad,created_at,updated_at, categories(slug,name)")
         .eq("is_published", true)
         .order("is_featured", { ascending: false });
       if (cat) {
