@@ -5,6 +5,7 @@ import { getCotizacion, eliminarCotizacion } from "@/lib/cotizaciones.functions"
 import {
   calcularProducto,
   calcularTotales,
+  calcularGobierno,
   fmt,
   type CapacidadInfo,
   type ClienteInfo,
@@ -13,7 +14,9 @@ import {
   esAsociado,
   etiquetaTipoCliente,
 } from "@/lib/pricing-gbd";
+import { VistaGobierno } from "@/components/calculadora/VistaGobierno";
 import logoIcono from "@/assets/calculadora/logo-icono.png";
+
 
 interface CotizacionRow {
   tipo_cliente: TipoCliente;
@@ -132,7 +135,10 @@ export function ImprimirPage({ id }: { id: string }) {
     );
   }
 
+  const esGob = datos.tipo_cliente === "gobierno";
+  const totalesGob = esGob ? calcularGobierno(datos.productos) : null;
   const calculados = datos.productos.map((p) => ({ ...p, calc: calcularProducto(p) }));
+
   const totales = calcularTotales(calculados, datos.tipo_cliente);
   const contadoTotal = esAsociado(datos.tipo_cliente) ? totales.promoAsociado : totales.promoTercero;
   const tipo_cliente_asociado = esAsociado(datos.tipo_cliente);
@@ -197,7 +203,12 @@ export function ImprimirPage({ id }: { id: string }) {
             </p>
           </div>
 
+          {esGob && totalesGob ? (
+            <VistaGobierno totales={totalesGob} cliente={cliente ?? undefined} />
+          ) : (
+          <>
           {tieneCliente && cliente && (
+
             <div className="border border-[#DBE2EB] rounded-lg px-4 py-3">
               <p className="text-xs uppercase font-bold text-[#68758A] mb-2">Datos del cliente</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
@@ -311,6 +322,10 @@ export function ImprimirPage({ id }: { id: string }) {
               </p>
             </div>
           )}
+          </>
+          )}
+
+
 
           <div className="bg-[#E3EFFF] text-[#0C4C9E] rounded-full text-center py-2 text-xs font-bold">
             Cotización válida por 30 días o hasta agotar existencias

@@ -4,6 +4,7 @@ import { getCotizacion } from "@/lib/cotizaciones.functions";
 import {
   calcularProducto,
   calcularTotales,
+  calcularGobierno,
   type CapacidadInfo,
   type ClienteInfo,
   type ProductoInput,
@@ -11,7 +12,9 @@ import {
   esAsociado,
 } from "@/lib/pricing-gbd";
 import { VistaCliente } from "@/components/calculadora/VistaCliente";
+import { VistaGobierno } from "@/components/calculadora/VistaGobierno";
 import { ActionBar } from "@/components/calculadora/ActionBar";
+
 import logoIcono from "@/assets/calculadora/logo-icono.png";
 
 interface CotizacionRow {
@@ -83,11 +86,14 @@ export function CotizacionPage({ id }: { id: string }) {
     );
   }
 
+  const esGob = datos.tipo_cliente === "gobierno";
+  const totalesGob = esGob ? calcularGobierno(datos.productos) : null;
   const calculados = datos.productos.map((p) => ({ ...p, calc: calcularProducto(p) }));
   const totales = calcularTotales(calculados, datos.tipo_cliente);
   const contadoTotal = esAsociado(datos.tipo_cliente) ? totales.promoAsociado : totales.promoTercero;
   const creditoTotal = esAsociado(datos.tipo_cliente) ? totales.precioCreditoAsociado : totales.precioCreditoTercero;
   const diasRestantes = Math.max(0, 30 - Math.floor((Date.now() - new Date(datos.creado_en).getTime()) / (1000 * 60 * 60 * 24)));
+
 
   return (
     <div className="min-h-screen bg-[#F4F9FF] text-[#071123]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -113,31 +119,50 @@ export function CotizacionPage({ id }: { id: string }) {
             {diasRestantes > 0 ? `Vence en ${diasRestantes} día${diasRestantes === 1 ? "" : "s"}` : "Vence hoy"}
           </p>
         </div>
-        <VistaCliente
-          calculados={calculados}
-          totales={totales}
-          tipoCliente={datos.tipo_cliente}
-          plazoElegido={plazoElegido}
-          setPlazoElegido={setPlazoElegido}
-          cliente={datos.cliente ?? undefined}
-        />
-        <ActionBar
-          tipoCliente={datos.tipo_cliente}
-          calculados={calculados}
-          contadoTotal={contadoTotal}
-          creditoTotal={creditoTotal}
-          plazoElegido={plazoElegido}
-          cuota={totales.planTotal.find((r) => r.meses === plazoElegido)}
-          planTotal={totales.planTotal}
-          mostrarDescargaImagen
-          cliente={datos.cliente ?? undefined}
-          
-          promo={
-            esAsociado(datos.tipo_cliente)
-              ? { precioEtiqueta: totales.precioContado, cuota3m: totales.cuotaPromoContado, meses: totales.mesesPromo }
-              : undefined
-          }
-        />
+        {esGob && totalesGob ? (
+          <>
+            <VistaGobierno totales={totalesGob} cliente={datos.cliente ?? undefined} />
+            <ActionBar
+              tipoCliente="gobierno"
+              calculados={[]}
+              contadoTotal={totalesGob.total}
+              creditoTotal={totalesGob.total}
+              plazoElegido={0}
+              planTotal={[]}
+              mostrarDescargaImagen
+              cliente={datos.cliente ?? undefined}
+              totalesGobierno={totalesGob}
+            />
+          </>
+        ) : (
+          <>
+            <VistaCliente
+              calculados={calculados}
+              totales={totales}
+              tipoCliente={datos.tipo_cliente}
+              plazoElegido={plazoElegido}
+              setPlazoElegido={setPlazoElegido}
+              cliente={datos.cliente ?? undefined}
+            />
+            <ActionBar
+              tipoCliente={datos.tipo_cliente}
+              calculados={calculados}
+              contadoTotal={contadoTotal}
+              creditoTotal={creditoTotal}
+              plazoElegido={plazoElegido}
+              cuota={totales.planTotal.find((r) => r.meses === plazoElegido)}
+              planTotal={totales.planTotal}
+              mostrarDescargaImagen
+              cliente={datos.cliente ?? undefined}
+              promo={
+                esAsociado(datos.tipo_cliente)
+                  ? { precioEtiqueta: totales.precioContado, cuota3m: totales.cuotaPromoContado, meses: totales.mesesPromo }
+                  : undefined
+              }
+            />
+          </>
+        )}
+
 
       </div>
     </div>
