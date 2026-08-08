@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { admin, verifySesion } from "./garantias.server";
-import { ABIERTOS, aplicarVisibilidad, decorar, generarNumeroTarea, hoyISO } from "./tareas.server";
+import { ABIERTOS, aplicarVisibilidad, decorar, generarNumeroTarea, hoyISO, nombresColaboradores } from "./tareas.server";
 import {
   aceptarTareaSchema,
   apoyoTareaSchema,
@@ -265,7 +265,7 @@ export const listSeguimientosTarea = createServerFn({ method: "POST" })
       .eq("tarea_id", data.id)
       .order("created_at", { ascending: true });
     if (error) throw new Error(error.message);
-    const nombres = await (await import("./tareas.server")).nombresColaboradores(sb);
+    const nombres = await nombresColaboradores(sb);
     return (rows ?? []).map((r: any) => ({ ...r, autor: r.creado_por ? nombres.get(r.creado_por) ?? "—" : "Sistema" }));
   });
 
