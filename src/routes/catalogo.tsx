@@ -49,13 +49,18 @@ function Catalogo() {
       </header>
 
       <CatalogoCompleto />
-
-      <div className="mt-16">
-        <FormularioBordados />
-      </div>
     </div>
   );
 }
+
+const BORDADOS_SLUG = "bordados";
+
+function irAlFormularioBordados() {
+  requestAnimationFrame(() => {
+    document.getElementById("cotizar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 
 /* ---------- CATÁLOGO COMPLETO ---------- */
 function CatalogoCompleto() {
