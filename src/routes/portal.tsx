@@ -36,6 +36,7 @@ import {
 } from "@/lib/pedidos-shared";
 import { TareasPanel } from "@/components/portal/TareasPanel";
 import { SolicitudesActivas } from "@/components/portal/SolicitudesActivas";
+import { CasosCerrados } from "@/components/portal/CasosCerrados";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
