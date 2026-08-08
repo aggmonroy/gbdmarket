@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Shirt, Crown, Briefcase, Backpack, BadgeCheck, Upload, Loader2, MessageCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { logLead } from "@/lib/whatsapp";
+import { crearSolicitudBordado } from "@/lib/embroidery.functions";
 import { crearPreorden } from "@/lib/pedidos.functions";
 import { DataConsent } from "@/components/site/DataConsent";
 import { Input } from "@/components/ui/input";
@@ -56,6 +56,7 @@ function Bordados() {
   const [submitting, setSubmitting] = useState(false);
   const [consent, setConsent] = useState(false);
   const crearPre = useServerFn(crearPreorden);
+  const crearBordado = useServerFn(crearSolicitudBordado);
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm<FormVals>({
     resolver: zodResolver(schema),
@@ -66,17 +67,18 @@ function Bordados() {
     if (!consent) { toast.error("Debes aceptar el tratamiento de datos"); return; }
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("embroidery_requests").insert({
+      await crearBordado({ data: {
         name: vals.name,
         phone: vals.phone,
-        email: vals.email || null,
+        email: vals.email || "",
         service_type: vals.service_type,
         quantity: vals.quantity,
-        colors: vals.colors || null,
-        placement: vals.placement || null,
-        notes: vals.notes || null,
-      });
-      if (error) throw error;
+        colors: vals.colors || "",
+        placement: vals.placement || "",
+        notes: vals.notes || "",
+        consent: true,
+        sin_tarea: true,
+      } as any });
       const r: any = await crearPre({ data: {
         cliente_nombre: vals.name,
         cliente_telefono: vals.phone,
@@ -89,7 +91,6 @@ function Bordados() {
         meta: { quantity: vals.quantity, colors: vals.colors, placement: vals.placement },
         consent: true,
       } as any });
-      await logLead({ channel: "bordados", customer_name: vals.name, product_name: vals.service_type });
       toast.success("Pre-orden generada. Revisa e imprime tu documento.");
       navigate({ to: "/pedido/$numero", params: { numero: r.numero_pedido } });
     } catch (e: any) {
