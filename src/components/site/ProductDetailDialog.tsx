@@ -8,7 +8,7 @@ import { crearPreorden } from "@/lib/pedidos.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { DataConsent } from "@/components/site/DataConsent";
 import { toast } from "sonner";
-import { FileText, MessageCircle, Package, ShoppingCart } from "lucide-react";
+import { FileText, MessageCircle, Package, Scissors, ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 
