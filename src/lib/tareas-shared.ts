@@ -57,7 +57,33 @@ export const ORIGEN_TAREA_LABEL: Record<OrigenTarea, string> = {
   interno: "Registro interno",
 };
 
+/* --------------------------- Vías de seguimiento --------------------------- */
+
+export const VIAS_SEGUIMIENTO = [
+  "Personalmente",
+  "A domicilio",
+  "WhatsApp",
+  "Llamada",
+  "Correo electrónico",
+  "Otro",
+] as const;
+export type ViaSeguimiento = (typeof VIAS_SEGUIMIENTO)[number];
+
 /* ------------------------------- Esquemas ------------------------------- */
+
+export const seguimientoTareaSchema = z.object({
+  token: z.string().min(1),
+  id: z.string().uuid(),
+  fecha: z.string().min(10).max(10).optional(),
+  via: z.enum(VIAS_SEGUIMIENTO),
+  via_detalle: z.string().trim().max(120).optional().or(z.literal("")),
+  texto: z.string().trim().min(1).max(4000),
+});
+
+export const listSeguimientosTareaSchema = z.object({
+  token: z.string().min(1),
+  id: z.string().uuid(),
+});
 
 export const crearTareaSchema = z.object({
   token: z.string().min(1),
