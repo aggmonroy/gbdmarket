@@ -871,6 +871,33 @@ export type Database = {
           },
         ]
       }
+      promociones_mes: {
+        Row: {
+          created_at: string
+          definido_por: string | null
+          id: string
+          periodo: string
+          product_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          definido_por?: string | null
+          id?: string
+          periodo: string
+          product_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          definido_por?: string | null
+          id?: string
+          periodo?: string
+          product_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       promotions: {
         Row: {
           created_at: string
@@ -1250,6 +1277,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      crear_tarea_promociones_mes: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
