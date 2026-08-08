@@ -119,6 +119,11 @@ function CatalogoCompleto() {
     });
   };
 
+  const solicitarBordado = () => {
+    if (cat !== BORDADOS_SLUG) setSearch({ cat: BORDADOS_SLUG });
+    setTimeout(irAlFormularioBordados, 250);
+  };
+
   return (
     <div className="grid lg:grid-cols-[260px_1fr] gap-8">
       <aside className="space-y-6">
@@ -186,7 +191,7 @@ function CatalogoCompleto() {
                 key={p.id}
                 product={p}
                 esBordado={p.categories?.slug === BORDADOS_SLUG}
-                onSolicitarBordado={irAlFormularioBordados}
+                onSolicitarBordado={solicitarBordado}
                 onClick={() => setSelected(p)}
               />
             ))}
@@ -205,7 +210,7 @@ function CatalogoCompleto() {
         onOpenChange={(o) => !o && setSelected(null)}
         product={selected}
         esBordado={(selected as any)?.categories?.slug === BORDADOS_SLUG}
-        onSolicitarBordado={irAlFormularioBordados}
+        onSolicitarBordado={solicitarBordado}
       />
     </div>
   );
