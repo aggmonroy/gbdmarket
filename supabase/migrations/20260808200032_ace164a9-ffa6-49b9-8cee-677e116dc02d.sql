@@ -1,0 +1,1 @@
+ALTER TABLE public.embroidery_requests ADD COLUMN policy_accepted boolean NOT NULL DEFAULT false;
