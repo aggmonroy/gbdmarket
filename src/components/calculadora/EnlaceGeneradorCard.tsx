@@ -25,7 +25,13 @@ export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, ca
     try {
       const productos = calculados.map(({ calc: _calc, ...rest }) => rest);
 
+      const nuevoId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
       const payload: Record<string, unknown> = {
+        id: nuevoId,
         tipo_cliente: tipoCliente,
         modo,
         productos,
@@ -37,16 +43,11 @@ export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, ca
         payload.capacidad = capacidad;
       }
 
-      const { data, error } = await supabase
-        .from("cotizaciones")
-        .insert(payload as never)
-        .select("id")
-        .single();
+      const { error } = await supabase.from("cotizaciones").insert(payload as never);
       if (error) throw error;
-      if (!data?.id) throw new Error("No se recibió ID de la cotización");
 
       const ruta = esImprimir ? "imprimir" : "cotizacion";
-      setEnlace(`${window.location.origin}/${ruta}/${data.id}`);
+      setEnlace(`${window.location.origin}/${ruta}/${nuevoId}`);
       setEstado("listo");
     } catch (e) {
       console.error("Error generando enlace:", e);

@@ -321,7 +321,7 @@ function Menu({
         onClick={() => ir("catalogo")}
       />
       <Area
-        titulo="Calculadora de precios"
+        titulo="Cotización"
         texto="Cotiza Línea Blanca al contado o a crédito, evalúa capacidad de pago y comparte el enlace con el cliente."
         icon={Calculator}
         onClick={() => ir("calculadora")}
