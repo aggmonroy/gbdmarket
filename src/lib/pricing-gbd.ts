@@ -263,7 +263,10 @@ export interface TotalesGobierno {
 export function calcularGobierno(productos: ProductoInput[]): TotalesGobierno {
   const lineas: LineaGobierno[] = productos.map((p) => {
     const cantidad = Math.max(0, Number(p.cantidad) || 0);
-    const base = Math.max(0, Number(p.precioUnitario) || 0);
+    // El precio capturado es el de etiqueta (ya incluye ITBMS 7%):
+    // se le descuenta el impuesto para cotizar antes de ITBMS.
+    const etiqueta = Math.max(0, Number(p.precioUnitario) || 0);
+    const base = etiqueta / (1 + ITBMS);
     const descPct = Math.min(Math.max(Number(p.descGobiernoPct) || 0, 0), DESC_MAX_GOBIERNO);
     const precioUnitario = base * (1 - descPct);
     const subtotal = precioUnitario * cantidad;

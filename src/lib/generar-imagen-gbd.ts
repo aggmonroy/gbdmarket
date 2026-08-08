@@ -595,8 +595,8 @@ export async function generarImagenGobierno({
   // Tabla
   const cols = [
     { label: "Imagen", w: 70, align: "center" as const },
-    { label: "Referencia", w: 130, align: "left" as const },
-    { label: "Detalle", w: 290, align: "left" as const },
+    { label: "Modelo", w: 130, align: "left" as const },
+    { label: "Nombre del producto", w: 290, align: "left" as const },
     { label: "Cant.", w: 60, align: "center" as const },
     { label: "P. unit.", w: 90, align: "right" as const },
     { label: "Subtotal", w: 100, align: "right" as const },

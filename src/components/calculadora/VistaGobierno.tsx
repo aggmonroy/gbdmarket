@@ -54,8 +54,8 @@ export function VistaGobierno({
           <thead>
             <tr className="bg-[#002362] text-white">
               <Th>Imagen</Th>
-              <Th>Referencia</Th>
-              <Th className="text-left">Detalle</Th>
+              <Th>Modelo</Th>
+              <Th className="text-left">Nombre del producto</Th>
               <Th>Cant.</Th>
               <Th>P. unitario</Th>
               <Th>Subtotal</Th>
