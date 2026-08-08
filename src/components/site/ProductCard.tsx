@@ -1,13 +1,36 @@
-import { Package, MessageCircle } from "lucide-react";
+import { Package, MessageCircle, ShoppingCart } from "lucide-react";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 import type { ProductLite } from "./ProductDetailDialog";
+import { useCart } from "@/lib/cart";
+import { toast } from "sonner";
 
 
 export function ProductCard({ product, onClick }: { product: ProductLite & { category?: string | null }; onClick: () => void }) {
+  const { add, setAbierto } = useCart();
+
+  const agregar = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    add({
+      id: product.id,
+      name: product.name,
+      brand: product.brand ?? null,
+      model: product.model ?? null,
+      code: product.code ?? null,
+      image: product.images?.[0] ?? null,
+      disponibilidad: product.disponibilidad ?? null,
+    });
+    toast.success("Agregado al carrito de cotización");
+    setAbierto(true);
+  };
+
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className="group text-left rounded-xl overflow-hidden border border-border bg-card hover:shadow-elevated hover:-translate-y-0.5 transition-all"
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
+      className="group text-left rounded-xl overflow-hidden border border-border bg-card hover:shadow-elevated hover:-translate-y-0.5 transition-all cursor-pointer"
     >
       <div className="aspect-square bg-muted overflow-hidden relative">
         {product.images?.[0] ? (
@@ -24,13 +47,20 @@ export function ProductCard({ product, onClick }: { product: ProductLite & { cat
           <DisponibilidadBadge disponibilidad={product.disponibilidad} />
         </div>
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Cotización sin compromiso</span>
-
           <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:underline">
-            <MessageCircle className="h-3.5 w-3.5" /> Cotizar
+            <MessageCircle className="h-3.5 w-3.5" /> Ver detalle
           </span>
+
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={agregar}
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition"
+          >
+            <ShoppingCart className="h-3.5 w-3.5" /> Agregar
+          </button>
         </div>
       </div>
-    </button>
+    </div>
   );
 }

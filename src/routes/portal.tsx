@@ -30,6 +30,7 @@ import { CasosCerrados } from "@/components/portal/CasosCerrados";
 import { CatalogoPortal } from "@/components/portal/CatalogoPortal";
 import { SeguimientoDialog } from "@/components/portal/SeguimientoDialog";
 import { AsesorPage } from "@/components/calculadora/AsesorPage";
+import { CotizacionCarrito } from "@/components/portal/CotizacionCarrito";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -61,7 +62,10 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
-  const [vista, setVista] = useState<"menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora">("menu");
+  const [vista, setVista] = useState<
+    "menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "cotizacion"
+  >("menu");
+  const [cotizacionTareaId, setCotizacionTareaId] = useState<string | null>(null);
 
   useEffect(() => {
     setSesion(leerSesion());
@@ -101,7 +105,25 @@ function Portal() {
         </header>
 
         {vista === "menu" && <Menu sesion={sesion} ir={setVista} />}
-        {vista === "seguimiento" && <SolicitudesActivas sesion={sesion} />}
+        {vista === "seguimiento" && (
+          <SolicitudesActivas
+            sesion={sesion}
+            onAbrirCotizacion={(id) => {
+              setCotizacionTareaId(id);
+              setVista("cotizacion");
+            }}
+          />
+        )}
+        {vista === "cotizacion" && cotizacionTareaId && (
+          <CotizacionCarrito
+            sesion={sesion}
+            tareaId={cotizacionTareaId}
+            onFinalizada={() => {
+              setCotizacionTareaId(null);
+              setVista("seguimiento");
+            }}
+          />
+        )}
         {vista === "cerrados" && <CasosCerrados sesion={sesion} />}
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}

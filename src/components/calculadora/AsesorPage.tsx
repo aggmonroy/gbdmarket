@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Plus, Calculator, Users, UserCheck, Eye, EyeOff, AlertTriangle, X, User, BadgeCheck } from "lucide-react";
 import {
   calcularProducto,
@@ -21,15 +21,40 @@ import { ActionBar } from "@/components/calculadora/ActionBar";
 import { EnlaceGeneradorCard } from "@/components/calculadora/EnlaceGeneradorCard";
 
 
-export function AsesorPage() {
+export type AsesorInicial = {
+  tipoCliente?: TipoCliente;
+  cliente?: ClienteInfo;
+  productos?: ProductoInput[];
+};
+
+export function AsesorPage({
+  inicial,
+  encabezado,
+  onFinalizar,
+  finalizando,
+  etiquetaFinalizar = "Finalizar cotización",
+}: {
+  inicial?: AsesorInicial;
+  encabezado?: ReactNode;
+  onFinalizar?: (payload: {
+    tipoCliente: TipoCliente;
+    cliente: ClienteInfo;
+    productos: ProductoInput[];
+    capacidad?: CapacidadInfo;
+  }) => void;
+  finalizando?: boolean;
+  etiquetaFinalizar?: string;
+} = {}) {
   const [vista, setVista] = useState<"asesor" | "cliente">("asesor");
-  const [tipoCliente, setTipoCliente] = useState<TipoCliente>("asociado");
-  const [productos, setProductos] = useState<ProductoInput[]>([nuevoProducto()]);
+  const [tipoCliente, setTipoCliente] = useState<TipoCliente>(inicial?.tipoCliente ?? "asociado");
+  const [productos, setProductos] = useState<ProductoInput[]>(
+    inicial?.productos?.length ? inicial.productos : [nuevoProducto()]
+  );
   const [plazoElegido, setPlazoElegido] = useState(12);
   const [modalCapacidad, setModalCapacidad] = useState(false);
   const [ingreso, setIngreso] = useState("");
   const [deudaActual, setDeudaActual] = useState("");
-  const [cliente, setCliente] = useState<ClienteInfo>(clienteVacio());
+  const [cliente, setCliente] = useState<ClienteInfo>(inicial?.cliente ?? clienteVacio());
   const updateCliente = (field: keyof ClienteInfo, value: string) =>
     setCliente((c) => ({ ...c, [field]: value }));
 
@@ -90,6 +115,7 @@ export function AsesorPage() {
       </Header>
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        {encabezado}
         <div className="bg-white rounded-xl border border-[#DBE2EB] p-4">
           <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F] mb-2">Tipo de cliente</p>
           <div className="flex flex-wrap gap-2">
@@ -226,6 +252,16 @@ export function AsesorPage() {
 
             <EnlaceGeneradorCard tipoCliente={tipoCliente} calculados={calculados} modo="ver" cliente={cliente} capacidad={capacidadInfo} />
             <EnlaceGeneradorCard tipoCliente={tipoCliente} calculados={calculados} modo="imprimir" cliente={cliente} capacidad={capacidadInfo} />
+
+            {onFinalizar && (
+              <button
+                disabled={finalizando}
+                onClick={() => onFinalizar({ tipoCliente, cliente, productos, capacidad: capacidadInfo })}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#002362] hover:bg-[#003581] disabled:opacity-60 text-white font-bold transition-colors"
+              >
+                <BadgeCheck size={18} /> {finalizando ? "Guardando…" : etiquetaFinalizar}
+              </button>
+            )}
 
             <ActionBar
               tipoCliente={tipoCliente}
