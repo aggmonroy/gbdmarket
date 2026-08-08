@@ -26,7 +26,14 @@ export const ESTADO_LABEL: Record<GarantiaEstado, string> = {
   cerrada_proveedor_cliente: "Cerrada — proveedor / cliente",
 };
 
-export const VIAS: GarantiaVia[] = ["Llamada", "WhatsApp", "Correo electrónico"];
+export const VIAS: GarantiaVia[] = [
+  "Personalmente",
+  "A domicilio",
+  "WhatsApp",
+  "Llamada",
+  "Correo electrónico",
+  "Otro",
+];
 
 export const COLOR_CIERRE: Record<string, string> = {
   cerrada_cliente_credito: "#2563eb",
