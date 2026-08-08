@@ -51,13 +51,29 @@ function pickWeekly(): typeof POOL {
 export const Route = createFileRoute("/api/public/hooks/refresh-home-gallery")({
   server: {
     handlers: {
-      GET: () => refresh(),
-      POST: () => refresh(),
+      GET: ({ request }) => refresh(request),
+      POST: ({ request }) => refresh(request),
     },
   },
 });
 
-async function refresh() {
+/** Solo el cron autorizado puede reescribir la galería del inicio. */
+function autorizado(request: Request): boolean {
+  const expected = process.env['CRON_SECRET'];
+  if (!expected) return false;
+  const header = request.headers.get("x-cron-secret") ?? "";
+  const bearer = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const token = header || bearer || new URL(request.url).searchParams.get("token") || "";
+  return token.length === expected.length && token === expected;
+}
+
+async function refresh(request: Request) {
+  if (!autorizado(request)) {
+    return new Response(JSON.stringify({ error: "forbidden" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {
