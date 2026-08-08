@@ -278,11 +278,46 @@ function GalleryThumb({ item, active, onClick }: { item: GalleryItem; active: bo
 
 /* ---------- BORDADOS (galería estilo hero) ---------- */
 function BordadosSection() {
-  const items = useGallerySection("home.bordados", FALLBACK_BORDADOS);
+  const { data: bordados = [] } = useQuery({
+    queryKey: ["home-bordados-productos"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id,name,images,categories!inner(slug)")
+        .eq("is_published", true)
+        .eq("categories.slug", "bordados")
+        .limit(12);
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 30 * 60 * 1000,
+  });
+
+  const items: GalleryItem[] = useMemo(() => {
+    const texto = (idx: number) => TEXTOS_BORDADOS[(idx * 3 + 1) % TEXTOS_BORDADOS.length];
+    const conImagen = (bordados as any[]).filter((p) => (p.images?.[0] ?? "").length > 0);
+    if (conImagen.length > 0) {
+      return conImagen.map((p, idx) => ({
+        image_url: p.images[0] as string,
+        title: p.name as string,
+        subtitle: texto(idx),
+        href: "/catalogo",
+        search: { q: p.name as string },
+      }));
+    }
+    return IMAGENES_BORDADOS.map((image_url, idx) => ({
+      image_url,
+      title: "Bordados GBD",
+      subtitle: texto(idx),
+      href: "/catalogo",
+      search: { q: "bordado" },
+    }));
+  }, [bordados]);
+
   const [i, setI] = useState(0);
-  const [cotizar, setCotizar] = useState(false);
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
   const prev = () => setI((p) => (p - 1 + items.length) % items.length);
+
 
 
 
