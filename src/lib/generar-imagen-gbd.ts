@@ -1,0 +1,443 @@
+import type { CalculadoProducto, CapacidadInfo, ClienteInfo, PlazoCuota, TipoCliente } from "./pricing";
+import { esAsociado, etiquetaTipoCliente } from "./pricing";
+import { fmt } from "./pricing";
+import logoIcono from "@/assets/logo-icono.png";
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function loadImg(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("no se pudo cargar imagen"));
+    img.src = src;
+  });
+}
+
+function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxW: number, maxLines: number): string[] {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    const tentative = cur ? cur + " " + w : w;
+    if (ctx.measureText(tentative).width <= maxW) {
+      cur = tentative;
+    } else {
+      if (cur) lines.push(cur);
+      cur = w;
+      if (lines.length === maxLines - 1) break;
+    }
+  }
+  if (cur && lines.length < maxLines) lines.push(cur);
+  if (lines.length === maxLines) {
+    let last = lines[maxLines - 1];
+    while (ctx.measureText(last + "…").width > maxW && last.length > 0) {
+      last = last.slice(0, -1);
+    }
+    lines[maxLines - 1] = last + "…";
+  }
+  return lines;
+}
+
+export async function generarImagenCotizacion({
+  tipoCliente,
+  calculados,
+  contadoTotal,
+  creditoTotal,
+  planTotal,
+  cliente,
+  capacidad,
+  promo,
+}: {
+  tipoCliente: TipoCliente;
+  calculados: CalculadoProducto[];
+  contadoTotal: number;
+  creditoTotal: number;
+  planTotal: PlazoCuota[];
+  cliente?: ClienteInfo;
+  capacidad?: CapacidadInfo;
+  promo?: { precioEtiqueta: number; cuota3m: number; meses: number };
+}): Promise<string> {
+  const W = 850;
+
+
+  // Pre-load product images
+  const imgs = await Promise.all(
+    calculados.map(async (p) => {
+      if (!p.imagen) return null;
+      try {
+        return await loadImg(p.imagen);
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  // Measure with a temp ctx
+  const measureCanvas = document.createElement("canvas");
+  const mctx = measureCanvas.getContext("2d")!;
+
+  const productHeights = calculados.map((p, i) => {
+    const hasImg = !!imgs[i];
+    const textLeft = hasImg ? 170 : 56;
+    const textMaxW = 770 - (textLeft - 40) - 16;
+    let h = 20; // top padding
+    h += 24; // nombre
+    if (p.descripcion) {
+      mctx.font = "bold 12px Arial";
+      const lines = wrapLines(mctx, p.descripcion, textMaxW, 3);
+      h += lines.length * 16 + 6;
+    }
+    h += 26; // precios row
+    h += 14; // bottom padding
+    if (hasImg) h = Math.max(h, 130);
+    return h;
+  });
+
+  const camposCliente: Array<[string, string]> = [];
+  if (cliente?.nombre?.trim()) camposCliente.push(["Nombre", cliente.nombre.trim()]);
+  if (cliente?.cedula?.trim()) camposCliente.push(["Cédula", cliente.cedula.trim()]);
+  if (cliente?.telefono?.trim()) camposCliente.push(["Teléfono", cliente.telefono.trim()]);
+  if (cliente?.correo?.trim()) camposCliente.push(["Correo", cliente.correo.trim()]);
+  if (cliente?.direccion?.trim()) camposCliente.push(["Dirección", cliente.direccion.trim()]);
+
+  const filasCliente = Math.ceil(camposCliente.length / 2);
+  const clienteBoxH = camposCliente.length ? 40 + filasCliente * 22 + 12 : 0;
+  const clienteBox = clienteBoxH ? clienteBoxH + 14 : 0;
+  const productsTotal = productHeights.reduce((a, b) => a + b + 10, 0);
+  const totalRowsPlan = Math.ceil(planTotal.length / 2);
+  const capacidadBox = capacidad ? 150 + 16 : 0;
+  const promoBox = promo ? 150 + 16 : 0;
+
+  const H =
+    150 + // header
+    50 + // titulo/fecha
+    clienteBox +
+    36 + // "Productos cotizados"
+    productsTotal +
+    14 +
+    116 + // total contado
+    16 + // plazos title
+    totalRowsPlan * 66 +
+    20 +
+    promoBox +
+    capacidadBox +
+    62; // validez footer
+
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+
+  ctx.fillStyle = "#F5F1E8";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = "#1F3A38";
+  ctx.fillRect(0, 0, W, 150);
+
+  try {
+    const imgIcono = await loadImg(logoIcono);
+    ctx.fillStyle = "#FFFFFF";
+    roundRect(ctx, 40, 30, 90, 90, 14);
+    ctx.fill();
+    ctx.drawImage(imgIcono, 47, 37, 76, 76);
+  } catch {
+    // fallback: sin logo
+  }
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 20px Arial";
+  ctx.fillText("Cooperativa de Servicios Integrales", 150, 60);
+  ctx.fillText("Gladys B. De Ducasa, R.L.", 150, 86);
+  ctx.fillStyle = "#9FBFB9";
+  ctx.font = "bold 15px Arial";
+  ctx.fillText("Sección Línea Blanca y Bordados", 150, 110);
+
+  ctx.fillStyle = "#F5F1E8";
+  ctx.font = "bold 13px Arial";
+  ctx.fillText("WhatsApp: +507 6784-1941", 150, 132);
+
+  let y = 190;
+  ctx.fillStyle = "#1F3A38";
+  ctx.font = "bold 30px Arial";
+  ctx.fillText("Cotización", 40, y);
+
+  const fecha = new Date().toLocaleDateString("es-PA", { year: "numeric", month: "long", day: "numeric" });
+  ctx.font = "bold 13px Arial";
+  ctx.fillStyle = "#8A836C";
+  ctx.fillText(`Fecha: ${fecha}  ·  Tipo: ${etiquetaTipoCliente(tipoCliente)}`, 40, y + 24);
+  y += 50;
+
+  if (camposCliente.length) {
+    ctx.fillStyle = "#FFFFFF";
+    roundRect(ctx, 40, y, 770, clienteBoxH, 10);
+    ctx.fill();
+    ctx.strokeStyle = "#E4DDC9";
+    ctx.stroke();
+    ctx.fillStyle = "#8A836C";
+    ctx.font = "bold 12px Arial";
+    ctx.fillText("DATOS DEL CLIENTE", 56, y + 24);
+
+    const etiquetaTipo = etiquetaTipoCliente(tipoCliente).toUpperCase();
+    ctx.font = "bold 12px Arial";
+    const tw = ctx.measureText(etiquetaTipo).width;
+    ctx.fillStyle = "#F5F1E8";
+    roundRect(ctx, 794 - tw - 20, y + 10, tw + 20, 22, 11);
+    ctx.fill();
+    ctx.strokeStyle = "#E4DDC9";
+    ctx.stroke();
+    ctx.fillStyle = "#1F3A38";
+    ctx.fillText(etiquetaTipo, 794 - tw - 10, y + 25);
+
+    camposCliente.forEach(([label, value], i) => {
+      const col = i % 2;
+      const fila = Math.floor(i / 2);
+      const x = 56 + col * 380;
+      const yy = y + 48 + fila * 22;
+      ctx.font = "bold 12px Arial";
+      ctx.fillStyle = "#8A836C";
+      ctx.fillText(label, x, yy);
+      ctx.fillStyle = "#1F3A38";
+      ctx.font = "bold 13px Arial";
+      const maxW = 360 - 90;
+      let txt = value;
+      while (ctx.measureText(txt).width > maxW && txt.length > 1) txt = txt.slice(0, -1);
+      if (txt !== value) txt = txt.slice(0, -1) + "…";
+      ctx.fillText(txt, x + 90, yy);
+    });
+    y += clienteBoxH + 14;
+  }
+
+
+  ctx.fillStyle = "#1F3A38";
+  ctx.font = "bold 16px Arial";
+  ctx.fillText("Productos cotizados", 40, y);
+  y += 18;
+
+  calculados.forEach(({ nombre, descripcion, calc }, i) => {
+    const rowH = productHeights[i];
+    const img = imgs[i];
+    const hasImg = !!img;
+
+    ctx.fillStyle = "#FFFFFF";
+    roundRect(ctx, 40, y, 770, rowH, 10);
+    ctx.fill();
+    ctx.strokeStyle = "#E4DDC9";
+    ctx.stroke();
+
+    if (hasImg && img) {
+      // clip to rounded square for the thumbnail
+      ctx.save();
+      const ix = 56;
+      const iy = y + 14;
+      const isize = 100;
+      roundRect(ctx, ix, iy, isize, isize, 10);
+      ctx.clip();
+      // cover fit
+      const scale = Math.max(isize / img.width, isize / img.height);
+      const dw = img.width * scale;
+      const dh = img.height * scale;
+      ctx.drawImage(img, ix + (isize - dw) / 2, iy + (isize - dh) / 2, dw, dh);
+      ctx.restore();
+    }
+
+    const textLeft = hasImg ? 170 : 56;
+    const textMaxW = 770 - (textLeft - 40) - 16;
+
+    let ty = y + 34;
+    ctx.fillStyle = "#1F3A38";
+    ctx.font = "bold 15px Arial";
+    ctx.fillText(nombre || `Producto ${i + 1}`, textLeft, ty);
+    ty += 6;
+
+    if (descripcion) {
+      ctx.font = "bold 12px Arial";
+      ctx.fillStyle = "#6B6552";
+      const lines = wrapLines(ctx, descripcion, textMaxW, 3);
+      for (const line of lines) {
+        ty += 16;
+        ctx.fillText(line, textLeft, ty);
+      }
+      ty += 6;
+    }
+
+    ty += 18;
+    const precioFinal = esAsociado(tipoCliente) ? calc.promoAsociado : calc.promoTercero;
+    const precioCredito = esAsociado(tipoCliente) ? calc.precioCreditoAsociado : calc.precioCreditoTercero;
+    ctx.font = "bold 13px Arial";
+    ctx.fillStyle = "#8A836C";
+    ctx.fillText("Contado:", textLeft, ty);
+    ctx.fillStyle = "#1F3A38";
+    ctx.fillText(fmt(precioFinal), textLeft + 74, ty);
+    ctx.fillStyle = "#8A836C";
+    ctx.fillText("Crédito:", textLeft + 240, ty);
+    ctx.fillStyle = "#1F3A38";
+    ctx.fillText(fmt(precioCredito), textLeft + 310, ty);
+
+    y += rowH + 10;
+  });
+
+  y += 4;
+  ctx.fillStyle = "#1F3A38";
+  roundRect(ctx, 40, y, 770, 90, 14);
+  ctx.fill();
+  ctx.fillStyle = "#9FBFB9";
+  ctx.font = "bold 13px Arial";
+  ctx.fillText("TOTAL PAGO AL CONTADO", 60, y + 32);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 32px Arial";
+  ctx.fillText(fmt(contadoTotal), 60, y + 68);
+  y += 116;
+
+  ctx.fillStyle = "#1F3A38";
+  ctx.font = "bold 16px Arial";
+  ctx.fillText(`Plazos disponibles a crédito (total ${fmt(creditoTotal)})`, 40, y);
+  y += 16;
+
+  const colW = 770 / 2;
+  planTotal.forEach((row, idx) => {
+    const col = idx % 2;
+    const rowIdx = Math.floor(idx / 2);
+    const bx = 40 + col * (colW + 10);
+    const by = y + rowIdx * 66;
+    ctx.fillStyle = "#FFFFFF";
+    roundRect(ctx, bx, by, colW - 10, 56, 10);
+    ctx.fill();
+    ctx.strokeStyle = "#E4DDC9";
+    ctx.stroke();
+
+    ctx.fillStyle = "#1F3A38";
+    ctx.font = "bold 14px Arial";
+    ctx.fillText(`${row.meses} meses`, bx + 14, by + 22);
+    ctx.font = "bold 15px Arial";
+    ctx.fillText(fmt(row.cuotaMensual) + "/mes", bx + 14, by + 42);
+    ctx.font = "bold 11px Arial";
+    ctx.fillStyle = "#8A836C";
+    ctx.fillText(fmt(row.letraQuincenal) + " quinc.", bx + 190, by + 42);
+  });
+
+  y += Math.ceil(planTotal.length / 2) * 66 + 20;
+
+  if (promo) {
+    const boxH = 150;
+    ctx.fillStyle = "#FBEDE0";
+    roundRect(ctx, 40, y, 770, boxH, 14);
+    ctx.fill();
+    ctx.strokeStyle = "#C97B3D";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    ctx.save();
+    roundRect(ctx, 40, y, 770, boxH, 14);
+    ctx.clip();
+    ctx.fillStyle = "#C97B3D";
+    ctx.fillRect(40, y, 770, 52);
+    ctx.restore();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 12px Arial";
+    ctx.fillText(
+      tipoCliente === "colaborador" ? "¡PROMOCIÓN EXCLUSIVA PARA COLABORADORES GBD!" : "¡PROMOCIÓN EXCLUSIVA PARA ASOCIADOS!",
+      W / 2,
+      y + 21
+    );
+    ctx.font = "bold 17px Arial";
+    ctx.fillText(`${promo.meses} meses a precio de contado`, W / 2, y + 43);
+
+    ctx.fillStyle = "#9C5A24";
+    ctx.font = "bold 11px Arial";
+    ctx.fillText("PRECIO DE ETIQUETA", W / 2, y + 72);
+    ctx.fillStyle = "#1F3A38";
+    ctx.font = "bold 26px Arial";
+    ctx.fillText(fmt(promo.precioEtiqueta), W / 2, y + 99);
+
+    const bw = 340;
+    const cards: Array<[string, string]> = [
+      ["ABONO INICIAL", fmt(promo.cuota3m)],
+      ["QUINCENAL", fmt(promo.cuota3m / 2)],
+    ];
+    cards.forEach(([label, value], i) => {
+      const bx = 56 + i * (bw + 18);
+      const by = y + 108;
+      ctx.fillStyle = "#FFFFFF";
+      roundRect(ctx, bx, by, bw, 34, 10);
+      ctx.fill();
+      ctx.strokeStyle = "#E9CDAE";
+      ctx.stroke();
+      ctx.fillStyle = "#9C5A24";
+      ctx.font = "bold 10px Arial";
+      ctx.fillText(label, bx + bw / 2, by + 14);
+      ctx.fillStyle = "#1F3A38";
+      ctx.font = "bold 15px Arial";
+      ctx.fillText(value, bx + bw / 2, by + 29);
+    });
+    ctx.textAlign = "left";
+
+    y += boxH + 16;
+  }
+
+
+
+  if (capacidad) {
+    const bg = capacidad.aprueba ? "#E4EEE0" : "#FBEAE4";
+    const border = capacidad.aprueba ? "#B7D5B0" : "#E9C4B4";
+    const boxH = 150;
+    ctx.fillStyle = bg;
+    roundRect(ctx, 40, y, 770, boxH, 12);
+    ctx.fill();
+    ctx.strokeStyle = border;
+    ctx.stroke();
+
+    ctx.fillStyle = "#6B6552";
+    ctx.font = "bold 12px Arial";
+    ctx.fillText("EVALUACIÓN DE CAPACIDAD DE PAGO", 56, y + 22);
+
+    ctx.fillStyle = "#1F3A38";
+    ctx.font = "bold 15px Arial";
+    const resultado = capacidad.aprueba ? "Dentro del límite legal" : "Excede el límite legal";
+    ctx.fillText(`Resultado: ${resultado}`, 56, y + 48);
+
+    ctx.font = "bold 13px Arial";
+    ctx.fillStyle = "#26261F";
+    const col1x = 56;
+    const col2x = 440;
+    let ly = y + 74;
+    const line = (label: string, value: string, x: number, yy: number) => {
+      ctx.fillStyle = "#8A836C";
+      ctx.fillText(label, x, yy);
+      ctx.fillStyle = "#1F3A38";
+      ctx.fillText(value, x + 170, yy);
+    };
+    line("Ingreso mensual:", fmt(capacidad.ingreso), col1x, ly);
+    line("Deuda actual:", fmt(capacidad.deudaActual), col2x, ly);
+    ly += 20;
+    line("Tope legal:", fmt(capacidad.ingreso * capacidad.topePct), col1x, ly);
+    line("Disponible:", fmt(capacidad.limiteCuota), col2x, ly);
+    ly += 20;
+    line(`Cuota (${capacidad.plazoMeses}m):`, fmt(capacidad.cuotaPropuesta), col1x, ly);
+
+    y += boxH + 16;
+  }
+
+  ctx.fillStyle = "#FBEDE0";
+  roundRect(ctx, 40, y, 770, 42, 21);
+  ctx.fill();
+  ctx.fillStyle = "#9C5A24";
+  ctx.font = "bold 13px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Cotización válida por 30 días o hasta agotar existencias", W / 2, y + 26);
+  ctx.textAlign = "left";
+
+  return canvas.toDataURL("image/png");
+}
