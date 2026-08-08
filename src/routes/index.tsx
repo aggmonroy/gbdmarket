@@ -7,7 +7,7 @@ import {
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { QuoteFormDialog } from "@/components/site/QuoteFormDialog";
+
 import { DestacadosMes } from "@/components/site/DestacadosMes";
 
 
