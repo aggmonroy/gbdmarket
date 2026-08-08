@@ -227,3 +227,58 @@ export function nuevoProducto(): ProductoInput {
     descripcion: "",
   };
 }
+
+// ============================================================
+// COTIZACIÓN INSTITUCIONAL (GOBIERNO) — siempre al contado
+// Detalle por producto: referencia, detalle, cantidad, precio
+// unitario, subtotal antes de ITBMS, ITBMS (7%) y precio total.
+// ============================================================
+export interface LineaGobierno {
+  id: string;
+  referencia: string;
+  detalle: string;
+  imagen?: string;
+  cantidad: number;
+  precioUnitarioBase: number;
+  descPct: number;
+  precioUnitario: number;
+  subtotal: number;
+  itbms: number;
+  total: number;
+}
+
+export interface TotalesGobierno {
+  lineas: LineaGobierno[];
+  subtotal: number;
+  itbms: number;
+  total: number;
+  descuento: number;
+}
+
+export function calcularGobierno(productos: ProductoInput[]): TotalesGobierno {
+  const lineas: LineaGobierno[] = productos.map((p) => {
+    const cantidad = Math.max(0, Number(p.cantidad) || 0);
+    const base = Math.max(0, Number(p.precioUnitario) || 0);
+    const descPct = Math.min(Math.max(Number(p.descGobiernoPct) || 0, 0), DESC_MAX_GOBIERNO);
+    const precioUnitario = base * (1 - descPct);
+    const subtotal = precioUnitario * cantidad;
+    const itbms = subtotal * ITBMS;
+    return {
+      id: p.id,
+      referencia: (p.referencia || "").trim(),
+      detalle: (p.descripcion || p.nombre || "").trim(),
+      imagen: p.imagen,
+      cantidad,
+      precioUnitarioBase: base,
+      descPct,
+      precioUnitario,
+      subtotal,
+      itbms,
+      total: subtotal + itbms,
+    };
+  });
+  const subtotal = lineas.reduce((a, l) => a + l.subtotal, 0);
+  const itbms = lineas.reduce((a, l) => a + l.itbms, 0);
+  const descuento = lineas.reduce((a, l) => a + (l.precioUnitarioBase - l.precioUnitario) * l.cantidad, 0);
+  return { lineas, subtotal, itbms, total: subtotal + itbms, descuento };
+}
