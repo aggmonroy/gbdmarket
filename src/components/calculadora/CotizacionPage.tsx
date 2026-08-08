@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { getCotizacion } from "@/lib/cotizaciones.functions";
 import {
   calcularProducto,
   calcularTotales,
@@ -35,15 +35,11 @@ export function CotizacionPage({ id }: { id: string }) {
         setEstado("no-encontrado");
         return;
       }
-      const { data, error } = await supabase
-        .from("cotizaciones")
-        .select("tipo_cliente, productos, creado_en, cliente, capacidad")
-        .eq("id", id)
-        .eq("modo", "ver")
-        .maybeSingle();
+      const data = await getCotizacion({ data: { id, modo: "ver" } }).catch(() => null);
 
       if (!activo) return;
-      if (error || !data) {
+      if (!data) {
+        const error = new Error("Cotización no encontrada");
         console.error("Error cargando cotización:", error);
         setEstado("no-encontrado");
         return;
