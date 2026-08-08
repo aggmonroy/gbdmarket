@@ -131,9 +131,12 @@ export function ProductDetailDialog({
               {product.code && <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Código {product.code}</span>}
             </div>
 
-            <div className="mt-3">
-              <DisponibilidadBadge disponibilidad={product.disponibilidad} size="md" />
-            </div>
+            {!esBordado && (
+              <div className="mt-3">
+                <DisponibilidadBadge disponibilidad={product.disponibilidad} size="md" />
+              </div>
+            )}
+
 
 
             {product.description && <p className="mt-4 text-sm text-foreground/80 leading-relaxed">{product.description}</p>}
