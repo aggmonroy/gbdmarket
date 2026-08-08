@@ -10,6 +10,7 @@ export function ProductCard({ product, onClick }: { product: ProductLite & { cat
 
   const agregar = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     add({
       id: product.id,
       name: product.name,
@@ -51,6 +52,8 @@ export function ProductCard({ product, onClick }: { product: ProductLite & { cat
           </span>
 
           <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={agregar}
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition"
           >
