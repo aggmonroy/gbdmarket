@@ -9,6 +9,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { DataConsent } from "@/components/site/DataConsent";
 import { toast } from "sonner";
 import { FileText, MessageCircle, Package } from "lucide-react";
+import { DisponibilidadBadge } from "./DisponibilidadBadge";
+
 
 export type ProductLite = {
   id: string;
