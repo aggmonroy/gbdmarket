@@ -79,7 +79,11 @@ export function CotizacionCarrito({
   };
 
   const finalizar = async (payload: any) => {
-    if (!payload.productos.some((p: any) => Number(p.precioEtiqueta) > 0 || Number(p.precioProveedor) > 0)) {
+    if (
+      !payload.productos.some(
+        (p: any) => Number(p.precioEtiqueta) > 0 || Number(p.precioProveedor) > 0 || Number(p.precioUnitario) > 0
+      )
+    ) {
       toast.error("Coloca el detalle de precio de los artículos antes de finalizar");
       return;
     }

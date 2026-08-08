@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const TIPOS_CLIENTE_COTIZACION = ["asociado", "colaborador", "tercero"] as const;
+export const TIPOS_CLIENTE_COTIZACION = ["asociado", "colaborador", "tercero", "gobierno"] as const;
 
 export const clienteCotizacionSchema = z.object({
   nombre: z.string().trim().min(3).max(120),
@@ -42,6 +42,7 @@ export const finalizarSolicitudCotizacionSchema = z.object({
   cliente: z.object({
     nombre: z.string().trim().max(120),
     cedula: z.string().trim().max(40),
+    ruc: z.string().trim().max(60).optional(),
     telefono: z.string().trim().max(30),
     correo: z.string().trim().max(160),
     direccion: z.string().trim().max(300),
@@ -58,6 +59,10 @@ export const finalizarSolicitudCotizacionSchema = z.object({
         descTerceroPct: z.number().optional(),
         descripcion: z.string().max(1000).optional(),
         imagen: z.string().max(600).optional(),
+        referencia: z.string().max(200).optional(),
+        cantidad: z.union([z.string(), z.number()]).optional(),
+        precioUnitario: z.union([z.string(), z.number()]).optional(),
+        descGobiernoPct: z.number().optional(),
       })
     )
     .min(1)
