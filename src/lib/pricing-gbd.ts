@@ -52,7 +52,11 @@ export interface ClienteInfo {
   direccion: string;
   telefono: string;
   correo: string;
+  /** Solo cotizaciones institucionales (Gobierno) */
+  condicionesPago?: string;
+  observaciones?: string;
 }
+
 
 export interface CapacidadInfo {
   ingreso: number;
