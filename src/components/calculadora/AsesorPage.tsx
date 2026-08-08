@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Plus, Calculator, Users, UserCheck, Eye, EyeOff, AlertTriangle, X, User, BadgeCheck, Landmark } from "lucide-react";
+import { Plus, Calculator, Users, UserCheck, Eye, EyeOff, AlertTriangle, X, User, BadgeCheck } from "lucide-react";
 import {
   calcularProducto,
   calcularTotales,
@@ -13,15 +13,12 @@ import {
   type ProductoInput,
   type TipoCliente,
   esAsociado,
-  esGobierno,
 } from "@/lib/pricing-gbd";
 import { Header } from "@/components/calculadora/Header";
 import { ProductoForm } from "@/components/calculadora/ProductoForm";
 import { VistaCliente } from "@/components/calculadora/VistaCliente";
 import { ActionBar } from "@/components/calculadora/ActionBar";
 import { EnlaceGeneradorCard } from "@/components/calculadora/EnlaceGeneradorCard";
-import { GobiernoSeccion } from "@/components/calculadora/GobiernoSeccion";
-
 
 
 export type AsesorInicial = {
@@ -146,34 +143,10 @@ export function AsesorPage({
             >
               <Users size={16} /> No asociado (tercero)
             </button>
-            <button
-              onClick={() => setTipoCliente("gobierno")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold border transition-colors ${
-                tipoCliente === "gobierno" ? "bg-[#1F6DD8] text-white border-[#1F6DD8]" : "bg-white text-[#535E6F] border-[#DBE2EB]"
-              }`}
-            >
-              <Landmark size={16} /> Gobierno
-            </button>
           </div>
         </div>
 
-        {esGobierno(tipoCliente) && (
-          <GobiernoSeccion
-            vista={vista}
-            productos={productos}
-            cliente={cliente}
-            updateCliente={updateCliente}
-            updateProducto={updateProducto}
-            removeProducto={removeProducto}
-            addProducto={addProducto}
-            finalizando={finalizando}
-            etiquetaFinalizar={etiquetaFinalizar}
-            onFinalizar={onFinalizar ? () => onFinalizar({ tipoCliente, cliente, productos }) : undefined}
-          />
-        )}
-
-        {!esGobierno(tipoCliente) && vista === "asesor" && (
-
+        {vista === "asesor" && (
           <>
             <div className="bg-white rounded-xl border border-[#DBE2EB] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F] mb-2 flex items-center gap-1.5">
@@ -308,7 +281,7 @@ export function AsesorPage({
           </>
         )}
 
-        {!esGobierno(tipoCliente) && vista === "cliente" && (
+        {vista === "cliente" && (
           <>
             <VistaCliente
               calculados={calculados}
