@@ -199,12 +199,18 @@ function HeroFused() {
             ))}
           </div>
 
-          {/* Clickable thumbnails strip */}
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-            {items.slice(0, 6).map((it, idx) => (
-              <GalleryThumb key={idx} item={it} active={idx === i} onClick={() => setI(idx)} />
+          {/* Indicadores de la galería de ambientaciones */}
+          <div className="flex flex-wrap items-center gap-2">
+            {items.map((it, idx) => (
+              <button
+                key={idx}
+                onClick={() => setI(idx)}
+                aria-label={`Ver ${it.title}`}
+                className={`h-2 rounded-full transition-all ${idx === i ? "w-8 bg-amber-400" : "w-2 bg-white/40 hover:bg-white/70"}`}
+              />
             ))}
           </div>
+
         </div>
 
         {/* Controls */}
