@@ -16,6 +16,8 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 function loadImg(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    // Evita "tainted canvas": sin esto, toDataURL falla con imágenes remotas.
+    if (/^https?:\/\//i.test(src)) img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error("no se pudo cargar imagen"));
     img.src = src;
