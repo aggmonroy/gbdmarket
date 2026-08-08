@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Plus, Calculator, Users, UserCheck, Eye, EyeOff, AlertTriangle, X, User, BadgeCheck } from "lucide-react";
 import {
   calcularProducto,
@@ -35,7 +35,7 @@ export function AsesorPage({
   etiquetaFinalizar = "Finalizar cotización",
 }: {
   inicial?: AsesorInicial;
-  encabezado?: React.ReactNode;
+  encabezado?: ReactNode;
   onFinalizar?: (payload: {
     tipoCliente: TipoCliente;
     cliente: ClienteInfo;
