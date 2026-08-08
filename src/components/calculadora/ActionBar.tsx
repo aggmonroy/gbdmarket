@@ -61,12 +61,7 @@ export function ActionBar(props: Props) {
     setGenerando(true);
     try {
       const dataUrl = await generarImagenCotizacion({ tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, cliente, capacidad, promo });
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = "cotizacion-gbd.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      descargarArchivo(dataUrl, "cotizacion-gbd.png");
     } catch (e) {
       console.error(e);
       alert("No se pudo generar la imagen. Intenta con 'Guardar / Imprimir' como alternativa.");
