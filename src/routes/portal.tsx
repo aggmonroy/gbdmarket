@@ -35,6 +35,7 @@ import {
   type TipoSeguimiento,
 } from "@/lib/pedidos-shared";
 import { TareasPanel } from "@/components/portal/TareasPanel";
+import { SolicitudesActivas } from "@/components/portal/SolicitudesActivas";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -99,7 +100,7 @@ function Portal() {
         </header>
 
         {vista === "menu" && <Menu sesion={sesion} ir={setVista} />}
-        {vista === "seguimiento" && <Seguimiento sesion={sesion} />}
+        {vista === "seguimiento" && <SolicitudesActivas sesion={sesion} />}
         {vista === "pedidos" && <Pedidos sesion={sesion} />}
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
