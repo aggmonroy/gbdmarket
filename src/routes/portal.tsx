@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   Archive,
   CalendarDays,
+  Calculator,
   CheckCircle2,
   ClipboardList,
   KeyRound,
@@ -40,6 +41,7 @@ import { TareasPanel } from "@/components/portal/TareasPanel";
 import { SolicitudesActivas } from "@/components/portal/SolicitudesActivas";
 import { CasosCerrados } from "@/components/portal/CasosCerrados";
 import { CatalogoPortal } from "@/components/portal/CatalogoPortal";
+import { AsesorPage } from "@/components/calculadora/AsesorPage";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -58,7 +60,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
-  const [vista, setVista] = useState<"menu" | "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas" | "catalogo">("menu");
+  const [vista, setVista] = useState<"menu" | "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas" | "catalogo" | "calculadora">("menu");
 
   useEffect(() => {
     const raw = sessionStorage.getItem(KEY);
@@ -110,6 +112,7 @@ function Portal() {
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
         {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
+        {vista === "calculadora" && <AsesorPage />}
       </div>
     </div>
   );
@@ -194,7 +197,7 @@ function Menu({
   ir,
 }: {
   sesion: Sesion;
-  ir: (v: "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas" | "catalogo") => void;
+  ir: (v: "seguimiento" | "cerrados" | "pedidos" | "calendario" | "tareas" | "catalogo" | "calculadora") => void;
 }) {
   const rol = sesion.colaborador.rol;
   return (
@@ -245,6 +248,12 @@ function Menu({
         texto="Crea y edita productos de Línea Blanca y Bordados, con lectura automática del enlace del proveedor."
         icon={Package}
         onClick={() => ir("catalogo")}
+      />
+      <Area
+        titulo="Calculadora de precios"
+        texto="Cotiza Línea Blanca al contado o a crédito, evalúa capacidad de pago y comparte el enlace con el cliente."
+        icon={Calculator}
+        onClick={() => ir("calculadora")}
       />
       {rol === "admin" && (
         <Area
