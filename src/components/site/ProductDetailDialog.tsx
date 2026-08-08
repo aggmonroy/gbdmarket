@@ -30,8 +30,14 @@ export type ProductLite = {
 };
 
 export function ProductDetailDialog({
-  open, onOpenChange, product,
-}: { open: boolean; onOpenChange: (b: boolean) => void; product: ProductLite | null }) {
+  open, onOpenChange, product, esBordado = false, onSolicitarBordado,
+}: {
+  open: boolean;
+  onOpenChange: (b: boolean) => void;
+  product: ProductLite | null;
+  esBordado?: boolean;
+  onSolicitarBordado?: () => void;
+}) {
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
@@ -39,6 +45,7 @@ export function ProductDetailDialog({
   const crear = useServerFn(crearPreorden);
   const { add, setAbierto } = useCart();
   if (!product) return null;
+
 
   const agregarAlCarrito = () => {
     add({
