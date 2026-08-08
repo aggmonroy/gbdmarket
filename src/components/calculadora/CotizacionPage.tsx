@@ -4,6 +4,7 @@ import { getCotizacion } from "@/lib/cotizaciones.functions";
 import {
   calcularProducto,
   calcularTotales,
+  calcularGobierno,
   type CapacidadInfo,
   type ClienteInfo,
   type ProductoInput,
@@ -11,7 +12,9 @@ import {
   esAsociado,
 } from "@/lib/pricing-gbd";
 import { VistaCliente } from "@/components/calculadora/VistaCliente";
+import { VistaGobierno } from "@/components/calculadora/VistaGobierno";
 import { ActionBar } from "@/components/calculadora/ActionBar";
+
 import logoIcono from "@/assets/calculadora/logo-icono.png";
 
 interface CotizacionRow {
