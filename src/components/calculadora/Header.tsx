@@ -16,7 +16,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
         </div>
         <div className="mt-3 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight">Calculadora de Precios</h1>
+            <h1 className="text-xl font-bold tracking-tight">Cotización</h1>
             <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold bg-[#1F6DD8] px-2 py-0.5 rounded-full">
               <MessageCircle size={12} /> +507 6784-1941
             </span>

@@ -16,6 +16,8 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 function loadImg(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    // Evita "tainted canvas": sin esto, toDataURL falla con imágenes remotas.
+    if (/^https?:\/\//i.test(src)) img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error("no se pudo cargar imagen"));
     img.src = src;
@@ -439,5 +441,33 @@ export async function generarImagenCotizacion({
   ctx.fillText("Cotización válida por 30 días o hasta agotar existencias", W / 2, y + 26);
   ctx.textAlign = "left";
 
-  return canvas.toDataURL("image/png");
+  return canvasADataUrl(canvas);
+}
+
+/** toDataURL con fallback a toBlob para navegadores con límites de memoria/tamaño. */
+async function canvasADataUrl(canvas: HTMLCanvasElement): Promise<string> {
+  try {
+    return canvas.toDataURL("image/png");
+  } catch {
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
+    if (!blob) throw new Error("No se pudo generar la imagen");
+    return URL.createObjectURL(blob);
+  }
+}
+
+/** Descarga compatible con Chrome, Firefox, Edge y Safari (incl. iOS). */
+export function descargarArchivo(url: string, nombre: string) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  a.rel = "noopener";
+  a.target = "_self";
+  document.body.appendChild(a);
+  if (typeof a.download === "undefined") {
+    window.open(url, "_blank");
+  } else {
+    a.click();
+  }
+  document.body.removeChild(a);
+  if (url.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(url), 10000);
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Share2, Download, Image as ImageIcon } from "lucide-react";
 import { etiquetaTipoCliente, fmt, telefonoAWhatsapp, type CalculadoProducto, type CapacidadInfo, type ClienteInfo, type PlazoCuota, type TipoCliente } from "@/lib/pricing-gbd";
-import { generarImagenCotizacion } from "@/lib/generar-imagen-gbd";
+import { descargarArchivo, generarImagenCotizacion } from "@/lib/generar-imagen-gbd";
 
 interface Props {
   tipoCliente: TipoCliente;
@@ -61,12 +61,7 @@ export function ActionBar(props: Props) {
     setGenerando(true);
     try {
       const dataUrl = await generarImagenCotizacion({ tipoCliente, calculados, contadoTotal, creditoTotal, planTotal, cliente, capacidad, promo });
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = "cotizacion-gbd.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      descargarArchivo(dataUrl, "cotizacion-gbd.png");
     } catch (e) {
       console.error(e);
       alert("No se pudo generar la imagen. Intenta con 'Guardar / Imprimir' como alternativa.");
