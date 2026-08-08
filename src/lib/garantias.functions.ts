@@ -11,6 +11,7 @@ import {
   resumenAbiertas,
   signSesion,
   verificarPinColaborador,
+  verificarPinPorCedula,
   verifySesion,
   signReporteToken,
   verifyReporteToken,
@@ -22,6 +23,7 @@ import {
   evidenciaSchema,
   facturaIaSchema,
   idTokenSchema,
+  loginCedulaSchema,
   loginSchema,
   resolverPinSchema,
   seguimientoSchema,
@@ -48,6 +50,15 @@ export const loginConPin = createServerFn({ method: "POST" })
     const c = await verificarPinColaborador(data.colaborador_id, data.pin);
     const token = await signSesion({ cid: c.id, rol: c.rol, nombre: c.nombre });
     return { token, colaborador: { id: c.id, nombre: c.nombre, rol: c.rol } };
+  });
+
+/** Ingreso al portal con cédula + PIN, con opción de mantener la sesión. */
+export const loginConCedula = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => loginCedulaSchema.parse(d))
+  .handler(async ({ data }) => {
+    const c = await verificarPinPorCedula(data.cedula, data.pin);
+    const token = await signSesion({ cid: c.id, rol: c.rol, nombre: c.nombre }, data.recordar ? 24 * 30 : 12);
+    return { token, colaborador: { id: c.id, nombre: c.nombre, rol: c.rol }, recordar: data.recordar };
   });
 
 /** Autoservicio: el colaborador verifica su cédula y deja el nuevo PIN pendiente de aprobación. */

@@ -35,8 +35,8 @@ export async function hashPin(pin: string, salt: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export async function signSesion(s: Omit<Sesion, "exp">): Promise<string> {
-  const payload = { ...s, exp: Date.now() + 12 * 60 * 60 * 1000 };
+export async function signSesion(s: Omit<Sesion, "exp">, horas = 12): Promise<string> {
+  const payload = { ...s, exp: Date.now() + horas * 60 * 60 * 1000 };
   const body = btoa(JSON.stringify(payload));
   return `${body}.${await hmac(body)}`;
 }
@@ -96,6 +96,26 @@ export async function verificarPinColaborador(colaboradorId: string, pin: string
   const hash = await hashPin(pin, data.pin_salt);
   if (hash !== data.pin_hash) throw new Error("PIN incorrecto");
   return data as { id: string; nombre: string; rol: ColaboradorRol };
+}
+
+/** Ingreso por cédula: se normaliza para tolerar guiones y espacios. */
+export async function verificarPinPorCedula(cedula: string, pin: string) {
+  const sb = await admin();
+  const norm = (v: string) => v.replace(/[^0-9a-zA-Z]/g, "").toLowerCase();
+  const { data, error } = await sb
+    .from("colaboradores")
+    .select("id,nombre,rol,cedula,activo,deleted_at")
+    .eq("activo", true)
+    .is("deleted_at", null);
+  if (error) throw new Error(error.message);
+  const match = (data ?? []).find((c: any) => c.cedula && norm(c.cedula) === norm(cedula));
+  if (!match) throw new Error("Cédula o PIN incorrectos");
+  try {
+    return await verificarPinColaborador(match.id, pin);
+  } catch (e: any) {
+    if (String(e?.message).includes("PIN incorrecto")) throw new Error("Cédula o PIN incorrectos");
+    throw e;
+  }
 }
 
 export async function firmarUrlEvidencia(path: string): Promise<string> {
