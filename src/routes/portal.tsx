@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   AlertTriangle,
@@ -79,7 +79,34 @@ function Portal() {
     setVista("menu");
   };
 
+  // Si el servidor rechaza la sesión (token viejo o expirado), cerramos sesión
+  // y mostramos el ingreso en lugar de dejar la pantalla en blanco.
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const esSesionInvalida = (e: unknown) =>
+      e instanceof Error && /sesi[oó]n (no v[aá]lida|expirada)/i.test(e.message);
+    const salir = () => {
+      localStorage.removeItem(KEY);
+      sessionStorage.removeItem(KEY);
+      setSesion(null);
+      setVista("menu");
+      queryClient.clear();
+      toast.error("Tu sesión expiró. Ingresa de nuevo con tu cédula y PIN.");
+    };
+    const un1 = queryClient.getQueryCache().subscribe((ev: any) => {
+      if (ev?.type === "updated" && esSesionInvalida(ev.query?.state?.error)) salir();
+    });
+    const un2 = queryClient.getMutationCache().subscribe((ev: any) => {
+      if (esSesionInvalida(ev?.mutation?.state?.error)) salir();
+    });
+    return () => {
+      un1();
+      un2();
+    };
+  }, [queryClient]);
+
   if (!sesion) return <Ingreso onLogin={guardar} />;
+
 
   return (
     <div className="min-h-screen bg-muted/30 px-4 py-8">
