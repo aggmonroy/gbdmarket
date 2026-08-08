@@ -455,22 +455,59 @@ async function canvasADataUrl(canvas: HTMLCanvasElement): Promise<string> {
   }
 }
 
-/** Descarga compatible con Chrome, Firefox, Edge y Safari (incl. iOS). */
-export function descargarArchivo(url: string, nombre: string) {
+function dataUrlABlob(dataUrl: string): Blob {
+  const [head, body] = dataUrl.split(",");
+  const tipo = /:(.*?);/.exec(head)?.[1] || "image/png";
+  const bin = atob(body);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: tipo });
+}
+
+/**
+ * Descarga compatible con Chrome, Firefox, Edge, Safari y navegadores móviles.
+ * En móviles usa la hoja de compartir (guardar en Fotos/Archivos) porque la
+ * descarga directa de data: URLs suele fallar en iOS/Android.
+ */
+export async function descargarArchivo(url: string, nombre: string) {
+  let blob: Blob;
+  try {
+    blob = url.startsWith("data:") ? dataUrlABlob(url) : await (await fetch(url)).blob();
+  } catch {
+    window.open(url, "_blank");
+    return;
+  }
+
+  const file = new File([blob], nombre, { type: blob.type || "image/png" });
+  const nav = navigator as Navigator & {
+    canShare?: (data: { files?: File[] }) => boolean;
+    share?: (data: { files?: File[]; title?: string }) => Promise<void>;
+  };
+  if (nav.canShare?.({ files: [file] }) && nav.share) {
+    try {
+      await nav.share({ files: [file], title: nombre });
+      return;
+    } catch (e) {
+      if ((e as { name?: string })?.name === "AbortError") return;
+    }
+  }
+
+  const objUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url;
+  a.href = objUrl;
   a.download = nombre;
   a.rel = "noopener";
-  a.target = "_self";
   document.body.appendChild(a);
   if (typeof a.download === "undefined") {
-    window.open(url, "_blank");
+    window.open(objUrl, "_blank");
   } else {
     a.click();
   }
   document.body.removeChild(a);
-  if (url.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(url), 10000);
+  setTimeout(() => URL.revokeObjectURL(objUrl), 15000);
+  if (url.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(url), 15000);
 }
+
 
 // ============================================================
 // IMAGEN — Cotización institucional (Gobierno)
