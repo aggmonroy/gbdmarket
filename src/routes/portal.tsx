@@ -110,6 +110,7 @@ function Portal() {
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
         {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
+        {vista === "calculadora" && <AsesorPage />}
       </div>
     </div>
   );
