@@ -119,6 +119,9 @@ function Bordados() {
           <p className="mt-4 text-primary-foreground/85 max-w-2xl">
             Atendemos empresas, colegios, equipos deportivos y clientes particulares en Panamá. Carga tu diseño y recibe una cotización en horas.
           </p>
+          <div className="mt-6 max-w-2xl">
+            <BordadoPolicy compact />
+          </div>
         </div>
       </section>
 
@@ -180,9 +183,13 @@ function Bordados() {
             </div>
 
             <div className="sm:col-span-2">
+              <BordadoPolicy accepted={policyAccepted} onChange={setPolicyAccepted} id="bordados-policy" />
+            </div>
+
+            <div className="sm:col-span-2">
               <DataConsent accepted={consent} onChange={setConsent} id="bordados-consent" />
             </div>
-            <Button type="submit" disabled={submitting || !consent} className="sm:col-span-2 bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
+            <Button type="submit" disabled={submitting || !policyAccepted || !consent} className="sm:col-span-2 bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageCircle className="mr-2 h-4 w-4" />}
               Solicitar Cotización por WhatsApp
             </Button>
