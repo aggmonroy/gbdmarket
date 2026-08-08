@@ -5,6 +5,7 @@ import { getCotizacion, eliminarCotizacion } from "@/lib/cotizaciones.functions"
 import {
   calcularProducto,
   calcularTotales,
+  calcularGobierno,
   fmt,
   type CapacidadInfo,
   type ClienteInfo,
@@ -13,7 +14,9 @@ import {
   esAsociado,
   etiquetaTipoCliente,
 } from "@/lib/pricing-gbd";
+import { VistaGobierno } from "@/components/calculadora/VistaGobierno";
 import logoIcono from "@/assets/calculadora/logo-icono.png";
+
 
 interface CotizacionRow {
   tipo_cliente: TipoCliente;
