@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Plus, Calculator, Users, UserCheck, Eye, EyeOff, AlertTriangle, X, User, BadgeCheck } from "lucide-react";
+import { Plus, Calculator, Users, UserCheck, Eye, EyeOff, AlertTriangle, X, User, BadgeCheck, Landmark } from "lucide-react";
 import {
   calcularProducto,
   calcularTotales,
@@ -13,12 +13,15 @@ import {
   type ProductoInput,
   type TipoCliente,
   esAsociado,
+  esGobierno,
 } from "@/lib/pricing-gbd";
 import { Header } from "@/components/calculadora/Header";
 import { ProductoForm } from "@/components/calculadora/ProductoForm";
 import { VistaCliente } from "@/components/calculadora/VistaCliente";
 import { ActionBar } from "@/components/calculadora/ActionBar";
 import { EnlaceGeneradorCard } from "@/components/calculadora/EnlaceGeneradorCard";
+import { GobiernoSeccion } from "@/components/calculadora/GobiernoSeccion";
+
 
 
 export type AsesorInicial = {
