@@ -10,6 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/site/ProductCard";
 import { ProductDetailDialog, type ProductLite } from "@/components/site/ProductDetailDialog";
+import { BordadoPolicy } from "@/components/site/BordadoPolicy";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
