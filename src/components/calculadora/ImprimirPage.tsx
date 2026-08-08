@@ -322,6 +322,10 @@ export function ImprimirPage({ id }: { id: string }) {
               </p>
             </div>
           )}
+          </>
+          )}
+
+
 
           <div className="bg-[#E3EFFF] text-[#0C4C9E] rounded-full text-center py-2 text-xs font-bold">
             Cotización válida por 30 días o hasta agotar existencias
