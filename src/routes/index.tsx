@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight, MapPin, Store, Building2, CreditCard, Navigation,
-  MessageCircle, ChevronLeft, ChevronRight, Scissors,
+  ChevronLeft, ChevronRight, Scissors,
   ShieldCheck, Phone,
 } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
