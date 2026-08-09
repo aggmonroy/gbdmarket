@@ -196,18 +196,25 @@ function HeroFused() {
           </div>
 
           {/* Info cards */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          {/* Info cards — 3 columns, uniform height, clamped text */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 auto-rows-fr">
             {infoCards.map(({ to, Icon, title, desc, cta }) => (
-              <Link key={to} to={to}
-                className="group flex flex-col justify-between gap-1 rounded-xl sm:rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-2 sm:p-3 hover:bg-white/20 hover:border-amber-300 transition min-w-0"
+              <Link
+                key={to}
+                to={to}
+                className="group flex h-full flex-col justify-between gap-2 rounded-xl sm:rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-2 sm:p-3 hover:bg-white/20 hover:border-amber-300 transition min-w-0"
               >
-                <div className="flex items-start gap-2 sm:gap-3">
-                  <div className="grid h-8 w-8 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-amber-400 text-slate-900">
+                <div className="flex flex-col items-start gap-2 sm:flex-row sm:gap-3">
+                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-400 text-slate-900 sm:h-11 sm:w-11 sm:rounded-xl">
                     <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-display font-bold text-white leading-tight text-[10px] sm:text-xs md:text-sm">{title}</div>
-                    <p className="text-[8px] sm:text-[10px] md:text-xs text-white/80 mt-0.5 leading-tight">{desc}</p>
+                    <div className="font-display font-bold text-white leading-tight text-[10px] sm:text-xs md:text-sm line-clamp-2">
+                      {title}
+                    </div>
+                    <p className="mt-0.5 text-[8px] sm:text-[10px] md:text-xs text-white/80 leading-tight line-clamp-3 break-words">
+                      {desc}
+                    </p>
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-1 text-[8px] sm:text-xs font-semibold text-amber-300 group-hover:text-amber-200">
