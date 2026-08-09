@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 import { PromosBanner } from "@/components/site/PromosBanner";
-import { BordadoPolicy } from "@/components/site/BordadoPolicy";
+import { BordadoPolicyDialogLink, SHORT_BORDADO_NOTICE } from "@/components/site/BordadoPolicy";
 
 
 
@@ -296,7 +296,22 @@ function BordadosSection() {
     }));
   }, [bordados]);
 
+  /** 6 tarjetas de bordados que rotan diariamente. */
+  const tarjetas = useMemo(() => {
+    const pool = (bordados as any[]).map((p) => ({
+      id: p.id as string,
+      name: p.name as string,
+      image: (p.images?.[0] ?? "") as string,
+    }));
+    if (pool.length === 0) return [];
+    const d = new Date();
+    const dia = Math.floor((d.getTime() - new Date(d.getFullYear(), 0, 0).getTime()) / 86400000);
+    const offset = (dia * 6) % pool.length;
+    return Array.from({ length: Math.min(6, pool.length) }, (_, k) => pool[(offset + k) % pool.length]);
+  }, [bordados]);
+
   const [i, setI] = useState(0);
+
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
 
   useEffect(() => {
@@ -320,20 +335,51 @@ function BordadosSection() {
               </div>
             ))}
 
-            <div className="relative z-10 h-full flex flex-col justify-end p-5 sm:p-8">
+            <div className="relative z-10 h-full flex flex-col justify-end p-3 sm:p-6">
               <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-slate-900 shadow">
                 <Scissors className="h-3.5 w-3.5" /> Bordados GBD
               </span>
               <div className="mt-2 max-w-2xl text-white">
-                <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight">Bordados personalizados para empresas y particulares</h2>
-                <p className="text-sm text-white/85 mt-1">
-                  Personalizamos tus prendas y artículos con acabados profesionales y atención personalizada.
-                </p>
+                <h2 className="font-display text-lg sm:text-2xl font-bold leading-tight">Bordados personalizados para empresas y particulares</h2>
               </div>
-              <div className="mt-3 max-w-2xl" onClick={(e) => e.stopPropagation()}>
-                <BordadoPolicy compact />
+
+              {tarjetas.length > 0 && (
+                <div className="mt-2 grid grid-cols-6 gap-1.5 sm:gap-2.5">
+                  {tarjetas.map((p, k) => (
+                    <div
+                      key={`${p.id}-${k}`}
+                      className="group overflow-hidden rounded-xl border border-white/20 bg-white/10 backdrop-blur-md hover:bg-white/20 hover:border-amber-300 transition"
+                    >
+                      <div className="aspect-square overflow-hidden bg-slate-800">
+                        {p.image ? (
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            loading="lazy"
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="grid h-full place-items-center text-white/50">
+                            <Scissors className="h-5 w-5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-1 sm:p-2">
+                        <div className="line-clamp-2 text-[9px] leading-tight sm:text-xs font-semibold text-white">{p.name}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-2 max-w-3xl" onClick={(e) => e.stopPropagation()}>
+                <p className="text-[10px] sm:text-xs leading-snug text-white/80">
+                  {SHORT_BORDADO_NOTICE}
+                </p>
+                <BordadoPolicyDialogLink />
               </div>
             </div>
+
           </div>
         </div>
       </Link>
