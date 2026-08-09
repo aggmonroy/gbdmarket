@@ -405,7 +405,7 @@ function BordadosSection() {
         </div>
 
         {/* Thumb strip */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 p-3 bg-slate-950/60 border-t border-white/10">
+        <div className="grid grid-cols-6 gap-1.5 sm:gap-2 p-2 sm:p-3 bg-slate-950/60 border-t border-white/10">
           {items.slice(0, 6).map((it, idx) => (
             <GalleryThumb key={idx} item={it} active={idx === i} onClick={() => setI(idx)} />
           ))}
