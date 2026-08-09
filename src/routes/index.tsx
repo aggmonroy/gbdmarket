@@ -424,26 +424,26 @@ function Sucursales() {
           <span className="text-xs font-bold uppercase tracking-widest text-primary">Cobertura</span>
           <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">Estamos más cerca de ti</h2>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           {sucursales.map((s) => (
             <div key={s.name} className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:border-primary hover:shadow-elevated transition flex flex-col">
               <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 <img src={s.img} alt={s.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-                <div className="absolute top-3 left-3 grid h-10 w-10 place-items-center rounded-xl bg-white/95 text-primary shadow-soft">
-                  <s.Icon className="h-5 w-5" />
+                <div className="absolute top-2 left-2 sm:top-3 sm:left-3 grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl bg-white/95 text-primary shadow-soft">
+                  <s.Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <div className="absolute bottom-2 left-3 right-3 text-white">
-                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold">
-                    <MapPin className="h-3.5 w-3.5" /> Punto de venta
+                <div className="absolute bottom-2 left-2 right-2 sm:left-3 sm:right-3 text-white">
+                  <div className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold">
+                    <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Punto de venta
                   </div>
                 </div>
               </div>
-              <div className="p-5 flex flex-col flex-1">
-                <div className="font-display font-bold leading-tight">{s.name}</div>
-                <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
-                <a href={s.map} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition">
-                  <Navigation className="h-4 w-4" /> Cómo llegar
+              <div className="p-3 sm:p-5 flex flex-col flex-1">
+                <div className="font-display font-bold leading-tight text-xs sm:text-base truncate">{s.name}</div>
+                <p className="mt-1 text-[10px] sm:text-sm text-muted-foreground line-clamp-2">{s.desc}</p>
+                <a href={s.map} target="_blank" rel="noreferrer" className="mt-3 sm:mt-4 inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-full bg-primary px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground hover:opacity-90 transition">
+                  <Navigation className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Cómo llegar</span><span className="sm:hidden">Ir</span>
                 </a>
               </div>
             </div>
