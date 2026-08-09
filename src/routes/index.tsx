@@ -321,65 +321,71 @@ function BordadosSection() {
   }, [next, items.length]);
 
   return (
-    <section className="container mx-auto px-4 lg:px-8 py-10">
+    <section className="container mx-auto px-4 lg:px-8 py-6 sm:py-8">
       <Link to="/catalogo" search={{ cat: "bordados" }} className="block">
         <div className="relative overflow-hidden rounded-2xl shadow-elevated border border-border bg-slate-900">
-          <div className="relative aspect-[16/9] sm:aspect-[21/9]">
-            {items.map((s, idx) => (
-              <div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${idx === i ? "opacity-100" : "opacity-0"}`}>
-                {s.image_url && (
-                  <img src={s.image_url} alt={s.title} className="h-full w-full object-cover" loading="lazy" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30" />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-transparent to-transparent" />
-              </div>
-            ))}
+          {/* Fondo rotativo */}
+          {items.map((s, idx) => (
+            <div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${idx === i ? "opacity-100" : "opacity-0"}`}>
+              {s.image_url && (
+                <img src={s.image_url} alt={s.title} className="h-full w-full object-cover" loading="lazy" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/92 via-slate-950/70 to-slate-950/45" />
+            </div>
+          ))}
 
-            <div className="relative z-10 h-full flex flex-col justify-end p-3 sm:p-6">
-              <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-slate-900 shadow">
+          <div className="relative z-10 p-3 sm:p-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-2.5 py-1 text-[10px] sm:text-xs font-bold text-slate-900 shadow">
                 <Scissors className="h-3.5 w-3.5" /> Bordados GBD
               </span>
-              <div className="mt-2 max-w-2xl text-white">
-                <h2 className="font-display text-lg sm:text-2xl font-bold leading-tight">Bordados personalizados para empresas y particulares</h2>
-              </div>
-
-              {tarjetas.length > 0 && (
-                <div className="mt-2 grid grid-cols-6 gap-1.5 sm:gap-2.5">
-                  {tarjetas.map((p, k) => (
-                    <div
-                      key={`${p.id}-${k}`}
-                      className="group overflow-hidden rounded-xl border border-white/20 bg-white/10 backdrop-blur-md hover:bg-white/20 hover:border-amber-300 transition"
-                    >
-                      <div className="aspect-square overflow-hidden bg-slate-800">
-                        {p.image ? (
-                          <img
-                            src={p.image}
-                            alt={p.name}
-                            loading="lazy"
-                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="grid h-full place-items-center text-white/50">
-                            <Scissors className="h-5 w-5" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-1 sm:p-2">
-                        <div className="line-clamp-2 text-[9px] leading-tight sm:text-xs font-semibold text-white">{p.name}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-2 max-w-3xl" onClick={(e) => e.stopPropagation()}>
-                <p className="text-[10px] sm:text-xs leading-snug text-white/80">
-                  {SHORT_BORDADO_NOTICE}
-                </p>
-                <BordadoPolicyDialogLink />
-              </div>
+              <span className="font-display text-sm sm:text-base font-bold uppercase tracking-wide text-white">
+                Bordados personalizados
+              </span>
             </div>
 
+            <h2 className="mt-1.5 font-display text-base sm:text-xl font-bold leading-tight text-white max-w-2xl">
+              Personalizamos tus prendas y artículos con acabados profesionales
+            </h2>
+
+            {tarjetas.length > 0 && (
+              <div className="mt-3 grid grid-cols-6 gap-1.5 sm:gap-2.5">
+                {tarjetas.map((p, k) => (
+                  <div
+                    key={`${p.id}-${k}`}
+                    className="group overflow-hidden rounded-xl border border-white/20 bg-white/10 backdrop-blur-md hover:bg-white/20 hover:border-amber-300 transition"
+                  >
+                    <div className="aspect-square overflow-hidden bg-slate-800">
+                      {p.image ? (
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="grid h-full place-items-center text-white/50">
+                          <Scissors className="h-5 w-5" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-1 sm:p-2">
+                      <div className="line-clamp-2 text-[9px] leading-tight sm:text-xs font-semibold text-white">{p.name}</div>
+                      <span className="mt-1 hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-white/70 group-hover:text-amber-200">
+                        Ver <ArrowRight className="h-3 w-3" />
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-2.5 max-w-3xl" onClick={(e) => e.stopPropagation()}>
+              <p className="text-[10px] sm:text-xs leading-snug text-white/75">
+                {SHORT_BORDADO_NOTICE}
+              </p>
+              <BordadoPolicyDialogLink />
+            </div>
           </div>
         </div>
       </Link>
@@ -391,10 +397,10 @@ function BordadosSection() {
 function Sucursales() {
   return (
     <section className="bg-muted/40 border-y border-border">
-      <div className="container mx-auto px-4 lg:px-8 py-10">
-        <div className="text-center max-w-2xl mx-auto mb-6">
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">Cobertura</span>
-          <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold">Estamos más cerca de ti</h2>
+      <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-8">
+        <div className="text-center max-w-2xl mx-auto mb-4">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-primary">Cobertura</span>
+          <h2 className="mt-1 font-display text-xl sm:text-2xl font-bold">Estamos más cerca de ti</h2>
         </div>
         <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
           {sucursales.map((s) => (
@@ -431,21 +437,21 @@ function Trayectoria() {
   ];
   return (
     <section className="bg-card border-y border-border">
-      <div className="container mx-auto px-4 lg:px-8 py-10">
-        <div className="grid lg:grid-cols-[1fr_1.3fr] gap-8 items-center">
+      <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-8">
+        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-4 sm:gap-6 items-center">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-primary">Trayectoria</span>
-            <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold">Más de 60 años construyendo confianza</h2>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-primary">Trayectoria</span>
+            <h2 className="mt-1 font-display text-xl sm:text-2xl font-bold">Más de 60 años construyendo confianza</h2>
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
               Desde 1961 la Cooperativa Gladys B. de Ducasa ha trabajado por mejorar la calidad de vida de
               asociados y clientes, evolucionando hasta una organización de servicios integrales con presencia nacional.
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
             {hitos.map((h, i) => (
-              <div key={h.label} className="relative rounded-2xl border border-border bg-background p-4 text-center animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-                <div className="font-display text-2xl sm:text-3xl font-extrabold bg-gradient-primary bg-clip-text text-transparent">{h.value}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{h.label}</div>
+              <div key={h.label} className="relative rounded-xl sm:rounded-2xl border border-border bg-background p-2 sm:p-3 text-center animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
+                <div className="font-display text-base sm:text-2xl font-extrabold bg-gradient-primary bg-clip-text text-transparent">{h.value}</div>
+                <div className="mt-0.5 text-[9px] sm:text-xs text-muted-foreground leading-tight">{h.label}</div>
               </div>
             ))}
           </div>
