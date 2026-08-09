@@ -296,7 +296,22 @@ function BordadosSection() {
     }));
   }, [bordados]);
 
+  /** 6 tarjetas de bordados que rotan diariamente. */
+  const tarjetas = useMemo(() => {
+    const pool = (bordados as any[]).map((p) => ({
+      id: p.id as string,
+      name: p.name as string,
+      image: (p.images?.[0] ?? "") as string,
+    }));
+    if (pool.length === 0) return [];
+    const d = new Date();
+    const dia = Math.floor((d.getTime() - new Date(d.getFullYear(), 0, 0).getTime()) / 86400000);
+    const offset = (dia * 6) % pool.length;
+    return Array.from({ length: Math.min(6, pool.length) }, (_, k) => pool[(offset + k) % pool.length]);
+  }, [bordados]);
+
   const [i, setI] = useState(0);
+
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
 
   useEffect(() => {
