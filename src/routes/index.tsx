@@ -199,19 +199,21 @@ function HeroFused() {
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {infoCards.map(({ to, Icon, title, desc, cta }) => (
               <Link key={to} to={to}
-                className="group flex items-start gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-2 sm:p-3 hover:bg-white/20 hover:border-amber-300 transition min-w-0"
+                className="group flex flex-col justify-between gap-1 rounded-xl sm:rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-2 sm:p-3 hover:bg-white/20 hover:border-amber-300 transition min-w-0"
               >
-                <div className="grid h-8 w-8 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-amber-400 text-slate-900">
-                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="grid h-8 w-8 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-amber-400 text-slate-900">
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display font-bold text-white leading-tight text-[10px] sm:text-xs md:text-sm">{title}</div>
+                    <p className="text-[8px] sm:text-[10px] md:text-xs text-white/80 mt-0.5 leading-tight">{desc}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-display font-bold text-white leading-tight text-[10px] sm:text-xs md:text-sm">{title}</div>
-                  <p className="text-[9px] sm:text-[10px] md:text-xs text-white/80 mt-0.5 leading-tight">{desc}</p>
-                  <span className="mt-1 sm:mt-1.5 inline-flex items-center gap-1 text-[9px] sm:text-xs font-semibold text-amber-300 group-hover:text-amber-200">
-                    {cta}
-                    <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                  </span>
-                </div>
+                <span className="inline-flex items-center gap-1 text-[8px] sm:text-xs font-semibold text-amber-300 group-hover:text-amber-200">
+                  {cta}
+                  <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                </span>
               </Link>
             ))}
           </div>
