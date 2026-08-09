@@ -437,21 +437,21 @@ function Trayectoria() {
   ];
   return (
     <section className="bg-card border-y border-border">
-      <div className="container mx-auto px-4 lg:px-8 py-10">
-        <div className="grid lg:grid-cols-[1fr_1.3fr] gap-8 items-center">
+      <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-8">
+        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-4 sm:gap-6 items-center">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-primary">Trayectoria</span>
-            <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold">Más de 60 años construyendo confianza</h2>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-primary">Trayectoria</span>
+            <h2 className="mt-1 font-display text-xl sm:text-2xl font-bold">Más de 60 años construyendo confianza</h2>
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
               Desde 1961 la Cooperativa Gladys B. de Ducasa ha trabajado por mejorar la calidad de vida de
               asociados y clientes, evolucionando hasta una organización de servicios integrales con presencia nacional.
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
             {hitos.map((h, i) => (
-              <div key={h.label} className="relative rounded-2xl border border-border bg-background p-4 text-center animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-                <div className="font-display text-2xl sm:text-3xl font-extrabold bg-gradient-primary bg-clip-text text-transparent">{h.value}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{h.label}</div>
+              <div key={h.label} className="relative rounded-xl sm:rounded-2xl border border-border bg-background p-2 sm:p-3 text-center animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
+                <div className="font-display text-base sm:text-2xl font-extrabold bg-gradient-primary bg-clip-text text-transparent">{h.value}</div>
+                <div className="mt-0.5 text-[9px] sm:text-xs text-muted-foreground leading-tight">{h.label}</div>
               </div>
             ))}
           </div>
