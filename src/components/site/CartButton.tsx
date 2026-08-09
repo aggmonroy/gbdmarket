@@ -16,6 +16,7 @@ const TIPOS = [
   { value: "asociado", label: "Asociado" },
   { value: "colaborador", label: "Colaborador GBD" },
   { value: "tercero", label: "No asociado (tercero)" },
+  { value: "gobierno", label: "Gobierno / Institución" },
 ] as const;
 
 export function CartButton() {
