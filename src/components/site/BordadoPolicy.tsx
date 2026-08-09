@@ -205,3 +205,33 @@ function PolicyBody() {
     </div>
   );
 }
+
+/** Enlace compacto que abre las condiciones completas en un diálogo. */
+export function BordadoPolicyDialogLink({ className = "" }: { className?: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className={`mt-1 inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-amber-300 underline underline-offset-2 hover:text-amber-200 ${className}`}
+        >
+          <Info className="h-3 w-3" /> Ver condiciones completas
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Scissors className="h-5 w-5 text-primary" />
+            Condiciones y tiempos de entrega – Bordados
+          </DialogTitle>
+          <DialogDescription>Lee atentamente antes de confirmar tu pedido.</DialogDescription>
+        </DialogHeader>
+        <PolicyBody />
+        <div className="mt-4 flex justify-end">
+          <Button onClick={() => setOpen(false)}>Entendido</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

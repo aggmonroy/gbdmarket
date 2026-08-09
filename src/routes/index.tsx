@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 import { PromosBanner } from "@/components/site/PromosBanner";
-import { BordadoPolicy } from "@/components/site/BordadoPolicy";
+import { BordadoPolicyDialogLink, SHORT_BORDADO_NOTICE } from "@/components/site/BordadoPolicy";
 
 
 
