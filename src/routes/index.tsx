@@ -397,10 +397,10 @@ function BordadosSection() {
 function Sucursales() {
   return (
     <section className="bg-muted/40 border-y border-border">
-      <div className="container mx-auto px-4 lg:px-8 py-10">
-        <div className="text-center max-w-2xl mx-auto mb-6">
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">Cobertura</span>
-          <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold">Estamos más cerca de ti</h2>
+      <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-8">
+        <div className="text-center max-w-2xl mx-auto mb-4">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-primary">Cobertura</span>
+          <h2 className="mt-1 font-display text-xl sm:text-2xl font-bold">Estamos más cerca de ti</h2>
         </div>
         <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
           {sucursales.map((s) => (
