@@ -167,9 +167,9 @@ function HeroFused() {
         {/* Content overlay */}
         <div className="relative z-10 container mx-auto h-full px-4 lg:px-8 py-12 lg:py-16 flex flex-col justify-between gap-6 min-h-[78vh]">
           <div className="max-w-3xl mt-4">
-            <div className="font-display text-5xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-amber-400 leading-none drop-shadow-2xl">
-              Mueblería
-            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 px-3 py-1 text-xs sm:text-sm font-bold uppercase tracking-wide text-amber-300 border border-amber-400/30">
+              Mueblería GBD
+            </span>
             <h1 key={i} className="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] animate-fade-up drop-shadow-2xl">
               Siempre pensando en ti
             </h1>
