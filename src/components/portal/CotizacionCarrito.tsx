@@ -73,6 +73,7 @@ export function CotizacionCarrito({
   const cliente = {
     nombre: data.cliente?.nombre ?? "",
     cedula: data.cliente?.cedula ?? "",
+    ruc: data.cliente?.ruc ?? "",
     telefono: data.cliente?.telefono ?? "",
     correo: data.cliente?.correo ?? "",
     direccion: data.cliente?.direccion ?? "",

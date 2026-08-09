@@ -5,6 +5,7 @@ export const TIPOS_CLIENTE_COTIZACION = ["asociado", "colaborador", "tercero", "
 export const clienteCotizacionSchema = z.object({
   nombre: z.string().trim().min(3).max(120),
   cedula: z.string().trim().min(4).max(40),
+  ruc: z.string().trim().max(60).optional().or(z.literal("")),
   telefono: z.string().trim().min(6).max(30),
   correo: z.string().trim().email().max(160),
   direccion: z.string().trim().min(4).max(300),

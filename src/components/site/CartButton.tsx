@@ -16,6 +16,7 @@ const TIPOS = [
   { value: "asociado", label: "Asociado" },
   { value: "colaborador", label: "Colaborador GBD" },
   { value: "tercero", label: "No asociado (tercero)" },
+  { value: "gobierno", label: "Gobierno / Institución" },
 ] as const;
 
 export function CartButton() {
@@ -106,9 +107,10 @@ export function CartButton() {
 function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (b: boolean) => void }) {
   const { items, clear, setAbierto } = useCart();
   const crear = useServerFn(crearSolicitudCotizacion);
-  const [tipo, setTipo] = useState<"asociado" | "colaborador" | "tercero">("asociado");
+  const [tipo, setTipo] = useState<"asociado" | "colaborador" | "tercero" | "gobierno">("asociado");
   const [nombre, setNombre] = useState("");
   const [cedula, setCedula] = useState("");
+  const [ruc, setRuc] = useState("");
   const [telefono, setTelefono] = useState("");
   const [correo, setCorreo] = useState("");
   const [direccion, setDireccion] = useState("");
@@ -130,6 +132,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
           cliente: {
             nombre: nombre.trim(),
             cedula: cedula.trim(),
+            ruc: ruc.trim(),
             telefono: telefono.trim(),
             correo: correo.trim(),
             direccion: direccion.trim(),
@@ -221,13 +224,19 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2 space-y-1.5">
-                <Label htmlFor="c-nombre">Nombre completo *</Label>
+                <Label htmlFor="c-nombre">{tipo === "gobierno" ? "Institución / entidad *" : "Nombre completo *"}</Label>
                 <Input id="c-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={120} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="c-cedula">Cédula *</Label>
+                <Label htmlFor="c-cedula">{tipo === "gobierno" ? "Cédula del contacto *" : "Cédula *"}</Label>
                 <Input id="c-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} maxLength={40} />
               </div>
+              {tipo === "gobierno" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="c-ruc">RUC de la institución</Label>
+                  <Input id="c-ruc" value={ruc} onChange={(e) => setRuc(e.target.value)} maxLength={60} />
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label htmlFor="c-tel">Teléfono (WhatsApp) *</Label>
                 <Input id="c-tel" inputMode="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} maxLength={30} />
