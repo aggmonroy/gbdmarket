@@ -206,9 +206,9 @@ function HeroFused() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-display font-bold text-white leading-tight text-[10px] sm:text-xs md:text-sm">{title}</div>
-                  <p className="text-[9px] sm:text-[10px] md:text-xs text-white/80 mt-0.5 leading-tight hidden sm:block">{desc}</p>
+                  <p className="text-[9px] sm:text-[10px] md:text-xs text-white/80 mt-0.5 leading-tight">{desc}</p>
                   <span className="mt-1 sm:mt-1.5 inline-flex items-center gap-1 text-[9px] sm:text-xs font-semibold text-amber-300 group-hover:text-amber-200">
-                    <span className="hidden sm:inline">{cta}</span>
+                    {cta}
                     <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   </span>
                 </div>
