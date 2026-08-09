@@ -65,7 +65,7 @@ export function PromosBanner() {
         </span>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+      <div className="mt-3 grid grid-cols-6 gap-1.5 sm:gap-2.5">
         {visibles.map((p) => (
           <Link
             key={p.id}
@@ -87,15 +87,15 @@ export function PromosBanner() {
                 </div>
               )}
             </div>
-            <div className="p-2">
+            <div className="p-1 sm:p-2">
               {p.brand && (
-                <div className="truncate text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                <div className="truncate text-[8px] sm:text-[10px] font-semibold uppercase tracking-wider text-white/60">
                   {p.brand}
                 </div>
               )}
-              <div className="line-clamp-2 text-xs font-semibold text-white">{p.name}</div>
-              <div className="mt-1 text-[10px] text-amber-300">Disponible para entrega inmediata</div>
-              <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-white/70 group-hover:text-amber-200">
+              <div className="line-clamp-2 text-[9px] leading-tight sm:text-xs font-semibold text-white">{p.name}</div>
+              <div className="mt-0.5 hidden sm:block text-[10px] text-amber-300">Disponible para entrega inmediata</div>
+              <span className="mt-1 hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-white/70 group-hover:text-amber-200">
                 Ver <ArrowRight className="h-3 w-3" />
               </span>
             </div>
