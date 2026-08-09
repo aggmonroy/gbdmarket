@@ -212,8 +212,10 @@ function HeroFused() {
                   </span>
                 </div>
               </Link>
-            ))}
           </div>
+
+          <PromosBanner />
+
 
           {/* Indicadores de la galería de ambientaciones */}
           <div className="flex flex-wrap items-center gap-2">
