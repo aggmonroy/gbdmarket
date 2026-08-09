@@ -212,7 +212,9 @@ function HeroFused() {
                   </span>
                 </div>
               </Link>
+            ))}
           </div>
+
 
           <PromosBanner />
 
