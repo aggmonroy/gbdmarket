@@ -119,13 +119,13 @@ function Home() {
   return (
     <>
       <HeroFused />
-      <DestacadosMes />
       <BordadosSection />
       <Sucursales />
       <Trayectoria />
     </>
   );
 }
+
 
 
 /* ---------- HERO FUSIONADO CON AMBIENTACIONES ---------- */
