@@ -8,7 +8,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-import { DestacadosMes } from "@/components/site/DestacadosMes";
+import { PromosBanner } from "@/components/site/PromosBanner";
 import { BordadoPolicy } from "@/components/site/BordadoPolicy";
 
 
@@ -119,13 +119,13 @@ function Home() {
   return (
     <>
       <HeroFused />
-      <DestacadosMes />
       <BordadosSection />
       <Sucursales />
       <Trayectoria />
     </>
   );
 }
+
 
 
 /* ---------- HERO FUSIONADO CON AMBIENTACIONES ---------- */
@@ -214,6 +214,10 @@ function HeroFused() {
               </Link>
             ))}
           </div>
+
+
+          <PromosBanner />
+
 
           {/* Indicadores de la galería de ambientaciones */}
           <div className="flex flex-wrap items-center gap-2">
