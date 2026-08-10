@@ -84,3 +84,49 @@ export const guardarProductoPortal = createServerFn({ method: "POST" })
     });
     return { id: res.data.id as string };
   });
+
+/**
+ * Buscador del catálogo para armar cotizaciones en la calculadora. Los
+ * artículos de bordados solo se devuelven cuando la cotización es interna.
+ */
+export const buscarProductosCotizacion = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        token: z.string().min(1),
+        q: z.string().max(120).optional(),
+        incluir_bordados: z.boolean().optional(),
+      })
+      .parse(d)
+  )
+  .handler(async ({ data }) => {
+    await verifySesion(data.token);
+    const sb = await admin();
+    let q: any = sb
+      .from("products")
+      .select("id,name,brand,model,code,description,images,price_cash,categories(slug,name)")
+      .eq("is_published", true)
+      .order("name")
+      .limit(60);
+    const term = (data.q ?? "").trim();
+    if (term) q = q.or(`name.ilike.%${term}%,brand.ilike.%${term}%,model.ilike.%${term}%,code.ilike.%${term}%`);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+
+    const productos = (rows ?? [])
+      .map((p: any) => ({
+        id: p.id as string,
+        name: p.name as string,
+        brand: p.brand ?? null,
+        model: p.model ?? null,
+        code: p.code ?? null,
+        description: p.description ? String(p.description).slice(0, 220) : null,
+        images: p.images ?? [],
+        price_cash: p.price_cash ?? null,
+        categoria: p.categories?.name ?? null,
+        es_bordado: p.categories?.slug === "bordados",
+      }))
+      .filter((p: any) => (data.incluir_bordados ? true : !p.es_bordado));
+
+    return { productos };
+  });
