@@ -63,12 +63,13 @@ export function CotizacionCarrito({
     descAsociadoPct: DESC_MAX_ASOCIADO,
     descTerceroPct: DESC_MAX_TERCERO,
     imagen: i.imagen || "",
-    descripcion: i.nombre || "",
+    descripcion: i.descripcion || i.nombre || "",
     referencia: i.modelo || i.codigo || "",
     cantidad: String(i.cantidad || 1),
     precioUnitario: "",
     descGobiernoPct: 0,
   }));
+
 
   const cliente = {
     nombre: data.cliente?.nombre ?? "",
