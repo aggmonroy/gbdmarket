@@ -137,11 +137,21 @@ export function CotizacionCarrito({
             <p className="mt-1 text-sm font-bold text-[#002362]">Cotización {data.numero}</p>
             <ul className="mt-2 space-y-1 text-sm text-[#535E6F]">
               {items.map((i, idx) => (
-                <li key={idx}>
-                  {i.cantidad} × {i.nombre}
-                  {i.codigo ? ` (Código ${i.codigo})` : ""}
+                <li key={idx} className="flex gap-2">
+                  {i.imagen && (
+                    <img src={i.imagen} alt={i.nombre} className="h-10 w-10 rounded-md border border-[#DBE2EB] object-cover" />
+                  )}
+                  <span>
+                    <b>
+                      {i.cantidad} × {i.nombre}
+                    </b>
+                    {i.modelo ? ` · Modelo ${i.modelo}` : ""}
+                    {i.codigo ? ` · Código ${i.codigo}` : ""}
+                    {i.descripcion && <span className="block text-xs text-[#68758A]">{i.descripcion}</span>}
+                  </span>
                 </li>
               ))}
+
             </ul>
             {data.notas && <p className="mt-2 text-xs text-[#68758A]">Nota del cliente: {data.notas}</p>}
           </div>
