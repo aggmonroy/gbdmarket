@@ -60,7 +60,7 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
         numero,
         tipo_cliente: data.tipo_cliente,
         cliente: data.cliente,
-        items: data.items,
+        items,
         notas: data.notas || null,
         estado: "pendiente",
       })
@@ -71,7 +71,7 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
     const numeroTarea = await crearTareaDeOrigen({
       origen: "cotizacion",
       titulo: `Cotizar carrito ${row.numero} · ${data.cliente.nombre}`,
-      descripcion: `${ETIQUETA_TIPO[data.tipo_cliente]} · ${data.items.length} artículo(s): ${resumen}${
+      descripcion: `${ETIQUETA_TIPO[data.tipo_cliente]} · ${items.length} artículo(s): ${resumen}${
         data.notas ? ` · Nota: ${data.notas}` : ""
       }`,
     });
