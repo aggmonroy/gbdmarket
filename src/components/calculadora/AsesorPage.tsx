@@ -21,6 +21,7 @@ import { VistaCliente } from "@/components/calculadora/VistaCliente";
 import { ActionBar } from "@/components/calculadora/ActionBar";
 import { EnlaceGeneradorCard } from "@/components/calculadora/EnlaceGeneradorCard";
 import { GobiernoSeccion } from "@/components/calculadora/GobiernoSeccion";
+import { ProductoPicker, type ProductoCatalogo } from "@/components/calculadora/ProductoPicker";
 
 
 
@@ -31,12 +32,16 @@ export type AsesorInicial = {
 };
 
 export function AsesorPage({
+  token,
+  permitirBordados = false,
   inicial,
   encabezado,
   onFinalizar,
   finalizando,
   etiquetaFinalizar = "Finalizar cotización",
 }: {
+  token?: string;
+  permitirBordados?: boolean;
   inicial?: AsesorInicial;
   encabezado?: ReactNode;
   onFinalizar?: (payload: {
@@ -75,6 +80,22 @@ export function AsesorPage({
     setProductos((prev) => (prev.length > 1 ? prev.filter((p) => p.id !== id) : prev));
   };
   const addProducto = () => setProductos((prev) => [...prev, nuevoProducto()]);
+  const [buscador, setBuscador] = useState(false);
+
+  /** Añade a la cotización un artículo escogido del catálogo con su ficha. */
+  const addDesdeCatalogo = (p: ProductoCatalogo) =>
+    setProductos((prev) => [
+      ...prev,
+      {
+        ...nuevoProducto(),
+        nombre: p.name,
+        descripcion: p.description || [p.brand, p.model && `Modelo ${p.model}`].filter(Boolean).join(" · "),
+        referencia: p.model || p.code || "",
+        imagen: p.images?.[0] || "",
+        precioEtiqueta: p.price_cash ? String(p.price_cash) : "",
+        precioUnitario: p.price_cash ? String(p.price_cash) : "",
+      },
+    ]);
 
   const cuotaElegida = totales.planTotal.find((x) => x.meses === plazoElegido);
 
@@ -156,6 +177,31 @@ export function AsesorPage({
             </button>
           </div>
         </div>
+
+        {token && (
+          <div className="bg-white rounded-xl border border-[#DBE2EB] p-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F]">Artículos del catálogo</p>
+              <p className="text-[11px] text-[#68758A]">
+                Busca y escoge productos del catálogo para añadirlos a esta cotización
+                {permitirBordados ? ", incluidos los de bordados." : "."}
+              </p>
+            </div>
+            <button
+              onClick={() => setBuscador(true)}
+              className="flex items-center gap-2 bg-[#1F6DD8] hover:bg-[#0054BD] transition-colors px-4 py-2.5 rounded-full text-sm font-bold text-white"
+            >
+              <Plus size={16} /> Buscar en catálogo
+            </button>
+            <ProductoPicker
+              open={buscador}
+              onOpenChange={setBuscador}
+              token={token}
+              permitirBordados={permitirBordados}
+              onElegir={addDesdeCatalogo}
+            />
+          </div>
+        )}
 
         {esGobierno(tipoCliente) && (
           <GobiernoSeccion
