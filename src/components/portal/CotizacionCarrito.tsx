@@ -63,12 +63,13 @@ export function CotizacionCarrito({
     descAsociadoPct: DESC_MAX_ASOCIADO,
     descTerceroPct: DESC_MAX_TERCERO,
     imagen: i.imagen || "",
-    descripcion: i.nombre || "",
+    descripcion: i.descripcion || i.nombre || "",
     referencia: i.modelo || i.codigo || "",
     cantidad: String(i.cantidad || 1),
     precioUnitario: "",
     descGobiernoPct: 0,
   }));
+
 
   const cliente = {
     nombre: data.cliente?.nombre ?? "",
@@ -127,18 +128,30 @@ export function CotizacionCarrito({
       </div>
 
       <AsesorPage
+        token={sesion.token}
         inicial={{ tipoCliente: data.tipo_cliente ?? "asociado", cliente, productos }}
+
         encabezado={
           <div className="rounded-xl border border-[#DBE2EB] bg-white p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F]">Solicitud del cliente</p>
             <p className="mt-1 text-sm font-bold text-[#002362]">Cotización {data.numero}</p>
             <ul className="mt-2 space-y-1 text-sm text-[#535E6F]">
               {items.map((i, idx) => (
-                <li key={idx}>
-                  {i.cantidad} × {i.nombre}
-                  {i.codigo ? ` (Código ${i.codigo})` : ""}
+                <li key={idx} className="flex gap-2">
+                  {i.imagen && (
+                    <img src={i.imagen} alt={i.nombre} className="h-10 w-10 rounded-md border border-[#DBE2EB] object-cover" />
+                  )}
+                  <span>
+                    <b>
+                      {i.cantidad} × {i.nombre}
+                    </b>
+                    {i.modelo ? ` · Modelo ${i.modelo}` : ""}
+                    {i.codigo ? ` · Código ${i.codigo}` : ""}
+                    {i.descripcion && <span className="block text-xs text-[#68758A]">{i.descripcion}</span>}
+                  </span>
                 </li>
               ))}
+
             </ul>
             {data.notas && <p className="mt-2 text-xs text-[#68758A]">Nota del cliente: {data.notas}</p>}
           </div>

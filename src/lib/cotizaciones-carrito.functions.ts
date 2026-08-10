@@ -26,7 +26,33 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
     const { data: numero, error: eNum } = await sb.rpc("next_numero_cotizacion", { _fecha: hoyISO() });
     if (eNum) throw new Error(eNum.message);
 
-    const resumen = data.items.map((i) => `${i.cantidad} × ${i.nombre}`).join(", ");
+    // Se completa cada artículo con los datos de su ficha del catálogo:
+    // imagen, modelo, nombre y una descripción corta.
+    const ids = data.items.map((i) => i.product_id).filter((x): x is string => !!x);
+    const fichas = new Map<string, any>();
+    if (ids.length) {
+      const { data: prods } = await sb
+        .from("products")
+        .select("id,name,brand,model,code,description,images")
+        .in("id", ids);
+      for (const p of prods ?? []) fichas.set(p.id as string, p);
+    }
+    const items = data.items.map((i) => {
+      const f = i.product_id ? fichas.get(i.product_id) : null;
+      const desc = (i.descripcion || f?.description || "").toString().trim().replace(/\s+/g, " ");
+      return {
+        ...i,
+        nombre: f?.name || i.nombre,
+        marca: f?.brand || i.marca || "",
+        modelo: f?.model || i.modelo || "",
+        codigo: f?.code || i.codigo || "",
+        imagen: f?.images?.[0] || i.imagen || "",
+        descripcion: desc.slice(0, 220),
+      };
+    });
+
+    const resumen = items.map((i) => `${i.cantidad} × ${i.nombre}`).join(", ");
+
 
     const { data: row, error } = await sb
       .from("cotizacion_solicitudes")
@@ -34,7 +60,7 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
         numero,
         tipo_cliente: data.tipo_cliente,
         cliente: data.cliente,
-        items: data.items,
+        items,
         notas: data.notas || null,
         estado: "pendiente",
       })
@@ -45,7 +71,7 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
     const numeroTarea = await crearTareaDeOrigen({
       origen: "cotizacion",
       titulo: `Cotizar carrito ${row.numero} · ${data.cliente.nombre}`,
-      descripcion: `${ETIQUETA_TIPO[data.tipo_cliente]} · ${data.items.length} artículo(s): ${resumen}${
+      descripcion: `${ETIQUETA_TIPO[data.tipo_cliente]} · ${items.length} artículo(s): ${resumen}${
         data.notas ? ` · Nota: ${data.notas}` : ""
       }`,
     });
