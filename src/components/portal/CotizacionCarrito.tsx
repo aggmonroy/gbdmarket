@@ -128,7 +128,9 @@ export function CotizacionCarrito({
       </div>
 
       <AsesorPage
+        token={sesion.token}
         inicial={{ tipoCliente: data.tipo_cliente ?? "asociado", cliente, productos }}
+
         encabezado={
           <div className="rounded-xl border border-[#DBE2EB] bg-white p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F]">Solicitud del cliente</p>
