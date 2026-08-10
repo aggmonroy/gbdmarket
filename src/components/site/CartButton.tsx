@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Minus, Package, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { Minus, Package, Plus, ShoppingCart, Trash2, MessageCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DataConsent } from "@/components/site/DataConsent";
 import { useCart } from "@/lib/cart";
 import { crearSolicitudCotizacion } from "@/lib/cotizaciones-carrito.functions";
+import { buildWaUrl } from "@/lib/whatsapp";
 
 const TIPOS = [
   { value: "asociado", label: "Asociado" },
