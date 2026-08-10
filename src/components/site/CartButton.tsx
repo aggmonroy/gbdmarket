@@ -198,6 +198,17 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
             <p className="text-sm text-muted-foreground">
               Guarda este número: con él podemos ubicar tu solicitud en cualquier sucursal.
             </p>
+            <a
+              href={buildWaUrl("linea-blanca", `Hola Mueblería GBD,\nSolicité una cotización de línea blanca.\nNúmero: ${numero}${nombre ? `\nNombre: ${nombre.trim()}` : ""}${telefono ? `\nWhatsApp: ${telefono.trim()}` : ""}`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <Button className="w-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" type="button">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Enviar por WhatsApp
+              </Button>
+            </a>
             <Button className="w-full" onClick={() => onOpenChange(false)}>
               Listo
             </Button>
