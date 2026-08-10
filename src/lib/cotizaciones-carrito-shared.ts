@@ -18,6 +18,7 @@ export const itemCarritoSchema = z.object({
   modelo: z.string().trim().max(120).optional().or(z.literal("")),
   codigo: z.string().trim().max(120).optional().or(z.literal("")),
   imagen: z.string().trim().max(600).optional().or(z.literal("")),
+  descripcion: z.string().trim().max(600).optional().or(z.literal("")),
   cantidad: z.number().int().min(1).max(99),
 });
 
