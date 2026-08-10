@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Minus, Package, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { Minus, Package, Plus, ShoppingCart, Trash2, MessageCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DataConsent } from "@/components/site/DataConsent";
 import { useCart } from "@/lib/cart";
 import { crearSolicitudCotizacion } from "@/lib/cotizaciones-carrito.functions";
+import { buildWaUrl } from "@/lib/whatsapp";
 
 const TIPOS = [
   { value: "asociado", label: "Asociado" },
@@ -197,6 +198,17 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
             <p className="text-sm text-muted-foreground">
               Guarda este número: con él podemos ubicar tu solicitud en cualquier sucursal.
             </p>
+            <a
+              href={buildWaUrl("linea-blanca", `Hola Mueblería GBD,\nSolicité una cotización de línea blanca.\nNúmero: ${numero}${nombre ? `\nNombre: ${nombre.trim()}` : ""}${telefono ? `\nWhatsApp: ${telefono.trim()}` : ""}`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <Button className="w-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" type="button">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Enviar por WhatsApp
+              </Button>
+            </a>
             <Button className="w-full" onClick={() => onOpenChange(false)}>
               Listo
             </Button>
