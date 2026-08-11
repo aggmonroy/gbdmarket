@@ -368,12 +368,21 @@ export const generarInforme = createServerFn({ method: "POST" })
     const gestionPrevia = (informe.gestion ?? {}) as any;
     const gestion = gestionPrevia?.colaboradores?.length ? gestionPrevia : await srv.generarGestion(data.periodo);
 
+    // Explicación de cada tabla (editable luego desde el dashboard).
+    let explicaciones = (informe.explicaciones ?? {}) as Record<string, string>;
+    try {
+      explicaciones = { ...(await srv.generarExplicacionesTablas(data.periodo, datos)), ...explicaciones };
+    } catch {
+      // Si la IA no responde, el informe se genera igual y se puede reintentar.
+    }
+
     const { error } = await db
       .from("informes_mensuales")
       .update({
         datos,
         narrativa: { ...(informe.narrativa ?? {}), ...narrativa },
         gestion,
+        explicaciones,
         estado: "generado",
         generado_en: new Date().toISOString(),
       })
@@ -438,6 +447,72 @@ export const guardarTextos = createServerFn({ method: "POST" })
     if (data.narrativa) update.narrativa = { ...(informe.narrativa ?? {}), ...data.narrativa };
     if (data.gestion) update.gestion = data.gestion;
     const { error } = await db.from("informes_mensuales").update(update).eq("periodo", data.periodo);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* --------------------- explicaciones y tamaños del dashboard --------------------- */
+
+const seccionSchema = z.string().min(2).max(40);
+
+/** Redacta con IA una explicación por cada tabla del informe. */
+export const generarExplicaciones = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => tokenSchema.extend({ periodo: z.string().regex(periodoRe) }).parse(d))
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const informe = await informeDe(data.periodo);
+    if (!informe.datos?.repfacmes) throw new Error("Carga primero los reportes del mes.");
+    const { generarExplicacionesTablas } = await import("./informes.server");
+    const nuevas = await generarExplicacionesTablas(data.periodo, informe.datos);
+    const explicaciones = { ...(informe.explicaciones ?? {}), ...nuevas };
+    const { error } = await db.from("informes_mensuales").update({ explicaciones }).eq("periodo", data.periodo);
+    if (error) throw new Error(error.message);
+    return explicaciones as Record<string, string>;
+  });
+
+/** Edición manual de la explicación de una tabla. */
+export const guardarExplicacion = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    tokenSchema
+      .extend({
+        periodo: z.string().regex(periodoRe),
+        seccion: seccionSchema,
+        texto: z.string().max(2000),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const informe = await informeDe(data.periodo);
+    const explicaciones = { ...(informe.explicaciones ?? {}), [data.seccion]: data.texto };
+    const { error } = await db.from("informes_mensuales").update({ explicaciones }).eq("periodo", data.periodo);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Tamaño manual de cada tarjeta del dashboard (ancho % y escala de gráficas). */
+export const guardarLayout = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    tokenSchema
+      .extend({
+        periodo: z.string().regex(periodoRe),
+        seccion: seccionSchema,
+        ancho: z.number().min(25).max(100),
+        escala: z.number().min(0.6).max(2),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const informe = await informeDe(data.periodo);
+    const layout = {
+      ...(informe.layout ?? {}),
+      [data.seccion]: { ancho: data.ancho, escala: data.escala },
+    };
+    const { error } = await db.from("informes_mensuales").update({ layout }).eq("periodo", data.periodo);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

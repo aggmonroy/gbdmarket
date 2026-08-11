@@ -268,6 +268,10 @@ export type InformeMensual = {
   narrativa: Record<string, string>;
   gestion: { colaboradores: { nombre: string; texto_ia: string; texto_manual: string }[]; general: string };
   generado_en: string | null;
+  /** Explicación de cada tabla, generada con IA y editable por la administración. */
+  explicaciones?: Record<string, string>;
+  /** Tamaño manual de cada tarjeta del dashboard. */
+  layout?: Record<string, { ancho?: number; escala?: number }>;
 };
 
 /* ------------------------------- utilidades ------------------------------- */

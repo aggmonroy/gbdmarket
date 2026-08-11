@@ -2,8 +2,10 @@
  * Vista tipo dashboard del informe mensual. Se usa tanto para la consulta
  * interactiva como para la versión imprimible (con secciones seleccionadas).
  */
-import { useMemo, useState } from "react";
-import { Maximize2 } from "lucide-react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { Maximize2, Minus, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Bar,
@@ -61,12 +63,132 @@ const tooltipStyle = {
   },
 } as const;
 
+/** Escala de las gráficas de la tarjeta actual (ajuste manual del dashboard). */
+const EscalaCtx = createContext(1);
+
 function Grafico({ children, alto = 190 }: { children: React.ReactElement; alto?: number }) {
+  const escala = useContext(EscalaCtx);
   return (
-    <div className="rounded-xl border border-border bg-muted/20 p-2" style={{ height: alto }}>
+    <div className="rounded-xl border border-border bg-muted/20 p-2" style={{ height: Math.round(alto * escala) }}>
       <ResponsiveContainer width="100%" height="100%">
         {children}
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+type Edicion = {
+  explicacion: (id: SeccionId, texto: string) => void;
+  tamano: (id: SeccionId, ancho: number, escala: number) => void;
+};
+
+/** Explicación de la tabla: texto de IA con edición manual (solo dashboard). */
+function ExplicacionTabla({
+  id,
+  texto,
+  edicion,
+}: {
+  id: SeccionId;
+  texto?: string;
+  edicion?: Edicion;
+}) {
+  const [borrador, setBorrador] = useState(texto ?? "");
+  const [editando, setEditando] = useState(false);
+  useEffect(() => setBorrador(texto ?? ""), [texto]);
+
+  if (!edicion) {
+    if (!texto) return null;
+    return (
+      <p className="rounded-xl border border-border bg-muted/25 p-2.5 text-xs leading-relaxed">{texto}</p>
+    );
+  }
+
+  if (!editando) {
+    return (
+      <div className="rounded-xl border border-border bg-muted/25 p-2.5 print:hidden">
+        <p className="text-xs leading-relaxed">
+          {texto || <span className="text-muted-foreground">Sin explicación. Genera con IA o escríbela.</span>}
+        </p>
+        <button
+          type="button"
+          onClick={() => setEditando(true)}
+          className="mt-1 text-[11px] font-medium text-primary hover:underline"
+        >
+          Editar explicación
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5 rounded-xl border border-primary/30 bg-primary/5 p-2.5 print:hidden">
+      <Textarea rows={3} value={borrador} onChange={(e) => setBorrador(e.target.value)} className="text-xs" />
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          onClick={() => {
+            edicion.explicacion(id, borrador);
+            setEditando(false);
+          }}
+        >
+          Guardar
+        </Button>
+        <Button size="sm" variant="ghost" onClick={() => { setBorrador(texto ?? ""); setEditando(false); }}>
+          Cancelar
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** Controles manuales de tamaño de la tarjeta. */
+function ControlesTamano({
+  id,
+  ancho,
+  escala,
+  edicion,
+}: {
+  id: SeccionId;
+  ancho: number;
+  escala: number;
+  edicion: Edicion;
+}) {
+  const anchos = [50, 75, 100];
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 print:hidden">
+      <span className="text-[10px] uppercase text-muted-foreground">Ancho</span>
+      {anchos.map((a) => (
+        <button
+          key={a}
+          type="button"
+          onClick={() => edicion.tamano(id, a, escala)}
+          className={`rounded-md border px-1.5 py-0.5 text-[10px] font-medium ${
+            ancho === a ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
+          }`}
+        >
+          {a}%
+        </button>
+      ))}
+      <span className="ml-1 text-[10px] uppercase text-muted-foreground">Alto</span>
+      <button
+        type="button"
+        aria-label="Reducir alto"
+        onClick={() => edicion.tamano(id, ancho, Math.max(0.6, Math.round((escala - 0.1) * 10) / 10))}
+        className="rounded-md border border-border p-0.5 text-muted-foreground hover:text-primary"
+      >
+        <Minus className="h-3 w-3" />
+      </button>
+      <span className="w-8 text-center text-[10px] tabular-nums text-muted-foreground">
+        {Math.round(escala * 100)}%
+      </span>
+      <button
+        type="button"
+        aria-label="Aumentar alto"
+        onClick={() => edicion.tamano(id, ancho, Math.min(2, Math.round((escala + 0.1) * 10) / 10))}
+        className="rounded-md border border-border p-0.5 text-muted-foreground hover:text-primary"
+      >
+        <Plus className="h-3 w-3" />
+      </button>
     </div>
   );
 }
@@ -76,26 +198,45 @@ function Seccion({
   titulo,
   descripcion,
   visible,
+  explicaciones,
+  layout,
+  edicion,
   children,
 }: {
   id: SeccionId;
   titulo: string;
   descripcion?: string;
   visible: Set<SeccionId> | null;
+  explicaciones?: Record<string, string>;
+  layout?: Record<string, { ancho?: number; escala?: number }>;
+  edicion?: Edicion;
   children: React.ReactNode;
 }) {
   if (visible && !visible.has(id)) return null;
+  const ancho = layout?.[id]?.ancho ?? 100;
+  const escala = layout?.[id]?.escala ?? 1;
   return (
-    <Card className="break-inside-avoid overflow-hidden border-border/70 shadow-soft">
-      <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
-        <CardTitle className="flex items-center gap-2 text-base font-semibold">
-          <span className="h-4 w-1.5 rounded-full bg-gradient-primary" aria-hidden />
-          {titulo}
-        </CardTitle>
-        {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
-      </CardHeader>
-      <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">{children}</CardContent>
-    </Card>
+    <div
+      className="min-w-0 break-inside-avoid"
+      style={{ flex: `1 1 ${ancho}%`, maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)` }}
+    >
+      <EscalaCtx.Provider value={escala}>
+        <Card className="h-full break-inside-avoid overflow-hidden border-border/70 shadow-soft">
+          <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
+            <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <span className="h-4 w-1.5 rounded-full bg-gradient-primary" aria-hidden />
+              {titulo}
+            </CardTitle>
+            {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
+            {edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
+          </CardHeader>
+          <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">
+            {children}
+            <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
+          </CardContent>
+        </Card>
+      </EscalaCtx.Provider>
+    </div>
   );
 }
 
@@ -226,13 +367,18 @@ export function DashboardInforme({
   series,
   secciones,
   imprimible = false,
+  edicion,
 }: {
   informe: InformeMensual;
   series: SerieFila[];
   secciones?: SeccionId[];
   imprimible?: boolean;
+  /** Solo en el dashboard de administración: editar explicaciones y tamaños. */
+  edicion?: Edicion;
 }) {
   const visible = secciones ? new Set(secciones) : null;
+  const expl = informe.explicaciones ?? {};
+  const lay = informe.layout ?? {};
   const d = informe.datos ?? {};
   const f = d.repfacmes;
   const { mesNombre, anio, periodoFiscal, inicioFiscal } = infoPeriodo(informe.periodo);
@@ -293,14 +439,17 @@ export function DashboardInforme({
   }));
 
   return (
-    <div className={`space-y-3 ${imprimible ? "print:space-y-2" : ""}`}>
-      <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
+    <div className={`flex flex-wrap items-start gap-3 ${imprimible ? "print:gap-2" : ""}`}>
+      <div className="w-full">
+        <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
+      </div>
+
 
       <Seccion
         id="ventas"
         titulo="1. Ventas del mes y crecimiento de cartera"
         descripcion="Resumen de facturación al contado y al crédito, con y sin ITBMS."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div className="space-y-2">
@@ -352,7 +501,7 @@ export function DashboardInforme({
         id="vendedores"
         titulo="Ventas por vendedor"
         descripcion="Aporte de cada vendedor al total facturado del mes."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
@@ -385,7 +534,7 @@ export function DashboardInforme({
         id="mensuales"
         titulo={`Ventas mensuales del período ${periodoFiscal} (en balboas)`}
         descripcion="Evolución mes a mes de ventas y cobros del año fiscal agosto–julio."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
@@ -412,7 +561,7 @@ export function DashboardInforme({
         id="lineas"
         titulo="Ventas por línea de negocio"
         descripcion="Participación de cada línea en las ventas y la ganancia del mes."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         {d.lineas?.length ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -447,7 +596,7 @@ export function DashboardInforme({
         id="rotacion"
         titulo="Rotación de productos · categorías del catálogo"
         descripcion="Unidades vendidas por categoría (según el catálogo) y los modelos más vendidos del mes."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         {d.rotacion?.length ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -488,7 +637,7 @@ export function DashboardInforme({
         )}
       </Seccion>
 
-      <Seccion id="historicas" titulo="Cuadro comparativo de ventas históricas de la mueblería" visible={visible}>
+      <Seccion id="historicas" titulo="Cuadro comparativo de ventas históricas de la mueblería" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
             head={["Mes", ...aniosVentas(ventasSerie)]}
@@ -538,7 +687,7 @@ export function DashboardInforme({
         </div>
       </Seccion>
 
-      <Seccion id="clientes_nuevos" titulo="Cuadro comparativo de clientes nuevos históricos" visible={visible}>
+      <Seccion id="clientes_nuevos" titulo="Cuadro comparativo de clientes nuevos históricos" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         {aniosNuevos.length ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Tabla
@@ -583,7 +732,7 @@ export function DashboardInforme({
         )}
       </Seccion>
 
-      <Seccion id="instagram" titulo="Seguidores en Instagram · Línea Blanca y Bordados" visible={visible}>
+      <Seccion id="instagram" titulo="Seguidores en Instagram · Línea Blanca y Bordados" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         {aniosIg.length ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Tabla
@@ -620,7 +769,7 @@ export function DashboardInforme({
         id="cxc"
         titulo="2. Recuperación de cuentas por cobrar"
         descripcion="Composición de la cartera y su movimiento: saldo anterior + ventas al crédito − abonos."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Grafico alto={175}>
@@ -689,7 +838,7 @@ export function DashboardInforme({
         id="morosidad"
         titulo="Morosidad vencida y no vencida por plazos"
         descripcion="Distribución de la deuda por antigüedad de los plazos."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Tabla
@@ -732,7 +881,7 @@ export function DashboardInforme({
         id="abonos"
         titulo="Abonos realizados mensual y trimestral"
         descripcion="Cobros registrados en el período fiscal."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Tabla
@@ -753,7 +902,7 @@ export function DashboardInforme({
         </div>
       </Seccion>
 
-      <Seccion id="compras" titulo="Compras del mes" descripcion="Documentos de compra registrados en el mes." visible={visible}>
+      <Seccion id="compras" titulo="Compras del mes" descripcion="Documentos de compra registrados en el mes." visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         {d.compras ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
             <div className="space-y-2">
@@ -797,7 +946,7 @@ export function DashboardInforme({
         )}
       </Seccion>
 
-      <Seccion id="alertas" titulo="Alertas de contabilidad" visible={visible}>
+      <Seccion id="alertas" titulo="Alertas de contabilidad" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         <div className="grid gap-3 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
             <Kpi label="Cuentas con saldo" valor={fmt(d.repclientes?.cuentas)} />
@@ -819,7 +968,7 @@ export function DashboardInforme({
         id="conversion"
         titulo="Conversión de cotizaciones en ventas"
         descripcion="Cotizaciones generadas en el sitio que terminaron en factura."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <div className="grid gap-2">
@@ -861,7 +1010,7 @@ export function DashboardInforme({
         </div>
       </Seccion>
 
-      <Seccion id="gestion" titulo="3. Informe de gestión operativa" visible={visible}>
+      <Seccion id="gestion" titulo="3. Informe de gestión operativa" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         {informe.gestion?.general && <p className="text-xs leading-relaxed">{informe.gestion.general}</p>}
         <div className="grid gap-2 sm:grid-cols-2">
           {(informe.gestion?.colaboradores ?? []).map((c) => (

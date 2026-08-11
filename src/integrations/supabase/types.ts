@@ -891,9 +891,11 @@ export type Database = {
           created_at: string
           datos: Json
           estado: string
+          explicaciones: Json
           generado_en: string | null
           gestion: Json
           id: string
+          layout: Json
           narrativa: Json
           periodo: string
           updated_at: string
@@ -905,9 +907,11 @@ export type Database = {
           created_at?: string
           datos?: Json
           estado?: string
+          explicaciones?: Json
           generado_en?: string | null
           gestion?: Json
           id?: string
+          layout?: Json
           narrativa?: Json
           periodo: string
           updated_at?: string
@@ -919,9 +923,11 @@ export type Database = {
           created_at?: string
           datos?: Json
           estado?: string
+          explicaciones?: Json
           generado_en?: string | null
           gestion?: Json
           id?: string
+          layout?: Json
           narrativa?: Json
           periodo?: string
           updated_at?: string
