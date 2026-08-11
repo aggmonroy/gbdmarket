@@ -14,63 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin_login_challenges: {
-        Row: {
-          consumed_at: string | null
-          created_at: string
-          expires_at: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          consumed_at?: string | null
-          created_at?: string
-          expires_at: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          consumed_at?: string | null
-          created_at?: string
-          expires_at?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      admin_trusted_devices: {
-        Row: {
-          created_at: string
-          expires_at: string
-          id: string
-          label: string | null
-          last_seen_at: string
-          token_hash: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          expires_at?: string
-          id?: string
-          label?: string | null
-          last_seen_at?: string
-          token_hash: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          expires_at?: string
-          id?: string
-          label?: string | null
-          last_seen_at?: string
-          token_hash?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       audit_log: {
         Row: {
           action: string
