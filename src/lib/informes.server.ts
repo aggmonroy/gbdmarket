@@ -55,7 +55,7 @@ function jsonDe(texto: string) {
 export async function leerReporteConIA(reporte: string, texto: string) {
   const guia: Record<string, string> = {
     repfacmes:
-      'Devuelve {"totales":{"contado_con":n,"credito_con":n,"total_con":n,"contado_sin":n,"credito_sin":n,"total_sin":n,"itbms":n},"por_vendedor":[{"codigo":"17","contado":n,"credito":n}],"por_cajero":[{"codigo":"LBAGOMEZ","total":n,"recibos":n}],"abonos_total":n}',
+      'Devuelve {"totales":{"contado_con":n,"credito_con":n,"total_con":n,"contado_sin":n,"credito_sin":n,"total_sin":n,"itbms":n},"por_vendedor":[{"codigo":"17","contado":n,"credito":n}],"por_cajero":[{"codigo":"LBAGOMEZ","total":n,"recibos":n}],"abonos_total":n}. En "por_cajero" agrupa los recibos SOLO por el usuario de caja (usuario del sistema que cobró), NUNCA por el cliente. Los usuarios de caja siempre inician con TOY (Tonosí), CM (Casa Matriz) o LB (Línea Blanca), por ejemplo LBAGOMEZ, CMHDIAZ, TOYGARCIA; incluye también usuarios nuevos con esos prefijos y devuelve el total cobrado y la cantidad de recibos de cada uno. Ignora cualquier código que no tenga esos prefijos.',
     repartven: 'Devuelve {"productos":[{"codigo":"","descripcion":"","cantidad":n,"ventas":n,"costo":n,"ganancia":n}]}',
     repvalor2: 'Devuelve {"clasificaciones":[{"codigo":"","nombre":"","costo":n,"venta":n,"unidades":n}]}',
     repmorosos: 'Devuelve {"total":n,"plazos":{"30 días":n,"60 días":n,"90 días":n,"120 días":n,"364 días":n,"365 días":n},"cuentas":n}',

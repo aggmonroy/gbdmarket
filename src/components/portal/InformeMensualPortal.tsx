@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { CargaReportes } from "@/components/informes/CargaReportes";
 import { DashboardInforme } from "@/components/informes/DashboardInforme";
+import { HistorialInformes } from "@/components/informes/HistorialInformes";
 import { InformeImprimible } from "@/components/informes/InformeImprimible";
 import { SeriesManuales } from "@/components/informes/SeriesManuales";
 import { TotalesEditables } from "@/components/informes/TotalesEditables";
@@ -154,7 +155,21 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
             {esAdmin && <TabsTrigger value="textos">Textos y gestión</TabsTrigger>}
             <TabsTrigger value="imprimir">Versión imprimible</TabsTrigger>
             <TabsTrigger value="consolidado">Trimestral / anual</TabsTrigger>
+            {esAdmin && <TabsTrigger value="historico">Histórico</TabsTrigger>}
           </TabsList>
+
+          {esAdmin && (
+            <TabsContent value="historico" className="pt-4">
+              <HistorialInformes
+                token={sesion.token}
+                onCambio={() => {
+                  qc.invalidateQueries({ queryKey: ["informe"] });
+                }}
+                onVerPeriodo={setPeriodo}
+              />
+            </TabsContent>
+          )}
+
 
           {esAdmin && (
             <TabsContent value="carga" className="space-y-4 pt-4">

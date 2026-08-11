@@ -6,8 +6,11 @@
  */
 import {
   CAJEROS,
+  RE_CODIGO_CAJERO,
   VENDEDORES,
   VENDEDOR_POR_DEFECTO,
+  esCodigoCajero,
+  nombreCajero,
   type AbonoFila,
   type AlertaCliente,
   type DatosCompras,
@@ -37,12 +40,26 @@ export function num(raw: string | undefined | null): number {
 
 const lineas = (texto: string) => texto.split(/\r?\n/);
 
+/**
+ * El usuario de caja es el único token con prefijo de sucursal (TOY/CM/LB).
+ * Se busca en toda la fila para no confundirlo con el código del cliente y
+ * los cajeros nuevos se aceptan igual, rotulados por su sucursal.
+ */
+export function detectarCajero(linea: string): string | null {
+  const tokens = linea.toUpperCase().match(/[A-ZÑ]{4,22}/g) ?? [];
+  const candidatos = tokens.filter((t) => RE_CODIGO_CAJERO.test(t));
+  if (!candidatos.length) return null;
+  const conocido = candidatos.find((t) => CAJEROS[t]);
+  return conocido ?? candidatos[candidatos.length - 1]!;
+}
+
 /** Los reportes truncan el usuario del cajero; lo reconciliamos por prefijo. */
 export function normalizarCajero(codigo: string) {
   const c = codigo.toUpperCase();
   if (CAJEROS[c]) return c;
   const igual = Object.keys(CAJEROS).find((k) => k.startsWith(c) || c.startsWith(k));
-  return igual ?? c;
+  if (igual) return igual;
+  return esCodigoCajero(c) ? c : c;
 }
 
 /* ------------------------------- REPFACMES ------------------------------- */
@@ -51,7 +68,7 @@ const RE_VENTA =
   /^\s*(\d{2}\/\d{2}\/\d{2})\s+(\d+)\s+(\d+)\s+([A-ZÑ]{3,5})\s+(CO|CR)\s+(\d+)\s+(.+?)\s+(\d{1,3})\s+(-?[\d,]+\.\d{2})\s+(-?[\d,]+\.\d{2})\s+(-?[\d,]+\.\d{2})(?:\s+\d{2})?\s*$/;
 
 const RE_ABONO =
-  /^\s*(\d{2}\/\d{2}\/\d{4})\s+(\d+)\s+([A-Z])\s+([A-Z][A-Z0-9]{3,20})\s+(.+?)\s+([A-Z]{3,10})\s+(-?[\d,]+\.\d{2})\s*$/;
+  /^\s*(\d{2}\/\d{2}\/\d{4})\s+(\d+)\s+([A-Z])\s+([A-Z][A-Z0-9]{3,20})\s+(.+?)\s+([A-ZÑ]{3,22})\s+(-?[\d,]+\.\d{2})\s*$/;
 
 export function parseRepfacmes(texto: string): DatosRepfacmes {
   const ventas: VentaFila[] = [];
@@ -74,16 +91,31 @@ export function parseRepfacmes(texto: string): DatosRepfacmes {
       });
       continue;
     }
+    const cajero = detectarCajero(l);
+    if (!cajero) continue; // sin usuario de caja no es una fila de recibo
     const a = RE_ABONO.exec(l);
     if (a) {
       abonos.push({
         fecha: a[1]!,
         recibo: a[2]!,
-        cajero: normalizarCajero(a[4]!),
+        cajero,
         cliente: a[5]!.trim(),
         monto: num(a[7]),
       });
+      continue;
     }
+    // Respaldo: fila de recibo con otro orden de columnas.
+    const montos = l.match(/-?[\d,]+\.\d{2}/g);
+    if (!montos?.length) continue;
+    const fecha = l.match(/\d{2}\/\d{2}\/\d{2,4}/)?.[0];
+    if (!fecha) continue;
+    abonos.push({
+      fecha,
+      recibo: l.match(/\b\d{3,10}\b/)?.[0] ?? "",
+      cajero,
+      cliente: "",
+      monto: num(montos[montos.length - 1]),
+    });
   }
 
   const suma = (f: (v: VentaFila) => boolean, k: "subtotal" | "total") =>
@@ -127,7 +159,7 @@ export function parseRepfacmes(texto: string): DatosRepfacmes {
   const por_cajero = [...mapaC.entries()]
     .map(([codigo, e]) => ({
       codigo,
-      nombre: CAJEROS[codigo] ?? codigo,
+      nombre: nombreCajero(codigo),
       total: r2(e.total),
       recibos: e.recibos,
     }))

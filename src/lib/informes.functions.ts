@@ -99,6 +99,18 @@ export const cargarReporte = createServerFn({ method: "POST" })
     } catch {
       const { leerReporteConIA } = await import("./informes.server");
       datos = await leerReporteConIA(data.reporte, data.texto);
+      if (data.reporte === "repfacmes" && Array.isArray(datos?.por_cajero)) {
+        const { esCodigoCajero, nombreCajero } = await import("./informes-shared");
+        datos.por_cajero = datos.por_cajero
+          .filter((c: any) => esCodigoCajero(String(c?.codigo ?? "")))
+          .map((c: any) => ({
+            codigo: String(c.codigo).toUpperCase(),
+            nombre: nombreCajero(String(c.codigo)),
+            total: Number(c.total ?? 0),
+            recibos: Number(c.recibos ?? 0),
+          }))
+          .sort((a: any, b: any) => b.total - a.total);
+      }
       resumen = { lectura: "IA", ...(datos?.totales ?? {}), total: datos?.total ?? datos?.total_saldo };
       via = "lectura con IA";
     }
@@ -154,6 +166,102 @@ export const guardarDatos = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* --------------------------- eliminación e histórico --------------------------- */
+
+const CLAVES_POR_REPORTE: Record<string, string[]> = {
+  repfacmes: ["repfacmes"],
+  repartven: ["repartven", "rotacion", "lineas"],
+  repvalor2: ["repvalor2"],
+  repmorosos: ["repmorosos"],
+  repmorosos2: ["repmorosos2"],
+  repclientes: ["repclientes"],
+  repcompfch: ["compras"],
+};
+
+/** Borra los datos reconocidos de un reporte del período (lectura errónea). */
+export const eliminarReporte = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    tokenSchema
+      .extend({
+        periodo: z.string().regex(periodoRe),
+        reporte: z.enum(REPORTES.map((r) => r.id) as [string, ...string[]]),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const informe = await informeDe(data.periodo);
+    const datos = { ...((informe.datos ?? {}) as Record<string, any>) };
+
+    for (const k of CLAVES_POR_REPORTE[data.reporte] ?? [data.reporte]) delete datos[k];
+
+    if (data.reporte === "repmorosos" || data.reporte === "repmorosos2") {
+      const m = (datos.morosidad ?? {}) as any;
+      const resto =
+        data.reporte === "repmorosos"
+          ? { ...m, vencida: { total: 0, plazos: {} } }
+          : { ...m, no_vencida: { total: 0, plazos: {}, saldo_actual: 0, cuentas: 0 } };
+      const vacio = !resto.vencida?.total && !resto.no_vencida?.total;
+      if (vacio) delete datos.morosidad;
+      else datos.morosidad = resto;
+    }
+
+    const { error } = await db
+      .from("informes_mensuales")
+      .update({ datos, estado: "borrador" })
+      .eq("periodo", data.periodo);
+    if (error) throw new Error(error.message);
+    await db.from("informe_archivos").delete().eq("periodo", data.periodo).eq("reporte", data.reporte);
+    return { ok: true };
+  });
+
+/** Elimina por completo el informe de un período y sus archivos cargados. */
+export const eliminarInforme = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => tokenSchema.extend({ periodo: z.string().regex(periodoRe) }).parse(d))
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    await db.from("informe_archivos").delete().eq("periodo", data.periodo);
+    const { error } = await db.from("informes_mensuales").delete().eq("periodo", data.periodo);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Histórico de informes y de archivos cargados. Solo administración. */
+export const historialInformes = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => tokenSchema.parse(d))
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const [{ data: informes }, { data: archivos }] = await Promise.all([
+      db
+        .from("informes_mensuales")
+        .select("periodo, estado, generado_en, created_at, updated_at, datos")
+        .order("periodo", { ascending: false }),
+      db
+        .from("informe_archivos")
+        .select("id, periodo, reporte, filename, resumen, created_at")
+        .order("created_at", { ascending: false })
+        .limit(300),
+    ]);
+
+    return {
+      informes: (informes ?? []).map((i: any) => ({
+        periodo: i.periodo,
+        estado: i.estado,
+        generado_en: i.generado_en,
+        created_at: i.created_at,
+        updated_at: i.updated_at,
+        reportes: Object.keys(i.datos ?? {}).length,
+        ventas: Number(i.datos?.repfacmes?.totales?.total_con ?? 0),
+        abonos: Number(i.datos?.repfacmes?.abonos_total ?? 0),
+      })),
+      archivos: archivos ?? [],
+    };
+  });
+
 
 /* ------------------------------ series históricas ------------------------------ */
 
