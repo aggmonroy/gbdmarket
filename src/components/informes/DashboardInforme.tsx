@@ -243,7 +243,7 @@ export function DashboardInforme({
         descripcion="Resumen de facturación al contado y al crédito, con y sin ITBMS."
         visible={visible}
       >
-        <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="grid gap-3 md:grid-cols-[1.15fr_0.85fr]">
           <div className="space-y-2">
             <Tabla
               head={["Concepto", "Antes del 7%", "ITBMS", "Con ITBMS"]}
@@ -295,7 +295,7 @@ export function DashboardInforme({
         descripcion="Aporte de cada vendedor al total facturado del mes."
         visible={visible}
       >
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           <Tabla
             head={["Cód.", "Vendedor", "Contado", "Crédito", "Total"]}
             rows={vendedores.map((v) => [v.codigo, v.etiqueta, bal(v.contado), bal(v.credito), bal(v.total)])}
@@ -328,7 +328,7 @@ export function DashboardInforme({
         descripcion="Evolución mes a mes de ventas y cobros del año fiscal agosto–julio."
         visible={visible}
       >
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           <Tabla
             head={["Mes", "Contado", "Crédito", "Total"]}
             rows={mensuales.map((m) => [m.periodo, bal(m.contado), bal(m.credito), bal(m.total)])}
@@ -356,7 +356,7 @@ export function DashboardInforme({
         visible={visible}
       >
         {d.lineas?.length ? (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             <Tabla
               head={["Línea", "Unidades", "Ventas", "Ganancia"]}
               rows={d.lineas.map((l) => [l.linea, fmt(l.unidades), bal(l.ventas), bal(l.ganancia)])}
@@ -391,7 +391,7 @@ export function DashboardInforme({
         visible={visible}
       >
         {d.rotacion?.length ? (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             <Tabla
               head={["Categoría", "Unid.", "Ventas"]}
               rows={d.rotacion.map((c) => [c.categoria, fmt(c.unidades), bal(c.ventas)])}
@@ -414,7 +414,7 @@ export function DashboardInforme({
                 <Bar dataKey="Unidades" fill={COLORES[0]} radius={[0, 4, 4, 0]} />
               </BarChart>
             </Grafico>
-            <div className="lg:col-span-2">
+            <div className="md:col-span-2 xl:col-span-3">
               <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
                 Modelos más vendidos del mes
               </div>
@@ -430,7 +430,7 @@ export function DashboardInforme({
       </Seccion>
 
       <Seccion id="historicas" titulo="Cuadro comparativo de ventas históricas de la mueblería" visible={visible}>
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           <Tabla
             head={["Mes", ...aniosVentas(ventasSerie)]}
             rows={MESES_PERIODO.map((n, i) => {
@@ -481,7 +481,7 @@ export function DashboardInforme({
 
       <Seccion id="clientes_nuevos" titulo="Cuadro comparativo de clientes nuevos históricos" visible={visible}>
         {aniosNuevos.length ? (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             <Tabla
               head={["Mes", ...aniosNuevos]}
               rows={MESES_NOMBRE_CORTO.map((m, i) => [
@@ -526,7 +526,7 @@ export function DashboardInforme({
 
       <Seccion id="instagram" titulo="Seguidores en Instagram · Línea Blanca y Bordados" visible={visible}>
         {aniosIg.length ? (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             <Tabla
               head={["Mes", ...aniosIg.flatMap((a) => [`LB ${a}`, `BD ${a}`])]}
               rows={MESES_NOMBRE_CORTO.map((m, i) => [
@@ -563,7 +563,7 @@ export function DashboardInforme({
         descripcion="Composición de la cartera y su movimiento: saldo anterior + ventas al crédito − abonos."
         visible={visible}
       >
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <Grafico alto={210}>
             <PieChart>
               <Pie
@@ -632,7 +632,7 @@ export function DashboardInforme({
         descripcion="Distribución de la deuda por antigüedad de los plazos."
         visible={visible}
       >
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <Tabla
             head={["Plazo vencido", "Monto"]}
             rows={Object.entries(d.morosidad?.vencida.plazos ?? {}).map(([k, v]) => [k, bal(v)])}
@@ -675,7 +675,7 @@ export function DashboardInforme({
         descripcion="Cobros registrados en el período fiscal."
         visible={visible}
       >
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <Tabla
             head={["Mes", "Abonos"]}
             rows={mensuales.map((m) => [m.periodo, bal(m.cobros)])}
@@ -696,7 +696,7 @@ export function DashboardInforme({
 
       <Seccion id="compras" titulo="Compras del mes" descripcion="Documentos de compra registrados en el mes." visible={visible}>
         {d.compras ? (
-          <div className="grid gap-3 lg:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <div className="space-y-2">
               <Kpi tono="primario" label="Compras del mes" valor={bal(d.compras.total)} nota={`${d.compras.compras.length} documentos`} />
               <Kpi
@@ -741,7 +741,7 @@ export function DashboardInforme({
       </Seccion>
 
       <Seccion id="alertas" titulo="Alertas de contabilidad" visible={visible}>
-        <div className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="grid gap-3 md:grid-cols-[0.9fr_1.1fr]">
           <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
             <Kpi label="Cuentas con saldo" valor={fmt(d.repclientes?.cuentas)} />
             <Kpi label="Saldo total de clientes" valor={bal(d.repclientes?.total_saldo)} />
@@ -764,7 +764,7 @@ export function DashboardInforme({
         descripcion="Cotizaciones generadas en el sitio que terminaron en factura."
         visible={visible}
       >
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <div className="grid gap-2">
             <Kpi label="Cotizaciones del sitio" valor={fmt(d.conversion?.cotizaciones)} />
             <Kpi tono="positivo" label="Convertidas en factura" valor={fmt(d.conversion?.convertidas)} />
