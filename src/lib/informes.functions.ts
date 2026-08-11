@@ -121,20 +121,11 @@ export const cargarReporte = createServerFn({ method: "POST" })
       if (vacio) throw new Error("sin coincidencias");
     } catch {
       const { leerReporteConIA } = await import("./informes.server");
-      datos = await leerReporteConIA(data.reporte, data.texto);
-      if (data.reporte === "repfacmes" && Array.isArray(datos?.por_cajero)) {
-        const { esCodigoCajero, nombreCajero } = await import("./informes-shared");
-        datos.por_cajero = datos.por_cajero
-          .filter((c: any) => esCodigoCajero(String(c?.codigo ?? "")))
-          .map((c: any) => ({
-            codigo: String(c.codigo).toUpperCase(),
-            nombre: nombreCajero(String(c.codigo)),
-            total: Number(c.total ?? 0),
-            recibos: Number(c.recibos ?? 0),
-          }))
-          .sort((a: any, b: any) => b.total - a.total);
-      }
-      resumen = { lectura: "IA", ...(datos?.totales ?? {}), total: datos?.total ?? datos?.total_saldo };
+      const crudo = await leerReporteConIA(data.reporte, data.texto);
+      datos = normalizarDatosIA(data.reporte, crudo);
+      resumen = resumenDe(data.reporte, datos);
+      const vacio = Object.values(resumen).every((v) => !v);
+      if (vacio) throw new Error("No se reconocieron valores en este reporte. Verifica el archivo o carga los totales manualmente.");
       via = "lectura con IA";
     }
 
