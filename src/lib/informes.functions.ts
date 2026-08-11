@@ -368,12 +368,21 @@ export const generarInforme = createServerFn({ method: "POST" })
     const gestionPrevia = (informe.gestion ?? {}) as any;
     const gestion = gestionPrevia?.colaboradores?.length ? gestionPrevia : await srv.generarGestion(data.periodo);
 
+    // Explicación de cada tabla (editable luego desde el dashboard).
+    let explicaciones = (informe.explicaciones ?? {}) as Record<string, string>;
+    try {
+      explicaciones = { ...(await srv.generarExplicacionesTablas(data.periodo, datos)), ...explicaciones };
+    } catch {
+      // Si la IA no responde, el informe se genera igual y se puede reintentar.
+    }
+
     const { error } = await db
       .from("informes_mensuales")
       .update({
         datos,
         narrativa: { ...(informe.narrativa ?? {}), ...narrativa },
         gestion,
+        explicaciones,
         estado: "generado",
         generado_en: new Date().toISOString(),
       })
