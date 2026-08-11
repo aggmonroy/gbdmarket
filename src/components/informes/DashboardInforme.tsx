@@ -3,7 +3,7 @@
  * interactiva como para la versión imprimible (con secciones seleccionadas).
  */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Maximize2, Minus, Plus, Sparkles, Wand2 } from "lucide-react";
+import { Maximize2, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
