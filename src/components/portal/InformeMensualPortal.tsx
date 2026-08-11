@@ -17,6 +17,8 @@ import { CargaReportes } from "@/components/informes/CargaReportes";
 import { DashboardInforme } from "@/components/informes/DashboardInforme";
 import { InformeImprimible } from "@/components/informes/InformeImprimible";
 import { SeriesManuales } from "@/components/informes/SeriesManuales";
+import { TotalesEditables } from "@/components/informes/TotalesEditables";
+
 import {
   generarInforme,
   guardarTextos,
@@ -163,6 +165,12 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
                 archivos={data?.archivos ?? []}
                 onCargado={refrescar}
               />
+              <TotalesEditables
+                token={sesion.token}
+                periodo={periodo}
+                datos={informe.datos ?? {}}
+                onGuardado={refrescar}
+              />
               <SeriesManuales
                 token={sesion.token}
                 series={series}
@@ -171,6 +179,7 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
               />
             </TabsContent>
           )}
+
 
           <TabsContent value="dashboard" className="pt-4">
             <DashboardInforme informe={informe} series={series} />
