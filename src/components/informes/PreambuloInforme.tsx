@@ -88,6 +88,7 @@ export function PreambuloInforme({
           el mes reportado.
         </p>
       </div>
+      </div>
     </section>
   );
 }
