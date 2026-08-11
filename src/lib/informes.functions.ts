@@ -46,15 +46,36 @@ export const obtenerInforme = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const s = await lectura(data.token);
     const db = await admin();
-    const informe =
-      s.rol === "admin"
-        ? await informeDe(data.periodo)
-        : (await db.from("informes_mensuales").select("*").eq("periodo", data.periodo).maybeSingle()).data;
+    const { periodoActual } = await import("./informes-shared");
+    const actual = periodoActual();
 
-    const [{ data: series }, { data: archivos }, { data: periodos }] = await Promise.all([
+    // La gerencia solo consulta el mes en curso y únicamente cuando la
+    // administración ha aprobado la vista de gerencia.
+    if (s.rol !== "admin") {
+      if (data.periodo !== actual)
+        return { rol: s.rol, informe: null, series: [], archivos: [], periodos: [], alertas: [], bloqueo: "periodo" as const };
+      const { data: i } = await db
+        .from("informes_mensuales")
+        .select("*")
+        .eq("periodo", data.periodo)
+        .maybeSingle();
+      if (!i || !i.visible_gerente)
+        return { rol: s.rol, informe: null, series: [], archivos: [], periodos: [], alertas: [], bloqueo: "aprobacion" as const };
+      const { data: seriesG } = await db.from("informe_series").select("serie, periodo, datos");
+      return { rol: s.rol, informe: i, series: seriesG ?? [], archivos: [], periodos: [], alertas: [], bloqueo: null };
+    }
+
+    const informe = await informeDe(data.periodo);
+
+    const [{ data: series }, { data: archivos }, { data: periodos }, { data: alertas }] = await Promise.all([
       db.from("informe_series").select("serie, periodo, datos"),
       db.from("informe_archivos").select("id, reporte, filename, resumen, created_at").eq("periodo", data.periodo).order("created_at", { ascending: false }),
-      db.from("informes_mensuales").select("periodo, estado, generado_en").order("periodo", { ascending: false }),
+      db.from("informes_mensuales").select("periodo, estado, generado_en, visible_gerente, aprobado_en").order("periodo", { ascending: false }),
+      db
+        .from("informe_alertas")
+        .select("*")
+        .eq("periodo", data.periodo)
+        .order("meses_arrastre", { ascending: false }),
     ]);
 
     return {
@@ -63,6 +84,8 @@ export const obtenerInforme = createServerFn({ method: "POST" })
       series: series ?? [],
       archivos: archivos ?? [],
       periodos: periodos ?? [],
+      alertas: alertas ?? [],
+      bloqueo: null,
     };
   });
 
