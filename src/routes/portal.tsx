@@ -65,7 +65,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
   const [vista, setVista] = useState<
-    "menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "cotizacion"
+    "menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "cotizacion" | "informe"
   >("menu");
   const [cotizacionTareaId, setCotizacionTareaId] = useState<string | null>(null);
 
