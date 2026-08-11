@@ -1,7 +1,7 @@
 /**
  * Versión imprimible del informe: la gerencia elige qué secciones incluir
- * para la presentación a la junta directiva. Presenta una portada ejecutiva
- * con la paleta institucional y los gráficos de cada sección.
+ * para la presentación a la junta directiva. Muestra exactamente la misma
+ * información que el dashboard, con el membrete institucional.
  */
 import { useState } from "react";
 import { Printer, FileText } from "lucide-react";
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DashboardInforme } from "./DashboardInforme";
-import { PreambuloInforme } from "./PreambuloInforme";
 import { SECCIONES_INFORME, infoPeriodo, type InformeMensual, type SeccionId } from "@/lib/informes-shared";
 
 export function InformeImprimible({
@@ -20,12 +19,12 @@ export function InformeImprimible({
   series: { serie: string; periodo: string; datos: Record<string, number> }[];
 }) {
   const [seleccion, setSeleccion] = useState<SeccionId[]>(SECCIONES_INFORME.map((s) => s.id));
-  const { mesNombre, anio, periodoFiscal } = infoPeriodo(informe.periodo);
+  const { mesNombre, anio } = infoPeriodo(informe.periodo);
 
   const alternar = (id: SeccionId) =>
     setSeleccion((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
-  const incluidas = SECCIONES_INFORME.filter((s) => seleccion.includes(s.id));
+
 
   return (
     <div className="space-y-4">
@@ -65,28 +64,8 @@ export function InformeImprimible({
       </Card>
 
       <div className="informe-print rounded-xl border border-border bg-background p-3 print:rounded-none print:border-0 print:p-0">
-        {/* Portada e índice ejecutivo */}
-        <div className="mb-4 overflow-hidden rounded-2xl bg-gradient-hero p-6 text-primary-foreground print:rounded-none">
-          <div className="text-[11px] font-medium uppercase tracking-[0.25em] opacity-80">
-            Cooperativa GBD · Mueblería Línea Blanca y Bordados
-          </div>
-          <h1 className="font-display text-4xl font-bold leading-tight">Informe ejecutivo</h1>
-          <p className="mt-1 text-sm opacity-90">
-            {mesNombre} {anio} · Período fiscal {periodoFiscal}
-          </p>
-          <p className="mt-4 text-[11px] uppercase tracking-wider opacity-75">Contenido</p>
-          <ol className="mt-1 grid gap-x-6 gap-y-0.5 text-xs sm:grid-cols-2">
-            {incluidas.map((s, i) => (
-              <li key={s.id} className="opacity-90">
-                {i + 1}. {s.nombre}
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        <PreambuloInforme periodo={informe.periodo} />
-
         <DashboardInforme informe={informe} series={series} secciones={seleccion} imprimible />
+
 
 
         <div className="mt-4 hidden justify-between border-t border-border pt-2 text-[10px] text-muted-foreground print:flex">
