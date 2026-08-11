@@ -2,7 +2,7 @@
  * Vista tipo dashboard del informe mensual. Se usa tanto para la consulta
  * interactiva como para la versión imprimible (con secciones seleccionadas).
  */
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Maximize2, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
