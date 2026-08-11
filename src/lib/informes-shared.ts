@@ -43,13 +43,29 @@ export const TRIMESTRES: { nombre: string; meses: string[] }[] = [
 
 /** Vendedores registrados en el sistema de facturación. */
 export const VENDEDORES: Record<string, string> = {
-  "7": "SUCURSAL TONOSÍ // VICTOR JIMENEZ",
-  "8": "COOPGBD, R.L. // SEBASTIAN TAYLOR",
+  "7": "SUCURSAL TONOSÍ",
+  "8": "CASA MATRIZ",
+  "12": "ELVIS DOMÍNGUEZ",
   "13": "COOP. EL PROGRESO",
   "16": "MANUEL DIAZ",
   "17": "ANA GOMEZ",
 };
 export const VENDEDOR_POR_DEFECTO = "17";
+
+/**
+ * Nombre del vendedor según el período del informe:
+ * · 7  → siempre "SUCURSAL TONOSÍ".
+ * · 8  → "CASA MATRIZ" hasta enero 2026; desde febrero 2026 se le suma Sebastián Taylor.
+ * · 12 → Elvis Domínguez solo en julio y agosto de 2025.
+ */
+export function nombreVendedor(codigo: string, periodo?: string) {
+  const p = periodo ?? "";
+  if (codigo === "7") return "SUCURSAL TONOSÍ";
+  if (codigo === "8") return p && p >= "2026-02" ? "CASA MATRIZ // SEBASTIÁN TAYLOR" : "CASA MATRIZ";
+  if (codigo === "12") return p === "2025-07" || p === "2025-08" ? "ELVIS DOMÍNGUEZ" : `VENDEDOR ${codigo}`;
+  return VENDEDORES[codigo] ?? `VENDEDOR ${codigo}`;
+}
+
 
 /**
  * Sucursales por prefijo del usuario de caja.

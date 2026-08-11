@@ -130,3 +130,15 @@
 }
 @utility animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
 @utility animate-fade-up { animation: fade-up 0.8s ease-out both; }
+
+/* ------- Vista imprimible del informe mensual ------- */
+@media print {
+  @page { size: A4 portrait; margin: 12mm 10mm; }
+  body { background: #fff; }
+  .informe-print { font-size: 10.5px; }
+  .informe-print h1 { font-size: 26px; }
+  .informe-print h2 { font-size: 18px; }
+  .informe-print table { font-size: 9.5px; }
+  .informe-print .recharts-wrapper { page-break-inside: avoid; }
+  .informe-print [class*="rounded"] { box-shadow: none !important; }
+}
