@@ -258,8 +258,43 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
           )}
 
 
-          <TabsContent value="dashboard" className="pt-4">
-            <DashboardInforme informe={informe} series={series} />
+          <TabsContent value="dashboard" className="space-y-3 pt-4">
+            {esAdmin && (
+              <Card className="print:hidden">
+                <CardContent className="flex flex-wrap items-center gap-3 pt-6">
+                  <Button onClick={() => explicacionesMut.mutate()} disabled={explicacionesMut.isPending}>
+                    {explicacionesMut.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Wand2 className="mr-2 h-4 w-4" />
+                    )}
+                    Explicar tablas con IA
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Cada tarjeta tiene su explicación editable y controles de ancho y alto. Al aprobar el dashboard,
+                    todo pasa a la versión imprimible y a la vista de gerencia.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            <DashboardInforme
+              informe={informe}
+              series={series}
+              edicion={
+                esAdmin
+                  ? {
+                      explicacion: (seccion, texto) =>
+                        explicacionFn({ data: { token: sesion.token, periodo, seccion, texto } })
+                          .then(refrescar)
+                          .catch((e: any) => toast.error(e?.message ?? "No se pudo guardar la explicación")),
+                      tamano: (seccion, ancho, escala) =>
+                        layoutFn({ data: { token: sesion.token, periodo, seccion, ancho, escala } })
+                          .then(refrescar)
+                          .catch((e: any) => toast.error(e?.message ?? "No se pudo guardar el tamaño")),
+                    }
+                  : undefined
+              }
+            />
           </TabsContent>
 
           {esAdmin && (
@@ -281,8 +316,16 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
           )}
 
           <TabsContent value="imprimir" className="pt-4">
-            <InformeImprimible informe={informe} series={series} />
+            {informe.visible_gerente ? (
+              <InformeImprimible informe={informe} series={series} />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                El informe aún no está aprobado. Revisa el dashboard y aprueba la vista de gerente para habilitar la
+                impresión y la consulta de la gerencia.
+              </p>
+            )}
           </TabsContent>
+
 
           <TabsContent value="consolidado" className="space-y-3 pt-4">
             <Card>
