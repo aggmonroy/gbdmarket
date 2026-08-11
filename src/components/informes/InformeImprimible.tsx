@@ -84,7 +84,10 @@ export function InformeImprimible({
           </ol>
         </div>
 
+        <PreambuloInforme periodo={informe.periodo} />
+
         <DashboardInforme informe={informe} series={series} secciones={seleccion} imprimible />
+
 
         <div className="mt-4 hidden justify-between border-t border-border pt-2 text-[10px] text-muted-foreground print:flex">
           <span>
