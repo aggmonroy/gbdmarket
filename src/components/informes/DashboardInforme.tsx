@@ -441,7 +441,7 @@ export function DashboardInforme({
         id="ventas"
         titulo="1. Ventas del mes y crecimiento de cartera"
         descripcion="Resumen de facturación al contado y al crédito, con y sin ITBMS."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div className="space-y-2">
@@ -493,7 +493,7 @@ export function DashboardInforme({
         id="vendedores"
         titulo="Ventas por vendedor"
         descripcion="Aporte de cada vendedor al total facturado del mes."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
@@ -526,7 +526,7 @@ export function DashboardInforme({
         id="mensuales"
         titulo={`Ventas mensuales del período ${periodoFiscal} (en balboas)`}
         descripcion="Evolución mes a mes de ventas y cobros del año fiscal agosto–julio."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
@@ -553,7 +553,7 @@ export function DashboardInforme({
         id="lineas"
         titulo="Ventas por línea de negocio"
         descripcion="Participación de cada línea en las ventas y la ganancia del mes."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         {d.lineas?.length ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -588,7 +588,7 @@ export function DashboardInforme({
         id="rotacion"
         titulo="Rotación de productos · categorías del catálogo"
         descripcion="Unidades vendidas por categoría (según el catálogo) y los modelos más vendidos del mes."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         {d.rotacion?.length ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -629,7 +629,7 @@ export function DashboardInforme({
         )}
       </Seccion>
 
-      <Seccion id="historicas" titulo="Cuadro comparativo de ventas históricas de la mueblería" visible={visible}>
+      <Seccion id="historicas" titulo="Cuadro comparativo de ventas históricas de la mueblería" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
             head={["Mes", ...aniosVentas(ventasSerie)]}
@@ -679,7 +679,7 @@ export function DashboardInforme({
         </div>
       </Seccion>
 
-      <Seccion id="clientes_nuevos" titulo="Cuadro comparativo de clientes nuevos históricos" visible={visible}>
+      <Seccion id="clientes_nuevos" titulo="Cuadro comparativo de clientes nuevos históricos" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         {aniosNuevos.length ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Tabla
@@ -724,7 +724,7 @@ export function DashboardInforme({
         )}
       </Seccion>
 
-      <Seccion id="instagram" titulo="Seguidores en Instagram · Línea Blanca y Bordados" visible={visible}>
+      <Seccion id="instagram" titulo="Seguidores en Instagram · Línea Blanca y Bordados" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         {aniosIg.length ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Tabla
@@ -761,7 +761,7 @@ export function DashboardInforme({
         id="cxc"
         titulo="2. Recuperación de cuentas por cobrar"
         descripcion="Composición de la cartera y su movimiento: saldo anterior + ventas al crédito − abonos."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Grafico alto={175}>
@@ -830,7 +830,7 @@ export function DashboardInforme({
         id="morosidad"
         titulo="Morosidad vencida y no vencida por plazos"
         descripcion="Distribución de la deuda por antigüedad de los plazos."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Tabla
@@ -873,7 +873,7 @@ export function DashboardInforme({
         id="abonos"
         titulo="Abonos realizados mensual y trimestral"
         descripcion="Cobros registrados en el período fiscal."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Tabla
@@ -894,7 +894,7 @@ export function DashboardInforme({
         </div>
       </Seccion>
 
-      <Seccion id="compras" titulo="Compras del mes" descripcion="Documentos de compra registrados en el mes." visible={visible}>
+      <Seccion id="compras" titulo="Compras del mes" descripcion="Documentos de compra registrados en el mes." visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         {d.compras ? (
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
             <div className="space-y-2">
@@ -938,7 +938,7 @@ export function DashboardInforme({
         )}
       </Seccion>
 
-      <Seccion id="alertas" titulo="Alertas de contabilidad" visible={visible}>
+      <Seccion id="alertas" titulo="Alertas de contabilidad" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         <div className="grid gap-3 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
             <Kpi label="Cuentas con saldo" valor={fmt(d.repclientes?.cuentas)} />
@@ -960,7 +960,7 @@ export function DashboardInforme({
         id="conversion"
         titulo="Conversión de cotizaciones en ventas"
         descripcion="Cotizaciones generadas en el sitio que terminaron en factura."
-        visible={visible}
+        visible={visible} explicaciones={expl} layout={lay} edicion={edicion}
       >
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <div className="grid gap-2">
@@ -1002,7 +1002,7 @@ export function DashboardInforme({
         </div>
       </Seccion>
 
-      <Seccion id="gestion" titulo="3. Informe de gestión operativa" visible={visible}>
+      <Seccion id="gestion" titulo="3. Informe de gestión operativa" visible={visible} explicaciones={expl} layout={lay} edicion={edicion}>
         {informe.gestion?.general && <p className="text-xs leading-relaxed">{informe.gestion.general}</p>}
         <div className="grid gap-2 sm:grid-cols-2">
           {(informe.gestion?.colaboradores ?? []).map((c) => (
