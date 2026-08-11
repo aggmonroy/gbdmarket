@@ -37,38 +37,74 @@ import {
 
 type SerieFila = { serie: string; periodo: string; datos: Record<string, number> };
 
-const COLORES = ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--chart-3, 200 70% 45%))", "#6b7280", "#f59e0b", "#10b981"];
+/** Paleta alineada a los tokens de la página (azul institucional + apoyos). */
+const COLORES = [
+  "var(--primary)",
+  "var(--secondary)",
+  "oklch(0.65 0.16 155)",
+  "oklch(0.78 0.16 75)",
+  "oklch(0.6 0.22 27)",
+  "oklch(0.55 0.1 300)",
+];
+
+const ejeY = { fontSize: 10, tickFormatter: (v: number) => (Math.abs(v) >= 1000 ? `${Math.round(v / 1000)}k` : String(v)) };
+
+const tooltipStyle = {
+  contentStyle: {
+    borderRadius: 10,
+    border: "1px solid var(--border)",
+    background: "var(--card)",
+    color: "var(--card-foreground)",
+    fontSize: 12,
+  },
+} as const;
+
+function Grafico({ children, alto = 240 }: { children: React.ReactElement; alto?: number }) {
+  return (
+    <div className="rounded-xl border border-border bg-muted/20 p-2" style={{ height: alto }}>
+      <ResponsiveContainer width="100%" height="100%">
+        {children}
+      </ResponsiveContainer>
+    </div>
+  );
+}
 
 function Seccion({
   id,
   titulo,
+  descripcion,
   visible,
   children,
 }: {
   id: SeccionId;
   titulo: string;
+  descripcion?: string;
   visible: Set<SeccionId> | null;
   children: React.ReactNode;
 }) {
   if (visible && !visible.has(id)) return null;
   return (
-    <Card className="break-inside-avoid">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base uppercase tracking-wide">{titulo}</CardTitle>
+    <Card className="break-inside-avoid overflow-hidden border-border/70 shadow-soft">
+      <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-3">
+        <CardTitle className="flex items-center gap-2 text-base font-semibold">
+          <span className="h-4 w-1.5 rounded-full bg-gradient-primary" aria-hidden />
+          {titulo}
+        </CardTitle>
+        {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
       </CardHeader>
-      <CardContent className="space-y-3 text-sm">{children}</CardContent>
+      <CardContent className="space-y-4 pt-4 text-sm">{children}</CardContent>
     </Card>
   );
 }
 
 function Tabla({ head, rows, foot }: { head: string[]; rows: (string | number)[][]; foot?: (string | number)[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl border border-border">
       <table className="w-full min-w-[420px] border-collapse text-xs sm:text-sm">
         <thead>
-          <tr className="bg-muted/60">
+          <tr className="bg-primary/8 text-primary">
             {head.map((h) => (
-              <th key={h} className="border border-border px-2 py-1.5 text-left font-semibold">
+              <th key={h} className="px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wide">
                 {h}
               </th>
             ))}
@@ -76,18 +112,18 @@ function Tabla({ head, rows, foot }: { head: string[]; rows: (string | number)[]
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i} className="odd:bg-muted/20">
+            <tr key={i} className="border-t border-border/70 even:bg-muted/25">
               {r.map((c, j) => (
-                <td key={j} className={`border border-border px-2 py-1 ${j === 0 ? "" : "text-right tabular-nums"}`}>
+                <td key={j} className={`px-2.5 py-1.5 ${j === 0 ? "" : "text-right tabular-nums"}`}>
                   {c}
                 </td>
               ))}
             </tr>
           ))}
           {foot && (
-            <tr className="bg-primary/10 font-semibold">
+            <tr className="border-t-2 border-primary/30 bg-primary/10 font-semibold">
               {foot.map((c, j) => (
-                <td key={j} className={`border border-border px-2 py-1 ${j === 0 ? "" : "text-right tabular-nums"}`}>
+                <td key={j} className={`px-2.5 py-2 ${j === 0 ? "" : "text-right tabular-nums"}`}>
                   {c}
                 </td>
               ))}
@@ -99,15 +135,32 @@ function Tabla({ head, rows, foot }: { head: string[]; rows: (string | number)[]
   );
 }
 
-function Kpi({ label, valor, nota }: { label: string; valor: string; nota?: string }) {
+function Kpi({
+  label,
+  valor,
+  nota,
+  tono = "neutro",
+}: {
+  label: string;
+  valor: string;
+  nota?: string;
+  tono?: "neutro" | "primario" | "positivo" | "alerta";
+}) {
+  const estilos = {
+    neutro: "border-border bg-card",
+    primario: "border-primary/25 bg-primary/8",
+    positivo: "border-[oklch(0.65_0.16_155_/_0.35)] bg-[oklch(0.65_0.16_155_/_0.08)]",
+    alerta: "border-destructive/30 bg-destructive/8",
+  }[tono];
   return (
-    <div className="rounded-md border border-border bg-card p-3">
-      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="font-display text-lg font-bold tabular-nums">{valor}</div>
-      {nota && <div className="text-[11px] text-muted-foreground">{nota}</div>}
+    <div className={`rounded-xl border p-3 break-inside-avoid ${estilos}`}>
+      <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="font-display text-xl font-bold tabular-nums leading-tight">{valor}</div>
+      {nota && <div className="mt-0.5 text-[11px] text-muted-foreground">{nota}</div>}
     </div>
   );
 }
+
 
 export function DashboardInforme({
   informe,
