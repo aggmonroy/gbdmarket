@@ -15,12 +15,13 @@ import { cargarReporte, eliminarReporte } from "@/lib/informes.functions";
 import { extraerTexto } from "@/lib/informes-archivos";
 import { REPORTES, bal, type InformeDatos } from "@/lib/informes-shared";
 
-const CLAVE_EN_DATOS: Record<string, keyof InformeDatos | "morosidad" | "compras"> = {
+const CLAVE_EN_DATOS: Record<string, keyof InformeDatos | "repmorosos" | "repmorosos2" | "compras"> = {
   repfacmes: "repfacmes",
   repartven: "repartven",
   repvalor2: "repvalor2",
-  repmorosos: "morosidad",
-  repmorosos2: "morosidad",
+  // Morosidad vencida y no vencida son reportes independientes.
+  repmorosos: "repmorosos",
+  repmorosos2: "repmorosos2",
   repclientes: "repclientes",
   repcompfch: "compras",
 };
