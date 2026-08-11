@@ -755,6 +755,57 @@ export type Database = {
         }
         Relationships: []
       }
+      informe_alertas: {
+        Row: {
+          clave: string
+          cliente: string | null
+          created_at: string
+          detalle: string | null
+          estado: string
+          id: string
+          meses_arrastre: number
+          monto: number
+          nota: string | null
+          periodo: string
+          primer_periodo: string
+          resuelto_en: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          clave: string
+          cliente?: string | null
+          created_at?: string
+          detalle?: string | null
+          estado?: string
+          id?: string
+          meses_arrastre?: number
+          monto?: number
+          nota?: string | null
+          periodo: string
+          primer_periodo: string
+          resuelto_en?: string | null
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          clave?: string
+          cliente?: string | null
+          created_at?: string
+          detalle?: string | null
+          estado?: string
+          id?: string
+          meses_arrastre?: number
+          monto?: number
+          nota?: string | null
+          periodo?: string
+          primer_periodo?: string
+          resuelto_en?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       informe_archivos: {
         Row: {
           created_at: string
@@ -779,6 +830,30 @@ export type Database = {
           periodo?: string
           reporte?: string
           resumen?: Json
+        }
+        Relationships: []
+      }
+      informe_historicos: {
+        Row: {
+          created_at: string
+          id: string
+          metricas: Json
+          periodo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metricas?: Json
+          periodo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metricas?: Json
+          periodo?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -811,6 +886,8 @@ export type Database = {
       }
       informes_mensuales: {
         Row: {
+          aprobado_en: string | null
+          aprobado_por: string | null
           created_at: string
           datos: Json
           estado: string
@@ -820,8 +897,11 @@ export type Database = {
           narrativa: Json
           periodo: string
           updated_at: string
+          visible_gerente: boolean
         }
         Insert: {
+          aprobado_en?: string | null
+          aprobado_por?: string | null
           created_at?: string
           datos?: Json
           estado?: string
@@ -831,8 +911,11 @@ export type Database = {
           narrativa?: Json
           periodo: string
           updated_at?: string
+          visible_gerente?: boolean
         }
         Update: {
+          aprobado_en?: string | null
+          aprobado_por?: string | null
           created_at?: string
           datos?: Json
           estado?: string
@@ -842,6 +925,7 @@ export type Database = {
           narrativa?: Json
           periodo?: string
           updated_at?: string
+          visible_gerente?: boolean
         }
         Relationships: []
       }
