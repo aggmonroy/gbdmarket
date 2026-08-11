@@ -56,7 +56,7 @@ function Financiamiento() {
         consent: true,
       } as any });
       toast.success("Pre-orden generada. Revisa, imprime o envíala por WhatsApp.");
-      navigate({ to: "/pedido/$numero", params: { numero: r.numero_pedido } });
+      navigate({ to: "/pedido/$numero", params: { numero: r.numero_pedido }, search: { t: r.token } });
     } catch (e) {
       console.error(e);
       toast.error("No se pudo generar la pre-orden. Intenta nuevamente.");

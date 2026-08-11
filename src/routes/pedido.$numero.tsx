@@ -8,6 +8,7 @@ import { ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos-shared";
 import { buildWaUrl, type WaChannel } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/pedido/$numero")({
+  validateSearch: (s: Record<string, unknown>) => ({ t: typeof s.t === "string" ? s.t : "" }),
   head: () => ({
     meta: [
       { title: "Pre-orden de pedido · Cooperativa GBD" },
@@ -22,10 +23,11 @@ type Item = { descripcion: string; cantidad: number; detalle?: string };
 
 function PedidoDoc() {
   const { numero } = Route.useParams();
+  const { t } = Route.useSearch();
   const getFn = useServerFn(getPedido);
   const { data, error } = useQuery({
-    queryKey: ["pedido", numero],
-    queryFn: () => getFn({ data: { numero } }) as any,
+    queryKey: ["pedido", numero, t],
+    queryFn: () => getFn({ data: { numero, t } }) as any,
   });
 
   if (error) return <p className="p-8 text-center text-sm">{(error as Error).message}</p>;

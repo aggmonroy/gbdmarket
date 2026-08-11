@@ -89,7 +89,7 @@ export function ProductDetailDialog({
         customer_name: customerName || null,
       });
       onOpenChange(false);
-      window.location.href = `/pedido/${r.numero_pedido}`;
+      window.location.href = `/pedido/${r.numero_pedido}?t=${encodeURIComponent(r.token)}`;
     } catch (e: any) {
       console.error(e);
       toast.error("No se pudo generar la pre-orden. Intenta nuevamente.");

@@ -95,7 +95,7 @@ function Bordados() {
         consent: true,
       } as any });
       toast.success("Pre-orden generada. Revisa e imprime tu documento.");
-      navigate({ to: "/pedido/$numero", params: { numero: r.numero_pedido } });
+      navigate({ to: "/pedido/$numero", params: { numero: r.numero_pedido }, search: { t: r.token } });
     } catch (e: any) {
       toast.error("No se pudo enviar. Intenta nuevamente.");
       console.error(e);
