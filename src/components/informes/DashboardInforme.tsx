@@ -237,6 +237,118 @@ function Tirador({
   return <div role="separator" aria-label="Redimensionar tarjeta" onPointerDown={iniciar} className={`${base} ${pos}`} />;
 }
 
+const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+/** Lógica común de arrastre para tarjetas y bloques internos. */
+function useRedimension(anchoGuardado: number, escalaGuardada: number, guardar?: (a: number, e: number) => void) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [arrastre, setArrastre] = useState<{ ancho: number; escala: number } | null>(null);
+  const ancho = arrastre?.ancho ?? anchoGuardado;
+  const escala = arrastre?.escala ?? escalaGuardada;
+
+  const redimensionar =
+    (signo: 1 | -1 | 0, dy = false) =>
+    (dx: number, dyPx: number, anchoContenedor: number) => {
+      const nuevoAncho =
+        signo === 0 ? ancho : limitar(anchoGuardado + (signo * dx * 100) / Math.max(1, anchoContenedor), 25, 100);
+      const alto = ref.current?.getBoundingClientRect().height ?? 300;
+      const nuevaEscala = dy
+        ? limitar(escalaGuardada * (1 + dyPx / Math.max(120, alto / Math.max(0.4, escalaGuardada))), 0.6, 2)
+        : escalaGuardada;
+      setArrastre({ ancho: Math.round(nuevoAncho), escala: Math.round(nuevaEscala * 100) / 100 });
+    };
+
+  const finalizar = () => {
+    if (arrastre && guardar) guardar(arrastre.ancho, arrastre.escala);
+    setArrastre(null);
+  };
+
+  return { ref, ancho, escala, redimensionar, finalizar };
+}
+
+/** Bloque interno de una tarjeta (tabla, gráfica o texto) redimensionable. */
+function Bloque({
+  clave,
+  baseAncho,
+  layout,
+  edicion,
+  children,
+}: {
+  clave: string;
+  baseAncho: number;
+  layout?: Record<string, { ancho?: number; escala?: number }>;
+  edicion?: Edicion;
+  children: React.ReactNode;
+}) {
+  const padre = useContext(EscalaCtx);
+  const { ref, ancho, escala, redimensionar, finalizar } = useRedimension(
+    layout?.[clave]?.ancho ?? baseAncho,
+    layout?.[clave]?.escala ?? 1,
+    edicion ? (a, e) => edicion.tamano(clave, a, e) : undefined,
+  );
+
+  return (
+    <div
+      ref={ref}
+      className="relative min-w-0 break-inside-avoid"
+      style={{
+        flex: `1 1 ${ancho}%`,
+        maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)`,
+        minWidth: "min(100%, 240px)",
+      }}
+    >
+      <EscalaCtx.Provider value={padre * escala}>
+        <div className="min-w-0">{children}</div>
+        {edicion && (
+          <>
+            <Tirador lado="izq" contenedor={ref} onDrag={redimensionar(-1)} onFin={finalizar} />
+            <Tirador lado="der" contenedor={ref} onDrag={redimensionar(1)} onFin={finalizar} />
+            <Tirador lado="abajo" contenedor={ref} onDrag={redimensionar(0, true)} onFin={finalizar} />
+            <Tirador lado="esq" contenedor={ref} onDrag={redimensionar(1, true)} onFin={finalizar} />
+          </>
+        )}
+      </EscalaCtx.Provider>
+    </div>
+  );
+}
+
+/**
+ * Envuelve el contenido de una tarjeta en bloques redimensionables: las
+ * rejillas se convierten en filas flexibles y cada celda (tabla, gráfica o
+ * texto) puede ajustarse arrastrando sus bordes.
+ */
+function envolverBloques(
+  children: React.ReactNode,
+  id: SeccionId,
+  layout?: Record<string, { ancho?: number; escala?: number }>,
+  edicion?: Edicion,
+) {
+  let n = 0;
+  return React.Children.toArray(children).map((child, i) => {
+    if (!React.isValidElement(child)) return child;
+    const props = child.props as { className?: string; children?: React.ReactNode };
+    const cls = String(props.className ?? "");
+    if (cls.includes("grid")) {
+      const celdas = React.Children.toArray(props.children);
+      const base = celdas.length > 1 ? Math.round(100 / celdas.length) : 100;
+      return (
+        <div key={`g${i}`} className="flex flex-wrap items-start gap-3">
+          {celdas.map((celda, j) => (
+            <Bloque key={j} clave={`${id}:${n++}`} baseAncho={base} layout={layout} edicion={edicion}>
+              {celda}
+            </Bloque>
+          ))}
+        </div>
+      );
+    }
+    return (
+      <Bloque key={`b${i}`} clave={`${id}:${n++}`} baseAncho={100} layout={layout} edicion={edicion}>
+        {child}
+      </Bloque>
+    );
+  });
+}
+
 function Seccion({
   id,
   titulo,
@@ -256,34 +368,15 @@ function Seccion({
   edicion?: Edicion;
   children: React.ReactNode;
 }) {
-  if (visible && !visible.has(id)) return null;
   const anchoGuardado = layout?.[id]?.ancho ?? 100;
   const escalaGuardada = layout?.[id]?.escala ?? 1;
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [arrastre, setArrastre] = useState<{ ancho: number; escala: number } | null>(null);
-  const ancho = arrastre?.ancho ?? anchoGuardado;
-  const escala = arrastre?.escala ?? escalaGuardada;
+  const { ref, ancho, escala, redimensionar, finalizar } = useRedimension(
+    anchoGuardado,
+    escalaGuardada,
+    edicion ? (a, e) => edicion.tamano(id, a, e) : undefined,
+  );
 
-  const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
-
-  const redimensionar = (signo: 1 | -1 | 0, dy = false) =>
-    (dx: number, dyPx: number, anchoContenedor: number) => {
-      const nuevoAncho =
-        signo === 0 ? ancho : limitar(anchoGuardado + (signo * dx * 100) / Math.max(1, anchoContenedor), 25, 100);
-      const alto = ref.current?.getBoundingClientRect().height ?? 300;
-      const nuevaEscala = dy
-        ? limitar(escalaGuardada * (1 + dyPx / Math.max(120, alto / Math.max(0.4, escalaGuardada))), 0.5, 2.5)
-        : escalaGuardada;
-      setArrastre({
-        ancho: Math.round(nuevoAncho),
-        escala: Math.round(nuevaEscala * 100) / 100,
-      });
-    };
-
-  const finalizar = () => {
-    if (arrastre && edicion) edicion.tamano(id, arrastre.ancho, arrastre.escala);
-    setArrastre(null);
-  };
+  if (visible && !visible.has(id)) return null;
 
   return (
     <div
@@ -302,7 +395,7 @@ function Seccion({
             {edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
           </CardHeader>
           <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">
-            {children}
+            {envolverBloques(children, id, layout, edicion)}
             <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
           </CardContent>
         </Card>
@@ -318,6 +411,7 @@ function Seccion({
     </div>
   );
 }
+
 
 
 function TablaBase({
