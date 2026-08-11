@@ -248,8 +248,8 @@ export function parseRepvalor2(texto: string): DatosRepvalor2 {
   return {
     clasificacion_por_codigo,
     clasificaciones,
-    total_costo: r2(clasificaciones.reduce((s, c) => s + c.costo, 0)),
-    total_venta: r2(clasificaciones.reduce((s, c) => s + c.venta, 0)),
+    total_costo: r2(clasificaciones.reduce((s: number, c: any) => s + c.costo, 0)),
+    total_venta: r2(clasificaciones.reduce((s: number, c: any) => s + c.venta, 0)),
   };
 }
 
@@ -638,8 +638,8 @@ export function normalizarDatosIA(reporte: string, crudo: any): any {
       return {
         clasificacion_por_codigo,
         clasificaciones,
-        total_costo: d.total_costo !== undefined ? n2(d.total_costo) : r2(clasificaciones.reduce((s, c) => s + c.costo, 0)),
-        total_venta: d.total_venta !== undefined ? n2(d.total_venta) : r2(clasificaciones.reduce((s, c) => s + c.venta, 0)),
+        total_costo: d.total_costo !== undefined ? n2(d.total_costo) : r2(clasificaciones.reduce((s: number, c: any) => s + c.costo, 0)),
+        total_venta: d.total_venta !== undefined ? n2(d.total_venta) : r2(clasificaciones.reduce((s: number, c: any) => s + c.venta, 0)),
       } satisfies DatosRepvalor2;
     }
     case "repmorosos": {
@@ -677,7 +677,7 @@ export function normalizarDatosIA(reporte: string, crudo: any): any {
           });
       return {
         clientes,
-        total_saldo: d.total_saldo !== undefined ? n2(d.total_saldo) : r2(clientes.reduce((s, c) => s + c.saldo, 0)),
+        total_saldo: d.total_saldo !== undefined ? n2(d.total_saldo) : r2(clientes.reduce((s: number, c: any) => s + c.saldo, 0)),
         cuentas: Math.round(n2(d.cuentas)) || clientes.length,
         alertas,
       } satisfies DatosRepclientes;
@@ -691,7 +691,7 @@ export function normalizarDatosIA(reporte: string, crudo: any): any {
       }));
       return {
         compras,
-        total: d.total !== undefined ? n2(d.total) : r2(compras.reduce((s, c) => s + c.monto, 0)),
+        total: d.total !== undefined ? n2(d.total) : r2(compras.reduce((s: number, c: any) => s + c.monto, 0)),
       } satisfies DatosCompras;
     }
     default:

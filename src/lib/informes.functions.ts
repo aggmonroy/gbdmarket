@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { verifySesion } from "./garantias.server";
-import { parsePorReporte } from "./informes-parsers";
+import { normalizarDatosIA, parsePorReporte, resumenDe } from "./informes-parsers";
 import { REPORTES, SERIES } from "./informes-shared";
 
 const tokenSchema = z.object({ token: z.string().min(1) });
