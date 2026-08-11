@@ -79,8 +79,10 @@ function Grafico({ children, alto = 190 }: { children: React.ReactElement; alto?
 
 type Edicion = {
   explicacion: (id: SeccionId, texto: string) => void;
-  tamano: (id: SeccionId, ancho: number, escala: number) => void;
+  /** `clave` es el id de sección o `seccion:n` para bloques internos. */
+  tamano: (clave: string, ancho: number, escala: number) => void;
 };
+
 
 /** Explicación de la tabla: texto de IA con edición manual (solo dashboard). */
 function ExplicacionTabla({
