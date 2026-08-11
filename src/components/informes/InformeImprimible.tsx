@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DashboardInforme } from "./DashboardInforme";
+import { PreambuloInforme } from "./PreambuloInforme";
 import { SECCIONES_INFORME, infoPeriodo, type InformeMensual, type SeccionId } from "@/lib/informes-shared";
 
 export function InformeImprimible({
