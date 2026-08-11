@@ -783,12 +783,43 @@ export function DashboardInforme({
         )}
       </Seccion>
 
-      <Seccion id="conversion" titulo="Conversión de cotizaciones en ventas" visible={visible}>
-        <div className="grid gap-2 sm:grid-cols-3">
-          <Kpi label="Cotizaciones del sitio" valor={fmt(d.conversion?.cotizaciones)} />
-          <Kpi label="Convertidas en factura" valor={fmt(d.conversion?.convertidas)} />
-          <Kpi label="Tasa de conversión" valor={pct(d.conversion?.tasa)} />
+      <Seccion
+        id="conversion"
+        titulo="Conversión de cotizaciones en ventas"
+        descripcion="Cotizaciones generadas en el sitio que terminaron en factura."
+        visible={visible}
+      >
+        <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
+          <div className="grid gap-2 sm:grid-cols-3">
+            <Kpi label="Cotizaciones del sitio" valor={fmt(d.conversion?.cotizaciones)} />
+            <Kpi tono="positivo" label="Convertidas en factura" valor={fmt(d.conversion?.convertidas)} />
+            <Kpi tono="primario" label="Tasa de conversión" valor={pct(d.conversion?.tasa)} />
+          </div>
+          <Grafico alto={200}>
+            <PieChart>
+              <Pie
+                data={[
+                  { nombre: "Convertidas", valor: d.conversion?.convertidas ?? 0 },
+                  {
+                    nombre: "Sin convertir",
+                    valor: Math.max((d.conversion?.cotizaciones ?? 0) - (d.conversion?.convertidas ?? 0), 0),
+                  },
+                ]}
+                dataKey="valor"
+                nameKey="nombre"
+                innerRadius={38}
+                outerRadius={70}
+                paddingAngle={3}
+              >
+                <Cell fill={COLORES[2]} />
+                <Cell fill={COLORES[3]} />
+              </Pie>
+              <Tooltip {...tooltipStyle} />
+              <Legend />
+            </PieChart>
+          </Grafico>
         </div>
+
         {d.conversion?.detalle.length ? (
           <Tabla
             head={["Cliente", "Cotización", "Factura", "Monto"]}
