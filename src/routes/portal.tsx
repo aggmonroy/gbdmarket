@@ -27,6 +27,7 @@ import { ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos-shared";
 import { TareasPanel } from "@/components/portal/TareasPanel";
 import { SolicitudesActivas } from "@/components/portal/SolicitudesActivas";
 import { CasosCerrados } from "@/components/portal/CasosCerrados";
+import { InformeMensualPortal } from "@/components/portal/InformeMensualPortal";
 import { CatalogoPortal } from "@/components/portal/CatalogoPortal";
 import { SeguimientoDialog } from "@/components/portal/SeguimientoDialog";
 import { AsesorPage } from "@/components/calculadora/AsesorPage";
@@ -156,6 +157,7 @@ function Portal() {
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
         {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
         {vista === "calculadora" && <AsesorPage token={sesion.token} permitirBordados />}
+        {vista === "informe" && <InformeMensualPortal sesion={sesion} />}
       </div>
     </div>
   );
@@ -274,7 +276,7 @@ function Menu({
   ir,
 }: {
   sesion: Sesion;
-  ir: (v: "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora") => void;
+  ir: (v: "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "informe") => void;
 }) {
   const rol = sesion.colaborador.rol;
   return (
@@ -326,6 +328,18 @@ function Menu({
         icon={Calculator}
         onClick={() => ir("calculadora")}
       />
+      {(rol === "admin" || rol === "gerente") && (
+        <Area
+          titulo="Informe mensual"
+          texto={
+            rol === "gerente"
+              ? "Consulta el informe mensual, trimestral y anual, y elige las secciones a imprimir."
+              : "Carga los reportes internos, genera el informe del mes y consulta el dashboard."
+          }
+          icon={FileBarChart}
+          onClick={() => ir("informe")}
+        />
+      )}
       {rol === "admin" && (
         <Area
           titulo="Panel administrativo"
