@@ -1,14 +1,22 @@
 /**
- * Preámbulo formal del informe mensual: membrete de la cooperativa, destinatario
- * y texto introductorio con el mes reportado y el período fiscal (agosto–julio).
+ * Preámbulo formal del informe mensual: membrete de la cooperativa, mes reportado,
+ * destinatario y texto introductorio con el período fiscal (agosto–julio).
  */
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { infoPeriodo } from "@/lib/informes-shared";
 
-export function PreambuloInforme({ periodo }: { periodo: string }) {
+export function PreambuloInforme({
+  periodo,
+  estado,
+  generadoEn,
+}: {
+  periodo: string;
+  estado?: "borrador" | "generado";
+  generadoEn?: string | null;
+}) {
   const { branding } = useSiteSettings();
   const logoUrl = branding?.logo_url || "";
-  const { mesNombre, inicioFiscal } = infoPeriodo(periodo);
+  const { mesNombre, anio, periodoFiscal, inicioFiscal } = infoPeriodo(periodo);
   const mes = mesNombre.charAt(0) + mesNombre.slice(1).toLowerCase();
   const fechaReporte = new Date().toLocaleDateString("es-PA", {
     day: "numeric",
@@ -17,35 +25,48 @@ export function PreambuloInforme({ periodo }: { periodo: string }) {
   });
 
   return (
-    <section className="mb-4 rounded-2xl border border-border bg-card p-6 text-sm leading-relaxed text-foreground print:rounded-none print:border-0 print:p-0">
+    <section className="mb-4 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-foreground print:rounded-none print:border-0 print:p-0">
       {/* Membrete */}
-      <header className="flex items-center gap-3 border-b border-border pb-3">
-        {logoUrl ? (
-          <img src={logoUrl} alt="Cooperativa GBD" className="h-14 w-14 rounded-lg object-contain" />
-        ) : null}
-        <div className="min-w-0">
-          <p className="font-display text-base font-bold uppercase leading-tight">
-            Cooperativa de Servicios Múltiples Gladys B. de Ducasa, R.L.
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+        <div className="flex items-center gap-3">
+          {logoUrl ? (
+            <img src={logoUrl} alt="Cooperativa GBD" className="h-14 w-14 rounded-lg object-contain" />
+          ) : null}
+          <div className="min-w-0">
+            <p className="font-display text-base font-bold uppercase leading-tight">
+              Cooperativa de Servicios Integrales Gladys B. de Ducasa, R.L.
+            </p>
+            <p className="text-xs text-muted-foreground">Sección de Línea Blanca y Bordados</p>
+            <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-primary">
+              Informe mensual · Línea Blanca y Bordados GBD
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="font-display text-2xl font-bold leading-none">
+            {mesNombre} {anio}
           </p>
-          <p className="text-xs text-muted-foreground">
-            Departamento de Línea Blanca, Mueblería y Bordados
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Período fiscal {periodoFiscal}
+            {estado ? ` · ${estado === "generado" ? "Informe generado" : "Borrador en construcción"}` : ""}
+            {generadoEn ? ` · ${new Date(generadoEn).toLocaleString("es-PA")}` : ""}
           </p>
         </div>
       </header>
 
-      <h2 className="mt-4 text-center font-display text-lg font-bold uppercase tracking-wide">
+      <h2 className="mt-3 text-center font-display text-lg font-bold uppercase tracking-wide">
         Reporte de cierre mensual de Línea Blanca
       </h2>
-      <p className="mt-1 text-center text-xs text-muted-foreground">{fechaReporte}</p>
+      <p className="mt-0.5 text-center text-xs text-muted-foreground">{fechaReporte}</p>
 
-      <div className="mt-4 space-y-0.5">
+      <div className="mt-3 space-y-0.5">
         <p className="font-semibold uppercase">Dirigido a:</p>
         <p>Magíster Elena Moreno C.</p>
         <p>Gerente General Coop. GBD</p>
         <p>E. S. M.</p>
       </div>
 
-      <div className="mt-4 space-y-3 text-justify">
+      <div className="mt-3 space-y-2 text-justify text-[13px]">
         <p>
           El presente reporte tiene como objetivo proporcionar a la Gerencia General un resumen de los
           principales resultados y aspectos relevantes de la gestión de Línea Blanca correspondientes al mes de{" "}
