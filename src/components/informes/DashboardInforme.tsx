@@ -439,8 +439,11 @@ export function DashboardInforme({
   }));
 
   return (
-    <div className={`space-y-3 ${imprimible ? "print:space-y-2" : ""}`}>
-      <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
+    <div className={`flex flex-wrap items-start gap-3 ${imprimible ? "print:gap-2" : ""}`}>
+      <div className="w-full">
+        <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
+      </div>
+
 
       <Seccion
         id="ventas"
