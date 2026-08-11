@@ -141,7 +141,12 @@ export function calcularLineas(ventas: DatosRepartven, inventario?: DatosRepvalo
   }));
 }
 
-/** Rotación: top 10 categorías del catálogo con sus 3 modelos más vendidos. */
+/**
+ * Rotación: cruza el reporte REPARTVEN con el catálogo para asignar a cada
+ * modelo vendido su categoría real (el reporte interno solo distingue
+ * mueblería y bordados). Devuelve las categorías con más unidades vendidas y
+ * sus modelos más vendidos del mes.
+ */
 export async function calcularRotacion(
   ventas: DatosRepartven,
   inventario?: DatosRepvalor2,
@@ -150,30 +155,58 @@ export async function calcularRotacion(
     .from("products")
     .select("code, model, name, categories(name)");
 
+  const norm = (v: string) => v.toUpperCase().replace(/[^A-Z0-9]/g, "");
   const categoriaPorCodigo = new Map<string, string>();
+  const categoriaPorNombre: { nombre: string; categoria: string }[] = [];
   for (const p of (productos ?? []) as any[]) {
     const cat = p.categories?.name as string | undefined;
     if (!cat) continue;
-    for (const c of [p.code, p.model].filter(Boolean)) categoriaPorCodigo.set(String(c).toUpperCase(), cat);
+    for (const c of [p.code, p.model].filter(Boolean)) {
+      const k = norm(String(c));
+      if (k.length >= 3) categoriaPorCodigo.set(k, cat);
+    }
+    if (p.name) categoriaPorNombre.push({ nombre: String(p.name).toUpperCase(), categoria: cat });
   }
 
-  const clasif = inventario?.clasificacion_por_codigo ?? {};
+  /** Palabras clave de respaldo cuando el modelo no está en el catálogo. */
+  const CLAVES: [RegExp, string][] = [
+    [/LAVADOR/, "Lavadoras"],
+    [/SECADOR/, "Secadoras"],
+    [/REFRIGERADOR|NEVERA|FREEZER|CONGELADOR/, "Refrigeración"],
+    [/ESTUFA|COCINA|HORNO|MICROOND/, "Cocinas y hornos"],
+    [/AIRE|SPLIT|ABANICO|VENTILADOR/, "Climatización"],
+    [/TELEVIS|SMART\s?TV|\bTV\b|PANTALLA/, "Televisores"],
+    [/JUEGO DE (SALA|CUARTO|COMEDOR)|SOFA|SOFÁ|CAMA|COLCHON|COLCHÓN|MUEBLE|MESA|SILLA|GABINETE|ARMARIO/, "Muebles"],
+    [/LICUADOR|BATIDOR|OLLA|FREIDOR|SANDWICH|CAFETER|PLANCHA|ASPIRADOR/, "Electrodomésticos menores"],
+  ];
+
+  const categoriaDe = (codigo: string, descripcion: string) => {
+    const cod = norm(codigo);
+    const directa = categoriaPorCodigo.get(cod);
+    if (directa) return directa;
+    const desc = descripcion.toUpperCase();
+    const porNombre = categoriaPorNombre.find((n) => n.nombre.length > 5 && desc.includes(n.nombre));
+    if (porNombre) return porNombre.categoria;
+    const clasifCod = (inventario?.clasificacion_por_codigo ?? {})[codigo.toUpperCase()];
+    if (ES_INGRESO_VARIO(codigo, descripcion)) return "Ingresos varios";
+    if (ES_BORDADO(clasifCod, codigo, descripcion)) return "Sublimación y bordado";
+    for (const [re, cat] of CLAVES) if (re.test(desc)) return cat;
+    return "Otros artículos";
+  };
+
   const acum = new Map<string, RotacionCategoria>();
   for (const p of ventas.productos) {
-    const cod = p.codigo.toUpperCase();
-    const categoria =
-      categoriaPorCodigo.get(cod) ??
-      clasif[cod] ??
-      (ES_INGRESO_VARIO(p.codigo, p.descripcion)
-        ? "Ingresos varios"
-        : ES_BORDADO(clasif[cod], p.codigo, p.descripcion)
-          ? "Sublimación y bordado"
-          : "Productos en general");
-    const e =
-      acum.get(categoria) ?? { categoria, ventas: 0, unidades: 0, modelos: [] as RotacionCategoria["modelos"] };
+    const categoria = categoriaDe(p.codigo, p.descripcion);
+    const e = acum.get(categoria) ?? { categoria, ventas: 0, unidades: 0, modelos: [] as RotacionCategoria["modelos"] };
     e.ventas += p.ventas;
     e.unidades += p.cantidad;
-    e.modelos.push({ codigo: p.codigo, descripcion: p.descripcion, unidades: p.cantidad, ventas: p.ventas });
+    const previo = e.modelos.find((m) => norm(m.codigo) === norm(p.codigo));
+    if (previo) {
+      previo.unidades += p.cantidad;
+      previo.ventas += p.ventas;
+    } else {
+      e.modelos.push({ codigo: p.codigo, descripcion: p.descripcion, unidades: p.cantidad, ventas: p.ventas });
+    }
     acum.set(categoria, e);
   }
 
@@ -183,7 +216,10 @@ export async function calcularRotacion(
     .map((c) => ({
       ...c,
       ventas: Math.round(c.ventas * 100) / 100,
-      modelos: c.modelos.sort((a, b) => b.unidades - a.unidades || b.ventas - a.ventas).slice(0, 3),
+      modelos: c.modelos
+        .sort((a, b) => b.unidades - a.unidades || b.ventas - a.ventas)
+        .slice(0, 5)
+        .map((m) => ({ ...m, ventas: Math.round(m.ventas * 100) / 100 })),
     }));
 }
 
