@@ -59,7 +59,8 @@ export async function sincronizarAlertas(periodo: string, datos: InformeDatos) {
 
   const historial = new Map<string, { periodos: string[]; primer: string }>();
   for (const p of (previas ?? []) as any[]) {
-    const h = historial.get(p.clave) ?? { periodos: [], primer: p.periodo };
+    const h: { periodos: string[]; primer: string } =
+      historial.get(p.clave) ?? { periodos: [], primer: String(p.periodo) };
     h.periodos.push(p.periodo);
     if (p.primer_periodo < h.primer) h.primer = p.primer_periodo;
     if (p.periodo < h.primer) h.primer = p.periodo;
