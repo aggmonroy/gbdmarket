@@ -798,7 +798,7 @@ export function DashboardInforme({
       </Seccion>
 
       <Seccion id="alertas" titulo="Alertas de contabilidad" visible={visible}>
-        <div className="grid gap-3 md:grid-cols-[0.9fr_1.1fr]">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
             <Kpi label="Cuentas con saldo" valor={fmt(d.repclientes?.cuentas)} />
             <Kpi label="Saldo total de clientes" valor={bal(d.repclientes?.total_saldo)} />
