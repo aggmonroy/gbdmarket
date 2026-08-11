@@ -25,36 +25,35 @@ export function PreambuloInforme({
   });
 
   return (
-    <section className="mb-4 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-foreground print:rounded-none print:border-0 print:p-0">
-      {/* Membrete */}
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
-        <div className="flex items-center gap-3">
+    <section className="mb-4 overflow-hidden rounded-2xl border border-border bg-card text-sm leading-relaxed text-foreground shadow-soft print:rounded-none print:border-0 print:shadow-none">
+      {/* Membrete institucional */}
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 bg-gradient-primary px-5 py-4 text-primary-foreground">
+        <div className="flex min-w-0 items-center gap-3">
           {logoUrl ? (
-            <img src={logoUrl} alt="Cooperativa GBD" className="h-14 w-14 rounded-lg object-contain" />
+            <img
+              src={logoUrl}
+              alt="Cooperativa GBD"
+              className="h-14 w-14 shrink-0 rounded-lg bg-background/95 object-contain p-1"
+            />
           ) : null}
           <div className="min-w-0">
-            <p className="font-display text-base font-bold uppercase leading-tight">
+            <p className="font-display text-sm font-bold uppercase leading-tight sm:text-base">
               Cooperativa de Servicios Integrales Gladys B. de Ducasa, R.L.
             </p>
-            <p className="text-xs text-muted-foreground">Sección de Línea Blanca y Bordados</p>
-            <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-primary">
+            <p className="text-xs opacity-85">Sección de Línea Blanca y Bordados</p>
+            <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] opacity-90 sm:text-[11px]">
               Informe mensual · Línea Blanca y Bordados GBD
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="font-display text-2xl font-bold leading-none">
-            {mesNombre} {anio}
-          </p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            Período fiscal {periodoFiscal}
-            {estado ? ` · ${estado === "generado" ? "Informe generado" : "Borrador en construcción"}` : ""}
-            {generadoEn ? ` · ${new Date(generadoEn).toLocaleString("es-PA")}` : ""}
-          </p>
-        </div>
+        <p className="shrink-0 text-right font-display text-lg font-bold leading-tight sm:text-2xl">
+          {mesNombre}
+          <br className="sm:hidden" /> <span className="whitespace-nowrap">{anio}</span>
+        </p>
       </header>
 
-      <h2 className="mt-3 text-center font-display text-lg font-bold uppercase tracking-wide">
+      <div className="px-5 pb-5 pt-3 print:px-0">
+      <h2 className="text-center font-display text-base font-bold uppercase tracking-wide sm:text-lg">
         Reporte de cierre mensual de Línea Blanca
       </h2>
       <p className="mt-0.5 text-center text-xs text-muted-foreground">{fechaReporte}</p>
@@ -88,6 +87,7 @@ export function PreambuloInforme({
           que requieran atención y brindar a la Gerencia una visión general del desempeño de las áreas durante
           el mes reportado.
         </p>
+      </div>
       </div>
     </section>
   );

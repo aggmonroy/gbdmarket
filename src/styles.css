@@ -132,21 +132,28 @@
 @utility animate-fade-up { animation: fade-up 0.8s ease-out both; }
 
 /* ------- Vista imprimible del informe mensual ------- */
+.informe-print {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.informe-print table { width: 100%; table-layout: auto; }
+.informe-print td, .informe-print th { overflow-wrap: anywhere; }
+
 @media print {
   @page { size: A4 portrait; margin: 12mm 10mm; }
   body { background: #fff; }
-  .informe-print { font-size: 10.5px; }
-  .informe-print h1 { font-size: 26px; }
-  .informe-print h2 { font-size: 18px; }
-  .informe-print table { font-size: 9.5px; }
+  .informe-print { font-size: 10px; }
+  .informe-print h1 { font-size: 24px; }
+  .informe-print h2 { font-size: 16px; }
+  .informe-print table { font-size: 8.5px; }
+  .informe-print th, .informe-print td { padding: 2px 4px !important; }
+  .informe-print tr, .informe-print thead { page-break-inside: avoid; }
   .informe-print .recharts-wrapper { page-break-inside: avoid; }
   .informe-print [class*="rounded"] { box-shadow: none !important; }
-}
-
-/* Tablas del informe: scroll interno en pantalla, completas al imprimir. */
-@media print {
-  .tabla-scroll {
+  /* Nada debe recortarse ni desplazarse al imprimir */
+  .informe-print * {
     max-height: none !important;
     overflow: visible !important;
   }
 }
+

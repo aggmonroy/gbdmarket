@@ -2,7 +2,9 @@
  * Vista tipo dashboard del informe mensual. Se usa tanto para la consulta
  * interactiva como para la versión imprimible (con secciones seleccionadas).
  */
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Maximize2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Bar,
   BarChart,
@@ -92,48 +94,105 @@ function Seccion({
         </CardTitle>
         {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
       </CardHeader>
-      <CardContent className="space-y-3 pt-3 text-sm">{children}</CardContent>
+      <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">{children}</CardContent>
     </Card>
   );
 }
 
-function Tabla({ head, rows, foot, alto = 200 }: { head: string[]; rows: (string | number)[][]; foot?: (string | number)[]; alto?: number }) {
+function TablaBase({
+  head,
+  rows,
+  foot,
+  denso = true,
+}: {
+  head: string[];
+  rows: (string | number)[][];
+  foot?: (string | number)[];
+  denso?: boolean;
+}) {
+  const pad = denso ? "px-2 py-1" : "px-3 py-1.5";
   return (
-    <div className="tabla-scroll overflow-auto rounded-xl border border-border" style={{ maxHeight: alto }}>
-      <table className="w-full min-w-[420px] border-collapse text-xs sm:text-sm">
-        <thead className="sticky top-0 z-10">
-          <tr className="bg-primary/8 text-primary">
-            {head.map((h) => (
-              <th key={h} className="bg-primary/8 px-2.5 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide">
-                {h}
-              </th>
+    <table className="w-full table-auto border-collapse text-[11px] leading-snug sm:text-xs">
+      <thead>
+        <tr className="bg-primary/8 text-primary">
+          {head.map((h) => (
+            <th key={h} className={`${pad} text-left text-[10px] font-semibold uppercase tracking-wide sm:text-[11px]`}>
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r, i) => (
+          <tr key={i} className="border-t border-border/70 even:bg-muted/25">
+            {r.map((c, j) => (
+              <td
+                key={j}
+                className={`${pad} ${j === 0 ? "break-words" : "whitespace-nowrap text-right tabular-nums"}`}
+              >
+                {c}
+              </td>
             ))}
           </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => (
-            <tr key={i} className="border-t border-border/70 even:bg-muted/25">
-              {r.map((c, j) => (
-                <td key={j} className={`px-2.5 py-1 ${j === 0 ? "" : "text-right tabular-nums"}`}>
-                  {c}
-                </td>
-              ))}
-            </tr>
-          ))}
-          {foot && (
-            <tr className="border-t-2 border-primary/30 bg-primary/10 font-semibold">
-              {foot.map((c, j) => (
-                <td key={j} className={`px-2.5 py-2 ${j === 0 ? "" : "text-right tabular-nums"}`}>
-                  {c}
-                </td>
-              ))}
-            </tr>
-          )}
-        </tbody>
-      </table>
+        ))}
+        {foot && (
+          <tr className="border-t-2 border-primary/30 bg-primary/10 font-semibold">
+            {foot.map((c, j) => (
+              <td key={j} className={`${pad} ${j === 0 ? "" : "whitespace-nowrap text-right tabular-nums"}`}>
+                {c}
+              </td>
+            ))}
+          </tr>
+        )}
+      </tbody>
+    </table>
+  );
+}
+
+/**
+ * Tabla del informe: siempre completa (sin scroll) y con botón para ampliar
+ * a pantalla completa en el dashboard. Al imprimir, el botón se oculta.
+ */
+function Tabla({
+  head,
+  rows,
+  foot,
+  titulo,
+}: {
+  head: string[];
+  rows: (string | number)[][];
+  foot?: (string | number)[];
+  titulo?: string;
+}) {
+  const [abierta, setAbierta] = useState(false);
+  return (
+    <div className="group relative w-full">
+      <div className="tabla-informe w-full overflow-hidden rounded-xl border border-border">
+        <TablaBase head={head} rows={rows} foot={foot} />
+      </div>
+      <button
+        type="button"
+        onClick={() => setAbierta(true)}
+        aria-label="Ampliar tabla"
+        title="Ampliar tabla"
+        className="absolute right-1 top-1 rounded-md border border-border bg-card/90 p-1 text-muted-foreground opacity-0 shadow-soft transition-opacity hover:text-primary focus-visible:opacity-100 group-hover:opacity-100 print:hidden"
+      >
+        <Maximize2 className="h-3.5 w-3.5" />
+      </button>
+      <Dialog open={abierta} onOpenChange={setAbierta}>
+        <DialogContent className="max-h-[92vh] w-[96vw] max-w-6xl overflow-auto print:hidden">
+          <DialogHeader>
+            <DialogTitle className="text-base">{titulo ?? "Detalle de la tabla"}</DialogTitle>
+          </DialogHeader>
+          <div className="w-full overflow-x-auto rounded-xl border border-border">
+            <TablaBase head={head} rows={rows} foot={foot} denso={false} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
 
 function Kpi({
   label,
@@ -243,7 +302,7 @@ export function DashboardInforme({
         descripcion="Resumen de facturación al contado y al crédito, con y sin ITBMS."
         visible={visible}
       >
-        <div className="grid gap-3 md:grid-cols-[1.15fr_0.85fr]">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div className="space-y-2">
             <Tabla
               head={["Concepto", "Antes del 7%", "ITBMS", "Con ITBMS"]}
@@ -295,7 +354,7 @@ export function DashboardInforme({
         descripcion="Aporte de cada vendedor al total facturado del mes."
         visible={visible}
       >
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
             head={["Cód.", "Vendedor", "Contado", "Crédito", "Total"]}
             rows={vendedores.map((v) => [v.codigo, v.etiqueta, bal(v.contado), bal(v.credito), bal(v.total)])}
@@ -328,7 +387,7 @@ export function DashboardInforme({
         descripcion="Evolución mes a mes de ventas y cobros del año fiscal agosto–julio."
         visible={visible}
       >
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
             head={["Mes", "Contado", "Crédito", "Total"]}
             rows={mensuales.map((m) => [m.periodo, bal(m.contado), bal(m.credito), bal(m.total)])}
@@ -356,7 +415,7 @@ export function DashboardInforme({
         visible={visible}
       >
         {d.lineas?.length ? (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Tabla
               head={["Línea", "Unidades", "Ventas", "Ganancia"]}
               rows={d.lineas.map((l) => [l.linea, fmt(l.unidades), bal(l.ventas), bal(l.ganancia)])}
@@ -391,7 +450,7 @@ export function DashboardInforme({
         visible={visible}
       >
         {d.rotacion?.length ? (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Tabla
               head={["Categoría", "Unid.", "Ventas"]}
               rows={d.rotacion.map((c) => [c.categoria, fmt(c.unidades), bal(c.ventas)])}
@@ -430,7 +489,7 @@ export function DashboardInforme({
       </Seccion>
 
       <Seccion id="historicas" titulo="Cuadro comparativo de ventas históricas de la mueblería" visible={visible}>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Tabla
             head={["Mes", ...aniosVentas(ventasSerie)]}
             rows={MESES_PERIODO.map((n, i) => {
@@ -481,7 +540,7 @@ export function DashboardInforme({
 
       <Seccion id="clientes_nuevos" titulo="Cuadro comparativo de clientes nuevos históricos" visible={visible}>
         {aniosNuevos.length ? (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Tabla
               head={["Mes", ...aniosNuevos]}
               rows={MESES_NOMBRE_CORTO.map((m, i) => [
@@ -526,7 +585,7 @@ export function DashboardInforme({
 
       <Seccion id="instagram" titulo="Seguidores en Instagram · Línea Blanca y Bordados" visible={visible}>
         {aniosIg.length ? (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Tabla
               head={["Mes", ...aniosIg.flatMap((a) => [`LB ${a}`, `BD ${a}`])]}
               rows={MESES_NOMBRE_CORTO.map((m, i) => [
@@ -563,7 +622,7 @@ export function DashboardInforme({
         descripcion="Composición de la cartera y su movimiento: saldo anterior + ventas al crédito − abonos."
         visible={visible}
       >
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Grafico alto={175}>
             <PieChart>
               <Pie
@@ -632,7 +691,7 @@ export function DashboardInforme({
         descripcion="Distribución de la deuda por antigüedad de los plazos."
         visible={visible}
       >
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Tabla
             head={["Plazo vencido", "Monto"]}
             rows={Object.entries(d.morosidad?.vencida.plazos ?? {}).map(([k, v]) => [k, bal(v)])}
@@ -675,7 +734,7 @@ export function DashboardInforme({
         descripcion="Cobros registrados en el período fiscal."
         visible={visible}
       >
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <Tabla
             head={["Mes", "Abonos"]}
             rows={mensuales.map((m) => [m.periodo, bal(m.cobros)])}
@@ -696,7 +755,7 @@ export function DashboardInforme({
 
       <Seccion id="compras" titulo="Compras del mes" descripcion="Documentos de compra registrados en el mes." visible={visible}>
         {d.compras ? (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
             <div className="space-y-2">
               <Kpi tono="primario" label="Compras del mes" valor={bal(d.compras.total)} nota={`${d.compras.compras.length} documentos`} />
               <Kpi
@@ -739,7 +798,7 @@ export function DashboardInforme({
       </Seccion>
 
       <Seccion id="alertas" titulo="Alertas de contabilidad" visible={visible}>
-        <div className="grid gap-3 md:grid-cols-[0.9fr_1.1fr]">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
             <Kpi label="Cuentas con saldo" valor={fmt(d.repclientes?.cuentas)} />
             <Kpi label="Saldo total de clientes" valor={bal(d.repclientes?.total_saldo)} />
@@ -762,7 +821,7 @@ export function DashboardInforme({
         descripcion="Cotizaciones generadas en el sitio que terminaron en factura."
         visible={visible}
       >
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-3">
           <div className="grid gap-2">
             <Kpi label="Cotizaciones del sitio" valor={fmt(d.conversion?.cotizaciones)} />
             <Kpi tono="positivo" label="Convertidas en factura" valor={fmt(d.conversion?.convertidas)} />
