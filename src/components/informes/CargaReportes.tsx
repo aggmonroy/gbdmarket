@@ -80,7 +80,13 @@ export function CargaReportes({
         </p>
 
         {REPORTES.map((r) => {
-          const cargado = Boolean((datos as any)[CLAVE_EN_DATOS[r.id] as string]);
+          const m = (datos as any).morosidad;
+          const cargado =
+            r.id === "repmorosos"
+              ? Boolean((datos as any).repmorosos || m?.vencida?.total)
+              : r.id === "repmorosos2"
+                ? Boolean((datos as any).repmorosos2 || m?.no_vencida?.total)
+                : Boolean((datos as any)[CLAVE_EN_DATOS[r.id] as string]);
           const ultimo = archivos.find((a) => a.reporte === r.id);
           const ocupado = enCurso === r.id && (subir.isPending || borrar.isPending);
           return (
