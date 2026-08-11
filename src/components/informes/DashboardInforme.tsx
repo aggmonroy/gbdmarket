@@ -229,37 +229,8 @@ export function DashboardInforme({
   }));
 
   return (
-    <div className={`space-y-5 ${imprimible ? "print:space-y-3" : ""}`}>
-      {/* Portada ejecutiva */}
-      <div className="overflow-hidden rounded-2xl bg-gradient-hero p-5 text-primary-foreground shadow-elevated print:rounded-none print:shadow-none">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="text-[11px] font-medium uppercase tracking-[0.2em] opacity-80">
-              Informe mensual · Línea Blanca y Bordados GBD
-            </div>
-            <h2 className="font-display text-3xl font-bold leading-tight">
-              {mesNombre} {anio}
-            </h2>
-            <p className="text-xs opacity-80">
-              Período fiscal {periodoFiscal} ·{" "}
-              {informe.estado === "generado" ? "Informe generado" : "Borrador en construcción"}
-              {informe.generado_en ? ` · ${new Date(informe.generado_en).toLocaleString("es-PA")}` : ""}
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-3 text-right">
-            {[
-              { l: "Ventas del mes", v: bal(f?.totales.total_con) },
-              { l: "Abonos", v: bal(f?.abonos_total) },
-              { l: "Morosidad", v: bal(d.morosidad?.vencida.total) },
-            ].map((k) => (
-              <div key={k.l} className="rounded-xl bg-primary-foreground/10 px-3 py-2">
-                <div className="text-[9px] uppercase tracking-wider opacity-80">{k.l}</div>
-                <div className="font-display text-sm font-bold tabular-nums">{k.v}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+    <div className={`space-y-4 ${imprimible ? "print:space-y-3" : ""}`}>
+      <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
 
       <Seccion
         id="ventas"
@@ -267,48 +238,49 @@ export function DashboardInforme({
         descripcion="Resumen de facturación al contado y al crédito, con y sin ITBMS."
         visible={visible}
       >
-        <div className="grid gap-2 sm:grid-cols-3">
-          <Kpi tono="primario" label="Ventas totales (con ITBMS)" valor={bal(f?.totales.total_con)} nota={`${bal(f?.totales.total_sin)} antes del 7%`} />
-          <Kpi label="Al contado" valor={bal(f?.totales.contado_con)} nota={`${bal(f?.totales.contado_sin)} antes del 7%`} />
-          <Kpi label="Al crédito" valor={bal(f?.totales.credito_con)} nota={`${bal(f?.totales.credito_sin)} antes del 7%`} />
-        </div>
-        <div className="grid gap-3 lg:grid-cols-2">
-          <Tabla
-            head={["Concepto", "Antes del 7% ITBMS", "ITBMS", "Con ITBMS"]}
-            rows={[
-              ["Al contado", bal(f?.totales.contado_sin), bal((f?.totales.contado_con ?? 0) - (f?.totales.contado_sin ?? 0)), bal(f?.totales.contado_con)],
-              ["Al crédito", bal(f?.totales.credito_sin), bal((f?.totales.credito_con ?? 0) - (f?.totales.credito_sin ?? 0)), bal(f?.totales.credito_con)],
-            ]}
-            foot={["Total", bal(f?.totales.total_sin), bal(f?.totales.itbms), bal(f?.totales.total_con)]}
-          />
-          <Grafico alto={220}>
-            <PieChart>
-              <Pie
-                data={[
-                  { nombre: "Contado", valor: f?.totales.contado_con ?? 0 },
-                  { nombre: "Crédito", valor: f?.totales.credito_con ?? 0 },
-                ]}
-                dataKey="valor"
-                nameKey="nombre"
-                innerRadius={45}
-                outerRadius={80}
-                paddingAngle={3}
-              >
-                <Cell fill={COLORES[0]} />
-                <Cell fill={COLORES[1]} />
-              </Pie>
-              <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-              <Legend />
-            </PieChart>
-          </Grafico>
-        </div>
-        {informe.narrativa?.ventas && (
-          <p className="rounded-xl border border-border bg-muted/30 p-3 leading-relaxed">{informe.narrativa.ventas}</p>
-        )}
-        <div className="grid gap-2 sm:grid-cols-3">
-          <Kpi label="Abonos del mes" valor={bal(f?.abonos_total)} nota={`${f?.abonos.length ?? 0} recibos`} />
-          <Kpi label="Acumulado del período" valor={bal(acum.total)} nota={`${bal(sinItbms(acum.total))} antes del 7%`} />
-          <Kpi tono="positivo" label="Cobros del período" valor={bal(acum.cobros)} />
+        <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="space-y-2">
+            <Tabla
+              head={["Concepto", "Antes del 7%", "ITBMS", "Con ITBMS"]}
+              rows={[
+                ["Al contado", bal(f?.totales.contado_sin), bal((f?.totales.contado_con ?? 0) - (f?.totales.contado_sin ?? 0)), bal(f?.totales.contado_con)],
+                ["Al crédito", bal(f?.totales.credito_sin), bal((f?.totales.credito_con ?? 0) - (f?.totales.credito_sin ?? 0)), bal(f?.totales.credito_con)],
+              ]}
+              foot={["Total", bal(f?.totales.total_sin), bal(f?.totales.itbms), bal(f?.totales.total_con)]}
+            />
+            <div className="grid gap-2 sm:grid-cols-3">
+              <Kpi label="Abonos del mes" valor={bal(f?.abonos_total)} />
+              <Kpi label="Acumulado del período" valor={bal(sinItbms(acum.total))} nota="antes del 7%" />
+              <Kpi tono="positivo" label="Cobros del período" valor={bal(acum.cobros)} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Grafico alto={180}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { nombre: "Contado", valor: f?.totales.contado_con ?? 0 },
+                    { nombre: "Crédito", valor: f?.totales.credito_con ?? 0 },
+                  ]}
+                  dataKey="valor"
+                  nameKey="nombre"
+                  innerRadius={38}
+                  outerRadius={66}
+                  paddingAngle={3}
+                >
+                  <Cell fill={COLORES[0]} />
+                  <Cell fill={COLORES[1]} />
+                </Pie>
+                <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+                <Legend />
+              </PieChart>
+            </Grafico>
+            {informe.narrativa?.ventas && (
+              <p className="rounded-xl border border-border bg-muted/30 p-2.5 text-xs leading-relaxed">
+                {informe.narrativa.ventas}
+              </p>
+            )}
+          </div>
         </div>
       </Seccion>
 
@@ -318,35 +290,31 @@ export function DashboardInforme({
         descripcion="Aporte de cada vendedor al total facturado del mes."
         visible={visible}
       >
-        <Tabla
-          head={["Cód.", "Vendedor", "Contado", "Crédito", "Total"]}
-          rows={vendedores.map((v) => [v.codigo, v.etiqueta, bal(v.contado), bal(v.credito), bal(v.total)])}
-          foot={[
-            "",
-            "Total",
-            bal(f?.totales.contado_con),
-            bal(f?.totales.credito_con),
-            bal(f?.totales.total_con),
-          ]}
-        />
-        <Grafico alto={260}>
-          <BarChart
-            data={vendedores.map((v) => ({
-              nombre: v.etiqueta.split("//").pop()!.trim(),
-              Contado: v.contado,
-              Crédito: v.credito,
-            }))}
-            margin={{ top: 5, right: 8, bottom: 40, left: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="nombre" fontSize={9} interval={0} angle={-18} textAnchor="end" height={50} />
-            <YAxis {...ejeY} />
-            <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-            <Legend />
-            <Bar dataKey="Contado" fill={COLORES[0]} radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Crédito" fill={COLORES[1]} radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </Grafico>
+        <div className="grid gap-3 lg:grid-cols-2">
+          <Tabla
+            head={["Cód.", "Vendedor", "Contado", "Crédito", "Total"]}
+            rows={vendedores.map((v) => [v.codigo, v.etiqueta, bal(v.contado), bal(v.credito), bal(v.total)])}
+            foot={["", "Total", bal(f?.totales.contado_con), bal(f?.totales.credito_con), bal(f?.totales.total_con)]}
+          />
+          <Grafico alto={210}>
+            <BarChart
+              data={vendedores.map((v) => ({
+                nombre: v.etiqueta.split("//").pop()!.trim(),
+                Contado: v.contado,
+                Crédito: v.credito,
+              }))}
+              margin={{ top: 5, right: 8, bottom: 40, left: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="nombre" fontSize={9} interval={0} angle={-18} textAnchor="end" height={50} />
+              <YAxis {...ejeY} />
+              <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+              <Legend />
+              <Bar dataKey="Contado" fill={COLORES[0]} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Crédito" fill={COLORES[1]} radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </Grafico>
+        </div>
       </Seccion>
 
       <Seccion
@@ -355,23 +323,25 @@ export function DashboardInforme({
         descripcion="Evolución mes a mes de ventas y cobros del año fiscal agosto–julio."
         visible={visible}
       >
-        <Grafico alto={260}>
-          <ComposedChart data={mensuales} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="mes" fontSize={10} />
-            <YAxis {...ejeY} />
-            <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-            <Legend />
-            <Bar dataKey="contado" name="Contado" stackId="v" fill={COLORES[0]} radius={[0, 0, 0, 0]} />
-            <Bar dataKey="credito" name="Crédito" stackId="v" fill={COLORES[1]} radius={[4, 4, 0, 0]} />
-            <Line type="monotone" dataKey="cobros" name="Cobros" stroke={COLORES[2]} strokeWidth={2.5} dot={false} />
-          </ComposedChart>
-        </Grafico>
-        <Tabla
-          head={["Mes", "Contado", "Crédito", "Total"]}
-          rows={mensuales.map((m) => [m.periodo, bal(m.contado), bal(m.credito), bal(m.total)])}
-          foot={["Total", bal(acum.contado), bal(acum.credito), bal(acum.total)]}
-        />
+        <div className="grid gap-3 lg:grid-cols-2">
+          <Tabla
+            head={["Mes", "Contado", "Crédito", "Total"]}
+            rows={mensuales.map((m) => [m.periodo, bal(m.contado), bal(m.credito), bal(m.total)])}
+            foot={["Total", bal(acum.contado), bal(acum.credito), bal(acum.total)]}
+          />
+          <Grafico alto={230}>
+            <ComposedChart data={mensuales} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="mes" fontSize={10} />
+              <YAxis {...ejeY} />
+              <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+              <Legend />
+              <Bar dataKey="contado" name="Contado" stackId="v" fill={COLORES[0]} />
+              <Bar dataKey="credito" name="Crédito" stackId="v" fill={COLORES[1]} radius={[4, 4, 0, 0]} />
+              <Line type="monotone" dataKey="cobros" name="Cobros" stroke={COLORES[2]} strokeWidth={2.5} dot={false} />
+            </ComposedChart>
+          </Grafico>
+        </div>
       </Seccion>
 
       <Seccion
@@ -392,9 +362,9 @@ export function DashboardInforme({
                 bal(d.lineas.reduce((s, l) => s + l.ganancia, 0)),
               ]}
             />
-            <Grafico alto={230}>
+            <Grafico alto={200}>
               <PieChart>
-                <Pie data={d.lineas} dataKey="ventas" nameKey="linea" innerRadius={40} outerRadius={78} paddingAngle={3}>
+                <Pie data={d.lineas} dataKey="ventas" nameKey="linea" innerRadius={38} outerRadius={68} paddingAngle={3}>
                   {d.lineas.map((_, i) => (
                     <Cell key={i} fill={COLORES[i % COLORES.length]} />
                   ))}
@@ -411,76 +381,102 @@ export function DashboardInforme({
 
       <Seccion
         id="rotacion"
-        titulo="Rotación de productos · Top 10 categorías"
-        descripcion="Categorías con mayor movimiento y sus modelos más vendidos."
+        titulo="Rotación de productos · categorías del catálogo"
+        descripcion="Unidades vendidas por categoría (según el catálogo) y los modelos más vendidos del mes."
         visible={visible}
       >
         {d.rotacion?.length ? (
-          <div className="space-y-3">
-            <Grafico alto={Math.max(200, d.rotacion.length * 28 + 40)}>
+          <div className="grid gap-3 lg:grid-cols-2">
+            <Tabla
+              head={["Categoría", "Unid.", "Ventas"]}
+              rows={d.rotacion.map((c) => [c.categoria, fmt(c.unidades), bal(c.ventas)])}
+              foot={[
+                "Total",
+                fmt(d.rotacion.reduce((s, c) => s + c.unidades, 0)),
+                bal(d.rotacion.reduce((s, c) => s + c.ventas, 0)),
+              ]}
+            />
+            <Grafico alto={Math.max(180, d.rotacion.length * 24 + 30)}>
               <BarChart
                 layout="vertical"
-                data={d.rotacion.map((c) => ({ categoria: c.categoria, Ventas: c.ventas }))}
+                data={d.rotacion.map((c) => ({ categoria: c.categoria, Unidades: c.unidades }))}
                 margin={{ top: 5, right: 12, bottom: 0, left: 8 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                <XAxis type="number" {...ejeY} />
+                <XAxis type="number" fontSize={10} />
                 <YAxis type="category" dataKey="categoria" width={110} fontSize={9} />
-                <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-                <Bar dataKey="Ventas" fill={COLORES[0]} radius={[0, 4, 4, 0]} />
+                <Tooltip {...tooltipStyle} formatter={(v: any) => fmt(Number(v))} />
+                <Bar dataKey="Unidades" fill={COLORES[0]} radius={[0, 4, 4, 0]} />
               </BarChart>
             </Grafico>
-            {d.rotacion.map((c, i) => (
-              <div key={c.categoria} className="break-inside-avoid rounded-xl border border-border p-2.5">
-                <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-sm font-semibold">
-                    {i + 1}. {c.categoria}
-                  </div>
-                  <Badge variant="outline" className="tabular-nums">
-                    {fmt(c.unidades)} unidades · {bal(c.ventas)}
-                  </Badge>
-                </div>
-                <Tabla
-                  head={["Modelo / código", "Descripción", "Unid.", "Ventas"]}
-                  rows={c.modelos.map((m) => [m.codigo, m.descripcion, fmt(m.unidades), bal(m.ventas)])}
-                />
+            <div className="lg:col-span-2">
+              <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
+                Modelos más vendidos del mes
               </div>
-            ))}
+              <Tabla
+                head={["Modelo", "Descripción", "Categoría", "Unid."]}
+                rows={topModelos.map((m) => [m.codigo, m.descripcion, m.categoria, fmt(m.unidades)])}
+              />
+            </div>
           </div>
         ) : (
           <p className="text-muted-foreground">Carga el reporte REPARTVEN para ver la rotación.</p>
         )}
       </Seccion>
 
-
       <Seccion id="historicas" titulo="Cuadro comparativo de ventas históricas de la mueblería" visible={visible}>
-        <Tabla
-          head={["Mes", ...aniosVentas(ventasSerie)]}
-          rows={MESES_PERIODO.map((n, i) => {
-            const mesNum = i < 5 ? 8 + i : i - 4;
-            return [
-              n,
+        <div className="grid gap-3 lg:grid-cols-2">
+          <Tabla
+            head={["Mes", ...aniosVentas(ventasSerie)]}
+            rows={MESES_PERIODO.map((n, i) => {
+              const mesNum = i < 5 ? 8 + i : i - 4;
+              return [
+                n.slice(0, 3),
+                ...aniosVentas(ventasSerie).map((a) => {
+                  const anioReal = i < 5 ? Number(a.split("-")[0]) : Number(a.split("-")[1] ?? a);
+                  return bal(ventasSerie[`${anioReal}-${String(mesNum).padStart(2, "0")}`]?.total ?? 0);
+                }),
+              ];
+            })}
+            foot={[
+              "Total",
               ...aniosVentas(ventasSerie).map((a) => {
-                const anioReal = i < 5 ? Number(a.split("-")[0]) : Number(a.split("-")[1] ?? a);
-                return bal(ventasSerie[`${anioReal}-${String(mesNum).padStart(2, "0")}`]?.total ?? 0);
+                const inicio = Number(a.split("-")[0]);
+                return bal(
+                  mesesDelPeriodoFiscal(inicio).reduce((s, m) => s + (ventasSerie[m.periodo]?.total ?? 0), 0),
+                );
               }),
-            ];
-          })}
-          foot={[
-            "Total",
-            ...aniosVentas(ventasSerie).map((a) => {
-              const inicio = Number(a.split("-")[0]);
-              return bal(
-                mesesDelPeriodoFiscal(inicio).reduce((s, m) => s + (ventasSerie[m.periodo]?.total ?? 0), 0),
-              );
-            }),
-          ]}
-        />
+            ]}
+          />
+          <Grafico alto={230}>
+            <LineChart
+              data={MESES_PERIODO.map((n, i) => {
+                const mesNum = i < 5 ? 8 + i : i - 4;
+                const fila: any = { mes: n.slice(0, 3) };
+                for (const a of aniosVentas(ventasSerie)) {
+                  const anioReal = i < 5 ? Number(a.split("-")[0]) : Number(a.split("-")[1] ?? a);
+                  fila[a] = ventasSerie[`${anioReal}-${String(mesNum).padStart(2, "0")}`]?.total ?? 0;
+                }
+                return fila;
+              })}
+              margin={{ top: 5, right: 8, bottom: 0, left: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="mes" fontSize={10} />
+              <YAxis {...ejeY} />
+              <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+              <Legend />
+              {aniosVentas(ventasSerie).map((a, i) => (
+                <Line key={a} type="monotone" dataKey={a} stroke={COLORES[i % COLORES.length]} strokeWidth={2} dot={false} />
+              ))}
+            </LineChart>
+          </Grafico>
+        </div>
       </Seccion>
 
       <Seccion id="clientes_nuevos" titulo="Cuadro comparativo de clientes nuevos históricos" visible={visible}>
         {aniosNuevos.length ? (
-          <>
+          <div className="grid gap-3 lg:grid-cols-2">
             <Tabla
               head={["Mes", ...aniosNuevos]}
               rows={MESES_NOMBRE_CORTO.map((m, i) => [
@@ -498,27 +494,26 @@ export function DashboardInforme({
                 ),
               ]}
             />
-            <div className="h-52">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={MESES_NOMBRE_CORTO.map((m, i) => {
-                    const fila: any = { mes: m };
-                    for (const a of aniosNuevos) fila[a] = nuevosSerie[`${a}-${String(i + 1).padStart(2, "0")}`]?.clientes ?? 0;
-                    return fila;
-                  })}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" fontSize={10} />
-                  <YAxis fontSize={10} />
-                  <Tooltip />
-                  <Legend />
-                  {aniosNuevos.map((a, i) => (
-                    <Bar key={a} dataKey={a} fill={COLORES[i % COLORES.length]} />
-                  ))}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </>
+            <Grafico alto={220}>
+              <BarChart
+                data={MESES_NOMBRE_CORTO.map((m, i) => {
+                  const fila: any = { mes: m };
+                  for (const a of aniosNuevos) fila[a] = nuevosSerie[`${a}-${String(i + 1).padStart(2, "0")}`]?.clientes ?? 0;
+                  return fila;
+                })}
+                margin={{ top: 5, right: 8, bottom: 0, left: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="mes" fontSize={10} />
+                <YAxis fontSize={10} />
+                <Tooltip {...tooltipStyle} />
+                <Legend />
+                {aniosNuevos.map((a, i) => (
+                  <Bar key={a} dataKey={a} fill={COLORES[i % COLORES.length]} radius={[3, 3, 0, 0]} />
+                ))}
+              </BarChart>
+            </Grafico>
+          </div>
         ) : (
           <p className="text-muted-foreground">Registra los clientes nuevos por mes en “Datos históricos”.</p>
         )}
@@ -526,9 +521,9 @@ export function DashboardInforme({
 
       <Seccion id="instagram" titulo="Seguidores en Instagram · Línea Blanca y Bordados" visible={visible}>
         {aniosIg.length ? (
-          <>
+          <div className="grid gap-3 lg:grid-cols-2">
             <Tabla
-              head={["Mes", ...aniosIg.flatMap((a) => [`LB ${a}`, `Bordados ${a}`])]}
+              head={["Mes", ...aniosIg.flatMap((a) => [`LB ${a}`, `BD ${a}`])]}
               rows={MESES_NOMBRE_CORTO.map((m, i) => [
                 m,
                 ...aniosIg.flatMap((a) => {
@@ -537,23 +532,21 @@ export function DashboardInforme({
                 }),
               ])}
             />
-            <div className="h-52">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={igChart}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" fontSize={10} />
-                  <YAxis fontSize={10} />
-                  <Tooltip />
-                  <Legend />
-                  {Object.keys(igChart[0] ?? {})
-                    .filter((k) => k !== "mes")
-                    .map((k, i) => (
-                      <Line key={k} type="monotone" dataKey={k} stroke={COLORES[i % COLORES.length]} strokeWidth={2} />
-                    ))}
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </>
+            <Grafico alto={220}>
+              <LineChart data={igChart} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="mes" fontSize={10} />
+                <YAxis fontSize={10} />
+                <Tooltip {...tooltipStyle} />
+                <Legend />
+                {Object.keys(igChart[0] ?? {})
+                  .filter((k) => k !== "mes")
+                  .map((k, i) => (
+                    <Line key={k} type="monotone" dataKey={k} stroke={COLORES[i % COLORES.length]} strokeWidth={2} dot={false} />
+                  ))}
+              </LineChart>
+            </Grafico>
+          </div>
         ) : (
           <p className="text-muted-foreground">Carga una captura de estadísticas de Instagram en “Datos históricos”.</p>
         )}
@@ -562,47 +555,70 @@ export function DashboardInforme({
       <Seccion
         id="cxc"
         titulo="2. Recuperación de cuentas por cobrar"
-        descripcion="Movimiento de la cartera: saldo anterior + ventas al crédito − abonos."
+        descripcion="Composición de la cartera y su movimiento: saldo anterior + ventas al crédito − abonos."
         visible={visible}
       >
-        <div className="grid gap-2 sm:grid-cols-4">
-          <Kpi label="Saldo mes anterior" valor={bal(d.cxc?.saldo_mes_anterior)} />
-          <Kpi label="Ventas al crédito" valor={bal(d.cxc?.ventas_credito)} />
-          <Kpi tono="positivo" label="Abonos del mes" valor={bal(d.cxc?.abonos)} />
-          <Kpi tono="primario" label="Saldo de cartera" valor={bal(d.cxc?.saldo_mes_actual)} />
+        <div className="grid gap-3 lg:grid-cols-3">
+          <Grafico alto={210}>
+            <PieChart>
+              <Pie
+                data={[
+                  { nombre: "Vencida", valor: d.morosidad?.vencida.total ?? 0 },
+                  { nombre: "No vencida", valor: d.morosidad?.no_vencida.total ?? 0 },
+                  { nombre: "Corriente", valor: d.cxc?.cxc_corriente ?? 0 },
+                ]}
+                dataKey="valor"
+                nameKey="nombre"
+                innerRadius={38}
+                outerRadius={66}
+                paddingAngle={3}
+              >
+                <Cell fill={COLORES[4]} />
+                <Cell fill={COLORES[3]} />
+                <Cell fill={COLORES[0]} />
+              </Pie>
+              <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+              <Legend />
+            </PieChart>
+          </Grafico>
+          <Grafico alto={210}>
+            <BarChart
+              data={[
+                { etapa: "Saldo ant.", valor: d.cxc?.saldo_mes_anterior ?? 0 },
+                { etapa: "+ Crédito", valor: d.cxc?.ventas_credito ?? 0 },
+                { etapa: "− Abonos", valor: d.cxc?.abonos ?? 0 },
+                { etapa: "Saldo actual", valor: d.cxc?.saldo_mes_actual ?? 0 },
+              ]}
+              margin={{ top: 5, right: 8, bottom: 0, left: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="etapa" fontSize={9} />
+              <YAxis {...ejeY} />
+              <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+              <Bar dataKey="valor" name="Cartera" radius={[4, 4, 0, 0]}>
+                {[COLORES[3], COLORES[1], COLORES[2], COLORES[0]].map((c, i) => (
+                  <Cell key={i} fill={c} />
+                ))}
+              </Bar>
+            </BarChart>
+          </Grafico>
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <Kpi label="Saldo mes anterior" valor={bal(d.cxc?.saldo_mes_anterior)} />
+              <Kpi tono="primario" label="Saldo actual" valor={bal(d.cxc?.saldo_mes_actual)} />
+              <Kpi tono="positivo" label="Abonos del mes" valor={bal(d.cxc?.abonos)} />
+              <Kpi
+                label="Recuperación"
+                valor={pct((d.cxc?.abonos ?? 0) / Math.max(d.cxc?.saldo_mes_actual ?? 1, 1))}
+              />
+            </div>
+            {informe.narrativa?.recuperacion && (
+              <p className="rounded-xl border border-border bg-muted/30 p-2.5 text-xs leading-relaxed">
+                {informe.narrativa.recuperacion}
+              </p>
+            )}
+          </div>
         </div>
-        <Grafico alto={230}>
-          <BarChart
-            data={[
-              { etapa: "Saldo anterior", valor: d.cxc?.saldo_mes_anterior ?? 0 },
-              { etapa: "+ Crédito", valor: d.cxc?.ventas_credito ?? 0 },
-              { etapa: "− Abonos", valor: d.cxc?.abonos ?? 0 },
-              { etapa: "Saldo actual", valor: d.cxc?.saldo_mes_actual ?? 0 },
-            ]}
-            margin={{ top: 5, right: 8, bottom: 0, left: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="etapa" fontSize={10} />
-            <YAxis {...ejeY} />
-            <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-            <Bar dataKey="valor" name="Cartera" radius={[4, 4, 0, 0]}>
-              {[COLORES[3], COLORES[1], COLORES[2], COLORES[0]].map((c, i) => (
-                <Cell key={i} fill={c} />
-              ))}
-            </Bar>
-          </BarChart>
-        </Grafico>
-        <div className="grid gap-2 sm:grid-cols-3">
-          <Kpi tono="alerta" label="Morosidad total" valor={bal(d.cxc?.morosidad_total)} />
-          <Kpi label="Cuentas al corriente" valor={bal(d.cxc?.cxc_corriente)} />
-          <Kpi
-            label="Recuperación sobre cartera"
-            valor={pct((d.cxc?.abonos ?? 0) / Math.max(d.cxc?.saldo_mes_actual ?? 1, 1))}
-          />
-        </div>
-        {informe.narrativa?.recuperacion && (
-          <p className="rounded-xl border border-border bg-muted/30 p-3 leading-relaxed">{informe.narrativa.recuperacion}</p>
-        )}
       </Seccion>
 
       <Seccion
@@ -611,122 +627,82 @@ export function DashboardInforme({
         descripcion="Distribución de la deuda por antigüedad de los plazos."
         visible={visible}
       >
-        <div className="grid gap-2 sm:grid-cols-2">
-          <Kpi tono="alerta" label="Morosidad vencida" valor={bal(d.morosidad?.vencida.total)} />
-          <Kpi label="Morosidad no vencida" valor={bal(d.morosidad?.no_vencida.total)} nota={`${fmt(d.morosidad?.no_vencida.cuentas)} cuentas`} />
-        </div>
-        <Grafico alto={230}>
-          <BarChart
-            data={[
-              ...new Set([
-                ...Object.keys(d.morosidad?.vencida.plazos ?? {}),
-                ...Object.keys(d.morosidad?.no_vencida.plazos ?? {}),
-              ]),
-            ].map((p) => ({
-              plazo: p,
-              Vencida: d.morosidad?.vencida.plazos?.[p] ?? 0,
-              "No vencida": d.morosidad?.no_vencida.plazos?.[p] ?? 0,
-            }))}
-            margin={{ top: 5, right: 8, bottom: 0, left: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="plazo" fontSize={9} />
-            <YAxis {...ejeY} />
-            <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-            <Legend />
-            <Bar dataKey="Vencida" fill={COLORES[4]} radius={[4, 4, 0, 0]} />
-            <Bar dataKey="No vencida" fill={COLORES[0]} radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </Grafico>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Morosidad vencida</div>
-            <Tabla
-              head={["Plazo", "Monto"]}
-              rows={Object.entries(d.morosidad?.vencida.plazos ?? {}).map(([k, v]) => [k, bal(v)])}
-              foot={["Total", bal(d.morosidad?.vencida.total)]}
-            />
-          </div>
-          <div>
-            <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Morosidad no vencida</div>
-            <Tabla
-              head={["Plazo", "Monto"]}
-              rows={Object.entries(d.morosidad?.no_vencida.plazos ?? {}).map(([k, v]) => [k, bal(v)])}
-              foot={["Total", bal(d.morosidad?.no_vencida.total)]}
-            />
-          </div>
-        </div>
-      </Seccion>
-
-      <Seccion
-        id="abonos"
-        titulo="Abonos realizados mensual y trimestral"
-        descripcion="Cobros del período y aporte de cada usuario de caja."
-        visible={visible}
-      >
-        <Grafico alto={220}>
-          <BarChart data={mensuales} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="mes" fontSize={10} />
-            <YAxis {...ejeY} />
-            <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-            <Bar dataKey="cobros" name="Abonos" fill={COLORES[2]} radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </Grafico>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-3">
           <Tabla
-            head={["Mes", "Abonos"]}
-            rows={mensuales.map((m) => [m.periodo, bal(m.cobros)])}
-            foot={["Total", bal(acum.cobros)]}
+            head={["Plazo vencido", "Monto"]}
+            rows={Object.entries(d.morosidad?.vencida.plazos ?? {}).map(([k, v]) => [k, bal(v)])}
+            foot={["Total", bal(d.morosidad?.vencida.total)]}
           />
-          <Tabla head={["Trimestre", "Abonos"]} rows={trimestres.map((t) => [t.nombre, bal(t.abonos)])} />
-        </div>
-        <div className="text-xs font-semibold uppercase text-muted-foreground">
-          Recibos de pagos diarios · total de cobros por cajero
-        </div>
-        <div className="grid gap-3 lg:grid-cols-2">
           <Tabla
-            head={["Cajero", "Recibos", "Total cobrado"]}
-            rows={(f?.por_cajero ?? []).map((c) => [c.nombre, fmt(c.recibos), bal(c.total)])}
-            foot={["Total", fmt((f?.por_cajero ?? []).reduce((s, c) => s + c.recibos, 0)), bal(f?.abonos_total)]}
+            head={["Plazo no vencido", "Monto"]}
+            rows={Object.entries(d.morosidad?.no_vencida.plazos ?? {}).map(([k, v]) => [k, bal(v)])}
+            foot={["Total", bal(d.morosidad?.no_vencida.total)]}
           />
-          <Grafico alto={Math.max(200, (f?.por_cajero?.length ?? 1) * 26 + 40)}>
+          <Grafico alto={210}>
             <BarChart
-              layout="vertical"
-              data={(f?.por_cajero ?? []).map((c) => ({ cajero: c.nombre.split("(")[0]!.trim(), Cobrado: c.total }))}
-              margin={{ top: 5, right: 12, bottom: 0, left: 8 }}
+              data={[
+                ...new Set([
+                  ...Object.keys(d.morosidad?.vencida.plazos ?? {}),
+                  ...Object.keys(d.morosidad?.no_vencida.plazos ?? {}),
+                ]),
+              ].map((p) => ({
+                plazo: p,
+                Vencida: d.morosidad?.vencida.plazos?.[p] ?? 0,
+                "No vencida": d.morosidad?.no_vencida.plazos?.[p] ?? 0,
+              }))}
+              margin={{ top: 5, right: 8, bottom: 0, left: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-              <XAxis type="number" {...ejeY} />
-              <YAxis type="category" dataKey="cajero" width={100} fontSize={9} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="plazo" fontSize={9} />
+              <YAxis {...ejeY} />
               <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-              <Bar dataKey="Cobrado" fill={COLORES[1]} radius={[0, 4, 4, 0]} />
+              <Legend />
+              <Bar dataKey="Vencida" fill={COLORES[4]} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="No vencida" fill={COLORES[0]} radius={[4, 4, 0, 0]} />
             </BarChart>
           </Grafico>
         </div>
       </Seccion>
 
       <Seccion
-        id="compras"
-        titulo="Compras del mes e indicadores"
-        descripcion="Documentos de compra registrados y su relación con las ventas."
+        id="abonos"
+        titulo="Abonos realizados mensual y trimestral"
+        descripcion="Cobros registrados en el período fiscal."
         visible={visible}
       >
+        <div className="grid gap-3 lg:grid-cols-3">
+          <Tabla
+            head={["Mes", "Abonos"]}
+            rows={mensuales.map((m) => [m.periodo, bal(m.cobros)])}
+            foot={["Total", bal(acum.cobros)]}
+          />
+          <Tabla head={["Trimestre", "Abonos"]} rows={trimestres.map((t) => [t.nombre, bal(t.abonos)])} />
+          <Grafico alto={210}>
+            <BarChart data={mensuales} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="mes" fontSize={10} />
+              <YAxis {...ejeY} />
+              <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+              <Bar dataKey="cobros" name="Abonos" fill={COLORES[2]} radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </Grafico>
+        </div>
+      </Seccion>
+
+      <Seccion id="compras" titulo="Compras del mes" descripcion="Documentos de compra registrados en el mes." visible={visible}>
         {d.compras ? (
-          <>
-            <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-3 lg:grid-cols-3">
+            <div className="space-y-2">
               <Kpi tono="primario" label="Compras del mes" valor={bal(d.compras.total)} nota={`${d.compras.compras.length} documentos`} />
               <Kpi
                 label="Compras / ventas (antes ITBMS)"
                 valor={pct(d.compras.total / Math.max(f?.totales.total_sin ?? 1, 1))}
               />
-              <Kpi
-                label="Compra promedio"
-                valor={bal(d.compras.total / Math.max(d.compras.compras.length, 1))}
-              />
+              <Kpi label="Compra promedio" valor={bal(d.compras.total / Math.max(d.compras.compras.length, 1))} />
             </div>
-            <Grafico alto={220}>
+            <Grafico alto={230}>
               <BarChart
+                layout="vertical"
                 data={Object.entries(
                   d.compras.compras.reduce<Record<string, number>>((a, c) => {
                     const k = c.proveedor.slice(0, 18) || "—";
@@ -737,50 +713,44 @@ export function DashboardInforme({
                   .sort((a, b) => b[1] - a[1])
                   .slice(0, 8)
                   .map(([proveedor, monto]) => ({ proveedor, Compras: monto }))}
-                margin={{ top: 5, right: 8, bottom: 40, left: 0 }}
+                margin={{ top: 5, right: 12, bottom: 0, left: 8 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="proveedor" fontSize={9} interval={0} angle={-18} textAnchor="end" height={50} />
-                <YAxis {...ejeY} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                <XAxis type="number" {...ejeY} />
+                <YAxis type="category" dataKey="proveedor" width={100} fontSize={9} />
                 <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
-                <Bar dataKey="Compras" fill={COLORES[5]} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Compras" fill={COLORES[5]} radius={[0, 4, 4, 0]} />
               </BarChart>
             </Grafico>
-            <Tabla
-              head={["Fecha", "Documento", "Proveedor", "Monto"]}
-              rows={d.compras.compras.slice(0, 40).map((c) => [c.fecha, c.documento, c.proveedor, bal(c.monto)])}
-              foot={["", "", "Total", bal(d.compras.total)]}
-            />
-          </>
+            <div className="max-h-[230px] overflow-auto print:max-h-none">
+              <Tabla
+                head={["Fecha", "Proveedor", "Monto"]}
+                rows={d.compras.compras.slice(0, 40).map((c) => [c.fecha, c.proveedor, bal(c.monto)])}
+                foot={["", "Total", bal(d.compras.total)]}
+              />
+            </div>
+          </div>
         ) : (
           <p className="text-muted-foreground">Carga el reporte REPCOMPFCH para registrar las compras del mes.</p>
         )}
       </Seccion>
 
-
       <Seccion id="alertas" titulo="Alertas de contabilidad" visible={visible}>
-        <div className="grid gap-2 sm:grid-cols-3">
-          <Kpi label="Cuentas con saldo" valor={fmt(d.repclientes?.cuentas)} />
-          <Kpi label="Saldo total de clientes" valor={bal(d.repclientes?.total_saldo)} />
-          <Kpi label="Situaciones a revisar" valor={fmt(d.repclientes?.alertas.length ?? 0)} />
-        </div>
-        {d.repclientes?.alertas.length ? (
-          <div className="space-y-1">
-            {d.repclientes.alertas.map((a, i) => (
-              <div key={i} className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-2">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-                <div>
-                  <div className="text-sm font-medium">
-                    {a.cliente} <Badge variant="outline">{a.tipo.replace(/_/g, " ")}</Badge>
-                  </div>
-                  <div className="text-xs text-muted-foreground">{a.detalle}</div>
-                </div>
-              </div>
-            ))}
+        <div className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+            <Kpi label="Cuentas con saldo" valor={fmt(d.repclientes?.cuentas)} />
+            <Kpi label="Saldo total de clientes" valor={bal(d.repclientes?.total_saldo)} />
+            <Kpi tono="alerta" label="Situaciones a revisar" valor={fmt(d.repclientes?.alertas.length ?? 0)} />
           </div>
-        ) : (
-          <p className="text-muted-foreground">{informe.narrativa?.alertas ?? "Sin alertas registradas."}</p>
-        )}
+          {d.repclientes?.alertas.length ? (
+            <Tabla
+              head={["Cliente", "Tipo", "Detalle"]}
+              rows={d.repclientes.alertas.map((a) => [a.cliente, a.tipo.replace(/_/g, " "), a.detalle])}
+            />
+          ) : (
+            <p className="text-xs text-muted-foreground">{informe.narrativa?.alertas ?? "Sin alertas registradas."}</p>
+          )}
+        </div>
       </Seccion>
 
       <Seccion
@@ -789,13 +759,13 @@ export function DashboardInforme({
         descripcion="Cotizaciones generadas en el sitio que terminaron en factura."
         visible={visible}
       >
-        <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
-          <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-3">
+          <div className="grid gap-2">
             <Kpi label="Cotizaciones del sitio" valor={fmt(d.conversion?.cotizaciones)} />
             <Kpi tono="positivo" label="Convertidas en factura" valor={fmt(d.conversion?.convertidas)} />
             <Kpi tono="primario" label="Tasa de conversión" valor={pct(d.conversion?.tasa)} />
           </div>
-          <Grafico alto={200}>
+          <Grafico alto={190}>
             <PieChart>
               <Pie
                 data={[
@@ -807,8 +777,8 @@ export function DashboardInforme({
                 ]}
                 dataKey="valor"
                 nameKey="nombre"
-                innerRadius={38}
-                outerRadius={70}
+                innerRadius={34}
+                outerRadius={62}
                 paddingAngle={3}
               >
                 <Cell fill={COLORES[2]} />
@@ -818,27 +788,28 @@ export function DashboardInforme({
               <Legend />
             </PieChart>
           </Grafico>
+          {d.conversion?.detalle.length ? (
+            <Tabla
+              head={["Cliente", "Cotización", "Factura", "Monto"]}
+              rows={d.conversion.detalle.map((c) => [c.cliente, c.cotizacion, c.factura ?? "—", c.monto ? bal(c.monto) : "—"])}
+            />
+          ) : (
+            <p className="text-xs text-muted-foreground">No hubo cotizaciones del sitio en el mes.</p>
+          )}
         </div>
-
-        {d.conversion?.detalle.length ? (
-          <Tabla
-            head={["Cliente", "Cotización", "Factura", "Monto"]}
-            rows={d.conversion.detalle.map((c) => [c.cliente, c.cotizacion, c.factura ?? "—", c.monto ? bal(c.monto) : "—"])}
-          />
-        ) : (
-          <p className="text-muted-foreground">No hubo cotizaciones del sitio en el mes.</p>
-        )}
       </Seccion>
 
       <Seccion id="gestion" titulo="3. Informe de gestión operativa" visible={visible}>
-        {informe.gestion?.general && <p className="leading-relaxed">{informe.gestion.general}</p>}
-        {(informe.gestion?.colaboradores ?? []).map((c) => (
-          <div key={c.nombre} className="rounded-md border border-border p-3">
-            <div className="text-sm font-semibold">{c.nombre}</div>
-            <p className="mt-1 whitespace-pre-line leading-relaxed">{c.texto_ia}</p>
-            {c.texto_manual && <p className="mt-2 whitespace-pre-line leading-relaxed">{c.texto_manual}</p>}
-          </div>
-        ))}
+        {informe.gestion?.general && <p className="text-xs leading-relaxed">{informe.gestion.general}</p>}
+        <div className="grid gap-2 sm:grid-cols-2">
+          {(informe.gestion?.colaboradores ?? []).map((c) => (
+            <div key={c.nombre} className="break-inside-avoid rounded-lg border border-border p-2.5">
+              <div className="text-xs font-semibold uppercase tracking-wide">{c.nombre}</div>
+              <p className="mt-1 whitespace-pre-line text-xs leading-relaxed">{c.texto_ia}</p>
+              {c.texto_manual && <p className="mt-1 whitespace-pre-line text-xs leading-relaxed">{c.texto_manual}</p>}
+            </div>
+          ))}
+        </div>
         {!(informe.gestion?.colaboradores ?? []).length && (
           <p className="text-muted-foreground">Genera el informe para redactar la gestión operativa del mes.</p>
         )}
