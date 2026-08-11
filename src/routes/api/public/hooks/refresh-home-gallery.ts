@@ -73,6 +73,13 @@ async function refresh(request: Request) {
       headers: { "Content-Type": "application/json" },
     });
   }
+  // La galería del inicio ahora la administra el admin desde /admin/galeria.
+  // Este endpoint ya no reescribe nada salvo que se pida explícitamente con ?force=1.
+  if (new URL(request.url).searchParams.get("force") !== "1") {
+    return new Response(JSON.stringify({ ok: true, skipped: "gallery is admin-managed" }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {
