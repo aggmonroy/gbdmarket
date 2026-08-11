@@ -248,8 +248,8 @@ export function parseRepvalor2(texto: string): DatosRepvalor2 {
   return {
     clasificacion_por_codigo,
     clasificaciones,
-    total_costo: r2(clasificaciones.reduce((s, c) => s + c.costo, 0)),
-    total_venta: r2(clasificaciones.reduce((s, c) => s + c.venta, 0)),
+    total_costo: r2(clasificaciones.reduce((s: number, c: any) => s + c.costo, 0)),
+    total_venta: r2(clasificaciones.reduce((s: number, c: any) => s + c.venta, 0)),
   };
 }
 
@@ -531,5 +531,201 @@ export function parsePorReporte(reporte: string, texto: string): { datos: any; r
     }
     default:
       throw new Error(`Reporte no reconocido: ${reporte}`);
+  }
+}
+
+/* ------------------------ normalización de la lectura con IA ------------------------ */
+
+const n2 = (v: any) => {
+  if (typeof v === "number" && Number.isFinite(v)) return r2(v);
+  return r2(num(String(v ?? "")));
+};
+
+const plazosDe = (raw: any, claves: string[]) => {
+  const out: Record<string, number> = Object.fromEntries(claves.map((k) => [k, 0]));
+  if (raw && typeof raw === "object") {
+    for (const [k, v] of Object.entries(raw)) {
+      const clave = claves.find((c) => c.toLowerCase() === k.toLowerCase().trim()) ?? k;
+      out[clave] = n2(v);
+    }
+  }
+  return out;
+};
+
+const CLAVES_VENCIDA = ["30 días", "60 días", "90 días", "120 días", "364 días", "365 días"];
+const CLAVES_NO_VENCIDA = ["0 días", "30 días", "60 días", "90 días", "120 días", "más de 120"];
+
+/**
+ * Deja la respuesta de la IA con la misma forma que producen los lectores
+ * deterministas, para que el informe no dependa del formato del modelo.
+ */
+export function normalizarDatosIA(reporte: string, crudo: any): any {
+  const d = crudo ?? {};
+  switch (reporte) {
+    case "repfacmes": {
+      const t = d.totales ?? d;
+      const totales = {
+        contado_sin: n2(t.contado_sin),
+        contado_con: n2(t.contado_con),
+        credito_sin: n2(t.credito_sin),
+        credito_con: n2(t.credito_con),
+        total_sin: n2(t.total_sin),
+        total_con: n2(t.total_con),
+        itbms: n2(t.itbms),
+      };
+      if (!totales.total_con) totales.total_con = r2(totales.contado_con + totales.credito_con);
+      if (!totales.total_sin) totales.total_sin = r2(totales.contado_sin + totales.credito_sin);
+      const por_vendedor = (Array.isArray(d.por_vendedor) ? d.por_vendedor : []).map((v: any) => {
+        const contado = n2(v?.contado);
+        const credito = n2(v?.credito);
+        const codigo = String(v?.codigo ?? "").trim() || VENDEDOR_POR_DEFECTO;
+        return {
+          codigo,
+          nombre: VENDEDORES[codigo] ?? `VENDEDOR ${codigo}`,
+          contado,
+          credito,
+          total: v?.total !== undefined ? n2(v.total) : r2(contado + credito),
+        };
+      });
+      const por_cajero = (Array.isArray(d.por_cajero) ? d.por_cajero : [])
+        .filter((c: any) => esCodigoCajero(String(c?.codigo ?? "")))
+        .map((c: any) => ({
+          codigo: String(c.codigo).toUpperCase(),
+          nombre: nombreCajero(String(c.codigo)),
+          total: n2(c.total),
+          recibos: Math.round(n2(c.recibos)),
+        }))
+        .sort((a: any, b: any) => b.total - a.total);
+      return {
+        ventas: Array.isArray(d.ventas) ? d.ventas : [],
+        abonos: Array.isArray(d.abonos) ? d.abonos : [],
+        totales,
+        por_vendedor,
+        por_cajero,
+        abonos_total: d.abonos_total !== undefined
+          ? n2(d.abonos_total)
+          : r2(por_cajero.reduce((s: number, c: any) => s + c.total, 0)),
+      } satisfies DatosRepfacmes;
+    }
+    case "repartven": {
+      const productos: ProductoVenta[] = (Array.isArray(d.productos) ? d.productos : []).map((p: any) => ({
+        codigo: String(p?.codigo ?? "").trim().toUpperCase(),
+        descripcion: String(p?.descripcion ?? "").trim(),
+        cantidad: n2(p?.cantidad),
+        ventas: n2(p?.ventas),
+        costo: n2(p?.costo),
+        ganancia: p?.ganancia !== undefined ? n2(p.ganancia) : r2(n2(p?.ventas) - n2(p?.costo)),
+      }));
+      return {
+        productos,
+        total_ventas: d.total_ventas !== undefined ? n2(d.total_ventas) : r2(productos.reduce((s, p) => s + p.ventas, 0)),
+        total_ganancia:
+          d.total_ganancia !== undefined ? n2(d.total_ganancia) : r2(productos.reduce((s, p) => s + p.ganancia, 0)),
+      } satisfies DatosRepartven;
+    }
+    case "repvalor2": {
+      const clasificaciones = (Array.isArray(d.clasificaciones) ? d.clasificaciones : []).map((c: any) => ({
+        codigo: String(c?.codigo ?? "").trim(),
+        nombre: String(c?.nombre ?? "").trim() || String(c?.codigo ?? ""),
+        costo: n2(c?.costo),
+        venta: n2(c?.venta),
+        unidades: n2(c?.unidades),
+      }));
+      const clasificacion_por_codigo: Record<string, string> = {};
+      const mapa = d.clasificacion_por_codigo;
+      if (mapa && typeof mapa === "object")
+        for (const [k, v] of Object.entries(mapa)) clasificacion_por_codigo[String(k).toUpperCase()] = String(v ?? "");
+      return {
+        clasificacion_por_codigo,
+        clasificaciones,
+        total_costo: d.total_costo !== undefined ? n2(d.total_costo) : r2(clasificaciones.reduce((s: number, c: any) => s + c.costo, 0)),
+        total_venta: d.total_venta !== undefined ? n2(d.total_venta) : r2(clasificaciones.reduce((s: number, c: any) => s + c.venta, 0)),
+      } satisfies DatosRepvalor2;
+    }
+    case "repmorosos": {
+      const plazos = plazosDe(d.plazos, CLAVES_VENCIDA);
+      const suma_plazos = r2(Object.values(plazos).reduce((s, v) => s + v, 0));
+      return { total: n2(d.total) || suma_plazos, plazos, cuentas: Math.round(n2(d.cuentas)), suma_plazos };
+    }
+    case "repmorosos2": {
+      const plazos = plazosDe(d.plazos, CLAVES_NO_VENCIDA);
+      const suma_plazos = r2(Object.values(plazos).reduce((s, v) => s + v, 0));
+      return {
+        total: n2(d.total) || suma_plazos,
+        plazos,
+        saldo_actual: n2(d.saldo_actual),
+        cuentas: Math.round(n2(d.cuentas)),
+        suma_plazos,
+      };
+    }
+    case "repclientes": {
+      const clientes = (Array.isArray(d.clientes) ? d.clientes : []).map((c: any) => ({
+        codigo: String(c?.codigo ?? "").trim(),
+        nombre: String(c?.nombre ?? "").trim(),
+        saldo: n2(c?.saldo),
+      }));
+      const alertas: AlertaCliente[] = Array.isArray(d.alertas)
+        ? d.alertas.filter((a: any) => a && a.tipo && a.cliente)
+        : [];
+      for (const c of clientes)
+        if (c.saldo < 0)
+          alertas.push({
+            tipo: "saldo_negativo",
+            cliente: `${c.codigo} · ${c.nombre}`,
+            detalle: "Saldo en negativo: revisar por contabilidad.",
+            monto: c.saldo,
+          });
+      return {
+        clientes,
+        total_saldo: d.total_saldo !== undefined ? n2(d.total_saldo) : r2(clientes.reduce((s: number, c: any) => s + c.saldo, 0)),
+        cuentas: Math.round(n2(d.cuentas)) || clientes.length,
+        alertas,
+      } satisfies DatosRepclientes;
+    }
+    case "repcompfch": {
+      const compras = (Array.isArray(d.compras) ? d.compras : []).map((c: any) => ({
+        fecha: String(c?.fecha ?? "").trim(),
+        proveedor: String(c?.proveedor ?? "").trim(),
+        documento: String(c?.documento ?? "").trim(),
+        monto: n2(c?.monto),
+      }));
+      return {
+        compras,
+        total: d.total !== undefined ? n2(d.total) : r2(compras.reduce((s: number, c: any) => s + c.monto, 0)),
+      } satisfies DatosCompras;
+    }
+    default:
+      return d;
+  }
+}
+
+/** Resumen visible (chips de la carga) a partir de los datos ya normalizados. */
+export function resumenDe(reporte: string, d: any): Record<string, any> {
+  switch (reporte) {
+    case "repfacmes":
+      return {
+        facturas: d?.ventas?.length ?? 0,
+        recibos: d?.abonos?.length ?? d?.por_cajero?.length ?? 0,
+        ventas_totales: d?.totales?.total_con ?? 0,
+        abonos: d?.abonos_total ?? 0,
+      };
+    case "repartven":
+      return { productos: d?.productos?.length ?? 0, ventas: d?.total_ventas ?? 0 };
+    case "repvalor2":
+      return {
+        articulos: Object.keys(d?.clasificacion_por_codigo ?? {}).length,
+        clasificaciones: d?.clasificaciones?.length ?? 0,
+        inventario_venta: d?.total_venta ?? 0,
+      };
+    case "repmorosos":
+      return { morosidad_vencida: d?.total ?? 0, cuentas: d?.cuentas ?? 0 };
+    case "repmorosos2":
+      return { morosidad_no_vencida: d?.total ?? 0, saldo_actual: d?.saldo_actual ?? 0, cuentas: d?.cuentas ?? 0 };
+    case "repclientes":
+      return { clientes: d?.cuentas ?? 0, saldo_total: d?.total_saldo ?? 0, alertas: d?.alertas?.length ?? 0 };
+    case "repcompfch":
+      return { compras: d?.compras?.length ?? 0, total: d?.total ?? 0 };
+    default:
+      return {};
   }
 }
