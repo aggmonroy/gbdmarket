@@ -193,6 +193,48 @@ function ControlesTamano({
   );
 }
 
+/** Tirador para arrastrar y redimensionar la tarjeta. */
+function Tirador({
+  lado,
+  onDrag,
+  onFin,
+  contenedor,
+}: {
+  lado: "izq" | "der" | "abajo" | "esq";
+  onDrag: (dx: number, dy: number, anchoContenedor: number) => void;
+  onFin: () => void;
+  contenedor: React.RefObject<HTMLDivElement | null>;
+}) {
+  const iniciar = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const x0 = e.clientX;
+    const y0 = e.clientY;
+    const ancho = contenedor.current?.parentElement?.clientWidth ?? contenedor.current?.clientWidth ?? 1;
+    const mover = (ev: PointerEvent) => onDrag(ev.clientX - x0, ev.clientY - y0, ancho);
+    const soltar = () => {
+      window.removeEventListener("pointermove", mover);
+      window.removeEventListener("pointerup", soltar);
+      document.body.style.userSelect = "";
+      onFin();
+    };
+    document.body.style.userSelect = "none";
+    window.addEventListener("pointermove", mover);
+    window.addEventListener("pointerup", soltar);
+  };
+
+  const base =
+    "absolute z-20 print:hidden rounded-full bg-primary/0 hover:bg-primary/40 transition-colors touch-none";
+  const pos = {
+    izq: "left-0 top-6 bottom-6 w-1.5 cursor-ew-resize",
+    der: "right-0 top-6 bottom-6 w-1.5 cursor-ew-resize",
+    abajo: "bottom-0 left-6 right-6 h-1.5 cursor-ns-resize",
+    esq: "bottom-0 right-0 h-3.5 w-3.5 cursor-nwse-resize bg-primary/25 hover:bg-primary/60",
+  }[lado];
+
+  return <div role="separator" aria-label="Redimensionar tarjeta" onPointerDown={iniciar} className={`${base} ${pos}`} />;
+}
+
 function Seccion({
   id,
   titulo,
@@ -213,11 +255,38 @@ function Seccion({
   children: React.ReactNode;
 }) {
   if (visible && !visible.has(id)) return null;
-  const ancho = layout?.[id]?.ancho ?? 100;
-  const escala = layout?.[id]?.escala ?? 1;
+  const anchoGuardado = layout?.[id]?.ancho ?? 100;
+  const escalaGuardada = layout?.[id]?.escala ?? 1;
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [arrastre, setArrastre] = useState<{ ancho: number; escala: number } | null>(null);
+  const ancho = arrastre?.ancho ?? anchoGuardado;
+  const escala = arrastre?.escala ?? escalaGuardada;
+
+  const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+  const redimensionar = (signo: 1 | -1 | 0, dy = false) =>
+    (dx: number, dyPx: number, anchoContenedor: number) => {
+      const nuevoAncho =
+        signo === 0 ? ancho : limitar(anchoGuardado + (signo * dx * 100) / Math.max(1, anchoContenedor), 25, 100);
+      const alto = ref.current?.getBoundingClientRect().height ?? 300;
+      const nuevaEscala = dy
+        ? limitar(escalaGuardada * (1 + dyPx / Math.max(120, alto / Math.max(0.4, escalaGuardada))), 0.5, 2.5)
+        : escalaGuardada;
+      setArrastre({
+        ancho: Math.round(nuevoAncho),
+        escala: Math.round(nuevaEscala * 100) / 100,
+      });
+    };
+
+  const finalizar = () => {
+    if (arrastre && edicion) edicion.tamano(id, arrastre.ancho, arrastre.escala);
+    setArrastre(null);
+  };
+
   return (
     <div
-      className="min-w-0 break-inside-avoid"
+      ref={ref}
+      className="relative min-w-0 break-inside-avoid"
       style={{ flex: `1 1 ${ancho}%`, maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)` }}
     >
       <EscalaCtx.Provider value={escala}>
@@ -235,10 +304,19 @@ function Seccion({
             <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
           </CardContent>
         </Card>
+        {edicion && (
+          <>
+            <Tirador lado="izq" contenedor={ref} onDrag={redimensionar(-1)} onFin={finalizar} />
+            <Tirador lado="der" contenedor={ref} onDrag={redimensionar(1)} onFin={finalizar} />
+            <Tirador lado="abajo" contenedor={ref} onDrag={redimensionar(0, true)} onFin={finalizar} />
+            <Tirador lado="esq" contenedor={ref} onDrag={redimensionar(1, true)} onFin={finalizar} />
+          </>
+        )}
       </EscalaCtx.Provider>
     </div>
   );
 }
+
 
 function TablaBase({
   head,
