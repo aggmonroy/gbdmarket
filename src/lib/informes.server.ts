@@ -483,3 +483,62 @@ export async function consolidado(inicioFiscal: number, tipo: "trimestral" | "an
     lineas,
   };
 }
+
+/* ------------------------ explicaciones de cada tabla ------------------------ */
+
+/**
+ * Redacta con IA una explicación breve para cada sección/tabla del informe.
+ * Solo se generan las secciones que tienen datos; la administración puede
+ * editarlas luego desde el dashboard.
+ */
+export async function generarExplicacionesTablas(periodo: string, datos: InformeDatos) {
+  const { SECCIONES_INFORME } = await import("./informes-shared");
+  const { mesNombre, anio, periodoFiscal } = infoPeriodo(periodo);
+
+  const resumen: Record<string, unknown> = {
+    ventas: datos.repfacmes?.totales,
+    vendedores: datos.repfacmes?.por_vendedor,
+    lineas: datos.lineas,
+    rotacion: (datos.rotacion ?? []).map((c) => ({
+      categoria: c.categoria,
+      unidades: c.unidades,
+      ventas: c.ventas,
+      top: c.modelos.slice(0, 3),
+    })),
+    cxc: datos.cxc,
+    morosidad: datos.morosidad,
+    abonos: datos.repfacmes?.abonos_total,
+    compras: datos.compras ? { total: datos.compras.total, documentos: datos.compras.compras.length } : null,
+    alertas: datos.repclientes?.alertas?.slice(0, 10),
+    conversion: datos.conversion
+      ? { cotizaciones: datos.conversion.cotizaciones, convertidas: datos.conversion.convertidas, tasa: datos.conversion.tasa }
+      : null,
+  };
+
+  const claves = SECCIONES_INFORME.map((s) => s.id).join(", ");
+  const contenido = await chat(
+    [
+      {
+        role: "system",
+        content:
+          "Eres analista financiero de una cooperativa panameña. Redactas explicaciones ejecutivas en español, en tono formal, claras y breves (2 a 3 oraciones, máximo 60 palabras). No inventes cifras: usa solo los datos entregados. Responde únicamente JSON.",
+      },
+      {
+        role: "user",
+        content:
+          `Informe de ${mesNombre} ${anio} (período fiscal ${periodoFiscal}). Redacta una explicación para cada sección con datos.\n` +
+          `Devuelve un objeto JSON cuyas claves sean exactamente algunas de: ${claves}. Omite las secciones sin datos.\n` +
+          `Datos: ${JSON.stringify(resumen).slice(0, 60_000)}`,
+      },
+    ],
+    { json: true },
+  );
+
+  const bruto = jsonDe(contenido) as Record<string, unknown>;
+  const validas = new Set<string>(SECCIONES_INFORME.map((s) => s.id));
+  const salida: Record<string, string> = {};
+  for (const [k, v] of Object.entries(bruto)) {
+    if (validas.has(k) && typeof v === "string" && v.trim()) salida[k] = v.trim().slice(0, 1200);
+  }
+  return salida;
+}
