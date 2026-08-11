@@ -59,7 +59,7 @@ const tooltipStyle = {
   },
 } as const;
 
-function Grafico({ children, alto = 240 }: { children: React.ReactElement; alto?: number }) {
+function Grafico({ children, alto = 190 }: { children: React.ReactElement; alto?: number }) {
   return (
     <div className="rounded-xl border border-border bg-muted/20 p-2" style={{ height: alto }}>
       <ResponsiveContainer width="100%" height="100%">
@@ -260,7 +260,7 @@ export function DashboardInforme({
             </div>
           </div>
           <div className="space-y-2">
-            <Grafico alto={180}>
+            <Grafico alto={150}>
               <PieChart>
                 <Pie
                   data={[
@@ -301,7 +301,7 @@ export function DashboardInforme({
             rows={vendedores.map((v) => [v.codigo, v.etiqueta, bal(v.contado), bal(v.credito), bal(v.total)])}
             foot={["", "Total", bal(f?.totales.contado_con), bal(f?.totales.credito_con), bal(f?.totales.total_con)]}
           />
-          <Grafico alto={210}>
+          <Grafico alto={175}>
             <BarChart
               data={vendedores.map((v) => ({
                 nombre: v.etiqueta.split("//").pop()!.trim(),
@@ -334,7 +334,7 @@ export function DashboardInforme({
             rows={mensuales.map((m) => [m.periodo, bal(m.contado), bal(m.credito), bal(m.total)])}
             foot={["Total", bal(acum.contado), bal(acum.credito), bal(acum.total)]}
           />
-          <Grafico alto={230}>
+          <Grafico alto={185}>
             <ComposedChart data={mensuales} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="mes" fontSize={10} />
@@ -367,7 +367,7 @@ export function DashboardInforme({
                 bal(d.lineas.reduce((s, l) => s + l.ganancia, 0)),
               ]}
             />
-            <Grafico alto={200}>
+            <Grafico alto={165}>
               <PieChart>
                 <Pie data={d.lineas} dataKey="ventas" nameKey="linea" innerRadius={38} outerRadius={68} paddingAngle={3}>
                   {d.lineas.map((_, i) => (
@@ -414,7 +414,7 @@ export function DashboardInforme({
                 <Bar dataKey="Unidades" fill={COLORES[0]} radius={[0, 4, 4, 0]} />
               </BarChart>
             </Grafico>
-            <div className="md:col-span-2 xl:col-span-3">
+            <div className="md:col-span-2">
               <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
                 Modelos más vendidos del mes
               </div>
@@ -453,7 +453,7 @@ export function DashboardInforme({
               }),
             ]}
           />
-          <Grafico alto={230}>
+          <Grafico alto={185}>
             <LineChart
               data={MESES_PERIODO.map((n, i) => {
                 const mesNum = i < 5 ? 8 + i : i - 4;
@@ -499,7 +499,7 @@ export function DashboardInforme({
                 ),
               ]}
             />
-            <Grafico alto={220}>
+            <Grafico alto={180}>
               <BarChart
                 data={MESES_NOMBRE_CORTO.map((m, i) => {
                   const fila: any = { mes: m };
@@ -537,7 +537,7 @@ export function DashboardInforme({
                 }),
               ])}
             />
-            <Grafico alto={220}>
+            <Grafico alto={180}>
               <LineChart data={igChart} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="mes" fontSize={10} />
@@ -564,7 +564,7 @@ export function DashboardInforme({
         visible={visible}
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <Grafico alto={210}>
+          <Grafico alto={175}>
             <PieChart>
               <Pie
                 data={[
@@ -586,7 +586,7 @@ export function DashboardInforme({
               <Legend />
             </PieChart>
           </Grafico>
-          <Grafico alto={210}>
+          <Grafico alto={175}>
             <BarChart
               data={[
                 { etapa: "Saldo ant.", valor: d.cxc?.saldo_mes_anterior ?? 0 },
@@ -643,7 +643,7 @@ export function DashboardInforme({
             rows={Object.entries(d.morosidad?.no_vencida.plazos ?? {}).map(([k, v]) => [k, bal(v)])}
             foot={["Total", bal(d.morosidad?.no_vencida.total)]}
           />
-          <Grafico alto={210}>
+          <Grafico alto={175}>
             <BarChart
               data={[
                 ...new Set([
@@ -682,7 +682,7 @@ export function DashboardInforme({
             foot={["Total", bal(acum.cobros)]}
           />
           <Tabla head={["Trimestre", "Abonos"]} rows={trimestres.map((t) => [t.nombre, bal(t.abonos)])} />
-          <Grafico alto={210}>
+          <Grafico alto={175}>
             <BarChart data={mensuales} margin={{ top: 5, right: 8, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="mes" fontSize={10} />
@@ -705,7 +705,7 @@ export function DashboardInforme({
               />
               <Kpi label="Compra promedio" valor={bal(d.compras.total / Math.max(d.compras.compras.length, 1))} />
             </div>
-            <Grafico alto={230}>
+            <Grafico alto={185}>
               <BarChart
                 layout="vertical"
                 data={Object.entries(
@@ -770,7 +770,7 @@ export function DashboardInforme({
             <Kpi tono="positivo" label="Convertidas en factura" valor={fmt(d.conversion?.convertidas)} />
             <Kpi tono="primario" label="Tasa de conversión" valor={pct(d.conversion?.tasa)} />
           </div>
-          <Grafico alto={190}>
+          <Grafico alto={160}>
             <PieChart>
               <Pie
                 data={[
