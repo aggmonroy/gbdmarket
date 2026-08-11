@@ -367,13 +367,18 @@ export function DashboardInforme({
   series,
   secciones,
   imprimible = false,
+  edicion,
 }: {
   informe: InformeMensual;
   series: SerieFila[];
   secciones?: SeccionId[];
   imprimible?: boolean;
+  /** Solo en el dashboard de administración: editar explicaciones y tamaños. */
+  edicion?: Edicion;
 }) {
   const visible = secciones ? new Set(secciones) : null;
+  const expl = informe.explicaciones ?? {};
+  const lay = informe.layout ?? {};
   const d = informe.datos ?? {};
   const f = d.repfacmes;
   const { mesNombre, anio, periodoFiscal, inicioFiscal } = infoPeriodo(informe.periodo);
