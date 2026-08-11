@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { CargaReportes } from "@/components/informes/CargaReportes";
 import { DashboardInforme } from "@/components/informes/DashboardInforme";
+import { HistorialInformes } from "@/components/informes/HistorialInformes";
 import { InformeImprimible } from "@/components/informes/InformeImprimible";
 import { SeriesManuales } from "@/components/informes/SeriesManuales";
 import { TotalesEditables } from "@/components/informes/TotalesEditables";
