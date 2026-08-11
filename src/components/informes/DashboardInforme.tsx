@@ -94,7 +94,7 @@ function Seccion({
         </CardTitle>
         {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
       </CardHeader>
-      <CardContent className="space-y-3 pt-3 text-sm">{children}</CardContent>
+      <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">{children}</CardContent>
     </Card>
   );
 }
