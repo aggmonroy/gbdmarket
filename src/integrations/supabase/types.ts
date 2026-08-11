@@ -812,6 +812,96 @@ export type Database = {
         }
         Relationships: []
       }
+      informe_archivos: {
+        Row: {
+          created_at: string
+          filename: string | null
+          id: string
+          periodo: string
+          reporte: string
+          resumen: Json
+        }
+        Insert: {
+          created_at?: string
+          filename?: string | null
+          id?: string
+          periodo: string
+          reporte: string
+          resumen?: Json
+        }
+        Update: {
+          created_at?: string
+          filename?: string | null
+          id?: string
+          periodo?: string
+          reporte?: string
+          resumen?: Json
+        }
+        Relationships: []
+      }
+      informe_series: {
+        Row: {
+          created_at: string
+          datos: Json
+          id: string
+          periodo: string
+          serie: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          datos?: Json
+          id?: string
+          periodo: string
+          serie: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          datos?: Json
+          id?: string
+          periodo?: string
+          serie?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      informes_mensuales: {
+        Row: {
+          created_at: string
+          datos: Json
+          estado: string
+          generado_en: string | null
+          gestion: Json
+          id: string
+          narrativa: Json
+          periodo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          datos?: Json
+          estado?: string
+          generado_en?: string | null
+          gestion?: Json
+          id?: string
+          narrativa?: Json
+          periodo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          datos?: Json
+          estado?: string
+          generado_en?: string | null
+          gestion?: Json
+          id?: string
+          narrativa?: Json
+          periodo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       page_events: {
         Row: {
           category_slug: string | null
