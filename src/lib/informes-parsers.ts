@@ -223,41 +223,55 @@ export function parseRepvalor2(texto: string): DatosRepvalor2 {
 
 /* ------------------------------- MOROSIDAD ------------------------------- */
 
-/** REPMOROSOS: morosidad vencida (30, 60, 90, 120, 364, 365 días). */
+/** Todos los montos con dos decimales de una línea (1,234.56 o 1.234,56). */
+const MONTOS_G = /-?(?:\d{1,3}(?:[.,]\d{3})*|\d+)[.,]\d{2}/g;
+const montosDe = (l: string) => l.match(MONTOS_G) ?? [];
+const r2 = (n: number) => Math.round(n * 100) / 100;
+
+/**
+ * REPMOROSOS: morosidad vencida (30, 60, 90, 120, 364, 365 días).
+ * El total se busca en este orden: fila de totales del reporte, rótulo
+ * "Morosidad:" y, como último recurso, la suma de las filas de clientes.
+ */
 export function parseRepmorosos(texto: string) {
   const ls = lineas(texto);
-  const plazos: Record<string, number> = {
-    "30 días": 0,
-    "60 días": 0,
-    "90 días": 0,
-    "120 días": 0,
-    "364 días": 0,
-    "365 días": 0,
-  };
-  let total = 0;
+  const claves = ["30 días", "60 días", "90 días", "120 días", "364 días", "365 días"];
+  const plazos: Record<string, number> = Object.fromEntries(claves.map((k) => [k, 0]));
+  let filaTotales = 0;
   let etiqueta = 0;
   let cuentas = 0;
+  let suma_filas = 0;
 
-  for (const l of ls) {
-    const mor = /Morosidad:\s*([\d.,]+)/i.exec(l);
+  ls.forEach((l, i) => {
+    const mor = /Morosidad\s*:?\s*-*>?\s*(-?[\d.,]+[.,]\d{2})/i.exec(l);
     if (mor) etiqueta = num(mor[1]);
-    // Fila de totales: cantidad de cuentas + 6 plazos + total.
-    const t = /^\s*(\d{1,5})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s*$/.exec(
-      l,
-    );
-    if (t) {
-      cuentas = Number(t[1]);
-      const claves = Object.keys(plazos);
-      claves.forEach((k, idx) => (plazos[k] = num(t[idx + 2])));
-      if (!total) total = num(t[8]);
+
+    const montos = montosDe(l);
+    const esTotal = /total/i.test(l);
+    const cnt = /^\s*(?:total[^\d]*)?(\d{1,5})\s/i.exec(l);
+
+    // Fila de totales: (cuentas) + 6 plazos + total general.
+    if (montos.length >= 7 && (esTotal || cnt)) {
+      if (cnt) cuentas = Number(cnt[1]);
+      const seis = montos.slice(-7, -1);
+      claves.forEach((k, idx) => (plazos[k] = num(seis[idx])));
+      filaTotales = num(montos[montos.length - 1]);
+      return;
     }
-  }
+    // Fila de cliente: el último monto es su saldo moroso.
+    if (!esTotal && montos.length >= 1 && /^\s*\d{3,6}\b/.test(l)) {
+      suma_filas += num(montos[montos.length - 1]);
+      return;
+    }
+    void i;
+  });
+
   // El rótulo "Morosidad:" suele traer el valor en la línea siguiente.
   if (!etiqueta) {
-    const idx = ls.findIndex((l) => /Morosidad:/i.test(l));
+    const idx = ls.findIndex((l) => /Morosidad\s*:/i.test(l));
     if (idx >= 0) {
-      for (const l of ls.slice(idx, idx + 3)) {
-        const m = /^\s*([\d,]+\.\d{2})\s*$/.exec(l);
+      for (const l of ls.slice(idx, idx + 4)) {
+        const m = /(-?[\d.,]+[.,]\d{2})\s*$/.exec(l.trim());
         if (m) {
           etiqueta = num(m[1]);
           break;
@@ -265,42 +279,39 @@ export function parseRepmorosos(texto: string) {
       }
     }
   }
-  return { total: etiqueta || total, plazos, cuentas };
+
+  const suma_plazos = r2(Object.values(plazos).reduce((s, v) => s + v, 0));
+  const total = filaTotales || etiqueta || suma_plazos || r2(suma_filas);
+  return { total, plazos, cuentas, etiqueta, suma_plazos, suma_filas: r2(suma_filas) };
 }
 
 /** REPMOROSOS2: morosidad no vencida (0, 30, 60, 90, 120, 120+ días). */
 export function parseRepmorosos2(texto: string) {
   const ls = lineas(texto);
-  const plazos: Record<string, number> = {
-    "0 días": 0,
-    "30 días": 0,
-    "60 días": 0,
-    "90 días": 0,
-    "120 días": 0,
-    "más de 120": 0,
-  };
+  const claves = ["0 días", "30 días", "60 días", "90 días", "120 días", "más de 120"];
+  const plazos: Record<string, number> = Object.fromEntries(claves.map((k) => [k, 0]));
   let total = 0;
   let saldo_actual = 0;
   let cuentas = 0;
 
   for (const l of ls) {
-    const mor = /Total\s+Moroso:-*>\s*([\d.,]+)/i.exec(l);
+    const mor = /Total\s+Moroso\s*:?-*>?\s*(-?[\d.,]+[.,]\d{2})/i.exec(l);
     if (mor) total = num(mor[1]);
-    const t = /Total:-*>\s*(\d{1,5})\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s*$/i.exec(
-      l,
-    );
-    if (t) {
-      cuentas = Number(t[1]);
-      const claves = Object.keys(plazos);
-      claves.forEach((k, idx) => (plazos[k] = num(t[idx + 3])));
-      saldo_actual = num(t[10]);
+
+    const montos = montosDe(l);
+    if (/total/i.test(l) && montos.length >= 7) {
+      const cnt = /(\d{1,5})\s+-?[\d.,]+[.,]\d{2}/.exec(l);
+      if (cnt) cuentas = Number(cnt[1]);
+      const seis = montos.slice(-7, -1);
+      claves.forEach((k, idx) => (plazos[k] = num(seis[idx])));
+      saldo_actual = num(montos[montos.length - 1]);
     }
   }
   if (!total) {
     const idx = ls.findIndex((l) => /Total\s+Moroso/i.test(l));
     if (idx >= 0) {
-      for (const l of ls.slice(idx, idx + 3)) {
-        const m = /([\d,]+\.\d{2})\s*$/.exec(l);
+      for (const l of ls.slice(idx, idx + 4)) {
+        const m = /(-?[\d.,]+[.,]\d{2})\s*$/.exec(l.trim());
         if (m) {
           total = num(m[1]);
           break;
@@ -308,8 +319,10 @@ export function parseRepmorosos2(texto: string) {
       }
     }
   }
-  return { total, plazos, saldo_actual, cuentas };
+  const suma_plazos = r2(Object.values(plazos).reduce((s, v) => s + v, 0));
+  return { total: total || suma_plazos, plazos, saldo_actual, cuentas, suma_plazos };
 }
+
 
 export function unirMorosidad(
   vencida: ReturnType<typeof parseRepmorosos>,
