@@ -83,6 +83,21 @@ export async function verifyReporteToken(token: string, garantiaId: string): Pro
   if (!payload.exp || payload.exp < Date.now()) throw new Error("El enlace del reporte ha expirado");
 }
 
+export async function signPedidoToken(numero: string): Promise<string> {
+  const exp = Date.now() + 365 * 24 * 60 * 60 * 1000;
+  const body = btoa(JSON.stringify({ num: numero, exp }));
+  return `${body}.${await hmac(`pedido:${body}`)}`;
+}
+
+export async function verifyPedidoToken(token: string | undefined | null, numero: string): Promise<void> {
+  if (!token || !token.includes(".")) throw new Error("Enlace de pedido no válido");
+  const [body, sig] = token.split(".");
+  if (sig !== (await hmac(`pedido:${body!}`))) throw new Error("Enlace de pedido no válido");
+  const payload = JSON.parse(atob(body!)) as { num: string; exp: number };
+  if (payload.num !== numero) throw new Error("Enlace de pedido no válido");
+  if (!payload.exp || payload.exp < Date.now()) throw new Error("El enlace del pedido ha expirado");
+}
+
 export async function verificarPinColaborador(colaboradorId: string, pin: string) {
   const sb = await admin();
   const { data, error } = await sb

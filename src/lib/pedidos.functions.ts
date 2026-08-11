@@ -1,5 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { admin, requireEscritura, signReporteToken, verifySesion } from "./garantias.server";
+import {
+  admin,
+  requireEscritura,
+  signPedidoToken,
+  signReporteToken,
+  verifyPedidoToken,
+  verifySesion,
+} from "./garantias.server";
 import { crearTareaDeSolicitud } from "./tareas.server";
 import {
   agendaSchema,
@@ -46,7 +53,7 @@ export const crearPreorden = createServerFn({ method: "POST" })
       canal: data.canal,
       resumen,
     });
-    return { numero_pedido: numero as string };
+    return { numero_pedido: numero as string, token: await signPedidoToken(numero as string) };
   });
 
 
@@ -54,6 +61,8 @@ export const crearPreorden = createServerFn({ method: "POST" })
 export const getPedido = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => numeroPedidoSchema.parse(d))
   .handler(async ({ data }) => {
+    // El número de pedido es secuencial: exigimos además un token firmado.
+    await verifyPedidoToken(data.t, data.numero);
     const sb = await admin();
     const { data: row, error } = await sb
       .from("bitacora")
@@ -216,7 +225,7 @@ export const bandejaSeguimiento = createServerFn({ method: "POST" })
           estado: p.estado,
           fecha: p.created_at,
           descripcion: p.descripcion,
-          documento: `/pedido/${p.numero_pedido}`,
+          documento: `/pedido/${p.numero_pedido}?t=${encodeURIComponent(await signPedidoToken(p.numero_pedido))}`,
         });
       }
     }

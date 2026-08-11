@@ -46,7 +46,10 @@ export const updatePedidoSchema = z.object({
 });
 
 export const tokenIdSchema = z.object({ token: z.string().min(1), id: z.string().uuid() });
-export const numeroPedidoSchema = z.object({ numero: z.string().trim().min(6).max(40) });
+export const numeroPedidoSchema = z.object({
+  numero: z.string().trim().min(6).max(40),
+  t: z.string().min(10),
+});
 export const agendaSchema = z.object({ token: z.string().min(1), fecha: z.string().min(10).max(10) });
 
 export function resumenItems(items: PreordenItem[]) {
