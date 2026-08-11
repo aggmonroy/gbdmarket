@@ -461,3 +461,82 @@ export const obtenerConsolidado = createServerFn({ method: "POST" })
     const { consolidado } = await import("./informes.server");
     return consolidado(data.inicioFiscal, data.tipo, data.trimestre);
   });
+
+/* ------------------- aprobación de la vista de gerencia ------------------- */
+
+/** Habilita o retira la vista del informe del mes para la gerencia. */
+export const aprobarVistaGerente = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    tokenSchema.extend({ periodo: z.string().regex(periodoRe), visible: z.boolean() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const s = await escritura(data.token);
+    const db = await admin();
+    await informeDe(data.periodo);
+    const { error } = await db
+      .from("informes_mensuales")
+      .update({
+        visible_gerente: data.visible,
+        aprobado_en: data.visible ? new Date().toISOString() : null,
+        aprobado_por: data.visible ? s.colaboradorId ?? null : null,
+      })
+      .eq("periodo", data.periodo);
+    if (error) throw new Error(error.message);
+    return { ok: true, visible: data.visible };
+  });
+
+/* --------------------------- alertas e históricos --------------------------- */
+
+/** Seguimiento de alertas de todos los períodos. Solo administración. */
+export const seguimientoAlertas = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => tokenSchema.parse(d))
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const { data: alertas } = await db
+      .from("informe_alertas")
+      .select("*")
+      .order("periodo", { ascending: false })
+      .order("meses_arrastre", { ascending: false })
+      .limit(1000);
+    return { alertas: (alertas ?? []) as any[] };
+  });
+
+/** Marca una alerta como corregida, descartada o nuevamente abierta. */
+export const actualizarAlerta = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    tokenSchema
+      .extend({
+        id: z.string().uuid(),
+        estado: z.enum(["abierta", "corregida", "descartada"]),
+        nota: z.string().max(2000).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const { error } = await db
+      .from("informe_alertas")
+      .update({
+        estado: data.estado,
+        nota: data.nota ?? null,
+        resuelto_en: data.estado === "abierta" ? null : new Date().toISOString(),
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Históricos mensuales de ventas, recibos, morosidad, clientes e Instagram. */
+export const historicosMensuales = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => tokenSchema.parse(d))
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const [{ data: historicos }, { data: series }] = await Promise.all([
+      db.from("informe_historicos").select("periodo, metricas, updated_at").order("periodo", { ascending: false }),
+      db.from("informe_series").select("serie, periodo, datos"),
+    ]);
+    return { historicos: (historicos ?? []) as any[], series: (series ?? []) as any[] };
+  });
