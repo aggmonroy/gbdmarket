@@ -154,7 +154,21 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
             {esAdmin && <TabsTrigger value="textos">Textos y gestión</TabsTrigger>}
             <TabsTrigger value="imprimir">Versión imprimible</TabsTrigger>
             <TabsTrigger value="consolidado">Trimestral / anual</TabsTrigger>
+            {esAdmin && <TabsTrigger value="historico">Histórico</TabsTrigger>}
           </TabsList>
+
+          {esAdmin && (
+            <TabsContent value="historico" className="pt-4">
+              <HistorialInformes
+                token={sesion.token}
+                onCambio={() => {
+                  qc.invalidateQueries({ queryKey: ["informe"] });
+                }}
+                onVerPeriodo={setPeriodo}
+              />
+            </TabsContent>
+          )}
+
 
           {esAdmin && (
             <TabsContent value="carga" className="space-y-4 pt-4">

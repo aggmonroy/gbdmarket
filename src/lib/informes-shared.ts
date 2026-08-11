@@ -51,19 +51,44 @@ export const VENDEDORES: Record<string, string> = {
 };
 export const VENDEDOR_POR_DEFECTO = "17";
 
+/**
+ * Sucursales por prefijo del usuario de caja.
+ * TOY = Tonosí · CM = Casa Matriz · LB = Línea Blanca
+ */
+export const SUCURSAL_POR_PREFIJO: { prefijo: string; sucursal: string }[] = [
+  { prefijo: "TOY", sucursal: "Tonosí" },
+  { prefijo: "CM", sucursal: "Casa Matriz" },
+  { prefijo: "LB", sucursal: "Línea Blanca" },
+];
+
+/** Un usuario de caja siempre tiene la forma PREFIJO + iniciales/apellido. */
+export const RE_CODIGO_CAJERO = /^(?:TOY|CM|LB)[A-ZÑ]{2,18}$/;
+
+export function esCodigoCajero(codigo: string) {
+  return RE_CODIGO_CAJERO.test(codigo.toUpperCase());
+}
+
 /** Códigos de cajero conocidos y su colaborador. */
 export const CAJEROS: Record<string, string> = {
-  LBAGOMEZ: "Ana Gómez",
-  LBSTAYLOR: "Sebastián Taylor",
-  LBVJIMENEZ: "Víctor Jiménez",
-  LBMDIAZ: "Manuel Díaz",
-  CMHDIAZ: "Caja municipal H. Díaz",
-  CMLJIMENEZ: "Caja municipal L. Jiménez",
-  CMLRODRIGUEZ: "Caja municipal L. Rodríguez",
-  CMNBARAHONA: "Caja municipal N. Barahona",
-  TOYGARCIA: "Caja Tonosí Y. García",
-  TOYNUNEZ: "Caja Tonosí Y. Núñez",
+  LBAGOMEZ: "Ana Gómez (Línea Blanca)",
+  LBSTAYLOR: "Sebastián Taylor (Línea Blanca)",
+  LBMDIAZ: "Manuel Díaz (Línea Blanca)",
+  LBVJIMENEZ: "Víctor Jiménez (Línea Blanca)",
+  CMHDIAZ: "H. Díaz (Casa Matriz)",
+  CMLJIMENEZ: "L. Jiménez (Casa Matriz)",
+  CMLRODRIGUEZ: "L. Rodríguez (Casa Matriz)",
+  CMNBARAHONA: "N. Barahona (Casa Matriz)",
+  TOYGARCIA: "Y. García (Tonosí)",
+  TOYNUNEZ: "Y. Núñez (Tonosí)",
 };
+
+/** Nombre visible de un cajero; los usuarios nuevos se rotulan por su sucursal. */
+export function nombreCajero(codigo: string) {
+  const c = codigo.toUpperCase();
+  if (CAJEROS[c]) return CAJEROS[c];
+  const s = SUCURSAL_POR_PREFIJO.find((p) => c.startsWith(p.prefijo));
+  return s ? `${c} (${s.sucursal})` : c;
+}
 
 export const REPORTES = [
   { id: "repfacmes", nombre: "REPFACMES — Resumen mensual de ventas y recibos" },

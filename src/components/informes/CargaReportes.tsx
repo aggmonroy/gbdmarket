@@ -7,11 +7,11 @@ import { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { CheckCircle2, FileUp, Loader2 } from "lucide-react";
+import { CheckCircle2, FileUp, Loader2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cargarReporte } from "@/lib/informes.functions";
+import { cargarReporte, eliminarReporte } from "@/lib/informes.functions";
 import { extraerTexto } from "@/lib/informes-archivos";
 import { REPORTES, bal, type InformeDatos } from "@/lib/informes-shared";
 
@@ -39,6 +39,7 @@ export function CargaReportes({
   onCargado: () => void;
 }) {
   const cargar = useServerFn(cargarReporte);
+  const borrarFn = useServerFn(eliminarReporte);
   const [enCurso, setEnCurso] = useState<string | null>(null);
   const refs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -56,6 +57,16 @@ export function CargaReportes({
     onSettled: () => setEnCurso(null),
   });
 
+  const borrar = useMutation({
+    mutationFn: (reporte: string) => borrarFn({ data: { token, periodo, reporte } }) as any,
+    onSuccess: () => {
+      toast.success("Datos del reporte eliminados");
+      onCargado();
+    },
+    onError: (e: any) => toast.error(e?.message ?? "No se pudo eliminar el reporte"),
+    onSettled: () => setEnCurso(null),
+  });
+
   return (
     <Card>
       <CardHeader>
@@ -70,7 +81,7 @@ export function CargaReportes({
         {REPORTES.map((r) => {
           const cargado = Boolean((datos as any)[CLAVE_EN_DATOS[r.id] as string]);
           const ultimo = archivos.find((a) => a.reporte === r.id);
-          const ocupado = enCurso === r.id && subir.isPending;
+          const ocupado = enCurso === r.id && (subir.isPending || borrar.isPending);
           return (
             <div key={r.id} className="rounded-md border border-border p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -90,16 +101,34 @@ export function CargaReportes({
                     </div>
                   )}
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={ocupado}
-                  onClick={() => refs.current[r.id]?.click()}
-                >
-                  {ocupado ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileUp className="mr-2 h-4 w-4" />}
-                  {cargado ? "Reemplazar" : "Cargar"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={ocupado}
+                    onClick={() => refs.current[r.id]?.click()}
+                  >
+                    {ocupado ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileUp className="mr-2 h-4 w-4" />}
+                    {cargado ? "Reemplazar" : "Cargar"}
+                  </Button>
+                  {(cargado || ultimo) && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      disabled={ocupado}
+                      title="Eliminar los datos reconocidos de este reporte"
+                      onClick={() => {
+                        if (!window.confirm(`¿Eliminar los datos reconocidos de ${r.nombre}?`)) return;
+                        setEnCurso(r.id);
+                        borrar.mutate(r.id);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
+
 
               {ultimo?.resumen && (
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
