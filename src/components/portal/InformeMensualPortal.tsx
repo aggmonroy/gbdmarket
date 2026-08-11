@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { FileBarChart, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { FileBarChart, Loader2, RefreshCw, Sparkles, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,10 @@ import { SeriesManuales } from "@/components/informes/SeriesManuales";
 import { TotalesEditables } from "@/components/informes/TotalesEditables";
 
 import {
+  generarExplicaciones,
   generarInforme,
+  guardarExplicacion,
+  guardarLayout,
   guardarTextos,
   obtenerConsolidado,
   obtenerInforme,
@@ -41,6 +44,9 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
   const gestionFn = useServerFn(regenerarGestion);
   const textosFn = useServerFn(guardarTextos);
   const consolidadoFn = useServerFn(obtenerConsolidado);
+  const explicacionesFn = useServerFn(generarExplicaciones);
+  const explicacionFn = useServerFn(guardarExplicacion);
+  const layoutFn = useServerFn(guardarLayout);
 
   const inicial = periodoActual();
   const [periodo, setPeriodo] = useState(inicial);
@@ -76,6 +82,15 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
       refrescar();
     },
     onError: (e: any) => toast.error(e?.message ?? "No se pudo actualizar la gestión"),
+  });
+
+  const explicacionesMut = useMutation({
+    mutationFn: () => explicacionesFn({ data: { token: sesion.token, periodo } }) as any,
+    onSuccess: () => {
+      toast.success("Explicaciones generadas con IA");
+      refrescar();
+    },
+    onError: (e: any) => toast.error(e?.message ?? "No se pudieron generar las explicaciones"),
   });
 
   const anios = useMemo(() => {
