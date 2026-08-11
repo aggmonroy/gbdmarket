@@ -388,7 +388,13 @@ export const generarInforme = createServerFn({ method: "POST" })
       })
       .eq("periodo", data.periodo);
     if (error) throw new Error(error.message);
-    return { ok: true, datos, narrativa, gestion };
+
+    // Histórico: seguimiento de alertas (con arrastres) y fotografía del mes.
+    const hist = await import("./informes-alertas.server");
+    const alertas = await hist.sincronizarAlertas(data.periodo, datos);
+    await hist.guardarHistorico(data.periodo, datos);
+
+    return { ok: true, datos, narrativa, gestion, alertas };
   });
 
 /** Vuelve a generar el informe de gestión operativa con las acciones del portal. */
