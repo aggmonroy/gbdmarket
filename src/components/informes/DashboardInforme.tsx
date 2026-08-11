@@ -63,12 +63,132 @@ const tooltipStyle = {
   },
 } as const;
 
+/** Escala de las gráficas de la tarjeta actual (ajuste manual del dashboard). */
+const EscalaCtx = createContext(1);
+
 function Grafico({ children, alto = 190 }: { children: React.ReactElement; alto?: number }) {
+  const escala = useContext(EscalaCtx);
   return (
-    <div className="rounded-xl border border-border bg-muted/20 p-2" style={{ height: alto }}>
+    <div className="rounded-xl border border-border bg-muted/20 p-2" style={{ height: Math.round(alto * escala) }}>
       <ResponsiveContainer width="100%" height="100%">
         {children}
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+type Edicion = {
+  explicacion: (id: SeccionId, texto: string) => void;
+  tamano: (id: SeccionId, ancho: number, escala: number) => void;
+};
+
+/** Explicación de la tabla: texto de IA con edición manual (solo dashboard). */
+function ExplicacionTabla({
+  id,
+  texto,
+  edicion,
+}: {
+  id: SeccionId;
+  texto?: string;
+  edicion?: Edicion;
+}) {
+  const [borrador, setBorrador] = useState(texto ?? "");
+  const [editando, setEditando] = useState(false);
+  useEffect(() => setBorrador(texto ?? ""), [texto]);
+
+  if (!edicion) {
+    if (!texto) return null;
+    return (
+      <p className="rounded-xl border border-border bg-muted/25 p-2.5 text-xs leading-relaxed">{texto}</p>
+    );
+  }
+
+  if (!editando) {
+    return (
+      <div className="rounded-xl border border-border bg-muted/25 p-2.5 print:hidden">
+        <p className="text-xs leading-relaxed">
+          {texto || <span className="text-muted-foreground">Sin explicación. Genera con IA o escríbela.</span>}
+        </p>
+        <button
+          type="button"
+          onClick={() => setEditando(true)}
+          className="mt-1 text-[11px] font-medium text-primary hover:underline"
+        >
+          Editar explicación
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5 rounded-xl border border-primary/30 bg-primary/5 p-2.5 print:hidden">
+      <Textarea rows={3} value={borrador} onChange={(e) => setBorrador(e.target.value)} className="text-xs" />
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          onClick={() => {
+            edicion.explicacion(id, borrador);
+            setEditando(false);
+          }}
+        >
+          Guardar
+        </Button>
+        <Button size="sm" variant="ghost" onClick={() => { setBorrador(texto ?? ""); setEditando(false); }}>
+          Cancelar
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** Controles manuales de tamaño de la tarjeta. */
+function ControlesTamano({
+  id,
+  ancho,
+  escala,
+  edicion,
+}: {
+  id: SeccionId;
+  ancho: number;
+  escala: number;
+  edicion: Edicion;
+}) {
+  const anchos = [50, 75, 100];
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 print:hidden">
+      <span className="text-[10px] uppercase text-muted-foreground">Ancho</span>
+      {anchos.map((a) => (
+        <button
+          key={a}
+          type="button"
+          onClick={() => edicion.tamano(id, a, escala)}
+          className={`rounded-md border px-1.5 py-0.5 text-[10px] font-medium ${
+            ancho === a ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
+          }`}
+        >
+          {a}%
+        </button>
+      ))}
+      <span className="ml-1 text-[10px] uppercase text-muted-foreground">Alto</span>
+      <button
+        type="button"
+        aria-label="Reducir alto"
+        onClick={() => edicion.tamano(id, ancho, Math.max(0.6, Math.round((escala - 0.1) * 10) / 10))}
+        className="rounded-md border border-border p-0.5 text-muted-foreground hover:text-primary"
+      >
+        <Minus className="h-3 w-3" />
+      </button>
+      <span className="w-8 text-center text-[10px] tabular-nums text-muted-foreground">
+        {Math.round(escala * 100)}%
+      </span>
+      <button
+        type="button"
+        aria-label="Aumentar alto"
+        onClick={() => edicion.tamano(id, ancho, Math.min(2, Math.round((escala + 0.1) * 10) / 10))}
+        className="rounded-md border border-border p-0.5 text-muted-foreground hover:text-primary"
+      >
+        <Plus className="h-3 w-3" />
+      </button>
     </div>
   );
 }
@@ -78,26 +198,45 @@ function Seccion({
   titulo,
   descripcion,
   visible,
+  explicaciones,
+  layout,
+  edicion,
   children,
 }: {
   id: SeccionId;
   titulo: string;
   descripcion?: string;
   visible: Set<SeccionId> | null;
+  explicaciones?: Record<string, string>;
+  layout?: Record<string, { ancho?: number; escala?: number }>;
+  edicion?: Edicion;
   children: React.ReactNode;
 }) {
   if (visible && !visible.has(id)) return null;
+  const ancho = layout?.[id]?.ancho ?? 100;
+  const escala = layout?.[id]?.escala ?? 1;
   return (
-    <Card className="break-inside-avoid overflow-hidden border-border/70 shadow-soft">
-      <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
-        <CardTitle className="flex items-center gap-2 text-base font-semibold">
-          <span className="h-4 w-1.5 rounded-full bg-gradient-primary" aria-hidden />
-          {titulo}
-        </CardTitle>
-        {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
-      </CardHeader>
-      <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">{children}</CardContent>
-    </Card>
+    <div
+      className="min-w-0 break-inside-avoid"
+      style={{ flex: `1 1 ${ancho}%`, maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)` }}
+    >
+      <EscalaCtx.Provider value={escala}>
+        <Card className="h-full break-inside-avoid overflow-hidden border-border/70 shadow-soft">
+          <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
+            <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <span className="h-4 w-1.5 rounded-full bg-gradient-primary" aria-hidden />
+              {titulo}
+            </CardTitle>
+            {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
+            {edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
+          </CardHeader>
+          <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">
+            {children}
+            <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
+          </CardContent>
+        </Card>
+      </EscalaCtx.Provider>
+    </div>
   );
 }
 
