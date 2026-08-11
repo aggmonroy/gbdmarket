@@ -99,7 +99,7 @@ function Seccion({
 
 function Tabla({ head, rows, foot, alto = 200 }: { head: string[]; rows: (string | number)[][]; foot?: (string | number)[]; alto?: number }) {
   return (
-    <div className="overflow-auto rounded-xl border border-border print:max-h-none" style={{ maxHeight: alto }}>
+    <div className="tabla-scroll overflow-auto rounded-xl border border-border" style={{ maxHeight: alto }}>
       <table className="w-full min-w-[420px] border-collapse text-xs sm:text-sm">
         <thead className="sticky top-0 z-10">
           <tr className="bg-primary/8 text-primary">

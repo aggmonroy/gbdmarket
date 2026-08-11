@@ -142,3 +142,11 @@
   .informe-print .recharts-wrapper { page-break-inside: avoid; }
   .informe-print [class*="rounded"] { box-shadow: none !important; }
 }
+
+/* Tablas del informe: scroll interno en pantalla, completas al imprimir. */
+@media print {
+  .tabla-scroll {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
