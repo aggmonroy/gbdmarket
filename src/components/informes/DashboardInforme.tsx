@@ -19,9 +19,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AlertTriangle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PreambuloInforme } from "./PreambuloInforme";
 import {
   MESES_PERIODO,
   TRIMESTRES,
@@ -222,6 +221,12 @@ export function DashboardInforme({
         return fila;
       })
     : [];
+
+  /** Modelos más vendidos del mes, con su categoría del catálogo. */
+  const topModelos = (d.rotacion ?? [])
+    .flatMap((c) => c.modelos.map((m) => ({ ...m, categoria: c.categoria })))
+    .sort((a, b) => b.unidades - a.unidades || b.ventas - a.ventas)
+    .slice(0, 15);
 
   const vendedores = (f?.por_vendedor ?? []).map((v) => ({
     ...v,
