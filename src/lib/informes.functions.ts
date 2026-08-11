@@ -470,7 +470,7 @@ export const aprobarVistaGerente = createServerFn({ method: "POST" })
     tokenSchema.extend({ periodo: z.string().regex(periodoRe), visible: z.boolean() }).parse(d),
   )
   .handler(async ({ data }) => {
-    const s = await escritura(data.token);
+    await escritura(data.token);
     const db = await admin();
     await informeDe(data.periodo);
     const { error } = await db
@@ -478,7 +478,7 @@ export const aprobarVistaGerente = createServerFn({ method: "POST" })
       .update({
         visible_gerente: data.visible,
         aprobado_en: data.visible ? new Date().toISOString() : null,
-        aprobado_por: data.visible ? s.colaboradorId ?? null : null,
+        aprobado_por: null,
       })
       .eq("periodo", data.periodo);
     if (error) throw new Error(error.message);
