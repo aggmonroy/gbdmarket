@@ -16,6 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { CargaReportes } from "@/components/informes/CargaReportes";
 import { DashboardInforme } from "@/components/informes/DashboardInforme";
 import { HistorialInformes } from "@/components/informes/HistorialInformes";
+import { AprobacionGerente } from "@/components/informes/AprobacionGerente";
+import { SeguimientoAlertas, etiquetaPeriodo } from "@/components/informes/SeguimientoAlertas";
+import { HistoricosPanel } from "@/components/informes/HistoricosPanel";
 import { InformeImprimible } from "@/components/informes/InformeImprimible";
 import { SeriesManuales } from "@/components/informes/SeriesManuales";
 import { TotalesEditables } from "@/components/informes/TotalesEditables";
@@ -49,7 +52,10 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
     queryFn: () => obtener({ data: { token: sesion.token, periodo } }) as any,
   });
 
-  const informe: InformeMensual | null = data?.informe ?? null;
+  const informe: (InformeMensual & { visible_gerente?: boolean; aprobado_en?: string | null }) | null =
+    data?.informe ?? null;
+  const bloqueo: "periodo" | "aprobacion" | null = data?.bloqueo ?? null;
+  const arrastres = ((data?.alertas ?? []) as any[]).filter((a) => a.estado === "abierta" && a.meses_arrastre > 0);
   const series = data?.series ?? [];
   const { inicioFiscal, mesNombre } = infoPeriodo(periodo);
   const refrescar = () => qc.invalidateQueries({ queryKey: ["informe", periodo] });
@@ -141,10 +147,38 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
 
       {isLoading && <p className="text-sm text-muted-foreground">Cargando informe…</p>}
 
-      {!isLoading && !informe && (
+      {!isLoading && !informe && bloqueo === "periodo" && (
+        <p className="text-sm text-muted-foreground">
+          La gerencia solo puede consultar el informe del mes en curso.
+        </p>
+      )}
+
+      {!isLoading && !informe && bloqueo === "aprobacion" && (
+        <p className="text-sm text-muted-foreground">
+          El informe de {mesNombre} {anio} todavía no ha sido aprobado por la administración para la vista de gerencia.
+        </p>
+      )}
+
+      {!isLoading && !informe && !bloqueo && (
         <p className="text-sm text-muted-foreground">
           Todavía no hay informe de {mesNombre} {anio}. La administración debe cargar los reportes y generarlo.
         </p>
+      )}
+
+      {esAdmin && arrastres.length > 0 && (
+        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm print:hidden">
+          <div className="font-semibold text-destructive">
+            {arrastres.length} alerta(s) de cuentas con errores sin corregir
+          </div>
+          <ul className="mt-1 list-disc pl-5 text-xs">
+            {arrastres.slice(0, 6).map((a: any) => (
+              <li key={a.id}>
+                {a.cliente ?? a.tipo}: error de arrastre del mes de {etiquetaPeriodo(a.primer_periodo)} (
+                {a.meses_arrastre} mes{a.meses_arrastre === 1 ? "" : "es"} sin corregir)
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {informe && (
@@ -155,8 +189,36 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
             {esAdmin && <TabsTrigger value="textos">Textos y gestión</TabsTrigger>}
             <TabsTrigger value="imprimir">Versión imprimible</TabsTrigger>
             <TabsTrigger value="consolidado">Trimestral / anual</TabsTrigger>
+            {esAdmin && <TabsTrigger value="alertas">Seguimiento de alertas</TabsTrigger>}
+            {esAdmin && <TabsTrigger value="historicos">Históricos</TabsTrigger>}
+            {esAdmin && <TabsTrigger value="gerente">Aprobar vista de gerente</TabsTrigger>}
             {esAdmin && <TabsTrigger value="historico">Histórico</TabsTrigger>}
           </TabsList>
+
+          {esAdmin && (
+            <TabsContent value="alertas" className="pt-4">
+              <SeguimientoAlertas token={sesion.token} />
+            </TabsContent>
+          )}
+
+          {esAdmin && (
+            <TabsContent value="historicos" className="pt-4">
+              <HistoricosPanel token={sesion.token} />
+            </TabsContent>
+          )}
+
+          {esAdmin && (
+            <TabsContent value="gerente" className="pt-4">
+              <AprobacionGerente
+                token={sesion.token}
+                periodo={periodo}
+                visible={Boolean(informe.visible_gerente)}
+                aprobadoEn={informe.aprobado_en ?? null}
+                estado={informe.estado}
+                onCambio={refrescar}
+              />
+            </TabsContent>
+          )}
 
           {esAdmin && (
             <TabsContent value="historico" className="pt-4">
