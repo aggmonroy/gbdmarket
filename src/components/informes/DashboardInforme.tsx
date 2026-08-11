@@ -374,10 +374,14 @@ export function DashboardInforme({
         />
       </Seccion>
 
-
-      <Seccion id="lineas" titulo="Ventas por línea de negocio" visible={visible}>
+      <Seccion
+        id="lineas"
+        titulo="Ventas por línea de negocio"
+        descripcion="Participación de cada línea en las ventas y la ganancia del mes."
+        visible={visible}
+      >
         {d.lineas?.length ? (
-          <>
+          <div className="grid gap-3 lg:grid-cols-2">
             <Tabla
               head={["Línea", "Unidades", "Ventas", "Ganancia"]}
               rows={d.lineas.map((l) => [l.linea, fmt(l.unidades), bal(l.ventas), bal(l.ganancia)])}
@@ -388,36 +392,53 @@ export function DashboardInforme({
                 bal(d.lineas.reduce((s, l) => s + l.ganancia, 0)),
               ]}
             />
-            <div className="h-52">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={d.lineas} dataKey="ventas" nameKey="linea" outerRadius={80} label={(e: any) => e.linea}>
-                    {d.lineas.map((_, i) => (
-                      <Cell key={i} fill={COLORES[i % COLORES.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(v: any) => bal(Number(v))} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </>
+            <Grafico alto={230}>
+              <PieChart>
+                <Pie data={d.lineas} dataKey="ventas" nameKey="linea" innerRadius={40} outerRadius={78} paddingAngle={3}>
+                  {d.lineas.map((_, i) => (
+                    <Cell key={i} fill={COLORES[i % COLORES.length]} />
+                  ))}
+                </Pie>
+                <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+                <Legend />
+              </PieChart>
+            </Grafico>
+          </div>
         ) : (
           <p className="text-muted-foreground">Carga el reporte REPARTVEN para ver esta sección.</p>
         )}
       </Seccion>
 
-      <Seccion id="rotacion" titulo="Rotación de productos · Top 10 categorías" visible={visible}>
+      <Seccion
+        id="rotacion"
+        titulo="Rotación de productos · Top 10 categorías"
+        descripcion="Categorías con mayor movimiento y sus modelos más vendidos."
+        visible={visible}
+      >
         {d.rotacion?.length ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            <Grafico alto={Math.max(200, d.rotacion.length * 28 + 40)}>
+              <BarChart
+                layout="vertical"
+                data={d.rotacion.map((c) => ({ categoria: c.categoria, Ventas: c.ventas }))}
+                margin={{ top: 5, right: 12, bottom: 0, left: 8 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                <XAxis type="number" {...ejeY} />
+                <YAxis type="category" dataKey="categoria" width={110} fontSize={9} />
+                <Tooltip {...tooltipStyle} formatter={(v: any) => bal(Number(v))} />
+                <Bar dataKey="Ventas" fill={COLORES[0]} radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </Grafico>
             {d.rotacion.map((c, i) => (
-              <div key={c.categoria} className="rounded-md border border-border p-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+              <div key={c.categoria} className="break-inside-avoid rounded-xl border border-border p-2.5">
+                <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm font-semibold">
                     {i + 1}. {c.categoria}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <Badge variant="outline" className="tabular-nums">
                     {fmt(c.unidades)} unidades · {bal(c.ventas)}
-                  </div>
+                  </Badge>
                 </div>
                 <Tabla
                   head={["Modelo / código", "Descripción", "Unid.", "Ventas"]}
@@ -430,6 +451,7 @@ export function DashboardInforme({
           <p className="text-muted-foreground">Carga el reporte REPARTVEN para ver la rotación.</p>
         )}
       </Seccion>
+
 
       <Seccion id="historicas" titulo="Cuadro comparativo de ventas históricas de la mueblería" visible={visible}>
         <Tabla
