@@ -76,7 +76,7 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
 
   const [tipo, setTipo] = useState<"trimestral" | "anual">("trimestral");
   const [trimestre, setTrimestre] = useState("1");
-  const consolidado = useMutation({
+  const consolidado = useMutation<any>({
     mutationFn: () =>
       consolidadoFn({
         data: { token: sesion.token, inicioFiscal, tipo, trimestre: Number(trimestre) },
