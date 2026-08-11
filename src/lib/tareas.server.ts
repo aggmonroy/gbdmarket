@@ -1,4 +1,4 @@
-import { admin } from "./garantias.server";
+import { admin, signPedidoToken } from "./garantias.server";
 import { TIPO_TAREA_PREFIJO, type OrigenTarea, type TipoTarea } from "./tareas-shared";
 
 export const hoyISO = () => new Date().toISOString().slice(0, 10);
@@ -85,6 +85,6 @@ export async function crearTareaDeSolicitud(opts: {
     titulo: `Atender pedido ${opts.numeroPedido} · ${opts.cliente}`,
     descripcion: `${opts.canal === "bordados" ? "Pedido de bordados" : "Pedido de línea blanca"}: ${opts.resumen}`,
     bitacoraId: opts.bitacoraId,
-    documentoUrl: `/pedido/${opts.numeroPedido}`,
+    documentoUrl: `/pedido/${opts.numeroPedido}?t=${encodeURIComponent(await signPedidoToken(opts.numeroPedido))}`,
   });
 }
