@@ -17,6 +17,8 @@ import { CargaReportes } from "@/components/informes/CargaReportes";
 import { DashboardInforme } from "@/components/informes/DashboardInforme";
 import { InformeImprimible } from "@/components/informes/InformeImprimible";
 import { SeriesManuales } from "@/components/informes/SeriesManuales";
+import { TotalesEditables } from "@/components/informes/TotalesEditables";
+
 import {
   generarInforme,
   guardarTextos,
