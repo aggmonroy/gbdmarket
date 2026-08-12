@@ -518,7 +518,7 @@ function Tabla({
   const [abierta, setAbierta] = useState(false);
   return (
     <div className="group relative w-full">
-      <div className="tabla-informe w-full overflow-hidden rounded-xl border border-border">
+      <div className="tabla-informe w-full max-w-full overflow-x-auto rounded-xl border border-border print:overflow-visible">
         <TablaBase head={head} rows={rows} foot={foot} />
       </div>
       <button
