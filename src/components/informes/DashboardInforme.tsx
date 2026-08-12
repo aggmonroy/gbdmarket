@@ -315,7 +315,7 @@ function Bloque({
   children: React.ReactNode;
 }) {
   const padre = useContext(EscalaCtx);
-  const { ref, ancho, escala, redimensionar, finalizar } = useRedimension(
+  const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
     layout?.[clave]?.ancho ?? baseAncho,
     layout?.[clave]?.escala ?? 1,
     edicion ? (a, e) => edicion.tamano(clave, a, e) : undefined,
@@ -332,19 +332,20 @@ function Bloque({
       }}
     >
       <EscalaCtx.Provider value={padre * escala}>
-        <div className="min-w-0">{children}</div>
+        <div className="min-w-0 overflow-hidden">{children}</div>
         {edicion && (
           <>
-            <Tirador lado="izq" contenedor={ref} onDrag={redimensionar(-1)} onFin={finalizar} />
-            <Tirador lado="der" contenedor={ref} onDrag={redimensionar(1)} onFin={finalizar} />
-            <Tirador lado="abajo" contenedor={ref} onDrag={redimensionar(0, true)} onFin={finalizar} />
-            <Tirador lado="esq" contenedor={ref} onDrag={redimensionar(1, true)} onFin={finalizar} />
+            <Tirador lado="izq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(-1)} onFin={finalizar} />
+            <Tirador lado="der" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1)} onFin={finalizar} />
+            <Tirador lado="abajo" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(0, true)} onFin={finalizar} />
+            <Tirador lado="esq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1, true)} onFin={finalizar} />
           </>
         )}
       </EscalaCtx.Provider>
     </div>
   );
 }
+
 
 /**
  * Envuelve el contenido de una tarjeta en bloques redimensionables: las
