@@ -69,13 +69,19 @@ const EscalaCtx = createContext(1);
 function Grafico({ children, alto = 190 }: { children: React.ReactElement; alto?: number }) {
   const escala = useContext(EscalaCtx);
   return (
-    <div className="rounded-xl border border-border bg-muted/20 p-2" style={{ height: Math.round(alto * escala) }}>
-      <ResponsiveContainer width="100%" height="100%">
-        {children}
-      </ResponsiveContainer>
+    <div
+      className="w-full min-w-0 overflow-hidden rounded-xl border border-border bg-muted/20 p-2"
+      style={{ height: Math.max(140, Math.round(alto * escala)) }}
+    >
+      <div className="h-full w-full min-w-0 overflow-hidden [&_.recharts-wrapper]:!max-w-full">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={40}>
+          {children}
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
+
 
 type Edicion = {
   explicacion: (id: SeccionId, texto: string) => void;
@@ -200,16 +206,19 @@ function Tirador({
   lado,
   onDrag,
   onFin,
+  onInicio,
   contenedor,
 }: {
   lado: "izq" | "der" | "abajo" | "esq";
   onDrag: (dx: number, dy: number, anchoContenedor: number) => void;
   onFin: () => void;
+  onInicio?: () => void;
   contenedor: React.RefObject<HTMLDivElement | null>;
 }) {
   const iniciar = (e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    onInicio?.();
     const x0 = e.clientX;
     const y0 = e.clientY;
     const ancho = contenedor.current?.parentElement?.clientWidth ?? contenedor.current?.clientWidth ?? 1;
@@ -225,16 +234,25 @@ function Tirador({
     window.addEventListener("pointerup", soltar);
   };
 
+
   const base =
-    "absolute z-20 print:hidden rounded-full bg-primary/0 hover:bg-primary/40 transition-colors touch-none";
+    "absolute z-30 print:hidden rounded-full bg-primary/25 hover:bg-primary/60 transition-colors touch-none";
   const pos = {
-    izq: "left-0 top-6 bottom-6 w-1.5 cursor-ew-resize",
-    der: "right-0 top-6 bottom-6 w-1.5 cursor-ew-resize",
-    abajo: "bottom-0 left-6 right-6 h-1.5 cursor-ns-resize",
-    esq: "bottom-0 right-0 h-3.5 w-3.5 cursor-nwse-resize bg-primary/25 hover:bg-primary/60",
+    izq: "left-[-3px] top-5 bottom-5 w-2 cursor-ew-resize",
+    der: "right-[-3px] top-5 bottom-5 w-2 cursor-ew-resize",
+    abajo: "bottom-[-3px] left-5 right-5 h-2 cursor-ns-resize",
+    esq: "bottom-[-3px] right-[-3px] h-4 w-4 cursor-nwse-resize bg-primary/45 hover:bg-primary/80",
   }[lado];
 
-  return <div role="separator" aria-label="Redimensionar tarjeta" onPointerDown={iniciar} className={`${base} ${pos}`} />;
+  return (
+    <div
+      role="separator"
+      aria-label="Redimensionar"
+      title="Arrastra para redimensionar"
+      onPointerDown={iniciar}
+      className={`${base} ${pos}`}
+    />
+  );
 }
 
 const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
@@ -242,29 +260,45 @@ const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(
 /** Lógica común de arrastre para tarjetas y bloques internos. */
 function useRedimension(anchoGuardado: number, escalaGuardada: number, guardar?: (a: number, e: number) => void) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [arrastre, setArrastre] = useState<{ ancho: number; escala: number } | null>(null);
-  const ancho = arrastre?.ancho ?? anchoGuardado;
-  const escala = arrastre?.escala ?? escalaGuardada;
+  // Override local: se mantiene tras soltar para que el cambio sea inmediato
+  // y no dependa de que el servidor responda.
+  const [local, setLocal] = useState<{ ancho: number; escala: number } | null>(null);
+  const guardadoRef = useRef({ a: anchoGuardado, e: escalaGuardada });
+  useEffect(() => {
+    if (guardadoRef.current.a !== anchoGuardado || guardadoRef.current.e !== escalaGuardada) {
+      guardadoRef.current = { a: anchoGuardado, e: escalaGuardada };
+      setLocal(null);
+    }
+  }, [anchoGuardado, escalaGuardada]);
+
+  const ancho = local?.ancho ?? anchoGuardado;
+  const escala = local?.escala ?? escalaGuardada;
+  const inicio = useRef({ ancho, escala });
 
   const redimensionar =
     (signo: 1 | -1 | 0, dy = false) =>
     (dx: number, dyPx: number, anchoContenedor: number) => {
+      const base0 = inicio.current;
       const nuevoAncho =
-        signo === 0 ? ancho : limitar(anchoGuardado + (signo * dx * 100) / Math.max(1, anchoContenedor), 25, 100);
+        signo === 0 ? base0.ancho : limitar(base0.ancho + (signo * dx * 100) / Math.max(1, anchoContenedor), 25, 100);
       const alto = ref.current?.getBoundingClientRect().height ?? 300;
       const nuevaEscala = dy
-        ? limitar(escalaGuardada * (1 + dyPx / Math.max(120, alto / Math.max(0.4, escalaGuardada))), 0.6, 2)
-        : escalaGuardada;
-      setArrastre({ ancho: Math.round(nuevoAncho), escala: Math.round(nuevaEscala * 100) / 100 });
+        ? limitar(base0.escala * (1 + dyPx / Math.max(120, alto / Math.max(0.4, base0.escala))), 0.6, 2)
+        : base0.escala;
+      setLocal({ ancho: Math.round(nuevoAncho), escala: Math.round(nuevaEscala * 100) / 100 });
     };
 
-  const finalizar = () => {
-    if (arrastre && guardar) guardar(arrastre.ancho, arrastre.escala);
-    setArrastre(null);
+  const comenzar = () => {
+    inicio.current = { ancho, escala };
   };
 
-  return { ref, ancho, escala, redimensionar, finalizar };
+  const finalizar = () => {
+    if (local && guardar) guardar(local.ancho, local.escala);
+  };
+
+  return { ref, ancho, escala, redimensionar, finalizar, comenzar };
 }
+
 
 /** Bloque interno de una tarjeta (tabla, gráfica o texto) redimensionable. */
 function Bloque({
@@ -281,7 +315,7 @@ function Bloque({
   children: React.ReactNode;
 }) {
   const padre = useContext(EscalaCtx);
-  const { ref, ancho, escala, redimensionar, finalizar } = useRedimension(
+  const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
     layout?.[clave]?.ancho ?? baseAncho,
     layout?.[clave]?.escala ?? 1,
     edicion ? (a, e) => edicion.tamano(clave, a, e) : undefined,
@@ -298,19 +332,20 @@ function Bloque({
       }}
     >
       <EscalaCtx.Provider value={padre * escala}>
-        <div className="min-w-0">{children}</div>
+        <div className="min-w-0 overflow-hidden">{children}</div>
         {edicion && (
           <>
-            <Tirador lado="izq" contenedor={ref} onDrag={redimensionar(-1)} onFin={finalizar} />
-            <Tirador lado="der" contenedor={ref} onDrag={redimensionar(1)} onFin={finalizar} />
-            <Tirador lado="abajo" contenedor={ref} onDrag={redimensionar(0, true)} onFin={finalizar} />
-            <Tirador lado="esq" contenedor={ref} onDrag={redimensionar(1, true)} onFin={finalizar} />
+            <Tirador lado="izq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(-1)} onFin={finalizar} />
+            <Tirador lado="der" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1)} onFin={finalizar} />
+            <Tirador lado="abajo" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(0, true)} onFin={finalizar} />
+            <Tirador lado="esq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1, true)} onFin={finalizar} />
           </>
         )}
       </EscalaCtx.Provider>
     </div>
   );
 }
+
 
 /**
  * Envuelve el contenido de una tarjeta en bloques redimensionables: las
@@ -370,7 +405,7 @@ function Seccion({
 }) {
   const anchoGuardado = layout?.[id]?.ancho ?? 100;
   const escalaGuardada = layout?.[id]?.escala ?? 1;
-  const { ref, ancho, escala, redimensionar, finalizar } = useRedimension(
+  const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
     anchoGuardado,
     escalaGuardada,
     edicion ? (a, e) => edicion.tamano(id, a, e) : undefined,
@@ -387,30 +422,31 @@ function Seccion({
       <EscalaCtx.Provider value={escala}>
         <Card className="h-full break-inside-avoid overflow-hidden border-border/70 shadow-soft">
           <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <span className="h-4 w-1.5 rounded-full bg-gradient-primary" aria-hidden />
-              {titulo}
+            <CardTitle className="flex min-w-0 items-center gap-2 text-base font-semibold">
+              <span className="h-4 w-1.5 shrink-0 rounded-full bg-gradient-primary" aria-hidden />
+              <span className="min-w-0 break-words">{titulo}</span>
             </CardTitle>
             {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
             {edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
           </CardHeader>
-          <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">
+          <CardContent className="min-w-0 space-y-3 overflow-hidden pt-3 text-sm [&_p]:text-justify">
             {envolverBloques(children, id, layout, edicion)}
             <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
           </CardContent>
         </Card>
         {edicion && (
           <>
-            <Tirador lado="izq" contenedor={ref} onDrag={redimensionar(-1)} onFin={finalizar} />
-            <Tirador lado="der" contenedor={ref} onDrag={redimensionar(1)} onFin={finalizar} />
-            <Tirador lado="abajo" contenedor={ref} onDrag={redimensionar(0, true)} onFin={finalizar} />
-            <Tirador lado="esq" contenedor={ref} onDrag={redimensionar(1, true)} onFin={finalizar} />
+            <Tirador lado="izq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(-1)} onFin={finalizar} />
+            <Tirador lado="der" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1)} onFin={finalizar} />
+            <Tirador lado="abajo" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(0, true)} onFin={finalizar} />
+            <Tirador lado="esq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1, true)} onFin={finalizar} />
           </>
         )}
       </EscalaCtx.Provider>
     </div>
   );
 }
+
 
 
 
@@ -482,7 +518,7 @@ function Tabla({
   const [abierta, setAbierta] = useState(false);
   return (
     <div className="group relative w-full">
-      <div className="tabla-informe w-full overflow-hidden rounded-xl border border-border">
+      <div className="tabla-informe w-full max-w-full overflow-x-auto rounded-xl border border-border print:overflow-visible">
         <TablaBase head={head} rows={rows} foot={foot} />
       </div>
       <button
