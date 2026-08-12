@@ -405,7 +405,7 @@ function Seccion({
 }) {
   const anchoGuardado = layout?.[id]?.ancho ?? 100;
   const escalaGuardada = layout?.[id]?.escala ?? 1;
-  const { ref, ancho, escala, redimensionar, finalizar } = useRedimension(
+  const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
     anchoGuardado,
     escalaGuardada,
     edicion ? (a, e) => edicion.tamano(id, a, e) : undefined,
@@ -422,30 +422,31 @@ function Seccion({
       <EscalaCtx.Provider value={escala}>
         <Card className="h-full break-inside-avoid overflow-hidden border-border/70 shadow-soft">
           <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <span className="h-4 w-1.5 rounded-full bg-gradient-primary" aria-hidden />
-              {titulo}
+            <CardTitle className="flex min-w-0 items-center gap-2 text-base font-semibold">
+              <span className="h-4 w-1.5 shrink-0 rounded-full bg-gradient-primary" aria-hidden />
+              <span className="min-w-0 break-words">{titulo}</span>
             </CardTitle>
             {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
             {edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
           </CardHeader>
-          <CardContent className="min-w-0 space-y-3 pt-3 text-sm [&_p]:text-justify">
+          <CardContent className="min-w-0 space-y-3 overflow-hidden pt-3 text-sm [&_p]:text-justify">
             {envolverBloques(children, id, layout, edicion)}
             <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
           </CardContent>
         </Card>
         {edicion && (
           <>
-            <Tirador lado="izq" contenedor={ref} onDrag={redimensionar(-1)} onFin={finalizar} />
-            <Tirador lado="der" contenedor={ref} onDrag={redimensionar(1)} onFin={finalizar} />
-            <Tirador lado="abajo" contenedor={ref} onDrag={redimensionar(0, true)} onFin={finalizar} />
-            <Tirador lado="esq" contenedor={ref} onDrag={redimensionar(1, true)} onFin={finalizar} />
+            <Tirador lado="izq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(-1)} onFin={finalizar} />
+            <Tirador lado="der" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1)} onFin={finalizar} />
+            <Tirador lado="abajo" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(0, true)} onFin={finalizar} />
+            <Tirador lado="esq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1, true)} onFin={finalizar} />
           </>
         )}
       </EscalaCtx.Provider>
     </div>
   );
 }
+
 
 
 
