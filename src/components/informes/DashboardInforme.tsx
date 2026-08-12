@@ -728,10 +728,6 @@ function Seccion({
     </div>
   );
 }
-      </EscalaCtx.Provider>
-    </div>
-  );
-}
 
 
 
