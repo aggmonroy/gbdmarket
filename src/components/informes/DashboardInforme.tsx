@@ -263,7 +263,7 @@ function ControlesTamano({
   escala: number;
   edicion: Edicion;
 }) {
-  const anchos = [50, 75, 100];
+  const anchos = [25, 33, 50, 66, 75, 100];
   return (
     <div className="flex flex-wrap items-center gap-1.5 print:hidden">
       <span className="text-[10px] uppercase text-muted-foreground">Ancho</span>
@@ -283,7 +283,7 @@ function ControlesTamano({
       <button
         type="button"
         aria-label="Reducir alto"
-        onClick={() => edicion.tamano(id, ancho, Math.max(0.6, Math.round((escala - 0.1) * 10) / 10))}
+        onClick={() => edicion.tamano(id, ancho, Math.max(0.2, Math.round((escala - 0.1) * 10) / 10))}
         className="rounded-md border border-border p-0.5 text-muted-foreground hover:text-primary"
       >
         <Minus className="h-3 w-3" />
@@ -294,7 +294,7 @@ function ControlesTamano({
       <button
         type="button"
         aria-label="Aumentar alto"
-        onClick={() => edicion.tamano(id, ancho, Math.min(2, Math.round((escala + 0.1) * 10) / 10))}
+        onClick={() => edicion.tamano(id, ancho, Math.min(4, Math.round((escala + 0.1) * 10) / 10))}
         className="rounded-md border border-border p-0.5 text-muted-foreground hover:text-primary"
       >
         <Plus className="h-3 w-3" />
