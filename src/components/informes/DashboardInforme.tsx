@@ -69,13 +69,19 @@ const EscalaCtx = createContext(1);
 function Grafico({ children, alto = 190 }: { children: React.ReactElement; alto?: number }) {
   const escala = useContext(EscalaCtx);
   return (
-    <div className="rounded-xl border border-border bg-muted/20 p-2" style={{ height: Math.round(alto * escala) }}>
-      <ResponsiveContainer width="100%" height="100%">
-        {children}
-      </ResponsiveContainer>
+    <div
+      className="w-full min-w-0 overflow-hidden rounded-xl border border-border bg-muted/20 p-2"
+      style={{ height: Math.max(140, Math.round(alto * escala)) }}
+    >
+      <div className="h-full w-full min-w-0 overflow-hidden [&_.recharts-wrapper]:!max-w-full">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={40}>
+          {children}
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
+
 
 type Edicion = {
   explicacion: (id: SeccionId, texto: string) => void;
