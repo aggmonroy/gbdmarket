@@ -359,47 +359,120 @@ function Tirador({
 
 const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
-/** Lógica común de arrastre para tarjetas y bloques internos. */
-function useRedimension(anchoGuardado: number, escalaGuardada: number, guardar?: (a: number, e: number) => void) {
+type Medidas = { ancho: number; escala: number; dx: number; dy: number };
+
+/** Lógica común de arrastre para tarjetas y bloques internos (tamaño libre y superposición). */
+function useRedimension(
+  guardado: Medidas,
+  guardar?: (m: Medidas) => void,
+) {
   const ref = useRef<HTMLDivElement | null>(null);
   // Override local: se mantiene tras soltar para que el cambio sea inmediato
   // y no dependa de que el servidor responda.
-  const [local, setLocal] = useState<{ ancho: number; escala: number } | null>(null);
-  const guardadoRef = useRef({ a: anchoGuardado, e: escalaGuardada });
+  const [local, setLocal] = useState<Medidas | null>(null);
+  const firma = `${guardado.ancho}|${guardado.escala}|${guardado.dx}|${guardado.dy}`;
+  const firmaRef = useRef(firma);
   useEffect(() => {
-    if (guardadoRef.current.a !== anchoGuardado || guardadoRef.current.e !== escalaGuardada) {
-      guardadoRef.current = { a: anchoGuardado, e: escalaGuardada };
+    if (firmaRef.current !== firma) {
+      firmaRef.current = firma;
       setLocal(null);
     }
-  }, [anchoGuardado, escalaGuardada]);
+  }, [firma]);
 
-  const ancho = local?.ancho ?? anchoGuardado;
-  const escala = local?.escala ?? escalaGuardada;
-  const inicio = useRef({ ancho, escala });
+  const actual: Medidas = local ?? guardado;
+  const inicio = useRef(actual);
 
   const redimensionar =
     (signo: 1 | -1 | 0, dy = false) =>
-    (dx: number, dyPx: number, anchoContenedor: number) => {
+    (dxPx: number, dyPx: number, anchoContenedor: number) => {
       const base0 = inicio.current;
       const nuevoAncho =
-        signo === 0 ? base0.ancho : limitar(base0.ancho + (signo * dx * 100) / Math.max(1, anchoContenedor), 25, 100);
+        signo === 0 ? base0.ancho : limitar(base0.ancho + (signo * dxPx * 100) / Math.max(1, anchoContenedor), 5, 100);
       const alto = ref.current?.getBoundingClientRect().height ?? 300;
       const nuevaEscala = dy
-        ? limitar(base0.escala * (1 + dyPx / Math.max(120, alto / Math.max(0.4, base0.escala))), 0.6, 2)
+        ? limitar(base0.escala * (1 + dyPx / Math.max(80, alto / Math.max(0.2, base0.escala))), 0.2, 4)
         : base0.escala;
-      setLocal({ ancho: Math.round(nuevoAncho), escala: Math.round(nuevaEscala * 100) / 100 });
+      setLocal({
+        ...base0,
+        ancho: Math.round(nuevoAncho),
+        escala: Math.round(nuevaEscala * 100) / 100,
+      });
     };
 
+  /** Desplazamiento libre para superponer tarjetas o bloques. */
+  const desplazar = (dxPx: number, dyPx: number) => {
+    const base0 = inicio.current;
+    setLocal({
+      ...base0,
+      dx: limitar(Math.round(base0.dx + dxPx), -2000, 2000),
+      dy: limitar(Math.round(base0.dy + dyPx), -2000, 2000),
+    });
+  };
+
   const comenzar = () => {
-    inicio.current = { ancho, escala };
+    inicio.current = actual;
   };
 
   const finalizar = () => {
-    if (local && guardar) guardar(local.ancho, local.escala);
+    if (local && guardar) guardar(local);
   };
 
-  return { ref, ancho, escala, redimensionar, finalizar, comenzar };
+  const reponer = () => {
+    const m = { ...actual, dx: 0, dy: 0 };
+    setLocal(m);
+    guardar?.(m);
+  };
+
+  return { ref, ...actual, redimensionar, desplazar, finalizar, comenzar, reponer };
 }
+
+/** Asa para desplazar libremente el elemento (permite superponer tarjetas). */
+function AsaSuperponer({
+  onInicio,
+  onDrag,
+  onFin,
+  onReponer,
+  desplazado,
+}: {
+  onInicio: () => void;
+  onDrag: (dx: number, dy: number) => void;
+  onFin: () => void;
+  onReponer: () => void;
+  desplazado: boolean;
+}) {
+  const iniciar = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onInicio();
+    const x0 = e.clientX;
+    const y0 = e.clientY;
+    const mover = (ev: PointerEvent) => onDrag(ev.clientX - x0, ev.clientY - y0);
+    const soltar = () => {
+      window.removeEventListener("pointermove", mover);
+      window.removeEventListener("pointerup", soltar);
+      document.body.style.userSelect = "";
+      onFin();
+    };
+    document.body.style.userSelect = "none";
+    window.addEventListener("pointermove", mover);
+    window.addEventListener("pointerup", soltar);
+  };
+  return (
+    <span
+      role="button"
+      aria-label="Superponer"
+      title="Arrastra para mover libremente (puedes superponer). Doble clic para restablecer."
+      onPointerDown={iniciar}
+      onDoubleClick={onReponer}
+      className={`inline-flex cursor-move items-center rounded-md border p-0.5 print:hidden ${
+        desplazado ? "border-primary bg-primary/10 text-primary" : "border-border bg-background/80 text-muted-foreground"
+      }`}
+    >
+      <Move className="h-3 w-3" />
+    </span>
+  );
+}
+
 
 
 /** Bloque interno de una tarjeta (tabla, gráfica o texto) redimensionable y movible. */
