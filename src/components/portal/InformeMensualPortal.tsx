@@ -28,6 +28,7 @@ import {
   generarInforme,
   guardarExplicacion,
   guardarLayout,
+  guardarOrden,
   guardarTextos,
   obtenerConsolidado,
   obtenerInforme,
@@ -47,6 +48,7 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
   const explicacionesFn = useServerFn(generarExplicaciones);
   const explicacionFn = useServerFn(guardarExplicacion);
   const layoutFn = useServerFn(guardarLayout);
+  const ordenFn = useServerFn(guardarOrden);
 
   const inicial = periodoActual();
   const [periodo, setPeriodo] = useState(inicial);
@@ -306,6 +308,10 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
                         layoutFn({ data: { token: sesion.token, periodo, seccion, ancho, escala } })
                           .then(refrescar)
                           .catch((e: any) => toast.error(e?.message ?? "No se pudo guardar el tamaño")),
+                      orden: (zona, orden) =>
+                        ordenFn({ data: { token: sesion.token, periodo, zona, orden } })
+                          .then(refrescar)
+                          .catch((e: any) => toast.error(e?.message ?? "No se pudo guardar el orden")),
                     }
                   : undefined
               }

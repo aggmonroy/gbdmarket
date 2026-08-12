@@ -3,7 +3,7 @@
  * interactiva como para la versión imprimible (con secciones seleccionadas).
  */
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Maximize2, Minus, Plus } from "lucide-react";
+import { GripVertical, Maximize2, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -87,7 +87,109 @@ type Edicion = {
   explicacion: (id: SeccionId, texto: string) => void;
   /** `clave` es el id de sección o `seccion:n` para bloques internos. */
   tamano: (clave: string, ancho: number, escala: number) => void;
+  /** Orden manual de tarjetas (`__raiz`) o de bloques dentro de una tarjeta. */
+  orden?: (clave: string, ids: string[]) => void;
 };
+
+type Arrastre = {
+  onInicio: () => void;
+  onSobre: () => void;
+  onFin: () => void;
+};
+
+type Layout = Record<string, { ancho?: number; escala?: number; orden?: string[] }>;
+
+/** Tirador para arrastrar el elemento y cambiarlo de posición. */
+function AsaMover({ activar }: { activar: (v: boolean) => void }) {
+  return (
+    <span
+      role="button"
+      aria-label="Mover"
+      title="Arrastra para cambiar de posición"
+      onPointerDown={() => activar(true)}
+      onPointerUp={() => activar(false)}
+      className="inline-flex cursor-grab items-center rounded-md border border-border bg-background/80 p-0.5 text-muted-foreground hover:text-primary active:cursor-grabbing print:hidden"
+    >
+      <GripVertical className="h-3 w-3" />
+    </span>
+  );
+}
+
+/**
+ * Zona reordenable: cada hijo puede arrastrarse para cambiar su posición.
+ * El orden se guarda en `layout["<clave>#orden"].orden`.
+ */
+function Zona({
+  clave,
+  layout,
+  edicion,
+  className,
+  children,
+}: {
+  clave: string;
+  layout?: Layout;
+  edicion?: Edicion;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const guardado = layout?.[`${clave}#orden`]?.orden;
+  const [orden, setOrden] = useState<string[] | null>(null);
+  const arrastrado = useRef<string | null>(null);
+  useEffect(() => setOrden(null), [guardado?.join("|")]);
+
+  const hijos = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
+  const idDe = (c: React.ReactElement<any>) => String(c.props.id ?? c.props.clave ?? c.key ?? "");
+  const lista = orden ?? guardado ?? null;
+
+  const ordenados = React.useMemo(() => {
+    if (!lista) return hijos;
+    const mapa = new Map(hijos.map((c) => [idDe(c), c]));
+    const out: React.ReactElement<any>[] = [];
+    for (const id of lista) {
+      const c = mapa.get(id);
+      if (c) {
+        out.push(c);
+        mapa.delete(id);
+      }
+    }
+    return [...out, ...mapa.values()];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [children, lista?.join("|")]);
+
+  const mover = (destino: string) => {
+    const origen = arrastrado.current;
+    if (!origen || origen === destino) return;
+    const actual = ordenados.map(idDe);
+    const i = actual.indexOf(origen);
+    const j = actual.indexOf(destino);
+    if (i < 0 || j < 0) return;
+    actual.splice(j, 0, ...actual.splice(i, 1));
+    setOrden(actual);
+  };
+
+  return (
+    <div className={className}>
+      {ordenados.map((hijo) => {
+        const id = idDe(hijo);
+        if (!edicion) return hijo;
+        const arrastre: Arrastre = {
+          onInicio: () => {
+            arrastrado.current = id;
+          },
+          onSobre: () => mover(id),
+          onFin: () => {
+            arrastrado.current = null;
+            const actual = ordenados.map(idDe);
+            edicion.orden?.(clave, actual);
+          },
+        };
+        return React.cloneElement(hijo, { key: id, arrastre });
+      })}
+    </div>
+  );
+}
+
+
 
 
 /** Explicación de la tabla: texto de IA con edición manual (solo dashboard). */
@@ -300,21 +402,24 @@ function useRedimension(anchoGuardado: number, escalaGuardada: number, guardar?:
 }
 
 
-/** Bloque interno de una tarjeta (tabla, gráfica o texto) redimensionable. */
+/** Bloque interno de una tarjeta (tabla, gráfica o texto) redimensionable y movible. */
 function Bloque({
   clave,
   baseAncho,
   layout,
   edicion,
+  arrastre,
   children,
 }: {
   clave: string;
   baseAncho: number;
-  layout?: Record<string, { ancho?: number; escala?: number }>;
+  layout?: Layout;
   edicion?: Edicion;
+  arrastre?: Arrastre;
   children: React.ReactNode;
 }) {
   const padre = useContext(EscalaCtx);
+  const [movible, setMovible] = useState(false);
   const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
     layout?.[clave]?.ancho ?? baseAncho,
     layout?.[clave]?.escala ?? 1,
@@ -324,7 +429,24 @@ function Bloque({
   return (
     <div
       ref={ref}
-      className="relative min-w-0 break-inside-avoid"
+      draggable={movible}
+      onDragStart={(e) => {
+        e.stopPropagation();
+        e.dataTransfer.effectAllowed = "move";
+        arrastre?.onInicio();
+      }}
+      onDragOver={(e) => {
+        if (!movible && arrastre) {
+          e.preventDefault();
+          e.stopPropagation();
+          arrastre.onSobre();
+        }
+      }}
+      onDragEnd={() => {
+        setMovible(false);
+        arrastre?.onFin();
+      }}
+      className="group/bloque relative min-w-0 break-inside-avoid"
       style={{
         flex: `1 1 ${ancho}%`,
         maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)`,
@@ -335,6 +457,9 @@ function Bloque({
         <div className="min-w-0 overflow-hidden">{children}</div>
         {edicion && (
           <>
+            <span className="absolute left-1 top-1 z-40 opacity-60 transition-opacity group-hover/bloque:opacity-100">
+              <AsaMover activar={setMovible} />
+            </span>
             <Tirador lado="izq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(-1)} onFin={finalizar} />
             <Tirador lado="der" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1)} onFin={finalizar} />
             <Tirador lado="abajo" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(0, true)} onFin={finalizar} />
@@ -347,41 +472,39 @@ function Bloque({
 }
 
 
+
 /**
- * Envuelve el contenido de una tarjeta en bloques redimensionables: las
- * rejillas se convierten en filas flexibles y cada celda (tabla, gráfica o
- * texto) puede ajustarse arrastrando sus bordes.
+ * Convierte el contenido de una tarjeta en una lista plana de bloques
+ * redimensionables y movibles (las rejillas se aplanan en celdas).
  */
-function envolverBloques(
-  children: React.ReactNode,
-  id: SeccionId,
-  layout?: Record<string, { ancho?: number; escala?: number }>,
-  edicion?: Edicion,
-) {
+function envolverBloques(children: React.ReactNode, id: SeccionId, layout?: Layout, edicion?: Edicion) {
   let n = 0;
-  return React.Children.toArray(children).map((child, i) => {
-    if (!React.isValidElement(child)) return child;
+  const salida: React.ReactNode[] = [];
+  for (const child of React.Children.toArray(children)) {
+    if (!React.isValidElement(child)) continue;
     const props = child.props as { className?: string; children?: React.ReactNode };
     const cls = String(props.className ?? "");
     if (cls.includes("grid")) {
       const celdas = React.Children.toArray(props.children);
       const base = celdas.length > 1 ? Math.round(100 / celdas.length) : 100;
-      return (
-        <div key={`g${i}`} className="flex flex-wrap items-start gap-3">
-          {celdas.map((celda, j) => (
-            <Bloque key={j} clave={`${id}:${n++}`} baseAncho={base} layout={layout} edicion={edicion}>
-              {celda}
-            </Bloque>
-          ))}
-        </div>
-      );
+      for (const celda of celdas) {
+        const clave = `${id}:${n++}`;
+        salida.push(
+          <Bloque key={clave} clave={clave} baseAncho={base} layout={layout} edicion={edicion}>
+            {celda}
+          </Bloque>,
+        );
+      }
+      continue;
     }
-    return (
-      <Bloque key={`b${i}`} clave={`${id}:${n++}`} baseAncho={100} layout={layout} edicion={edicion}>
+    const clave = `${id}:${n++}`;
+    salida.push(
+      <Bloque key={clave} clave={clave} baseAncho={100} layout={layout} edicion={edicion}>
         {child}
-      </Bloque>
+      </Bloque>,
     );
-  });
+  }
+  return salida;
 }
 
 function Seccion({
@@ -392,6 +515,7 @@ function Seccion({
   explicaciones,
   layout,
   edicion,
+  arrastre,
   children,
 }: {
   id: SeccionId;
@@ -399,12 +523,14 @@ function Seccion({
   descripcion?: string;
   visible: Set<SeccionId> | null;
   explicaciones?: Record<string, string>;
-  layout?: Record<string, { ancho?: number; escala?: number }>;
+  layout?: Layout;
   edicion?: Edicion;
+  arrastre?: Arrastre;
   children: React.ReactNode;
 }) {
   const anchoGuardado = layout?.[id]?.ancho ?? 100;
   const escalaGuardada = layout?.[id]?.escala ?? 1;
+  const [movible, setMovible] = useState(false);
   const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
     anchoGuardado,
     escalaGuardada,
@@ -416,6 +542,21 @@ function Seccion({
   return (
     <div
       ref={ref}
+      draggable={movible}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        arrastre?.onInicio();
+      }}
+      onDragOver={(e) => {
+        if (!movible && arrastre) {
+          e.preventDefault();
+          arrastre.onSobre();
+        }
+      }}
+      onDragEnd={() => {
+        setMovible(false);
+        arrastre?.onFin();
+      }}
       className="relative min-w-0 break-inside-avoid"
       style={{ flex: `1 1 ${ancho}%`, maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)` }}
     >
@@ -423,15 +564,31 @@ function Seccion({
         <Card className="h-full break-inside-avoid overflow-hidden border-border/70 shadow-soft">
           <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
             <CardTitle className="flex min-w-0 items-center gap-2 text-base font-semibold">
+              {edicion ? <AsaMover activar={setMovible} /> : null}
               <span className="h-4 w-1.5 shrink-0 rounded-full bg-gradient-primary" aria-hidden />
               <span className="min-w-0 break-words">{titulo}</span>
             </CardTitle>
             {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
             {edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
           </CardHeader>
-          <CardContent className="min-w-0 space-y-3 overflow-hidden pt-3 text-sm [&_p]:text-justify">
-            {envolverBloques(children, id, layout, edicion)}
-            <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
+          <CardContent className="min-w-0 overflow-hidden pt-3 text-sm [&_p]:text-justify">
+            <Zona
+              clave={id}
+              layout={layout}
+              edicion={edicion}
+              className="flex flex-wrap items-start gap-3"
+            >
+              {envolverBloques(children, id, layout, edicion)}
+              <Bloque
+                key={`${id}:expl`}
+                clave={`${id}:expl`}
+                baseAncho={100}
+                layout={layout}
+                edicion={edicion}
+              >
+                <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
+              </Bloque>
+            </Zona>
           </CardContent>
         </Card>
         {edicion && (
@@ -446,6 +603,7 @@ function Seccion({
     </div>
   );
 }
+
 
 
 
@@ -649,10 +807,16 @@ export function DashboardInforme({
   }));
 
   return (
-    <div className={`flex flex-wrap items-start gap-3 ${imprimible ? "print:gap-2" : ""}`}>
-      <div className="w-full">
-        <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
-      </div>
+    <div className="space-y-3">
+      <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
+
+      <Zona
+        clave="__raiz"
+        layout={lay}
+        edicion={edicion}
+        className={`flex flex-wrap items-start gap-3 ${imprimible ? "print:gap-2" : ""}`}
+      >
+
 
 
       <Seccion
@@ -1235,7 +1399,9 @@ export function DashboardInforme({
           <p className="text-muted-foreground">Genera el informe para redactar la gestión operativa del mes.</p>
         )}
       </Seccion>
+      </Zona>
     </div>
+
   );
 }
 
