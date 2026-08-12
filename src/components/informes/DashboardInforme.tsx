@@ -807,10 +807,16 @@ export function DashboardInforme({
   }));
 
   return (
-    <div className={`flex flex-wrap items-start gap-3 ${imprimible ? "print:gap-2" : ""}`}>
-      <div className="w-full">
-        <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
-      </div>
+    <div className="space-y-3">
+      <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
+
+      <Zona
+        clave="__raiz"
+        layout={lay}
+        edicion={edicion}
+        className={`flex flex-wrap items-start gap-3 ${imprimible ? "print:gap-2" : ""}`}
+      >
+
 
 
       <Seccion
