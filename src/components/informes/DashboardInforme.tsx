@@ -206,16 +206,19 @@ function Tirador({
   lado,
   onDrag,
   onFin,
+  onInicio,
   contenedor,
 }: {
   lado: "izq" | "der" | "abajo" | "esq";
   onDrag: (dx: number, dy: number, anchoContenedor: number) => void;
   onFin: () => void;
+  onInicio?: () => void;
   contenedor: React.RefObject<HTMLDivElement | null>;
 }) {
   const iniciar = (e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    onInicio?.();
     const x0 = e.clientX;
     const y0 = e.clientY;
     const ancho = contenedor.current?.parentElement?.clientWidth ?? contenedor.current?.clientWidth ?? 1;
@@ -230,6 +233,7 @@ function Tirador({
     window.addEventListener("pointermove", mover);
     window.addEventListener("pointerup", soltar);
   };
+
 
   const base =
     "absolute z-30 print:hidden rounded-full bg-primary/25 hover:bg-primary/60 transition-colors touch-none";
