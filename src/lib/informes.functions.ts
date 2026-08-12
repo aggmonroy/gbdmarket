@@ -499,8 +499,10 @@ export const guardarLayout = createServerFn({ method: "POST" })
       .extend({
         periodo: z.string().regex(periodoRe),
         seccion: seccionSchema,
-        ancho: z.number().min(25).max(100),
-        escala: z.number().min(0.6).max(2),
+        ancho: z.number().min(5).max(200),
+        escala: z.number().min(0.2).max(4),
+        dx: z.number().min(-2000).max(2000).optional(),
+        dy: z.number().min(-2000).max(2000).optional(),
       })
       .parse(d),
   )
@@ -508,14 +510,22 @@ export const guardarLayout = createServerFn({ method: "POST" })
     await escritura(data.token);
     const db = await admin();
     const informe = await informeDe(data.periodo);
+    const previo = ((informe.layout ?? {}) as Record<string, any>)[data.seccion] ?? {};
     const layout = {
       ...(informe.layout ?? {}),
-      [data.seccion]: { ancho: data.ancho, escala: data.escala },
+      [data.seccion]: {
+        ...previo,
+        ancho: data.ancho,
+        escala: data.escala,
+        dx: data.dx ?? previo.dx ?? 0,
+        dy: data.dy ?? previo.dy ?? 0,
+      },
     };
     const { error } = await db.from("informes_mensuales").update({ layout }).eq("periodo", data.periodo);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 /** Orden manual de las tarjetas del dashboard o de los bloques de una tarjeta. */
 export const guardarOrden = createServerFn({ method: "POST" })
