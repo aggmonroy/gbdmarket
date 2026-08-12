@@ -232,15 +232,23 @@ function Tirador({
   };
 
   const base =
-    "absolute z-20 print:hidden rounded-full bg-primary/0 hover:bg-primary/40 transition-colors touch-none";
+    "absolute z-30 print:hidden rounded-full bg-primary/25 hover:bg-primary/60 transition-colors touch-none";
   const pos = {
-    izq: "left-0 top-6 bottom-6 w-1.5 cursor-ew-resize",
-    der: "right-0 top-6 bottom-6 w-1.5 cursor-ew-resize",
-    abajo: "bottom-0 left-6 right-6 h-1.5 cursor-ns-resize",
-    esq: "bottom-0 right-0 h-3.5 w-3.5 cursor-nwse-resize bg-primary/25 hover:bg-primary/60",
+    izq: "left-[-3px] top-5 bottom-5 w-2 cursor-ew-resize",
+    der: "right-[-3px] top-5 bottom-5 w-2 cursor-ew-resize",
+    abajo: "bottom-[-3px] left-5 right-5 h-2 cursor-ns-resize",
+    esq: "bottom-[-3px] right-[-3px] h-4 w-4 cursor-nwse-resize bg-primary/45 hover:bg-primary/80",
   }[lado];
 
-  return <div role="separator" aria-label="Redimensionar tarjeta" onPointerDown={iniciar} className={`${base} ${pos}`} />;
+  return (
+    <div
+      role="separator"
+      aria-label="Redimensionar"
+      title="Arrastra para redimensionar"
+      onPointerDown={iniciar}
+      className={`${base} ${pos}`}
+    />
+  );
 }
 
 const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
@@ -248,29 +256,45 @@ const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(
 /** Lógica común de arrastre para tarjetas y bloques internos. */
 function useRedimension(anchoGuardado: number, escalaGuardada: number, guardar?: (a: number, e: number) => void) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [arrastre, setArrastre] = useState<{ ancho: number; escala: number } | null>(null);
-  const ancho = arrastre?.ancho ?? anchoGuardado;
-  const escala = arrastre?.escala ?? escalaGuardada;
+  // Override local: se mantiene tras soltar para que el cambio sea inmediato
+  // y no dependa de que el servidor responda.
+  const [local, setLocal] = useState<{ ancho: number; escala: number } | null>(null);
+  const guardadoRef = useRef({ a: anchoGuardado, e: escalaGuardada });
+  useEffect(() => {
+    if (guardadoRef.current.a !== anchoGuardado || guardadoRef.current.e !== escalaGuardada) {
+      guardadoRef.current = { a: anchoGuardado, e: escalaGuardada };
+      setLocal(null);
+    }
+  }, [anchoGuardado, escalaGuardada]);
+
+  const ancho = local?.ancho ?? anchoGuardado;
+  const escala = local?.escala ?? escalaGuardada;
+  const inicio = useRef({ ancho, escala });
 
   const redimensionar =
     (signo: 1 | -1 | 0, dy = false) =>
     (dx: number, dyPx: number, anchoContenedor: number) => {
+      const base0 = inicio.current;
       const nuevoAncho =
-        signo === 0 ? ancho : limitar(anchoGuardado + (signo * dx * 100) / Math.max(1, anchoContenedor), 25, 100);
+        signo === 0 ? base0.ancho : limitar(base0.ancho + (signo * dx * 100) / Math.max(1, anchoContenedor), 25, 100);
       const alto = ref.current?.getBoundingClientRect().height ?? 300;
       const nuevaEscala = dy
-        ? limitar(escalaGuardada * (1 + dyPx / Math.max(120, alto / Math.max(0.4, escalaGuardada))), 0.6, 2)
-        : escalaGuardada;
-      setArrastre({ ancho: Math.round(nuevoAncho), escala: Math.round(nuevaEscala * 100) / 100 });
+        ? limitar(base0.escala * (1 + dyPx / Math.max(120, alto / Math.max(0.4, base0.escala))), 0.6, 2)
+        : base0.escala;
+      setLocal({ ancho: Math.round(nuevoAncho), escala: Math.round(nuevaEscala * 100) / 100 });
     };
 
-  const finalizar = () => {
-    if (arrastre && guardar) guardar(arrastre.ancho, arrastre.escala);
-    setArrastre(null);
+  const comenzar = () => {
+    inicio.current = { ancho, escala };
   };
 
-  return { ref, ancho, escala, redimensionar, finalizar };
+  const finalizar = () => {
+    if (local && guardar) guardar(local.ancho, local.escala);
+  };
+
+  return { ref, ancho, escala, redimensionar, finalizar, comenzar };
 }
+
 
 /** Bloque interno de una tarjeta (tabla, gráfica o texto) redimensionable. */
 function Bloque({
