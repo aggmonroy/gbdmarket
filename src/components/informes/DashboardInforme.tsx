@@ -86,7 +86,7 @@ function Grafico({ children, alto = 190 }: { children: React.ReactElement; alto?
 type Edicion = {
   explicacion: (id: SeccionId, texto: string) => void;
   /** `clave` es el id de sección o `seccion:n` para bloques internos. */
-  tamano: (clave: string, ancho: number, escala: number) => void;
+  tamano: (clave: string, ancho: number, escala: number, dx?: number, dy?: number) => void;
   /** Orden manual de tarjetas (`__raiz`) o de bloques dentro de una tarjeta. */
   orden?: (clave: string, ids: string[]) => void;
 };
@@ -97,7 +97,7 @@ type Arrastre = {
   onFin: () => void;
 };
 
-type Layout = Record<string, { ancho?: number; escala?: number; orden?: string[] }>;
+type Layout = Record<string, { ancho?: number; escala?: number; dx?: number; dy?: number; orden?: string[] }>;
 
 /** Tirador para arrastrar el elemento y cambiarlo de posición. */
 function AsaMover({ activar }: { activar: (v: boolean) => void }) {
