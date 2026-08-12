@@ -474,40 +474,37 @@ function Bloque({
 
 
 /**
- * Envuelve el contenido de una tarjeta en bloques redimensionables: las
- * rejillas se convierten en filas flexibles y cada celda (tabla, gráfica o
- * texto) puede ajustarse arrastrando sus bordes.
+ * Convierte el contenido de una tarjeta en una lista plana de bloques
+ * redimensionables y movibles (las rejillas se aplanan en celdas).
  */
-function envolverBloques(
-  children: React.ReactNode,
-  id: SeccionId,
-  layout?: Record<string, { ancho?: number; escala?: number }>,
-  edicion?: Edicion,
-) {
+function envolverBloques(children: React.ReactNode, id: SeccionId, layout?: Layout, edicion?: Edicion) {
   let n = 0;
-  return React.Children.toArray(children).map((child, i) => {
-    if (!React.isValidElement(child)) return child;
+  const salida: React.ReactNode[] = [];
+  for (const child of React.Children.toArray(children)) {
+    if (!React.isValidElement(child)) continue;
     const props = child.props as { className?: string; children?: React.ReactNode };
     const cls = String(props.className ?? "");
     if (cls.includes("grid")) {
       const celdas = React.Children.toArray(props.children);
       const base = celdas.length > 1 ? Math.round(100 / celdas.length) : 100;
-      return (
-        <div key={`g${i}`} className="flex flex-wrap items-start gap-3">
-          {celdas.map((celda, j) => (
-            <Bloque key={j} clave={`${id}:${n++}`} baseAncho={base} layout={layout} edicion={edicion}>
-              {celda}
-            </Bloque>
-          ))}
-        </div>
-      );
+      for (const celda of celdas) {
+        const clave = `${id}:${n++}`;
+        salida.push(
+          <Bloque key={clave} clave={clave} baseAncho={base} layout={layout} edicion={edicion}>
+            {celda}
+          </Bloque>,
+        );
+      }
+      continue;
     }
-    return (
-      <Bloque key={`b${i}`} clave={`${id}:${n++}`} baseAncho={100} layout={layout} edicion={edicion}>
+    const clave = `${id}:${n++}`;
+    salida.push(
+      <Bloque key={clave} clave={clave} baseAncho={100} layout={layout} edicion={edicion}>
         {child}
-      </Bloque>
+      </Bloque>,
     );
-  });
+  }
+  return salida;
 }
 
 function Seccion({
@@ -518,6 +515,7 @@ function Seccion({
   explicaciones,
   layout,
   edicion,
+  arrastre,
   children,
 }: {
   id: SeccionId;
@@ -525,12 +523,14 @@ function Seccion({
   descripcion?: string;
   visible: Set<SeccionId> | null;
   explicaciones?: Record<string, string>;
-  layout?: Record<string, { ancho?: number; escala?: number }>;
+  layout?: Layout;
   edicion?: Edicion;
+  arrastre?: Arrastre;
   children: React.ReactNode;
 }) {
   const anchoGuardado = layout?.[id]?.ancho ?? 100;
   const escalaGuardada = layout?.[id]?.escala ?? 1;
+  const [movible, setMovible] = useState(false);
   const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
     anchoGuardado,
     escalaGuardada,
@@ -542,6 +542,21 @@ function Seccion({
   return (
     <div
       ref={ref}
+      draggable={movible}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        arrastre?.onInicio();
+      }}
+      onDragOver={(e) => {
+        if (!movible && arrastre) {
+          e.preventDefault();
+          arrastre.onSobre();
+        }
+      }}
+      onDragEnd={() => {
+        setMovible(false);
+        arrastre?.onFin();
+      }}
       className="relative min-w-0 break-inside-avoid"
       style={{ flex: `1 1 ${ancho}%`, maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)` }}
     >
@@ -549,15 +564,31 @@ function Seccion({
         <Card className="h-full break-inside-avoid overflow-hidden border-border/70 shadow-soft">
           <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
             <CardTitle className="flex min-w-0 items-center gap-2 text-base font-semibold">
+              {edicion ? <AsaMover activar={setMovible} /> : null}
               <span className="h-4 w-1.5 shrink-0 rounded-full bg-gradient-primary" aria-hidden />
               <span className="min-w-0 break-words">{titulo}</span>
             </CardTitle>
             {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
             {edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
           </CardHeader>
-          <CardContent className="min-w-0 space-y-3 overflow-hidden pt-3 text-sm [&_p]:text-justify">
-            {envolverBloques(children, id, layout, edicion)}
-            <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
+          <CardContent className="min-w-0 overflow-hidden pt-3 text-sm [&_p]:text-justify">
+            <Zona
+              clave={id}
+              layout={layout}
+              edicion={edicion}
+              className="flex flex-wrap items-start gap-3"
+            >
+              {envolverBloques(children, id, layout, edicion)}
+              <Bloque
+                key={`${id}:expl`}
+                clave={`${id}:expl`}
+                baseAncho={100}
+                layout={layout}
+                edicion={edicion}
+              >
+                <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
+              </Bloque>
+            </Zona>
           </CardContent>
         </Card>
         {edicion && (
@@ -572,6 +603,7 @@ function Seccion({
     </div>
   );
 }
+
 
 
 
