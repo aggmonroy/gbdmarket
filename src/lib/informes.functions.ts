@@ -517,6 +517,30 @@ export const guardarLayout = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Orden manual de las tarjetas del dashboard o de los bloques de una tarjeta. */
+export const guardarOrden = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    tokenSchema
+      .extend({
+        periodo: z.string().regex(periodoRe),
+        zona: z.string().min(2).max(40),
+        orden: z.array(z.string().min(1).max(60)).max(80),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await escritura(data.token);
+    const db = await admin();
+    const informe = await informeDe(data.periodo);
+    const layout = {
+      ...(informe.layout ?? {}),
+      [`${data.zona}#orden`]: { orden: data.orden },
+    };
+    const { error } = await db.from("informes_mensuales").update({ layout }).eq("periodo", data.periodo);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 /** Resumen consolidado trimestral o anual del período fiscal. */
 export const obtenerConsolidado = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
