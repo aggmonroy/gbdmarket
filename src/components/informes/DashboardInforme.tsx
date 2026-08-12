@@ -87,7 +87,109 @@ type Edicion = {
   explicacion: (id: SeccionId, texto: string) => void;
   /** `clave` es el id de sección o `seccion:n` para bloques internos. */
   tamano: (clave: string, ancho: number, escala: number) => void;
+  /** Orden manual de tarjetas (`__raiz`) o de bloques dentro de una tarjeta. */
+  orden?: (clave: string, ids: string[]) => void;
 };
+
+type Arrastre = {
+  onInicio: () => void;
+  onSobre: () => void;
+  onFin: () => void;
+};
+
+type Layout = Record<string, { ancho?: number; escala?: number; orden?: string[] }>;
+
+/** Tirador para arrastrar el elemento y cambiarlo de posición. */
+function AsaMover({ activar }: { activar: (v: boolean) => void }) {
+  return (
+    <span
+      role="button"
+      aria-label="Mover"
+      title="Arrastra para cambiar de posición"
+      onPointerDown={() => activar(true)}
+      onPointerUp={() => activar(false)}
+      className="inline-flex cursor-grab items-center rounded-md border border-border bg-background/80 p-0.5 text-muted-foreground hover:text-primary active:cursor-grabbing print:hidden"
+    >
+      <GripVertical className="h-3 w-3" />
+    </span>
+  );
+}
+
+/**
+ * Zona reordenable: cada hijo puede arrastrarse para cambiar su posición.
+ * El orden se guarda en `layout["<clave>#orden"].orden`.
+ */
+function Zona({
+  clave,
+  layout,
+  edicion,
+  className,
+  children,
+}: {
+  clave: string;
+  layout?: Layout;
+  edicion?: Edicion;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const guardado = layout?.[`${clave}#orden`]?.orden;
+  const [orden, setOrden] = useState<string[] | null>(null);
+  const arrastrado = useRef<string | null>(null);
+  useEffect(() => setOrden(null), [guardado?.join("|")]);
+
+  const hijos = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
+  const idDe = (c: React.ReactElement<any>) => String(c.props.id ?? c.props.clave ?? c.key ?? "");
+  const lista = orden ?? guardado ?? null;
+
+  const ordenados = React.useMemo(() => {
+    if (!lista) return hijos;
+    const mapa = new Map(hijos.map((c) => [idDe(c), c]));
+    const out: React.ReactElement<any>[] = [];
+    for (const id of lista) {
+      const c = mapa.get(id);
+      if (c) {
+        out.push(c);
+        mapa.delete(id);
+      }
+    }
+    return [...out, ...mapa.values()];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [children, lista?.join("|")]);
+
+  const mover = (destino: string) => {
+    const origen = arrastrado.current;
+    if (!origen || origen === destino) return;
+    const actual = ordenados.map(idDe);
+    const i = actual.indexOf(origen);
+    const j = actual.indexOf(destino);
+    if (i < 0 || j < 0) return;
+    actual.splice(j, 0, ...actual.splice(i, 1));
+    setOrden(actual);
+  };
+
+  return (
+    <div className={className}>
+      {ordenados.map((hijo) => {
+        const id = idDe(hijo);
+        if (!edicion) return hijo;
+        const arrastre: Arrastre = {
+          onInicio: () => {
+            arrastrado.current = id;
+          },
+          onSobre: () => mover(id),
+          onFin: () => {
+            arrastrado.current = null;
+            const actual = ordenados.map(idDe);
+            edicion.orden?.(clave, actual);
+          },
+        };
+        return React.cloneElement(hijo, { key: id, arrastre });
+      })}
+    </div>
+  );
+}
+
+
 
 
 /** Explicación de la tabla: texto de IA con edición manual (solo dashboard). */
