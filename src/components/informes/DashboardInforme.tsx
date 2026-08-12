@@ -559,7 +559,7 @@ function Bloque({
     >
       <EscalaCtx.Provider value={padre * escala}>
         <div className="min-w-0 overflow-hidden">{children}</div>
-        {edicion && (
+        {edicion?.libre && (
           <>
             <span className="absolute left-1 top-1 z-40 flex items-center gap-1 opacity-60 transition-opacity group-hover/bloque:opacity-100">
               <AsaMover activar={setMovible} />
