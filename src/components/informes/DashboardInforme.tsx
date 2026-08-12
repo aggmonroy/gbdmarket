@@ -1399,7 +1399,9 @@ export function DashboardInforme({
           <p className="text-muted-foreground">Genera el informe para redactar la gestión operativa del mes.</p>
         )}
       </Seccion>
+      </Zona>
     </div>
+
   );
 }
 
