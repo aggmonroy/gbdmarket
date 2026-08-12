@@ -935,9 +935,6 @@ export function DashboardInforme({
     etiqueta: nombreVendedor(v.codigo, informe.periodo),
   }));
 
-  return (
-    <div className="space-y-3">
-      <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
 
   return (
     <div className="space-y-3">
