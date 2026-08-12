@@ -402,21 +402,24 @@ function useRedimension(anchoGuardado: number, escalaGuardada: number, guardar?:
 }
 
 
-/** Bloque interno de una tarjeta (tabla, gráfica o texto) redimensionable. */
+/** Bloque interno de una tarjeta (tabla, gráfica o texto) redimensionable y movible. */
 function Bloque({
   clave,
   baseAncho,
   layout,
   edicion,
+  arrastre,
   children,
 }: {
   clave: string;
   baseAncho: number;
-  layout?: Record<string, { ancho?: number; escala?: number }>;
+  layout?: Layout;
   edicion?: Edicion;
+  arrastre?: Arrastre;
   children: React.ReactNode;
 }) {
   const padre = useContext(EscalaCtx);
+  const [movible, setMovible] = useState(false);
   const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
     layout?.[clave]?.ancho ?? baseAncho,
     layout?.[clave]?.escala ?? 1,
@@ -426,7 +429,24 @@ function Bloque({
   return (
     <div
       ref={ref}
-      className="relative min-w-0 break-inside-avoid"
+      draggable={movible}
+      onDragStart={(e) => {
+        e.stopPropagation();
+        e.dataTransfer.effectAllowed = "move";
+        arrastre?.onInicio();
+      }}
+      onDragOver={(e) => {
+        if (!movible && arrastre) {
+          e.preventDefault();
+          e.stopPropagation();
+          arrastre.onSobre();
+        }
+      }}
+      onDragEnd={() => {
+        setMovible(false);
+        arrastre?.onFin();
+      }}
+      className="group/bloque relative min-w-0 break-inside-avoid"
       style={{
         flex: `1 1 ${ancho}%`,
         maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)`,
@@ -437,6 +457,9 @@ function Bloque({
         <div className="min-w-0 overflow-hidden">{children}</div>
         {edicion && (
           <>
+            <span className="absolute left-1 top-1 z-40 opacity-60 transition-opacity group-hover/bloque:opacity-100">
+              <AsaMover activar={setMovible} />
+            </span>
             <Tirador lado="izq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(-1)} onFin={finalizar} />
             <Tirador lado="der" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1)} onFin={finalizar} />
             <Tirador lado="abajo" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(0, true)} onFin={finalizar} />
@@ -447,6 +470,7 @@ function Bloque({
     </div>
   );
 }
+
 
 
 /**
