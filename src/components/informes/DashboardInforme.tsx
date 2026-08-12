@@ -939,12 +939,28 @@ export function DashboardInforme({
     <div className="space-y-3">
       <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
 
+  return (
+    <div className="space-y-3">
+      <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
+
+      {edicionProp && !imprimible && (
+        <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+          <span className="text-xs text-muted-foreground">
+            {manual ? "Ajuste manual: arrastra para mover y redimensionar." : "Vista estándar: distribución óptima."}
+          </span>
+          <Button size="sm" variant={manual ? "default" : "outline"} onClick={() => setManual((v) => !v)}>
+            {manual ? "Volver a vista estándar" : "Ajustar manualmente"}
+          </Button>
+        </div>
+      )}
+
       <Zona
         clave="__raiz"
         layout={lay}
-        edicion={edicion}
-        className={`flex flex-wrap items-start gap-3 ${imprimible ? "print:gap-2" : ""}`}
+        edicion={libre ? edicion : undefined}
+        className={`flex flex-wrap items-stretch gap-3 ${imprimible ? "print:gap-2" : ""}`}
       >
+
 
 
 
