@@ -493,10 +493,15 @@ function Bloque({
 }) {
   const padre = useContext(EscalaCtx);
   const [movible, setMovible] = useState(false);
-  const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
-    layout?.[clave]?.ancho ?? baseAncho,
-    layout?.[clave]?.escala ?? 1,
-    edicion ? (a, e) => edicion.tamano(clave, a, e) : undefined,
+  const guardadoBloque = layout?.[clave];
+  const { ref, ancho, escala, dx, dy, redimensionar, desplazar, finalizar, comenzar, reponer } = useRedimension(
+    {
+      ancho: guardadoBloque?.ancho ?? baseAncho,
+      escala: guardadoBloque?.escala ?? 1,
+      dx: guardadoBloque?.dx ?? 0,
+      dy: guardadoBloque?.dy ?? 0,
+    },
+    edicion ? (m) => edicion.tamano(clave, m.ancho, m.escala, m.dx, m.dy) : undefined,
   );
 
   return (
@@ -523,15 +528,24 @@ function Bloque({
       style={{
         flex: `1 1 ${ancho}%`,
         maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)`,
-        minWidth: "min(100%, 240px)",
+        minWidth: 0,
+        transform: dx || dy ? `translate(${dx}px, ${dy}px)` : undefined,
+        zIndex: dx || dy ? 20 : undefined,
       }}
     >
       <EscalaCtx.Provider value={padre * escala}>
         <div className="min-w-0 overflow-hidden">{children}</div>
         {edicion && (
           <>
-            <span className="absolute left-1 top-1 z-40 opacity-60 transition-opacity group-hover/bloque:opacity-100">
+            <span className="absolute left-1 top-1 z-40 flex items-center gap-1 opacity-60 transition-opacity group-hover/bloque:opacity-100">
               <AsaMover activar={setMovible} />
+              <AsaSuperponer
+                onInicio={comenzar}
+                onDrag={desplazar}
+                onFin={finalizar}
+                onReponer={reponer}
+                desplazado={Boolean(dx || dy)}
+              />
             </span>
             <Tirador lado="izq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(-1)} onFin={finalizar} />
             <Tirador lado="der" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1)} onFin={finalizar} />
@@ -542,6 +556,7 @@ function Bloque({
       </EscalaCtx.Provider>
     </div>
   );
+
 }
 
 
