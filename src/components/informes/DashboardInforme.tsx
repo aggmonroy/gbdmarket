@@ -860,7 +860,7 @@ export function DashboardInforme({
   series,
   secciones,
   imprimible = false,
-  edicion,
+  edicion: edicionProp,
 }: {
   informe: InformeMensual;
   series: SerieFila[];
@@ -871,7 +871,11 @@ export function DashboardInforme({
 }) {
   const visible = secciones ? new Set(secciones) : null;
   const expl = informe.explicaciones ?? {};
-  const lay = informe.layout ?? {};
+  // Vista estándar (distribución profesional fija) vs. ajuste manual libre.
+  const [manual, setManual] = useState(false);
+  const libre = Boolean(edicionProp) && manual && !imprimible;
+  const edicion = edicionProp ? { ...edicionProp, libre } : undefined;
+  const lay = libre ? informe.layout ?? {} : {};
   const d = informe.datos ?? {};
   const f = d.repfacmes;
   const { mesNombre, anio, periodoFiscal, inicioFiscal } = infoPeriodo(informe.periodo);
