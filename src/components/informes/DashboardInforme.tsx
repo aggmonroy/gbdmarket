@@ -616,13 +616,11 @@ function Seccion({
   arrastre?: Arrastre;
   children: React.ReactNode;
 }) {
-  const anchoGuardado = layout?.[id]?.ancho ?? 100;
-  const escalaGuardada = layout?.[id]?.escala ?? 1;
+  const g = layout?.[id];
   const [movible, setMovible] = useState(false);
-  const { ref, ancho, escala, redimensionar, finalizar, comenzar } = useRedimension(
-    anchoGuardado,
-    escalaGuardada,
-    edicion ? (a, e) => edicion.tamano(id, a, e) : undefined,
+  const { ref, ancho, escala, dx, dy, redimensionar, desplazar, finalizar, comenzar, reponer } = useRedimension(
+    { ancho: g?.ancho ?? 100, escala: g?.escala ?? 1, dx: g?.dx ?? 0, dy: g?.dy ?? 0 },
+    edicion ? (m) => edicion.tamano(id, m.ancho, m.escala, m.dx, m.dy) : undefined,
   );
 
   if (visible && !visible.has(id)) return null;
@@ -646,13 +644,28 @@ function Seccion({
         arrastre?.onFin();
       }}
       className="relative min-w-0 break-inside-avoid"
-      style={{ flex: `1 1 ${ancho}%`, maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)` }}
+      style={{
+        flex: `1 1 ${ancho}%`,
+        maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)`,
+        minWidth: 0,
+        transform: dx || dy ? `translate(${dx}px, ${dy}px)` : undefined,
+        zIndex: dx || dy ? 20 : undefined,
+      }}
     >
       <EscalaCtx.Provider value={escala}>
         <Card className="h-full break-inside-avoid overflow-hidden border-border/70 shadow-soft">
           <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
             <CardTitle className="flex min-w-0 items-center gap-2 text-base font-semibold">
               {edicion ? <AsaMover activar={setMovible} /> : null}
+              {edicion ? (
+                <AsaSuperponer
+                  onInicio={comenzar}
+                  onDrag={desplazar}
+                  onFin={finalizar}
+                  onReponer={reponer}
+                  desplazado={Boolean(dx || dy)}
+                />
+              ) : null}
               <span className="h-4 w-1.5 shrink-0 rounded-full bg-gradient-primary" aria-hidden />
               <span className="min-w-0 break-words">{titulo}</span>
             </CardTitle>
