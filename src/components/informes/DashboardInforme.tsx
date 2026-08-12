@@ -89,6 +89,8 @@ type Edicion = {
   tamano: (clave: string, ancho: number, escala: number, dx?: number, dy?: number) => void;
   /** Orden manual de tarjetas (`__raiz`) o de bloques dentro de una tarjeta. */
   orden?: (clave: string, ids: string[]) => void;
+  /** Solo en modo "ajuste manual": habilita arrastre, superposición y tiradores. */
+  libre?: boolean;
 };
 
 type Arrastre = {
@@ -98,6 +100,28 @@ type Arrastre = {
 };
 
 type Layout = Record<string, { ancho?: number; escala?: number; dx?: number; dy?: number; orden?: string[] }>;
+
+/**
+ * Distribución estándar (vista profesional lista para presentar): anchos que
+ * llenan la fila completa y evitan espacios en blanco.
+ */
+const ANCHOS_ESTANDAR: Record<string, number> = {
+  ventas: 100,
+  vendedores: 50,
+  mensuales: 50,
+  lineas: 50,
+  rotacion: 50,
+  historicas: 100,
+  clientes_nuevos: 50,
+  instagram: 50,
+  cxc: 100,
+  morosidad: 50,
+  abonos: 50,
+  compras: 50,
+  alertas: 50,
+  conversion: 100,
+  gestion: 100,
+};
 
 /** Tirador para arrastrar el elemento y cambiarlo de posición. */
 function AsaMover({ activar }: { activar: (v: boolean) => void }) {
