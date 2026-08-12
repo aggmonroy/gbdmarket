@@ -271,7 +271,7 @@ export type InformeMensual = {
   /** Explicación de cada tabla, generada con IA y editable por la administración. */
   explicaciones?: Record<string, string>;
   /** Tamaño manual de cada tarjeta y orden de los elementos del dashboard. */
-  layout?: Record<string, { ancho?: number; escala?: number; orden?: string[] }>;
+  layout?: Record<string, { ancho?: number; escala?: number; dx?: number; dy?: number; orden?: string[] }>;
 };
 
 /* ------------------------------- utilidades ------------------------------- */

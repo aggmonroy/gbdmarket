@@ -304,8 +304,8 @@ export function InformeMensualPortal({ sesion }: { sesion: Sesion }) {
                         explicacionFn({ data: { token: sesion.token, periodo, seccion, texto } })
                           .then(refrescar)
                           .catch((e: any) => toast.error(e?.message ?? "No se pudo guardar la explicación")),
-                      tamano: (seccion, ancho, escala) =>
-                        layoutFn({ data: { token: sesion.token, periodo, seccion, ancho, escala } })
+                      tamano: (seccion, ancho, escala, dx, dy) =>
+                        layoutFn({ data: { token: sesion.token, periodo, seccion, ancho, escala, dx, dy } })
                           .then(refrescar)
                           .catch((e: any) => toast.error(e?.message ?? "No se pudo guardar el tamaño")),
                       orden: (zona, orden) =>
