@@ -89,6 +89,8 @@ type Edicion = {
   tamano: (clave: string, ancho: number, escala: number, dx?: number, dy?: number) => void;
   /** Orden manual de tarjetas (`__raiz`) o de bloques dentro de una tarjeta. */
   orden?: (clave: string, ids: string[]) => void;
+  /** Solo en modo "ajuste manual": habilita arrastre, superposición y tiradores. */
+  libre?: boolean;
 };
 
 type Arrastre = {
@@ -98,6 +100,28 @@ type Arrastre = {
 };
 
 type Layout = Record<string, { ancho?: number; escala?: number; dx?: number; dy?: number; orden?: string[] }>;
+
+/**
+ * Distribución estándar (vista profesional lista para presentar): anchos que
+ * llenan la fila completa y evitan espacios en blanco.
+ */
+const ANCHOS_ESTANDAR: Record<string, number> = {
+  ventas: 100,
+  vendedores: 50,
+  mensuales: 50,
+  lineas: 50,
+  rotacion: 50,
+  historicas: 100,
+  clientes_nuevos: 50,
+  instagram: 50,
+  cxc: 100,
+  morosidad: 50,
+  abonos: 50,
+  compras: 50,
+  alertas: 50,
+  conversion: 100,
+  gestion: 100,
+};
 
 /** Tirador para arrastrar el elemento y cambiarlo de posición. */
 function AsaMover({ activar }: { activar: (v: boolean) => void }) {
@@ -535,7 +559,7 @@ function Bloque({
     >
       <EscalaCtx.Provider value={padre * escala}>
         <div className="min-w-0 overflow-hidden">{children}</div>
-        {edicion && (
+        {edicion?.libre && (
           <>
             <span className="absolute left-1 top-1 z-40 flex items-center gap-1 opacity-60 transition-opacity group-hover/bloque:opacity-100">
               <AsaMover activar={setMovible} />
@@ -616,14 +640,18 @@ function Seccion({
   arrastre?: Arrastre;
   children: React.ReactNode;
 }) {
+  const libre = Boolean(edicion?.libre);
+  const base = ANCHOS_ESTANDAR[id] ?? 100;
   const g = layout?.[id];
   const [movible, setMovible] = useState(false);
   const { ref, ancho, escala, dx, dy, redimensionar, desplazar, finalizar, comenzar, reponer } = useRedimension(
-    { ancho: g?.ancho ?? 100, escala: g?.escala ?? 1, dx: g?.dx ?? 0, dy: g?.dy ?? 0 },
+    { ancho: g?.ancho ?? base, escala: g?.escala ?? 1, dx: g?.dx ?? 0, dy: g?.dy ?? 0 },
     edicion ? (m) => edicion.tamano(id, m.ancho, m.escala, m.dx, m.dy) : undefined,
   );
 
   if (visible && !visible.has(id)) return null;
+
+  const anchoFinal = libre ? ancho : base;
 
   return (
     <div
@@ -645,19 +673,19 @@ function Seccion({
       }}
       className="relative min-w-0 break-inside-avoid"
       style={{
-        flex: `1 1 ${ancho}%`,
-        maxWidth: ancho >= 100 ? "100%" : `calc(${ancho}% - 0.75rem)`,
+        flex: `1 1 ${anchoFinal}%`,
+        maxWidth: anchoFinal >= 100 ? "100%" : `calc(${anchoFinal}% - 0.375rem)`,
         minWidth: 0,
-        transform: dx || dy ? `translate(${dx}px, ${dy}px)` : undefined,
-        zIndex: dx || dy ? 20 : undefined,
+        transform: libre && (dx || dy) ? `translate(${dx}px, ${dy}px)` : undefined,
+        zIndex: libre && (dx || dy) ? 20 : undefined,
       }}
     >
-      <EscalaCtx.Provider value={escala}>
-        <Card className="h-full break-inside-avoid overflow-hidden border-border/70 shadow-soft">
+      <EscalaCtx.Provider value={libre ? escala : 1}>
+        <Card className="flex h-full flex-col break-inside-avoid overflow-hidden border-border/70 shadow-soft">
           <CardHeader className="gap-1 border-b border-border/60 bg-muted/30 py-2">
             <CardTitle className="flex min-w-0 items-center gap-2 text-base font-semibold">
-              {edicion ? <AsaMover activar={setMovible} /> : null}
-              {edicion ? (
+              {libre ? <AsaMover activar={setMovible} /> : null}
+              {libre ? (
                 <AsaSuperponer
                   onInicio={comenzar}
                   onDrag={desplazar}
@@ -670,29 +698,25 @@ function Seccion({
               <span className="min-w-0 break-words">{titulo}</span>
             </CardTitle>
             {descripcion && <p className="pl-3.5 text-xs text-muted-foreground">{descripcion}</p>}
-            {edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
+            {libre && edicion && <ControlesTamano id={id} ancho={ancho} escala={escala} edicion={edicion} />}
           </CardHeader>
-          <CardContent className="min-w-0 overflow-hidden pt-3 text-sm [&_p]:text-justify">
-            <Zona
-              clave={id}
-              layout={layout}
-              edicion={edicion}
-              className="flex flex-wrap items-start gap-3"
-            >
-              {envolverBloques(children, id, layout, edicion)}
-              <Bloque
-                key={`${id}:expl`}
-                clave={`${id}:expl`}
-                baseAncho={100}
-                layout={layout}
-                edicion={edicion}
-              >
+          <CardContent className="min-w-0 flex-1 overflow-hidden pt-3 text-sm [&_p]:text-justify">
+            {libre ? (
+              <Zona clave={id} layout={layout} edicion={edicion} className="flex flex-wrap items-start gap-3">
+                {envolverBloques(children, id, layout, edicion)}
+                <Bloque key={`${id}:expl`} clave={`${id}:expl`} baseAncho={100} layout={layout} edicion={edicion}>
+                  <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
+                </Bloque>
+              </Zona>
+            ) : (
+              <div className="space-y-3">
+                {children}
                 <ExplicacionTabla id={id} texto={explicaciones?.[id]} edicion={edicion} />
-              </Bloque>
-            </Zona>
+              </div>
+            )}
           </CardContent>
         </Card>
-        {edicion && (
+        {libre && (
           <>
             <Tirador lado="izq" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(-1)} onFin={finalizar} />
             <Tirador lado="der" contenedor={ref} onInicio={comenzar} onDrag={redimensionar(1)} onFin={finalizar} />
@@ -836,7 +860,7 @@ export function DashboardInforme({
   series,
   secciones,
   imprimible = false,
-  edicion,
+  edicion: edicionProp,
 }: {
   informe: InformeMensual;
   series: SerieFila[];
@@ -847,7 +871,11 @@ export function DashboardInforme({
 }) {
   const visible = secciones ? new Set(secciones) : null;
   const expl = informe.explicaciones ?? {};
-  const lay = informe.layout ?? {};
+  // Vista estándar (distribución profesional fija) vs. ajuste manual libre.
+  const [manual, setManual] = useState(false);
+  const libre = Boolean(edicionProp) && manual && !imprimible;
+  const edicion = edicionProp ? { ...edicionProp, libre } : undefined;
+  const lay = libre ? informe.layout ?? {} : {};
   const d = informe.datos ?? {};
   const f = d.repfacmes;
   const { mesNombre, anio, periodoFiscal, inicioFiscal } = infoPeriodo(informe.periodo);
@@ -907,16 +935,29 @@ export function DashboardInforme({
     etiqueta: nombreVendedor(v.codigo, informe.periodo),
   }));
 
+
   return (
     <div className="space-y-3">
       <PreambuloInforme periodo={informe.periodo} estado={informe.estado} generadoEn={informe.generado_en} />
 
+      {edicionProp && !imprimible && (
+        <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+          <span className="text-xs text-muted-foreground">
+            {manual ? "Ajuste manual: arrastra para mover y redimensionar." : "Vista estándar: distribución óptima."}
+          </span>
+          <Button size="sm" variant={manual ? "default" : "outline"} onClick={() => setManual((v) => !v)}>
+            {manual ? "Volver a vista estándar" : "Ajustar manualmente"}
+          </Button>
+        </div>
+      )}
+
       <Zona
         clave="__raiz"
         layout={lay}
-        edicion={edicion}
-        className={`flex flex-wrap items-start gap-3 ${imprimible ? "print:gap-2" : ""}`}
+        edicion={libre ? edicion : undefined}
+        className={`flex flex-wrap items-stretch gap-3 ${imprimible ? "print:gap-2" : ""}`}
       >
+
 
 
 
