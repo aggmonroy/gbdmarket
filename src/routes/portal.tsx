@@ -33,6 +33,7 @@ import { CatalogoPortal } from "@/components/portal/CatalogoPortal";
 import { SeguimientoDialog } from "@/components/portal/SeguimientoDialog";
 import { AsesorPage } from "@/components/calculadora/AsesorPage";
 import { CotizacionCarrito } from "@/components/portal/CotizacionCarrito";
+import { PaseCotizacionCard } from "@/components/portal/PaseCotizacionCard";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -162,7 +163,12 @@ function Portal() {
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
         {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
-        {vista === "calculadora" && <AsesorPage token={sesion.token} permitirBordados />}
+        {vista === "calculadora" && (
+          <div className="space-y-4">
+            <PaseCotizacionCard token={sesion.token} />
+            <AsesorPage token={sesion.token} permitirBordados />
+          </div>
+        )}
         {vista === "informe" && <InformeMensualPortal sesion={sesion} />}
       </div>
     </div>

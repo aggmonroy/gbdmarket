@@ -195,3 +195,22 @@ export async function resumenAbiertas(estados: string[]) {
     };
   });
 }
+
+/**
+ * Pase de acceso directo a la calculadora de cotizaciones (sin PIN).
+ * Es un enlace firmado, no adivinable, ligado a un colaborador y con caducidad.
+ */
+export async function signPaseCotizacion(colaboradorId: string, dias = 90): Promise<string> {
+  const exp = Date.now() + dias * 24 * 60 * 60 * 1000;
+  const body = btoa(JSON.stringify({ cid: colaboradorId, exp, n: randomSalt() }));
+  return `${body}.${await hmac(`pase:${body}`)}`;
+}
+
+export async function verifyPaseCotizacion(token: string | undefined | null): Promise<string> {
+  if (!token || !token.includes(".")) throw new Error("Enlace de acceso no válido");
+  const [body, sig] = token.split(".");
+  if (sig !== (await hmac(`pase:${body!}`))) throw new Error("Enlace de acceso no válido");
+  const payload = JSON.parse(atob(body!)) as { cid: string; exp: number };
+  if (!payload.exp || payload.exp < Date.now()) throw new Error("El enlace de acceso ha expirado");
+  return payload.cid;
+}
