@@ -162,7 +162,12 @@ function Portal() {
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
         {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
-        {vista === "calculadora" && <AsesorPage token={sesion.token} permitirBordados />}
+        {vista === "calculadora" && (
+          <div className="space-y-4">
+            <PaseCotizacionCard token={sesion.token} />
+            <AsesorPage token={sesion.token} permitirBordados />
+          </div>
+        )}
         {vista === "informe" && <InformeMensualPortal sesion={sesion} />}
       </div>
     </div>
