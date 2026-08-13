@@ -70,7 +70,11 @@ function Portal() {
   const [cotizacionTareaId, setCotizacionTareaId] = useState<string | null>(null);
 
   useEffect(() => {
-    setSesion(leerSesion());
+    const s = leerSesion();
+    setSesion(s);
+    // Enlace directo: /portal?v=calculadora abre la calculadora al ingresar.
+    const v = new URLSearchParams(window.location.search).get("v");
+    if (s && v === "calculadora") setVista("calculadora");
   }, []);
 
   const guardar = (s: Sesion | null, recordar = false) => {
@@ -78,7 +82,8 @@ function Portal() {
     sessionStorage.removeItem(KEY);
     if (s) (recordar ? localStorage : sessionStorage).setItem(KEY, JSON.stringify(s));
     setSesion(s);
-    setVista("menu");
+    const v = s ? new URLSearchParams(window.location.search).get("v") : null;
+    setVista(v === "calculadora" ? "calculadora" : "menu");
   };
 
   // Si el servidor rechaza la sesión (token viejo o expirado), cerramos sesión

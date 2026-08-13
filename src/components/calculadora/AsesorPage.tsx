@@ -173,7 +173,7 @@ export function AsesorPage({
                 tipoCliente === "gobierno" ? "bg-[#1F6DD8] text-white border-[#1F6DD8]" : "bg-white text-[#535E6F] border-[#DBE2EB]"
               }`}
             >
-              <Landmark size={16} /> Gobierno
+              <Landmark size={16} /> Instituciones Gubernamentales
             </button>
           </div>
         </div>
