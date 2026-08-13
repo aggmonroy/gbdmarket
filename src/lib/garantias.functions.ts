@@ -485,3 +485,32 @@ export const resolverSolicitudPin = createServerFn({ method: "POST" })
       .eq("id", data.solicitud_id);
     return { ok: true };
   });
+
+/* ------------------- Pase directo a cotizaciones (sin login) ------------------- */
+
+/** El colaborador genera su enlace privado de acceso directo a la calculadora. */
+export const generarPaseCotizacion = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ token: z.string().min(1), dias: z.number().int().min(1).max(365).default(90) }).parse(d))
+  .handler(async ({ data }) => {
+    const s = await verifySesion(data.token);
+    const { signPaseCotizacion } = await import("./garantias.server");
+    const pase = await signPaseCotizacion(s.cid, data.dias);
+    return { pase, dias: data.dias };
+  });
+
+/** Canje del enlace: devuelve una sesión corta solo para cotizar. */
+export const canjearPaseCotizacion = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ pase: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    const { verifyPaseCotizacion } = await import("./garantias.server");
+    const cid = await verifyPaseCotizacion(data.pase);
+    const sb = await admin();
+    const { data: c } = await sb
+      .from("colaboradores")
+      .select("id,nombre,rol,activo,deleted_at")
+      .eq("id", cid)
+      .maybeSingle();
+    if (!c || !c.activo || c.deleted_at) throw new Error("Enlace de acceso no válido");
+    const token = await signSesion({ cid: c.id, rol: c.rol, nombre: c.nombre }, 8);
+    return { token, colaborador: { id: c.id, nombre: c.nombre, rol: c.rol } };
+  });
