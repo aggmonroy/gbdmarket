@@ -33,6 +33,7 @@ import { CatalogoPortal } from "@/components/portal/CatalogoPortal";
 import { SeguimientoDialog } from "@/components/portal/SeguimientoDialog";
 import { AsesorPage } from "@/components/calculadora/AsesorPage";
 import { CotizacionCarrito } from "@/components/portal/CotizacionCarrito";
+import { PaseCotizacionCard } from "@/components/portal/PaseCotizacionCard";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
