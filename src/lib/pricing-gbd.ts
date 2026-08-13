@@ -24,7 +24,7 @@ export const etiquetaTipoCliente = (t: TipoCliente) =>
     : t === "colaborador"
       ? "Colaborador GBD"
       : t === "gobierno"
-        ? "Gobierno / Institución"
+        ? "Instituciones Gubernamentales"
         : "No asociado";
 
 export interface ProductoInput {

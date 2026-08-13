@@ -11,7 +11,7 @@ const ETIQUETA_TIPO: Record<string, string> = {
   asociado: "Asociado",
   colaborador: "Colaborador GBD",
   tercero: "No asociado (tercero)",
-  gobierno: "Gobierno / Institución",
+  gobierno: "Instituciones Gubernamentales",
 };
 
 /**
