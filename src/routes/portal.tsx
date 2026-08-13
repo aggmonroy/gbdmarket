@@ -82,7 +82,8 @@ function Portal() {
     sessionStorage.removeItem(KEY);
     if (s) (recordar ? localStorage : sessionStorage).setItem(KEY, JSON.stringify(s));
     setSesion(s);
-    setVista("menu");
+    const v = s ? new URLSearchParams(window.location.search).get("v") : null;
+    setVista(v === "calculadora" ? "calculadora" : "menu");
   };
 
   // Si el servidor rechaza la sesión (token viejo o expirado), cerramos sesión
