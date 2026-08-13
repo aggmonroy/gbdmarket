@@ -70,7 +70,11 @@ function Portal() {
   const [cotizacionTareaId, setCotizacionTareaId] = useState<string | null>(null);
 
   useEffect(() => {
-    setSesion(leerSesion());
+    const s = leerSesion();
+    setSesion(s);
+    // Enlace directo: /portal?v=calculadora abre la calculadora al ingresar.
+    const v = new URLSearchParams(window.location.search).get("v");
+    if (s && v === "calculadora") setVista("calculadora");
   }, []);
 
   const guardar = (s: Sesion | null, recordar = false) => {
