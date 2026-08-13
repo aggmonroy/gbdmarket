@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BordadosRouteImport } from './routes/bordados'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as ContactoRouteImport } from './routes/contacto'
+import { Route as CotizarRouteImport } from './routes/cotizar'
 import { Route as FinanciamientoRouteImport } from './routes/financiamiento'
 import { Route as GarantiasRouteImport } from './routes/garantias'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
@@ -81,6 +82,11 @@ const CatalogoRoute = CatalogoRouteImport.update({
 const ContactoRoute = ContactoRouteImport.update({
   id: '/contacto',
   path: '/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CotizarRoute = CotizarRouteImport.update({
+  id: '/cotizar',
+  path: '/cotizar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinanciamientoRoute = FinanciamientoRouteImport.update({
@@ -301,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/bordados': typeof BordadosRoute
   '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
+  '/cotizar': typeof CotizarRoute
   '/financiamiento': typeof FinanciamientoRoute
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
@@ -346,6 +353,7 @@ export interface FileRoutesByTo {
   '/bordados': typeof BordadosRoute
   '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
+  '/cotizar': typeof CotizarRoute
   '/financiamiento': typeof FinanciamientoRoute
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
@@ -392,6 +400,7 @@ export interface FileRoutesById {
   '/bordados': typeof BordadosRoute
   '/catalogo': typeof CatalogoRoute
   '/contacto': typeof ContactoRoute
+  '/cotizar': typeof CotizarRoute
   '/financiamiento': typeof FinanciamientoRoute
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
@@ -439,6 +448,7 @@ export interface FileRouteTypes {
     | '/bordados'
     | '/catalogo'
     | '/contacto'
+    | '/cotizar'
     | '/financiamiento'
     | '/garantias'
     | '/linea-blanca'
@@ -484,6 +494,7 @@ export interface FileRouteTypes {
     | '/bordados'
     | '/catalogo'
     | '/contacto'
+    | '/cotizar'
     | '/financiamiento'
     | '/garantias'
     | '/linea-blanca'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/bordados'
     | '/catalogo'
     | '/contacto'
+    | '/cotizar'
     | '/financiamiento'
     | '/garantias'
     | '/linea-blanca'
@@ -576,6 +588,7 @@ export interface RootRouteChildren {
   BordadosRoute: typeof BordadosRoute
   CatalogoRoute: typeof CatalogoRoute
   ContactoRoute: typeof ContactoRoute
+  CotizarRoute: typeof CotizarRoute
   FinanciamientoRoute: typeof FinanciamientoRoute
   GarantiasRoute: typeof GarantiasRoute
   LineaBlancaRoute: typeof LineaBlancaRoute
@@ -638,6 +651,13 @@ declare module '@tanstack/react-router' {
       path: '/contacto'
       fullPath: '/contacto'
       preLoaderRoute: typeof ContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cotizar': {
+      id: '/cotizar'
+      path: '/cotizar'
+      fullPath: '/cotizar'
+      preLoaderRoute: typeof CotizarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/financiamiento': {
@@ -976,6 +996,7 @@ const rootRouteChildren: RootRouteChildren = {
   BordadosRoute: BordadosRoute,
   CatalogoRoute: CatalogoRoute,
   ContactoRoute: ContactoRoute,
+  CotizarRoute: CotizarRoute,
   FinanciamientoRoute: FinanciamientoRoute,
   GarantiasRoute: GarantiasRoute,
   LineaBlancaRoute: LineaBlancaRoute,
