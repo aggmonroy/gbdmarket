@@ -1,11 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { admin, verifySesion } from "./garantias.server";
-import { ABIERTOS, aplicarVisibilidad, decorar, generarNumeroTarea, hoyISO, nombresColaboradores } from "./tareas.server";
+import { ABIERTOS, agregarSeguimientos, aplicarVisibilidad, decorar, generarNumeroTarea, hoyISO, nombresColaboradores } from "./tareas.server";
 import {
   aceptarTareaSchema,
   apoyoTareaSchema,
   asignarTareaSchema,
   casosCerradosSchema,
+  cerrarCotizacionInternaSchema,
+  crearCotizacionInternaSchema,
+  listoEntregaSchema,
   completarTareaSchema,
   crearTareaSchema,
   listSeguimientosTareaSchema,
@@ -223,6 +226,104 @@ export const reabrirTarea = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Marca un pedido de bordados como listo para entrega: queda visible en la
+ * tarjeta y se registra en el historial de seguimientos.
+ */
+export const marcarListoEntrega = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => listoEntregaSchema.parse(d))
+  .handler(async ({ data }) => {
+    const s = await verifySesion(data.token);
+    if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
+    const sb = await admin();
+    const { data: t } = await sb.from("tareas").select("id,estado,listo_entrega_en").eq("id", data.id).maybeSingle();
+    if (!t) throw new Error("Tarea no encontrada");
+    if (t.listo_entrega_en) return { ok: true, ya: true };
+    const ahora = new Date().toISOString();
+    const { error } = await sb
+      .from("tareas")
+      .update({
+        listo_entrega_en: ahora,
+        estado: t.estado === "pendiente" ? "en_proceso" : t.estado === "aceptada" ? "en_proceso" : t.estado,
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await sb.from("tarea_seguimientos").insert({
+      tarea_id: data.id,
+      fecha: hoyISO(),
+      via: "Personalmente",
+      texto: "El pedido de bordados quedó listo para entrega.",
+      creado_por: s.cid,
+    });
+    return { ok: true };
+  });
+
+/** Guarda una cotización hecha en la calculadora como cotización activa. */
+export const crearCotizacionInterna = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => crearCotizacionInternaSchema.parse(d))
+  .handler(async ({ data }) => {
+    const s = await verifySesion(data.token);
+    if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
+    const sb = await admin();
+    const numero = await generarNumeroTarea(sb, "tarea");
+    const ahora = new Date().toISOString();
+    const cliente = data.cliente?.trim() || "Cliente sin nombre";
+    const { data: row, error } = await sb
+      .from("tareas")
+      .insert({
+        tipo: "tarea",
+        origen: "cotizacion-interna",
+        numero_orden: numero,
+        titulo: `Cotización activa · ${cliente}`,
+        descripcion: [
+          data.tipo_cliente ? `Tipo de cliente: ${data.tipo_cliente}` : null,
+          data.total ? `Total cotizado: B/. ${data.total}` : null,
+          data.resumen || null,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        asignado_a: s.cid,
+        creado_por: s.cid,
+        fecha: hoyISO(),
+        estado: "aceptada",
+        aceptada_en: ahora,
+      })
+      .select("id,numero_orden")
+      .single();
+    if (error) throw new Error(error.message);
+    return row as { id: string; numero_orden: string };
+  });
+
+/** Cierra una cotización activa marcándola como compra o como rechazo. */
+export const cerrarCotizacionInterna = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => cerrarCotizacionInternaSchema.parse(d))
+  .handler(async ({ data }) => {
+    const s = await verifySesion(data.token);
+    if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
+    const sb = await admin();
+    const { data: t } = await sb.from("tareas").select("id,nota_cierre").eq("id", data.id).maybeSingle();
+    if (!t) throw new Error("Cotización no encontrada");
+    const ahora = new Date().toISOString();
+    const etiqueta = data.resultado === "compra" ? "Cerrada como COMPRA" : "Cerrada como RECHAZO";
+    const { error } = await sb
+      .from("tareas")
+      .update({
+        resultado_cierre: data.resultado,
+        estado: "finalizada",
+        finalizada_responsable_en: ahora,
+        finalizada_apoyo_en: ahora,
+        cerrada_en: ahora,
+        completada_en: hoyISO(),
+        completada_por: s.cid,
+        nota_cierre: [t.nota_cierre, `${s.nombre}: ${etiqueta}${data.nota ? ` · ${data.nota}` : ""}`]
+          .filter(Boolean)
+          .join("\n"),
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 /* --------------------------- Seguimientos --------------------------- */
 
 /**
@@ -283,7 +384,7 @@ export const solicitudesActivas = createServerFn({ method: "POST" })
     if (data.q) q = q.or(`titulo.ilike.%${data.q}%,descripcion.ilike.%${data.q}%,numero_orden.ilike.%${data.q}%`);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    const items = await decorar(sb, rows ?? []);
+    const items = await agregarSeguimientos(sb, await decorar(sb, rows ?? []));
     const porOrigen: Record<string, number> = {};
     const porEstado: Record<string, number> = {};
     for (const t of items) {

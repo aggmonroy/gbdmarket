@@ -22,6 +22,24 @@ export async function decorar(sb: any, rows: any[]) {
   }));
 }
 
+/** Adjunta el historial de seguimientos a cada tarea para verlo en la tarjeta. */
+export async function agregarSeguimientos(sb: any, rows: any[]) {
+  if (!rows.length) return rows;
+  const { data } = await sb
+    .from("tarea_seguimientos")
+    .select("*")
+    .in("tarea_id", rows.map((r: any) => r.id))
+    .order("created_at", { ascending: true });
+  const nombres = await nombresColaboradores(sb);
+  const porTarea = new Map<string, any[]>();
+  for (const s of data ?? []) {
+    const lista = porTarea.get(s.tarea_id) ?? [];
+    lista.push({ ...s, autor: s.creado_por ? nombres.get(s.creado_por) ?? "—" : "Sistema" });
+    porTarea.set(s.tarea_id, lista);
+  }
+  return rows.map((r: any) => ({ ...r, seguimientos: porTarea.get(r.id) ?? [] }));
+}
+
 export async function nombresColaboradores(sb: any) {
   const { data } = await sb.from("colaboradores").select("id,nombre");
   return new Map<string, string>((data ?? []).map((c: any) => [c.id, c.nombre]));
