@@ -1,4 +1,8 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { ClipboardCheck } from "lucide-react";
+import { crearCotizacionInterna } from "@/lib/tareas.functions";
 import { Plus, Calculator, Users, UserCheck, Eye, EyeOff, AlertTriangle, X, User, BadgeCheck, Landmark } from "lucide-react";
 import {
   calcularProducto,
@@ -81,6 +85,11 @@ export function AsesorPage({
   };
   const addProducto = () => setProductos((prev) => [...prev, nuevoProducto()]);
   const [buscador, setBuscador] = useState(false);
+
+  // Cotización interna guardada como "cotización activa" en Solicitudes Activas.
+  const crearCotFn = useServerFn(crearCotizacionInterna);
+  const [guardandoCot, setGuardandoCot] = useState(false);
+  const [numeroCot, setNumeroCot] = useState<string | null>(null);
 
   /** Añade a la cotización un artículo escogido del catálogo con su ficha. */
   const addDesdeCatalogo = (p: ProductoCatalogo) =>
@@ -324,6 +333,53 @@ export function AsesorPage({
             </button>
 
             <EnlaceGeneradorCard tipoCliente={tipoCliente} calculados={calculados} modo="ver" cliente={cliente} capacidad={capacidadInfo} />
+
+            {token && !onFinalizar && (
+              <div className="bg-white rounded-xl border border-[#DBE2EB] p-4">
+                <p className="text-xs uppercase tracking-wide text-[#68758A] font-bold mb-1 flex items-center gap-1.5">
+                  <ClipboardCheck size={14} /> Cotización activa
+                </p>
+                <p className="text-[11px] text-[#8793A5] mb-3">
+                  Guarda esta cotización como tarea pendiente en Solicitudes Activas para darle seguimiento y cerrarla
+                  luego como compra o como rechazo.
+                </p>
+                {numeroCot ? (
+                  <p className="text-xs font-bold text-[#2F5D3A] bg-[#E4EEE0] rounded-lg px-3 py-2">
+                    Guardada como cotización activa {numeroCot}
+                  </p>
+                ) : (
+                  <button
+                    disabled={guardandoCot}
+                    onClick={async () => {
+                      setGuardandoCot(true);
+                      try {
+                        const r: any = await crearCotFn({
+                          data: {
+                            token,
+                            cliente: cliente.nombre || "",
+                            tipo_cliente: tipoCliente,
+                            total: contadoTotal.toFixed(2),
+                            resumen: calculados
+                              .map((p, i) => `${p.cantidad || 1} × ${p.nombre || `Producto ${i + 1}`}`)
+                              .join(", "),
+                          } as any,
+                        });
+                        setNumeroCot(r.numero_orden);
+                        toast.success(`Cotización activa ${r.numero_orden} creada`);
+                      } catch (e: any) {
+                        toast.error(e?.message ?? "No se pudo guardar la cotización");
+                      } finally {
+                        setGuardandoCot(false);
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#1F6DD8] hover:bg-[#0054BD] disabled:opacity-60 text-white font-bold text-sm transition-colors"
+                  >
+                    <ClipboardCheck size={16} /> {guardandoCot ? "Guardando…" : "Guardar como cotización activa"}
+                  </button>
+                )}
+              </div>
+            )}
+
             {onFinalizar && (
               <button
                 disabled={finalizando}
