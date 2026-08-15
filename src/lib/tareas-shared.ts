@@ -43,6 +43,7 @@ export const ORIGENES_TAREA = [
   "bordados",
   "garantia",
   "cotizacion",
+  "cotizacion-interna",
   "interaccion",
   "whatsapp",
   "interno",
@@ -54,6 +55,7 @@ export const ORIGEN_TAREA_LABEL: Record<OrigenTarea, string> = {
   bordados: "Bordados",
   garantia: "Garantía",
   cotizacion: "Cotización del carrito",
+  "cotizacion-interna": "Cotización interna activa",
   interaccion: "Interacción del sitio",
   whatsapp: "Contacto por WhatsApp",
   interno: "Registro interno",
@@ -110,6 +112,31 @@ export const completarTareaSchema = z.object({
   token: z.string().min(1),
   id: z.string().uuid(),
   nota_cierre: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
+export const listoEntregaSchema = z.object({ token: z.string().min(1), id: z.string().uuid() });
+
+export const RESULTADOS_COTIZACION = ["compra", "rechazo"] as const;
+export type ResultadoCotizacion = (typeof RESULTADOS_COTIZACION)[number];
+
+export const RESULTADO_COTIZACION_LABEL: Record<ResultadoCotizacion, string> = {
+  compra: "Cerrada como compra",
+  rechazo: "Cerrada como rechazo",
+};
+
+export const cerrarCotizacionInternaSchema = z.object({
+  token: z.string().min(1),
+  id: z.string().uuid(),
+  resultado: z.enum(RESULTADOS_COTIZACION),
+  nota: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
+export const crearCotizacionInternaSchema = z.object({
+  token: z.string().min(1),
+  cliente: z.string().trim().max(160).optional().or(z.literal("")),
+  tipo_cliente: z.string().trim().max(40).optional().or(z.literal("")),
+  resumen: z.string().trim().max(2000).optional().or(z.literal("")),
+  total: z.union([z.string(), z.number()]).optional(),
 });
 
 export const reabrirTareaSchema = z.object({ token: z.string().min(1), id: z.string().uuid() });
