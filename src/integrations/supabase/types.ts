@@ -273,6 +273,7 @@ export type Database = {
           cta_url: string | null
           display_order: number
           draft_data: Json | null
+          duracion_segundos: number | null
           has_draft: boolean
           id: string
           image_url: string | null
@@ -290,6 +291,7 @@ export type Database = {
           cta_url?: string | null
           display_order?: number
           draft_data?: Json | null
+          duracion_segundos?: number | null
           has_draft?: boolean
           id?: string
           image_url?: string | null
@@ -307,6 +309,7 @@ export type Database = {
           cta_url?: string | null
           display_order?: number
           draft_data?: Json | null
+          duracion_segundos?: number | null
           has_draft?: boolean
           id?: string
           image_url?: string | null
@@ -1267,9 +1270,11 @@ export type Database = {
           finalizada_responsable_en: string | null
           garantia_id: string | null
           id: string
+          listo_entrega_en: string | null
           nota_cierre: string | null
           numero_orden: string | null
           origen: string | null
+          resultado_cierre: string | null
           tipo: string
           titulo: string
           updated_at: string
@@ -1295,9 +1300,11 @@ export type Database = {
           finalizada_responsable_en?: string | null
           garantia_id?: string | null
           id?: string
+          listo_entrega_en?: string | null
           nota_cierre?: string | null
           numero_orden?: string | null
           origen?: string | null
+          resultado_cierre?: string | null
           tipo?: string
           titulo: string
           updated_at?: string
@@ -1323,9 +1330,11 @@ export type Database = {
           finalizada_responsable_en?: string | null
           garantia_id?: string | null
           id?: string
+          listo_entrega_en?: string | null
           nota_cierre?: string | null
           numero_orden?: string | null
           origen?: string | null
+          resultado_cierre?: string | null
           tipo?: string
           titulo?: string
           updated_at?: string
