@@ -2,14 +2,22 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, HandHelping, Inbox, PlayCircle, UserCheck } from "lucide-react";
+import { CheckCircle2, HandHelping, Inbox, PackageCheck, PlayCircle, ThumbsDown, ThumbsUp, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { listColaboradoresLogin } from "@/lib/garantias.functions";
-import { aceptarTarea, agregarApoyo, asignarTarea, finalizarTarea, solicitudesActivas } from "@/lib/tareas.functions";
+import {
+  aceptarTarea,
+  agregarApoyo,
+  asignarTarea,
+  cerrarCotizacionInterna,
+  finalizarTarea,
+  marcarListoEntrega,
+  solicitudesActivas,
+} from "@/lib/tareas.functions";
 import {
   ESTADO_TAREA_LABEL,
   ESTADOS_TAREA,
@@ -39,6 +47,8 @@ export function SolicitudesActivas({
   const apoyoFn = useServerFn(agregarApoyo);
   const finalizarFn = useServerFn(finalizarTarea);
   const colabsFn = useServerFn(listColaboradoresLogin);
+  const listoFn = useServerFn(marcarListoEntrega);
+  const cerrarCotFn = useServerFn(cerrarCotizacionInterna);
 
   const [origen, setOrigen] = useState<string>("todos");
   const [estado, setEstado] = useState<string>("todos");
@@ -58,6 +68,12 @@ export function SolicitudesActivas({
   const asignar = accion((v) => asignarFn({ data: { token: sesion.token, ...v } }) as any, "Responsable asignado");
   const apoyo = accion((v) => apoyoFn({ data: { token: sesion.token, ...v } }) as any, "Apoyo actualizado");
   const finalizar = accion((v) => finalizarFn({ data: { token: sesion.token, ...v } }) as any, "Finalización registrada");
+
+  const listo = accion((v) => listoFn({ data: { token: sesion.token, ...v } }) as any, "Pedido listo para entrega");
+  const cerrarCot = accion(
+    (v) => cerrarCotFn({ data: { token: sesion.token, ...v } }) as any,
+    "Cotización cerrada"
+  );
 
   const items: any[] = data?.items ?? [];
 
@@ -130,6 +146,17 @@ export function SolicitudesActivas({
                         {t.apoyo && ` · Apoyo: ${t.apoyo}`} · Abierta hace {diasEntre(t.created_at) ?? 0} día(s)
                       </p>
                     </div>
+                    {t.origen === "bordados" && !soloLectura && (
+                      <Button
+                        size="lg"
+                        disabled={Boolean(t.listo_entrega_en)}
+                        onClick={() => listo.run({ id: t.id })}
+                        className="h-14 shrink-0 bg-emerald-600 px-6 text-base font-bold text-white shadow-md hover:bg-emerald-700 disabled:opacity-100"
+                      >
+                        <PackageCheck className="mr-2 h-6 w-6" />
+                        {t.listo_entrega_en ? "Listo para entrega ✓" : "Listo para entrega"}
+                      </Button>
+                    )}
                     {t.origen === "cotizacion" && onAbrirCotizacion && (
                       <Button size="sm" onClick={() => onAbrirCotizacion(t.id)}>
                         Abrir calculadora de precios
@@ -144,6 +171,22 @@ export function SolicitudesActivas({
                     )}
                   </div>
 
+                  {Boolean(t.seguimientos?.length) && (
+                    <div className="space-y-1.5 rounded-md border border-border/70 bg-muted/30 p-2">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        Seguimientos ({t.seguimientos.length})
+                      </p>
+                      {t.seguimientos.map((sg: any) => (
+                        <div key={sg.id} className="text-xs">
+                          <span className="text-muted-foreground">
+                            {sg.fecha} · {sg.via === "Otro" && sg.via_detalle ? sg.via_detalle : sg.via} · {sg.autor}:
+                          </span>{" "}
+                          <span>{sg.texto}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap items-center gap-2">
                     <SeguimientoDialog
                       token={sesion.token}
@@ -153,6 +196,21 @@ export function SolicitudesActivas({
                       onSaved={() => refetch()}
                     />
                   </div>
+
+                  {!soloLectura && t.origen === "cotizacion-interna" && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-emerald-600 text-white hover:bg-emerald-700"
+                        onClick={() => cerrarCot.run({ id: t.id, resultado: "compra" })}
+                      >
+                        <ThumbsUp className="mr-1.5 h-4 w-4" /> Marcar como compra
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => cerrarCot.run({ id: t.id, resultado: "rechazo" })}>
+                        <ThumbsDown className="mr-1.5 h-4 w-4" /> Marcar como rechazo
+                      </Button>
+                    </div>
+                  )}
 
                   {!soloLectura && (
                     <div className="flex flex-wrap items-center gap-2">
