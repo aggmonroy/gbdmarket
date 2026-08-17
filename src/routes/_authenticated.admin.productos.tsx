@@ -66,6 +66,7 @@ const empty = {
   images: "",
   datasheet_url: "",
   manual_url: "",
+  catalog_url: "",
   is_featured: false,
   is_published: true,
 };
