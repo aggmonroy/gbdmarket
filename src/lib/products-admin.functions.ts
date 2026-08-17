@@ -23,6 +23,7 @@ const productSchema = z.object({
   disponibilidad: z.enum(["en_stock", "bajo_pedido"]).default("en_stock"),
   images: z.array(z.string()).optional().nullable(),
   datasheet_url: z.string().url().optional().nullable().or(z.literal("")),
+  catalog_url: z.string().url().optional().nullable().or(z.literal("")),
   manual_url: z.string().url().optional().nullable().or(z.literal("")),
   is_featured: z.boolean(),
   is_published: z.boolean(),
