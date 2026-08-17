@@ -57,6 +57,7 @@ export const upsertProduct = createServerFn({ method: "POST" })
       ...rest,
       stock: rest.disponibilidad === "en_stock" ? (rest.stock ?? 1) : 0,
       datasheet_url: rest.datasheet_url || null,
+      catalog_url: rest.catalog_url || null,
       manual_url: rest.manual_url || null,
       images: rest.images ?? [],
       features: rest.features ?? [],
