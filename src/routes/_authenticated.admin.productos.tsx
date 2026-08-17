@@ -133,6 +133,7 @@ function ProductsPage() {
       images: (p.images ?? []).join("\n"),
       datasheet_url: p.datasheet_url ?? "",
       manual_url: p.manual_url ?? "",
+      catalog_url: p.catalog_url ?? "",
       is_featured: !!p.is_featured,
       is_published: !!p.is_published,
     });
