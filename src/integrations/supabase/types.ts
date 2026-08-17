@@ -980,6 +980,7 @@ export type Database = {
       products: {
         Row: {
           brand: string | null
+          catalog_url: string | null
           category_id: string | null
           code: string | null
           created_at: string
@@ -1005,6 +1006,7 @@ export type Database = {
         }
         Insert: {
           brand?: string | null
+          catalog_url?: string | null
           category_id?: string | null
           code?: string | null
           created_at?: string
@@ -1030,6 +1032,7 @@ export type Database = {
         }
         Update: {
           brand?: string | null
+          catalog_url?: string | null
           category_id?: string | null
           code?: string | null
           created_at?: string
