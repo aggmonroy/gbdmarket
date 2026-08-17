@@ -66,6 +66,7 @@ const empty = {
   images: "",
   datasheet_url: "",
   manual_url: "",
+  catalog_url: "",
   is_featured: false,
   is_published: true,
 };
@@ -132,6 +133,7 @@ function ProductsPage() {
       images: (p.images ?? []).join("\n"),
       datasheet_url: p.datasheet_url ?? "",
       manual_url: p.manual_url ?? "",
+      catalog_url: p.catalog_url ?? "",
       is_featured: !!p.is_featured,
       is_published: !!p.is_published,
     });
@@ -185,6 +187,7 @@ function ProductsPage() {
           images: form.images.split("\n").map((s: string) => s.trim()).filter(Boolean),
           datasheet_url: form.datasheet_url.trim() || null,
           manual_url: form.manual_url.trim() || null,
+          catalog_url: (form.catalog_url ?? "").trim() || null,
           is_featured: form.is_featured,
           is_published: form.is_published,
           publish,
@@ -428,15 +431,37 @@ function ProductsPage() {
               <Textarea rows={4} value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} placeholder={"Capacidad 18 pies\nInverter\nNo Frost"} />
             </div>
             <div className="sm:col-span-2 space-y-2">
-              <Label>Imágenes (URLs, una por línea)</Label>
-              <Textarea rows={3} value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
+              <Label>Fotos del producto</Label>
+              <GaleriaUploader
+                urls={form.images.split("\n").map((s: string) => s.trim()).filter(Boolean)}
+                onChange={(urls) => setForm({ ...form, images: urls.join("\n") })}
+              />
+              <details>
+                <summary className="cursor-pointer text-xs text-muted-foreground">O pegar URLs (una por línea)</summary>
+                <Textarea className="mt-2" rows={3} value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
+              </details>
+            </div>
+            <div className="sm:col-span-2 space-y-2">
+              <Label>Catálogo del proveedor (PDF)</Label>
+              <DocumentoUploader
+                label="catálogo PDF"
+                value={form.catalog_url}
+                onChange={(url) => setForm({ ...form, catalog_url: url })}
+              />
+              <Input
+                placeholder="O pegar URL del catálogo"
+                value={form.catalog_url}
+                onChange={(e) => setForm({ ...form, catalog_url: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
-              <Label>Ficha técnica (URL)</Label>
+              <Label>Ficha técnica (PDF o URL)</Label>
+              <DocumentoUploader label="ficha técnica" value={form.datasheet_url} onChange={(url) => setForm({ ...form, datasheet_url: url })} />
               <Input value={form.datasheet_url} onChange={(e) => setForm({ ...form, datasheet_url: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>Manual (URL)</Label>
+              <Label>Manual (PDF o URL)</Label>
+              <DocumentoUploader label="manual" value={form.manual_url} onChange={(url) => setForm({ ...form, manual_url: url })} />
               <Input value={form.manual_url} onChange={(e) => setForm({ ...form, manual_url: e.target.value })} />
             </div>
             <div className="flex items-center justify-between rounded-md border border-border p-3">
