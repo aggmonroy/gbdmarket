@@ -187,6 +187,7 @@ function ProductsPage() {
           images: form.images.split("\n").map((s: string) => s.trim()).filter(Boolean),
           datasheet_url: form.datasheet_url.trim() || null,
           manual_url: form.manual_url.trim() || null,
+          catalog_url: (form.catalog_url ?? "").trim() || null,
           is_featured: form.is_featured,
           is_published: form.is_published,
           publish,
