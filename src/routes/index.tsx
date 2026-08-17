@@ -43,7 +43,7 @@ const sucursales = [
 ];
 
 // Ambient gallery fallback — each item deep-links into the catalog
-type GalleryItem = { image_url: string; title: string; subtitle: string; href: string; search?: Record<string, string> };
+type GalleryItem = { image_url: string; title: string; subtitle: string; href: string; search?: Record<string, string>; duracion?: number | null };
 
 const FALLBACK_AMBIENT: GalleryItem[] = [
   { image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1600&q=80", title: "Sala en uso", subtitle: "Juego de sala y mesa de centro en el hogar", href: "/catalogo", search: { q: "sala" } },
@@ -87,7 +87,7 @@ function useGallerySection(section: string, fallback: GalleryItem[]) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("content_blocks")
-        .select("id,title,subtitle,image_url,cta_url,display_order")
+        .select("id,title,subtitle,image_url,cta_url,display_order,duracion_segundos")
         .eq("section", section)
         .eq("is_active", true)
         .order("display_order");
@@ -108,6 +108,7 @@ function useGallerySection(section: string, fallback: GalleryItem[]) {
           subtitle: d.subtitle ?? "",
           href: path || "/catalogo",
           search,
+          duracion: (d as any).duracion_segundos ?? null,
         };
       })
     : fallback;
@@ -138,9 +139,10 @@ function HeroFused() {
 
   useEffect(() => {
     if (items.length < 2) return;
-    const t = setInterval(next, 5000);
-    return () => clearInterval(t);
-  }, [next, items.length]);
+    const segundos = Number(items[i]?.duracion) > 0 ? Number(items[i]!.duracion) : 5;
+    const t = setTimeout(next, segundos * 1000);
+    return () => clearTimeout(t);
+  }, [next, items.length, i, items]);
 
   const infoCards = [
     { to: "/financiamiento", Icon: CreditCard, title: "Financiamiento", desc: "Crédito cooperativo flexible de 3 a 24 meses.", cta: "Solicitar crédito" },

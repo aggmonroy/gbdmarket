@@ -22,6 +22,7 @@ const schema = z.object({
   cta_url: z.string().max(400).optional().nullable(),
   is_active: z.boolean(),
   display_order: z.number().int().nonnegative(),
+  duracion_segundos: z.number().int().min(1).max(120).optional().nullable(),
   publish: z.boolean().optional().default(true),
 });
 
@@ -36,7 +37,7 @@ export const listActiveBlocks = createServerFn({ method: "GET" })
     );
     let q = sb
       .from("content_blocks")
-      .select("id,key,section,title,subtitle,body,image_url,cta_label,cta_url,is_active,display_order,created_at,updated_at")
+      .select("id,key,section,title,subtitle,body,image_url,cta_label,cta_url,is_active,display_order,duracion_segundos,created_at,updated_at")
       .eq("is_active", true)
       .order("display_order");
     if (data.section) q = q.eq("section", data.section);

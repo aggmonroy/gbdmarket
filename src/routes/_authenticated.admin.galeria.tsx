@@ -33,6 +33,7 @@ type Form = {
   cta_url: string;
   is_active: boolean;
   display_order: number;
+  duracion_segundos: number;
 };
 
 const empty: Form = {
@@ -43,6 +44,7 @@ const empty: Form = {
   cta_url: "/catalogo",
   is_active: true,
   display_order: 0,
+  duracion_segundos: 5,
 };
 
 function GaleriaPage() {
@@ -85,6 +87,7 @@ function GaleriaPage() {
       cta_url: b.cta_url ?? "/catalogo",
       is_active: !!b.is_active,
       display_order: b.display_order ?? 0,
+      duracion_segundos: b.duracion_segundos ?? 5,
     });
     setOpen(true);
   }
@@ -103,6 +106,7 @@ function GaleriaPage() {
         cta_url: f.cta_url || "/catalogo",
         is_active: f.is_active,
         display_order: Number(f.display_order) || 0,
+        duracion_segundos: Number(f.duracion_segundos) || 5,
         publish: true,
       },
     });
@@ -136,12 +140,12 @@ function GaleriaPage() {
       await persist({
         id: a.id, key: a.key, title: a.title ?? "", subtitle: a.subtitle ?? "",
         image_url: a.image_url ?? "", cta_url: a.cta_url ?? "/catalogo",
-        is_active: !!a.is_active, display_order: target,
+        is_active: !!a.is_active, display_order: target, duracion_segundos: a.duracion_segundos ?? 5,
       });
       await persist({
         id: b.id, key: b.key, title: b.title ?? "", subtitle: b.subtitle ?? "",
         image_url: b.image_url ?? "", cta_url: b.cta_url ?? "/catalogo",
-        is_active: !!b.is_active, display_order: index,
+        is_active: !!b.is_active, display_order: index, duracion_segundos: b.duracion_segundos ?? 5,
       });
       qc.invalidateQueries({ queryKey: ["admin-blocks"] });
       qc.invalidateQueries({ queryKey: ["home-gallery", SECTION] });
@@ -155,7 +159,7 @@ function GaleriaPage() {
       await persist({
         id: b.id, key: b.key, title: b.title ?? "", subtitle: b.subtitle ?? "",
         image_url: b.image_url ?? "", cta_url: b.cta_url ?? "/catalogo",
-        is_active: value, display_order: b.display_order ?? 0,
+        is_active: value, display_order: b.display_order ?? 0, duracion_segundos: b.duracion_segundos ?? 5,
       });
       qc.invalidateQueries({ queryKey: ["admin-blocks"] });
       qc.invalidateQueries({ queryKey: ["home-gallery", SECTION] });
@@ -224,6 +228,7 @@ function GaleriaPage() {
                     <div className="mt-1 truncate font-medium">{b.title || "Sin título"}</div>
                     {b.subtitle && <div className="truncate text-xs text-muted-foreground">{b.subtitle}</div>}
                     <div className="mt-1 truncate text-xs text-muted-foreground">Enlace: {b.cta_url || "/catalogo"}</div>
+                    <div className="text-xs text-muted-foreground">Duración: {b.duracion_segundos ?? 5} s</div>
                     <div className="mt-2 flex items-center gap-2">
                       <Switch checked={!!b.is_active} onCheckedChange={(v) => toggleActive(b, v)} />
                       <span className="text-xs text-muted-foreground">Visible en el inicio</span>
@@ -272,6 +277,17 @@ function GaleriaPage() {
             <div className="space-y-1.5">
               <Label>Enlace al hacer clic</Label>
               <Input value={form.cta_url} onChange={(e) => setForm({ ...form, cta_url: e.target.value })} placeholder="/catalogo?q=sala" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Duración en pantalla (segundos)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={120}
+                value={form.duracion_segundos}
+                onChange={(e) => setForm({ ...form, duracion_segundos: Number(e.target.value) })}
+              />
+              <p className="text-xs text-muted-foreground">Tiempo que esta imagen se muestra antes de pasar a la siguiente.</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
