@@ -21,6 +21,7 @@ import { Route as GarantiasRouteImport } from './routes/garantias'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ModuloGarantiasRouteImport } from './routes/modulo-garantias'
+import { Route as NovedadesRouteImport } from './routes/novedades'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -112,6 +113,11 @@ const McpRoute = McpRouteImport.update({
 const ModuloGarantiasRoute = ModuloGarantiasRouteImport.update({
   id: '/modulo-garantias',
   path: '/modulo-garantias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NovedadesRoute = NovedadesRouteImport.update({
+  id: '/novedades',
+  path: '/novedades',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalRoute = PortalRouteImport.update({
@@ -313,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -359,6 +366,7 @@ export interface FileRoutesByTo {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -406,6 +414,7 @@ export interface FileRoutesById {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -454,6 +463,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/novedades'
     | '/portal'
     | '/privacidad'
     | '/reset-password'
@@ -500,6 +510,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/novedades'
     | '/portal'
     | '/privacidad'
     | '/reset-password'
@@ -546,6 +557,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/novedades'
     | '/portal'
     | '/privacidad'
     | '/reset-password'
@@ -594,6 +606,7 @@ export interface RootRouteChildren {
   LineaBlancaRoute: typeof LineaBlancaRoute
   McpRoute: typeof McpRoute
   ModuloGarantiasRoute: typeof ModuloGarantiasRoute
+  NovedadesRoute: typeof NovedadesRoute
   PortalRoute: typeof PortalRoute
   PrivacidadRoute: typeof PrivacidadRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -693,6 +706,13 @@ declare module '@tanstack/react-router' {
       path: '/modulo-garantias'
       fullPath: '/modulo-garantias'
       preLoaderRoute: typeof ModuloGarantiasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/novedades': {
+      id: '/novedades'
+      path: '/novedades'
+      fullPath: '/novedades'
+      preLoaderRoute: typeof NovedadesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal': {
@@ -1002,6 +1022,7 @@ const rootRouteChildren: RootRouteChildren = {
   LineaBlancaRoute: LineaBlancaRoute,
   McpRoute: McpRoute,
   ModuloGarantiasRoute: ModuloGarantiasRoute,
+  NovedadesRoute: NovedadesRoute,
   PortalRoute: PortalRoute,
   PrivacidadRoute: PrivacidadRoute,
   ResetPasswordRoute: ResetPasswordRoute,
