@@ -47,6 +47,7 @@ import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
 import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authenticated.admin.contenido'
 import { Route as AuthenticatedAdminGaleriaRouteImport } from './routes/_authenticated.admin.galeria'
+import { Route as AuthenticatedAdminNewsletterRouteImport } from './routes/_authenticated.admin.newsletter'
 import { Route as AuthenticatedAdminPreviewRouteImport } from './routes/_authenticated.admin.preview'
 import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authenticated.admin.productos'
 import { Route as AuthenticatedAdminPromocionesRouteImport } from './routes/_authenticated.admin.promociones'
@@ -260,6 +261,12 @@ const AuthenticatedAdminGaleriaRoute =
     path: '/galeria',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminNewsletterRoute =
+  AuthenticatedAdminNewsletterRouteImport.update({
+    id: '/newsletter',
+    path: '/newsletter',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPreviewRoute =
   AuthenticatedAdminPreviewRouteImport.update({
     id: '/preview',
@@ -344,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/galeria': typeof AuthenticatedAdminGaleriaRoute
+  '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
@@ -390,6 +398,7 @@ export interface FileRoutesByTo {
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/galeria': typeof AuthenticatedAdminGaleriaRoute
+  '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
@@ -439,6 +448,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/_authenticated/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/_authenticated/admin/galeria': typeof AuthenticatedAdminGaleriaRoute
+  '/_authenticated/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/_authenticated/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/_authenticated/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/_authenticated/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
@@ -488,6 +498,7 @@ export interface FileRouteTypes {
     | '/admin/contacto'
     | '/admin/contenido'
     | '/admin/galeria'
+    | '/admin/newsletter'
     | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
@@ -534,6 +545,7 @@ export interface FileRouteTypes {
     | '/admin/contacto'
     | '/admin/contenido'
     | '/admin/galeria'
+    | '/admin/newsletter'
     | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
@@ -582,6 +594,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/contacto'
     | '/_authenticated/admin/contenido'
     | '/_authenticated/admin/galeria'
+    | '/_authenticated/admin/newsletter'
     | '/_authenticated/admin/preview'
     | '/_authenticated/admin/productos'
     | '/_authenticated/admin/promociones'
@@ -890,6 +903,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminGaleriaRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/newsletter': {
+      id: '/_authenticated/admin/newsletter'
+      path: '/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AuthenticatedAdminNewsletterRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/preview': {
       id: '/_authenticated/admin/preview'
       path: '/preview'
@@ -962,6 +982,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
   AuthenticatedAdminContenidoRoute: typeof AuthenticatedAdminContenidoRoute
   AuthenticatedAdminGaleriaRoute: typeof AuthenticatedAdminGaleriaRoute
+  AuthenticatedAdminNewsletterRoute: typeof AuthenticatedAdminNewsletterRoute
   AuthenticatedAdminPreviewRoute: typeof AuthenticatedAdminPreviewRoute
   AuthenticatedAdminProductosRoute: typeof AuthenticatedAdminProductosRoute
   AuthenticatedAdminPromocionesRoute: typeof AuthenticatedAdminPromocionesRoute
@@ -985,6 +1006,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
   AuthenticatedAdminContenidoRoute: AuthenticatedAdminContenidoRoute,
   AuthenticatedAdminGaleriaRoute: AuthenticatedAdminGaleriaRoute,
+  AuthenticatedAdminNewsletterRoute: AuthenticatedAdminNewsletterRoute,
   AuthenticatedAdminPreviewRoute: AuthenticatedAdminPreviewRoute,
   AuthenticatedAdminProductosRoute: AuthenticatedAdminProductosRoute,
   AuthenticatedAdminPromocionesRoute: AuthenticatedAdminPromocionesRoute,
