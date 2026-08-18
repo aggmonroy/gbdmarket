@@ -21,6 +21,7 @@ import { Route as GarantiasRouteImport } from './routes/garantias'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ModuloGarantiasRouteImport } from './routes/modulo-garantias'
+import { Route as NovedadesRouteImport } from './routes/novedades'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -46,6 +47,7 @@ import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminContactoRouteImport } from './routes/_authenticated.admin.contacto'
 import { Route as AuthenticatedAdminContenidoRouteImport } from './routes/_authenticated.admin.contenido'
 import { Route as AuthenticatedAdminGaleriaRouteImport } from './routes/_authenticated.admin.galeria'
+import { Route as AuthenticatedAdminNewsletterRouteImport } from './routes/_authenticated.admin.newsletter'
 import { Route as AuthenticatedAdminPreviewRouteImport } from './routes/_authenticated.admin.preview'
 import { Route as AuthenticatedAdminProductosRouteImport } from './routes/_authenticated.admin.productos'
 import { Route as AuthenticatedAdminPromocionesRouteImport } from './routes/_authenticated.admin.promociones'
@@ -112,6 +114,11 @@ const McpRoute = McpRouteImport.update({
 const ModuloGarantiasRoute = ModuloGarantiasRouteImport.update({
   id: '/modulo-garantias',
   path: '/modulo-garantias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NovedadesRoute = NovedadesRouteImport.update({
+  id: '/novedades',
+  path: '/novedades',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalRoute = PortalRouteImport.update({
@@ -254,6 +261,12 @@ const AuthenticatedAdminGaleriaRoute =
     path: '/galeria',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminNewsletterRoute =
+  AuthenticatedAdminNewsletterRouteImport.update({
+    id: '/newsletter',
+    path: '/newsletter',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPreviewRoute =
   AuthenticatedAdminPreviewRouteImport.update({
     id: '/preview',
@@ -313,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -337,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/galeria': typeof AuthenticatedAdminGaleriaRoute
+  '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
@@ -359,6 +374,7 @@ export interface FileRoutesByTo {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -382,6 +398,7 @@ export interface FileRoutesByTo {
   '/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/admin/galeria': typeof AuthenticatedAdminGaleriaRoute
+  '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
@@ -406,6 +423,7 @@ export interface FileRoutesById {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
+  '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -430,6 +448,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/contacto': typeof AuthenticatedAdminContactoRoute
   '/_authenticated/admin/contenido': typeof AuthenticatedAdminContenidoRoute
   '/_authenticated/admin/galeria': typeof AuthenticatedAdminGaleriaRoute
+  '/_authenticated/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/_authenticated/admin/preview': typeof AuthenticatedAdminPreviewRoute
   '/_authenticated/admin/productos': typeof AuthenticatedAdminProductosRoute
   '/_authenticated/admin/promociones': typeof AuthenticatedAdminPromocionesRoute
@@ -454,6 +473,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/novedades'
     | '/portal'
     | '/privacidad'
     | '/reset-password'
@@ -478,6 +498,7 @@ export interface FileRouteTypes {
     | '/admin/contacto'
     | '/admin/contenido'
     | '/admin/galeria'
+    | '/admin/newsletter'
     | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
@@ -500,6 +521,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/novedades'
     | '/portal'
     | '/privacidad'
     | '/reset-password'
@@ -523,6 +545,7 @@ export interface FileRouteTypes {
     | '/admin/contacto'
     | '/admin/contenido'
     | '/admin/galeria'
+    | '/admin/newsletter'
     | '/admin/preview'
     | '/admin/productos'
     | '/admin/promociones'
@@ -546,6 +569,7 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
+    | '/novedades'
     | '/portal'
     | '/privacidad'
     | '/reset-password'
@@ -570,6 +594,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/contacto'
     | '/_authenticated/admin/contenido'
     | '/_authenticated/admin/galeria'
+    | '/_authenticated/admin/newsletter'
     | '/_authenticated/admin/preview'
     | '/_authenticated/admin/productos'
     | '/_authenticated/admin/promociones'
@@ -594,6 +619,7 @@ export interface RootRouteChildren {
   LineaBlancaRoute: typeof LineaBlancaRoute
   McpRoute: typeof McpRoute
   ModuloGarantiasRoute: typeof ModuloGarantiasRoute
+  NovedadesRoute: typeof NovedadesRoute
   PortalRoute: typeof PortalRoute
   PrivacidadRoute: typeof PrivacidadRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -693,6 +719,13 @@ declare module '@tanstack/react-router' {
       path: '/modulo-garantias'
       fullPath: '/modulo-garantias'
       preLoaderRoute: typeof ModuloGarantiasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/novedades': {
+      id: '/novedades'
+      path: '/novedades'
+      fullPath: '/novedades'
+      preLoaderRoute: typeof NovedadesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal': {
@@ -870,6 +903,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminGaleriaRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/newsletter': {
+      id: '/_authenticated/admin/newsletter'
+      path: '/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AuthenticatedAdminNewsletterRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/preview': {
       id: '/_authenticated/admin/preview'
       path: '/preview'
@@ -942,6 +982,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminContactoRoute: typeof AuthenticatedAdminContactoRoute
   AuthenticatedAdminContenidoRoute: typeof AuthenticatedAdminContenidoRoute
   AuthenticatedAdminGaleriaRoute: typeof AuthenticatedAdminGaleriaRoute
+  AuthenticatedAdminNewsletterRoute: typeof AuthenticatedAdminNewsletterRoute
   AuthenticatedAdminPreviewRoute: typeof AuthenticatedAdminPreviewRoute
   AuthenticatedAdminProductosRoute: typeof AuthenticatedAdminProductosRoute
   AuthenticatedAdminPromocionesRoute: typeof AuthenticatedAdminPromocionesRoute
@@ -965,6 +1006,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminContactoRoute: AuthenticatedAdminContactoRoute,
   AuthenticatedAdminContenidoRoute: AuthenticatedAdminContenidoRoute,
   AuthenticatedAdminGaleriaRoute: AuthenticatedAdminGaleriaRoute,
+  AuthenticatedAdminNewsletterRoute: AuthenticatedAdminNewsletterRoute,
   AuthenticatedAdminPreviewRoute: AuthenticatedAdminPreviewRoute,
   AuthenticatedAdminProductosRoute: AuthenticatedAdminProductosRoute,
   AuthenticatedAdminPromocionesRoute: AuthenticatedAdminPromocionesRoute,
@@ -1002,6 +1044,7 @@ const rootRouteChildren: RootRouteChildren = {
   LineaBlancaRoute: LineaBlancaRoute,
   McpRoute: McpRoute,
   ModuloGarantiasRoute: ModuloGarantiasRoute,
+  NovedadesRoute: NovedadesRoute,
   PortalRoute: PortalRoute,
   PrivacidadRoute: PrivacidadRoute,
   ResetPasswordRoute: ResetPasswordRoute,

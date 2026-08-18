@@ -13,6 +13,8 @@ import {
 import { listAllCategories } from "@/lib/categories-admin.functions";
 import { leerFichaProveedor } from "@/lib/ai-product.functions";
 import { usePublishFlag } from "@/hooks/use-draft-mode";
+import { GaleriaUploader, DocumentoUploader } from "@/components/admin/GaleriaUploader";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
