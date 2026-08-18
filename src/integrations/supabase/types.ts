@@ -938,6 +938,84 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_posts: {
+        Row: {
+          created_at: string
+          cta_label: string | null
+          cta_url: string | null
+          cuerpo: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean
+          published_at: string | null
+          resumen: string | null
+          tipo: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          cuerpo?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          published_at?: string | null
+          resumen?: string | null
+          tipo?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          cuerpo?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          published_at?: string | null
+          resumen?: string | null
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          consent_accepted_at: string
+          created_at: string
+          email: string
+          id: string
+          intereses: string[]
+          is_active: boolean
+          nombre: string | null
+          telefono: string | null
+        }
+        Insert: {
+          consent_accepted_at?: string
+          created_at?: string
+          email: string
+          id?: string
+          intereses?: string[]
+          is_active?: boolean
+          nombre?: string | null
+          telefono?: string | null
+        }
+        Update: {
+          consent_accepted_at?: string
+          created_at?: string
+          email?: string
+          id?: string
+          intereses?: string[]
+          is_active?: boolean
+          nombre?: string | null
+          telefono?: string | null
+        }
+        Relationships: []
+      }
       page_events: {
         Row: {
           category_slug: string | null
