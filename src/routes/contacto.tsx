@@ -41,6 +41,22 @@ function Contacto() {
         <Instagram className="h-4 w-4 text-primary" />
         <a href="https://www.instagram.com/gbdmuebleria/" target="_blank" rel="noreferrer" className="text-primary hover:underline">@gbdmuebleria</a>
       </div>
+
+      <section className="mt-14 rounded-2xl border border-border bg-card p-6">
+        <div className="mb-4">
+          <h2 className="font-display text-xl font-bold">Boletín GBD</h2>
+          <p className="text-sm text-muted-foreground">Suscríbete y recibe primero nuestras ofertas y anuncios.</p>
+        </div>
+        <NewsletterSignup />
+      </section>
+
+      <section className="mt-14">
+        <h2 className="font-display text-2xl font-bold">Novedades y promociones</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Lo más reciente de la cooperativa.</p>
+        <div className="mt-6">
+          <NewsletterPosts />
+        </div>
+      </section>
     </div>
   );
 }
