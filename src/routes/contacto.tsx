@@ -1,13 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MessageCircle, Mail, MapPin, Clock, Instagram, Globe } from "lucide-react";
+import { NewsletterSignup } from "@/components/site/NewsletterSignup";
+import { NewsletterPosts } from "@/components/site/NewsletterPosts";
 
 export const Route = createFileRoute("/contacto")({
   head: () => ({
     meta: [
       { title: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
-      { name: "description", content: "Escríbenos por WhatsApp. Las Tablas: +507 6784-1941 · Bordados: +507 6829-8538." },
+      { name: "description", content: "Escríbenos por WhatsApp. Suscríbete al boletín y descubre promociones. Las Tablas: +507 6784-1941 · Bordados: +507 6829-8538." },
       { property: "og:title", content: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
-      { property: "og:description", content: "WhatsApp directo y canales de atención al cliente." },
+      { property: "og:description", content: "WhatsApp directo, boletín de promociones y canales de atención al cliente." },
     ],
     links: [{ rel: "canonical", href: "/contacto" }],
   }),
@@ -39,6 +41,22 @@ function Contacto() {
         <Instagram className="h-4 w-4 text-primary" />
         <a href="https://www.instagram.com/gbdmuebleria/" target="_blank" rel="noreferrer" className="text-primary hover:underline">@gbdmuebleria</a>
       </div>
+
+      <section className="mt-14 rounded-2xl border border-border bg-card p-6">
+        <div className="mb-4">
+          <h2 className="font-display text-xl font-bold">Boletín GBD</h2>
+          <p className="text-sm text-muted-foreground">Suscríbete y recibe primero nuestras ofertas y anuncios.</p>
+        </div>
+        <NewsletterSignup />
+      </section>
+
+      <section className="mt-14">
+        <h2 className="font-display text-2xl font-bold">Novedades y promociones</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Lo más reciente de la cooperativa.</p>
+        <div className="mt-6">
+          <NewsletterPosts />
+        </div>
+      </section>
     </div>
   );
 }
