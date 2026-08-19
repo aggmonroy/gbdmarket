@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate, redirect } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye, BarChart3, ClipboardList, CalendarDays, Sparkles, KeyRound, Users, Images } from "lucide-react";
+import { LayoutDashboard, Package, Tags, Scissors, LogOut, ExternalLink, FileText, Palette, Search, Phone, Tag, FileClock, GitPullRequest, Eye, BarChart3, ClipboardList, CalendarDays, Sparkles, KeyRound, Users, Images, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -44,6 +44,7 @@ const nav = [
   { to: "/admin/seo", label: "SEO y analítica", icon: Search },
   { to: "/admin/colaboradores", label: "Colaboradores y PIN", icon: KeyRound },
   { to: "/admin/usuarios", label: "Usuarios y roles", icon: Users },
+  { to: "/admin/newsletter", label: "Boletín / Newsletter", icon: Mail },
   { to: "/admin/bordados-servicios", label: "Bordados: servicios", icon: Sparkles },
   { to: "/admin/bordados", label: "Bordados: solicitudes", icon: Scissors },
 ];

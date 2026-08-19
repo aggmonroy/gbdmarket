@@ -48,6 +48,7 @@ export function SiteFooter() {
             <li><Link to="/catalogo" className="hover:underline">Catálogo</Link></li>
             <li><Link to="/financiamiento" className="hover:underline">Financiamiento</Link></li>
             <li><Link to="/garantias" className="hover:underline">Garantías</Link></li>
+            <li><Link to="/novedades" className="hover:underline">Novedades</Link></li>
             <li><Link to="/contacto" className="hover:underline">Contacto</Link></li>
             <li><Link to="/privacidad" className="hover:underline">Política de privacidad</Link></li>
           </ul>
