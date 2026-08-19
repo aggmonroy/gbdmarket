@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Megaphone } from "lucide-react";
 import { NewsletterSignup } from "@/components/site/NewsletterSignup";
 import { NewsletterPosts } from "@/components/site/NewsletterPosts";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/novedades")({
   head: () => ({
