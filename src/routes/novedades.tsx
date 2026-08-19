@@ -1,10 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { Megaphone, Tag } from "lucide-react";
-import { listarNewsletterPublicado } from "@/lib/newsletter.functions";
+import { Megaphone } from "lucide-react";
 import { NewsletterSignup } from "@/components/site/NewsletterSignup";
-import { Badge } from "@/components/ui/badge";
+import { NewsletterPosts } from "@/components/site/NewsletterPosts";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/novedades")({
