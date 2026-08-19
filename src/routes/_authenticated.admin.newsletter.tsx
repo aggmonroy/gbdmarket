@@ -176,7 +176,7 @@ function NewsletterAdmin() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() =>
+                    onClick={() => {
                       setForm({
                         id: p.id,
                         titulo: p.titulo ?? "",
@@ -187,8 +187,9 @@ function NewsletterAdmin() {
                         cta_label: p.cta_label ?? "",
                         cta_url: p.cta_url ?? "",
                         is_published: !!p.is_published,
-                      }) || setOpen(true)
-                    }
+                      });
+                      setOpen(true);
+                    }}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
