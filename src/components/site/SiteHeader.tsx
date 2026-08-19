@@ -93,13 +93,6 @@ export function SiteHeader() {
                 {n.label}
               </Link>
             ))}
-            <Link
-              to="/portal"
-              onClick={() => setOpen(false)}
-              className="px-3 py-2 rounded-md text-sm font-medium text-foreground hover:bg-accent"
-            >
-              Acceso colaboradores
-            </Link>
             <a
               href={`https://wa.me/${whatsApp}`}
               target="_blank"
