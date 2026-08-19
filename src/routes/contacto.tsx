@@ -1,13 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MessageCircle, Mail, MapPin, Clock, Instagram, Globe } from "lucide-react";
+import { NewsletterSignup } from "@/components/site/NewsletterSignup";
+import { NewsletterPosts } from "@/components/site/NewsletterPosts";
 
 export const Route = createFileRoute("/contacto")({
   head: () => ({
     meta: [
       { title: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
-      { name: "description", content: "Escríbenos por WhatsApp. Las Tablas: +507 6784-1941 · Bordados: +507 6829-8538." },
+      { name: "description", content: "Escríbenos por WhatsApp. Suscríbete al boletín y descubre promociones. Las Tablas: +507 6784-1941 · Bordados: +507 6829-8538." },
       { property: "og:title", content: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
-      { property: "og:description", content: "WhatsApp directo y canales de atención al cliente." },
+      { property: "og:description", content: "WhatsApp directo, boletín de promociones y canales de atención al cliente." },
     ],
     links: [{ rel: "canonical", href: "/contacto" }],
   }),
