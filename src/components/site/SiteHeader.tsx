@@ -58,12 +58,6 @@ export function SiteHeader() {
 
         <div className="hidden lg:flex items-center gap-2">
           <CartButton />
-          <Link
-            to="/portal"
-            className="inline-flex items-center rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-accent transition"
-          >
-            Colaboradores
-          </Link>
           <a
             href={`https://wa.me/${whatsApp}`}
             target="_blank"
