@@ -35,12 +35,6 @@ export const Route = createFileRoute("/novedades")({
 });
 
 function Novedades() {
-  const listFn = useServerFn(listarNewsletterPublicado);
-  const { data: posts = [], isLoading } = useQuery({
-    queryKey: ["newsletter-publicado"],
-    queryFn: () => listFn(),
-  });
-
   return (
     <div className="container mx-auto px-4 lg:px-8 py-12">
       <header className="max-w-3xl">
@@ -57,53 +51,9 @@ function Novedades() {
 
       <section className="mt-12">
         <h2 className="font-display text-2xl font-bold">Últimas publicaciones</h2>
-        {isLoading ? (
-          <p className="mt-4 text-sm text-muted-foreground">Cargando…</p>
-        ) : posts.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">Muy pronto publicaremos nuestras novedades.</p>
-        ) : (
-          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((p: any) => (
-              <article key={p.id} className="overflow-hidden rounded-2xl border border-border bg-card">
-                {p.image_url && (
-                  <img
-                    src={p.image_url}
-                    alt={p.titulo}
-                    loading="lazy"
-                    className="h-44 w-full object-cover"
-                  />
-                )}
-                <div className="p-5">
-                  <Badge variant={p.tipo === "promocion" ? "default" : "secondary"} className="gap-1">
-                    {p.tipo === "promocion" ? <Tag className="h-3 w-3" /> : <Megaphone className="h-3 w-3" />}
-                    {p.tipo === "promocion" ? "Promoción" : "Anuncio"}
-                  </Badge>
-                  <h3 className="mt-2 font-display text-lg font-bold">{p.titulo}</h3>
-                  {p.published_at && (
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(p.published_at).toLocaleDateString("es-PA", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                  )}
-                  {p.resumen && <p className="mt-2 text-sm text-muted-foreground">{p.resumen}</p>}
-                  {p.cuerpo && (
-                    <p className="mt-2 whitespace-pre-line text-sm text-foreground/90">{p.cuerpo}</p>
-                  )}
-                  {p.cta_url && (
-                    <Button asChild size="sm" className="mt-4">
-                      <a href={p.cta_url} target="_blank" rel="noreferrer">
-                        {p.cta_label || "Ver más"}
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+        <div className="mt-6">
+          <NewsletterPosts />
+        </div>
       </section>
     </div>
   );
