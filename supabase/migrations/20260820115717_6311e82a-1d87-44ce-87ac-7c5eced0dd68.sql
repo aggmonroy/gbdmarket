@@ -1,0 +1,1 @@
+ALTER TABLE public.tareas ADD COLUMN IF NOT EXISTS estado_bordado text;

@@ -1345,6 +1345,7 @@ export type Database = {
           documento_url: string | null
           embroidery_request_id: string | null
           estado: string
+          estado_bordado: string | null
           fecha: string
           fecha_vencimiento: string | null
           finalizada_apoyo_en: string | null
@@ -1375,6 +1376,7 @@ export type Database = {
           documento_url?: string | null
           embroidery_request_id?: string | null
           estado?: string
+          estado_bordado?: string | null
           fecha?: string
           fecha_vencimiento?: string | null
           finalizada_apoyo_en?: string | null
@@ -1405,6 +1407,7 @@ export type Database = {
           documento_url?: string | null
           embroidery_request_id?: string | null
           estado?: string
+          estado_bordado?: string | null
           fecha?: string
           fecha_vencimiento?: string | null
           finalizada_apoyo_en?: string | null

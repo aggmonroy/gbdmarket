@@ -116,6 +116,27 @@ export const completarTareaSchema = z.object({
 
 export const listoEntregaSchema = z.object({ token: z.string().min(1), id: z.string().uuid() });
 
+/* --------------------- Estados de los pedidos de bordados --------------------- */
+
+export const ESTADOS_BORDADO = ["en_proceso", "retraso_proveedor", "listo_entrega", "finalizado"] as const;
+export type EstadoBordado = (typeof ESTADOS_BORDADO)[number];
+
+export const ESTADO_BORDADO_LABEL: Record<EstadoBordado, string> = {
+  en_proceso: "En proceso",
+  retraso_proveedor: "Retraso por proveedor",
+  listo_entrega: "Listo para entrega",
+  finalizado: "Finalizado",
+};
+
+export const estadoBordadoSchema = z.object({
+  token: z.string().min(1),
+  id: z.string().uuid(),
+  estado_bordado: z.enum(ESTADOS_BORDADO),
+  fecha_entrega: z.string().min(10).max(10).optional().or(z.literal("")),
+  nota: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
+
 export const RESULTADOS_COTIZACION = ["compra", "rechazo"] as const;
 export type ResultadoCotizacion = (typeof RESULTADOS_COTIZACION)[number];
 
