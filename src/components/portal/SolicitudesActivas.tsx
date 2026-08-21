@@ -141,6 +141,27 @@ export function SolicitudesActivas({
               const yaFinalicé = esApoyo ? Boolean(t.finalizada_apoyo_en) : Boolean(t.finalizada_responsable_en);
               return (
                 <div key={t.id} className="space-y-2 rounded-md border border-border bg-card p-3">
+                  {t.origen === "bordados" && t.estado_bordado === "retraso_proveedor" && (
+                    <div className="flex items-center gap-3 rounded-xl bg-red-600 p-4 text-white shadow-md">
+                      <AlertTriangle className="h-8 w-8 shrink-0" />
+                      <div>
+                        <div className="font-display text-lg font-bold leading-tight">Retraso por proveedor</div>
+                        <p className="text-xs text-white/85">
+                          Informa al cliente el nuevo tiempo estimado
+                          {t.fecha_vencimiento ? ` · entrega prevista: ${t.fecha_vencimiento}` : ""}.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {t.origen === "bordados" && t.estado_bordado === "listo_entrega" && (
+                    <div className="flex items-center gap-3 rounded-xl bg-emerald-600 p-4 text-white shadow-md">
+                      <PackageCheck className="h-8 w-8 shrink-0" />
+                      <div>
+                        <div className="font-display text-lg font-bold leading-tight">Listo para entrega</div>
+                        <p className="text-xs text-white/85">Avisa al cliente que puede retirar su pedido.</p>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
