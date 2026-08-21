@@ -48,6 +48,7 @@ export function SolicitudesActivas({
   const finalizarFn = useServerFn(finalizarTarea);
   const colabsFn = useServerFn(listColaboradoresLogin);
   const listoFn = useServerFn(marcarListoEntrega);
+  const estadoBordadoFn = useServerFn(actualizarEstadoBordado);
   const cerrarCotFn = useServerFn(cerrarCotizacionInterna);
 
   const [origen, setOrigen] = useState<string>("todos");
