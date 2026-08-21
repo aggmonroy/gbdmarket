@@ -70,6 +70,10 @@ export function SolicitudesActivas({
   const finalizar = accion((v) => finalizarFn({ data: { token: sesion.token, ...v } }) as any, "Finalización registrada");
 
   const listo = accion((v) => listoFn({ data: { token: sesion.token, ...v } }) as any, "Pedido listo para entrega");
+  const estadoBordado = accion(
+    (v) => estadoBordadoFn({ data: { token: sesion.token, ...v } }) as any,
+    "Estado del pedido actualizado"
+  );
   const cerrarCot = accion(
     (v) => cerrarCotFn({ data: { token: sesion.token, ...v } }) as any,
     "Cotización cerrada"
