@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { listColaboradoresLogin } from "@/lib/garantias.functions";
 import {
   aceptarTarea,
+  actualizarEstadoBordado,
   agregarApoyo,
   asignarTarea,
   cerrarCotizacionInterna,
@@ -19,12 +20,15 @@ import {
   solicitudesActivas,
 } from "@/lib/tareas.functions";
 import {
+  ESTADO_BORDADO_LABEL,
+  ESTADOS_BORDADO,
   ESTADO_TAREA_LABEL,
   ESTADOS_TAREA,
   ORIGEN_TAREA_LABEL,
   ORIGENES_TAREA,
   diasEntre,
   normalizarEstado,
+  type EstadoBordado,
 } from "@/lib/tareas-shared";
 import { ReporteRango } from "./ReporteRango";
 import { SeguimientoDialog } from "./SeguimientoDialog";
