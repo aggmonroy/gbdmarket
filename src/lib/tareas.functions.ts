@@ -9,6 +9,8 @@ import {
   cerrarCotizacionInternaSchema,
   crearCotizacionInternaSchema,
   listoEntregaSchema,
+  estadoBordadoSchema,
+  ESTADO_BORDADO_LABEL,
   completarTareaSchema,
   crearTareaSchema,
   listSeguimientosTareaSchema,
