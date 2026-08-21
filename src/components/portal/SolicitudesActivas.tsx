@@ -147,15 +147,11 @@ export function SolicitudesActivas({
                       </p>
                     </div>
                     {t.origen === "bordados" && !soloLectura && (
-                      <Button
-                        size="lg"
-                        disabled={Boolean(t.listo_entrega_en)}
-                        onClick={() => listo.run({ id: t.id })}
-                        className="h-14 shrink-0 bg-emerald-600 px-6 text-base font-bold text-white shadow-md hover:bg-emerald-700 disabled:opacity-100"
-                      >
-                        <PackageCheck className="mr-2 h-6 w-6" />
-                        {t.listo_entrega_en ? "Listo para entrega ✓" : "Listo para entrega"}
-                      </Button>
+                      <EstadoBordadoControl
+                        tarea={t}
+                        onGuardar={(v) => estadoBordado.run({ id: t.id, ...v })}
+                        onListo={() => listo.run({ id: t.id })}
+                      />
                     )}
                     {t.origen === "cotizacion" && onAbrirCotizacion && (
                       <Button size="sm" onClick={() => onAbrirCotizacion(t.id)}>
