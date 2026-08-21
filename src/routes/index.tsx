@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { PromosBanner } from "@/components/site/PromosBanner";
 import { BordadoPolicyDialogLink, SHORT_BORDADO_NOTICE } from "@/components/site/BordadoPolicy";
+import { InstallAppButton } from "@/components/site/InstallAppButton";
 
 
 
@@ -257,12 +258,17 @@ function HeroFused() {
           </>
         )}
 
+        {/* Botón instalar app — esquina superior derecha */}
+        <div className="absolute right-3 top-3 z-30">
+          <InstallAppButton />
+        </div>
+
         {/* CTA overlay for current image */}
         {current && (
           <Link
             to={current.href as any}
             search={(current.search ?? {}) as any}
-            className="absolute right-4 top-4 z-20 hidden sm:inline-flex items-center gap-2 rounded-full bg-slate-900/70 backdrop-blur px-4 py-2 text-xs font-semibold text-white border border-white/20 hover:bg-slate-900/90 transition"
+            className="absolute right-4 top-16 z-20 hidden sm:inline-flex items-center gap-2 rounded-full bg-slate-900/70 backdrop-blur px-4 py-2 text-xs font-semibold text-white border border-white/20 hover:bg-slate-900/90 transition"
           >
             Ver {current.title} <ArrowRight className="h-3.5 w-3.5" />
           </Link>

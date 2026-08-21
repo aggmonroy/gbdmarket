@@ -9,6 +9,8 @@ import {
   cerrarCotizacionInternaSchema,
   crearCotizacionInternaSchema,
   listoEntregaSchema,
+  estadoBordadoSchema,
+  ESTADO_BORDADO_LABEL,
   completarTareaSchema,
   crearTareaSchema,
   listSeguimientosTareaSchema,
@@ -257,6 +259,65 @@ export const marcarListoEntrega = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/**
+ * Actualiza el estado del flujo de bordados: en proceso, retraso por proveedor,
+ * listo para entrega o finalizado. "En proceso" exige fecha de entrega.
+ */
+export const actualizarEstadoBordado = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => estadoBordadoSchema.parse(d))
+  .handler(async ({ data }) => {
+    const s = await verifySesion(data.token);
+    if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
+    const sb = await admin();
+    const { data: t } = await sb
+      .from("tareas")
+      .select("id,estado,fecha_vencimiento")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!t) throw new Error("Tarea no encontrada");
+
+    const e = data.estado_bordado;
+    if (e === "en_proceso" && !data.fecha_entrega && !t.fecha_vencimiento)
+      throw new Error("Indica la fecha de entrega para poner el pedido en proceso");
+
+    const ahora = new Date().toISOString();
+    const patch: Record<string, unknown> = {
+      estado_bordado: e,
+      listo_entrega_en: e === "listo_entrega" ? ahora : null,
+      estado: e === "finalizado" ? "finalizada" : "en_proceso",
+    };
+    if (data.fecha_entrega) patch.fecha_vencimiento = data.fecha_entrega;
+    if (e === "finalizado") {
+      patch.cerrada_en = ahora;
+      patch.finalizada_responsable_en = ahora;
+      patch.nota_cierre = data.nota || "Pedido de bordados entregado.";
+    } else {
+      patch.cerrada_en = null;
+      patch.finalizada_responsable_en = null;
+    }
+
+    const { error } = await sb.from("tareas").update(patch).eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    await sb.from("tarea_seguimientos").insert({
+      tarea_id: data.id,
+      fecha: hoyISO(),
+      via: "Personalmente",
+      texto: [
+        `Estado del pedido de bordados: ${ESTADO_BORDADO_LABEL[e]}.`,
+        data.fecha_entrega ? `Fecha de entrega: ${data.fecha_entrega}.` : null,
+        data.nota || null,
+      ]
+        .filter(Boolean)
+        .join(" "),
+      creado_por: s.cid,
+    });
+
+    return { ok: true };
+  });
+
+
 
 /** Guarda una cotización hecha en la calculadora como cotización activa. */
 export const crearCotizacionInterna = createServerFn({ method: "POST" })
