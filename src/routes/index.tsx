@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { PromosBanner } from "@/components/site/PromosBanner";
 import { BordadoPolicyDialogLink, SHORT_BORDADO_NOTICE } from "@/components/site/BordadoPolicy";
+import { InstallAppButton } from "@/components/site/InstallAppButton";
 
 
 
