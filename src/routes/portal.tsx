@@ -116,29 +116,56 @@ function Portal() {
   if (!sesion) return <Ingreso onLogin={guardar} />;
 
 
+  const rol = sesion.colaborador.rol;
+  const pestañas: { v: typeof vista; label: string; icon: any }[] = [
+    { v: "menu", label: "Menú", icon: LayoutDashboard },
+    { v: "seguimiento", label: "Solicitudes", icon: ListChecks },
+    { v: "tareas", label: "Tareas", icon: ListTodo },
+    { v: "cerrados", label: "Cerrados", icon: Archive },
+    { v: "calendario", label: "Calendario", icon: CalendarDays },
+    { v: "catalogo", label: "Catálogo", icon: Package },
+    { v: "calculadora", label: "Cotización", icon: Calculator },
+    ...(rol === "admin" || rol === "gerente"
+      ? [{ v: "informe" as typeof vista, label: "Informe", icon: FileBarChart }]
+      : []),
+  ];
+
   return (
-    <div className="min-h-screen bg-muted/30 px-4 py-8">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="font-display text-2xl font-bold">Hola, {sesion.colaborador.nombre}</h1>
-            <p className="text-sm text-muted-foreground">
-              Acceso: <span className="capitalize">{sesion.colaborador.rol}</span>
-              {sesion.colaborador.rol === "gerente" && " · solo lectura"}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {vista !== "menu" && (
-              <Button variant="outline" onClick={() => setVista("menu")}>
-                Volver al menú
-              </Button>
-            )}
-            <Button variant="ghost" onClick={() => guardar(null)}>
+    <div className="min-h-screen bg-muted/30">
+      <div className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+        <div className="mx-auto max-w-5xl px-4 py-3">
+          <header className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="font-display text-xl font-bold">Hola, {sesion.colaborador.nombre}</h1>
+              <p className="text-xs text-muted-foreground">
+                Acceso: <span className="capitalize">{rol}</span>
+                {rol === "gerente" && " · solo lectura"}
+              </p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => guardar(null)}>
               <LogOut className="mr-2 h-4 w-4" /> Salir
             </Button>
-          </div>
-        </header>
-
+          </header>
+          <nav className="-mx-1 mt-2 flex gap-1 overflow-x-auto pb-1">
+            {pestañas.map(({ v, label, icon: Icon }) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setVista(v)}
+                className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                  vista === v || (v === "seguimiento" && vista === "cotizacion")
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/70"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+      <div className="mx-auto max-w-5xl space-y-6 px-4 py-6">
         {vista === "menu" && <Menu sesion={sesion} ir={setVista} />}
         {vista === "seguimiento" && (
           <SolicitudesActivas

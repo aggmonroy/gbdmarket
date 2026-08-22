@@ -160,62 +160,24 @@ export function ProductDetailDialog({
               </div>
             ) : (
               <>
-                <Button onClick={agregarAlCarrito} className="mt-6 w-full" size="lg" variant="outline">
-                  <ShoppingCart className="mr-2 h-4 w-4" /> Agregar al carrito de cotización
+                <Button onClick={agregarAlCarrito} className="mt-6 w-full" size="lg">
+                  <ShoppingCart className="mr-2 h-4 w-4" /> Solicitar cotización
                 </Button>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Puedes sumar varios artículos y solicitar una sola cotización al final.
+                  Puedes sumar varios artículos y solicitar una sola cotización al final. Solo necesitamos tu nombre y un
+                  número de WhatsApp válido.
                 </p>
 
-                <div className="mt-4 rounded-xl border border-border bg-primary-soft/40 p-4">
-                  <div className="text-sm font-semibold text-primary">Cotización por WhatsApp</div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Todas nuestras cotizaciones y ventas se realizan de forma personalizada por WhatsApp. Envíanos tus datos y te atendemos al instante.
-                  </p>
-
-                  <Input
-                    placeholder="Tu nombre *"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="mt-4"
-                    maxLength={80}
-                  />
-                  <Input
-                    placeholder="Teléfono / WhatsApp *"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="mt-2"
-                    maxLength={30}
-                  />
-                  <Textarea
-                    placeholder="¿Alguna preferencia o pregunta? (opcional)"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="mt-2"
-                    rows={3}
-                    maxLength={500}
-                  />
-
-                  <div className="mt-3">
-                    <DataConsent accepted={consent} onChange={setConsent} id={`pd-consent-${product.id}`} />
-                  </div>
-
-                  <Button onClick={sendWa} className="mt-3 w-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90" size="lg">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Solicitar cotización por WhatsApp
-                  </Button>
-
-                  {product.datasheet_url && (
-                    <a
-                      href={product.datasheet_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-flex w-full items-center justify-center gap-2 text-sm text-primary hover:underline"
-                    >
-                      <FileText className="h-4 w-4" /> Descargar ficha técnica (PDF)
-                    </a>
-                  )}
-                </div>
+                {product.datasheet_url && (
+                  <a
+                    href={product.datasheet_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 text-sm text-primary hover:underline"
+                  >
+                    <FileText className="h-4 w-4" /> Descargar ficha técnica (PDF)
+                  </a>
+                )}
               </>
             )}
 

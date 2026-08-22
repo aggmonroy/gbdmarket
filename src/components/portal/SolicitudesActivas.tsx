@@ -2,7 +2,17 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, HandHelping, Inbox, PackageCheck, PlayCircle, ThumbsDown, ThumbsUp, UserCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  HandHelping,
+  Inbox,
+  PackageCheck,
+  PlayCircle,
+  ThumbsDown,
+  ThumbsUp,
+  UserCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -178,9 +188,10 @@ export function SolicitudesActivas({
                     </div>
                     {t.origen === "bordados" && !soloLectura && (
                       <EstadoBordadoControl
-                        tarea={t}
+                        estadoActual={(t.estado_bordado ?? null) as EstadoBordado | null}
+                        fechaEntrega={t.fecha_vencimiento ?? ""}
+                        pendiente={estadoBordado.pending}
                         onGuardar={(v) => estadoBordado.run({ id: t.id, ...v })}
-                        onListo={() => listo.run({ id: t.id })}
                       />
                     )}
                     {t.origen === "cotizacion" && onAbrirCotizacion && (
@@ -335,4 +346,63 @@ function useMutationLike(fn: (v: any) => Promise<any>, mensaje: string, refetch:
     onError: (e: any) => toast.error(e?.message ?? "No se pudo completar la acción"),
   });
   return { run: (v: any) => m.mutate(v), pending: m.isPending };
+}
+
+/* --------------------------- Control de bordados --------------------------- */
+
+/** Menú desplegable con los 4 estados del pedido de bordados + fecha de entrega. */
+function EstadoBordadoControl({
+  estadoActual,
+  fechaEntrega,
+  pendiente,
+  onGuardar,
+}: {
+  estadoActual: EstadoBordado | null;
+  fechaEntrega: string;
+  pendiente: boolean;
+  onGuardar: (v: { estado_bordado: EstadoBordado; fecha_entrega?: string }) => void;
+}) {
+  const [estado, setEstado] = useState<EstadoBordado>(estadoActual ?? "en_proceso");
+  const [fecha, setFecha] = useState(fechaEntrega ?? "");
+  const necesitaFecha = estado === "en_proceso" && !fecha;
+  const cambio = estado !== estadoActual || (fecha && fecha !== fechaEntrega);
+
+  return (
+    <div className="w-full max-w-xs space-y-2 rounded-lg border border-border bg-muted/30 p-2 sm:w-64">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Estado del bordado</p>
+      <Select value={estado} onValueChange={(v) => setEstado(v as EstadoBordado)}>
+        <SelectTrigger className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {ESTADOS_BORDADO.map((e) => (
+            <SelectItem key={e} value={e}>
+              {ESTADO_BORDADO_LABEL[e]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {(estado === "en_proceso" || estado === "retraso_proveedor") && (
+        <div className="space-y-1">
+          <label className="text-[11px] text-muted-foreground">Fecha de entrega</label>
+          <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+        </div>
+      )}
+      <Button
+        size="sm"
+        className={`w-full ${estado === "listo_entrega" ? "bg-emerald-600 text-white hover:bg-emerald-700" : ""}`}
+        disabled={pendiente || necesitaFecha || !cambio}
+        onClick={() => onGuardar({ estado_bordado: estado, fecha_entrega: fecha || undefined })}
+      >
+        {estado === "listo_entrega" ? (
+          <>
+            <PackageCheck className="mr-2 h-4 w-4" /> Marcar listo para entrega
+          </>
+        ) : (
+          "Guardar estado"
+        )}
+      </Button>
+      {necesitaFecha && <p className="text-[11px] text-destructive">Indica la fecha de entrega.</p>}
+    </div>
+  );
 }
