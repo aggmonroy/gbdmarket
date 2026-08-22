@@ -112,6 +112,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
   const [nombre, setNombre] = useState("");
   const [cedula, setCedula] = useState("");
   const [ruc, setRuc] = useState("");
+  const [numeroAsociado, setNumeroAsociado] = useState("");
   const [telefono, setTelefono] = useState("");
   const [correo, setCorreo] = useState("");
   const [direccion, setDireccion] = useState("");
