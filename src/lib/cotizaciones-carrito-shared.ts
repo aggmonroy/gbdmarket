@@ -4,11 +4,18 @@ export const TIPOS_CLIENTE_COTIZACION = ["asociado", "colaborador", "tercero", "
 
 export const clienteCotizacionSchema = z.object({
   nombre: z.string().trim().min(3).max(120),
-  cedula: z.string().trim().min(4).max(40),
+  // Solo nombre y WhatsApp son obligatorios para el cliente.
+  cedula: z.string().trim().max(40).optional().or(z.literal("")),
   ruc: z.string().trim().max(60).optional().or(z.literal("")),
-  telefono: z.string().trim().min(6).max(30),
-  correo: z.string().trim().email().max(160),
-  direccion: z.string().trim().min(4).max(300),
+  numero_asociado: z.string().trim().max(40).optional().or(z.literal("")),
+  telefono: z
+    .string()
+    .trim()
+    .min(7)
+    .max(30)
+    .refine((v) => (v.replace(/\D/g, "").length >= 7), "WhatsApp inválido"),
+  correo: z.string().trim().email().max(160).optional().or(z.literal("")),
+  direccion: z.string().trim().max(300).optional().or(z.literal("")),
 });
 
 export const itemCarritoSchema = z.object({
