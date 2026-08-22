@@ -178,9 +178,10 @@ export function SolicitudesActivas({
                     </div>
                     {t.origen === "bordados" && !soloLectura && (
                       <EstadoBordadoControl
-                        tarea={t}
+                        estadoActual={(t.estado_bordado ?? null) as EstadoBordado | null}
+                        fechaEntrega={t.fecha_vencimiento ?? ""}
+                        pendiente={estadoBordado.pending}
                         onGuardar={(v) => estadoBordado.run({ id: t.id, ...v })}
-                        onListo={() => listo.run({ id: t.id })}
                       />
                     )}
                     {t.origen === "cotizacion" && onAbrirCotizacion && (
