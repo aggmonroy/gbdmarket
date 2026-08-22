@@ -241,25 +241,36 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
                 <Input id="c-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={120} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="c-cedula">{tipo === "gobierno" ? "Cédula del contacto *" : "Cédula *"}</Label>
-                <Input id="c-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} maxLength={40} />
+                <Label htmlFor="c-tel">WhatsApp *</Label>
+                <Input id="c-tel" inputMode="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} maxLength={30} />
               </div>
+              {tipo === "asociado" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="c-asociado">Número de asociado *</Label>
+                  <Input
+                    id="c-asociado"
+                    value={numeroAsociado}
+                    onChange={(e) => setNumeroAsociado(e.target.value)}
+                    maxLength={40}
+                  />
+                </div>
+              )}
               {tipo === "gobierno" && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="c-ruc">RUC de la institución</Label>
+                  <Label htmlFor="c-ruc">RUC de la institución (opcional)</Label>
                   <Input id="c-ruc" value={ruc} onChange={(e) => setRuc(e.target.value)} maxLength={60} />
                 </div>
               )}
               <div className="space-y-1.5">
-                <Label htmlFor="c-tel">Teléfono (WhatsApp) *</Label>
-                <Input id="c-tel" inputMode="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} maxLength={30} />
+                <Label htmlFor="c-cedula">{tipo === "gobierno" ? "Cédula del contacto (opcional)" : "Cédula (opcional)"}</Label>
+                <Input id="c-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} maxLength={40} />
               </div>
-              <div className="sm:col-span-2 space-y-1.5">
-                <Label htmlFor="c-mail">Correo electrónico *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="c-mail">Correo electrónico (opcional)</Label>
                 <Input id="c-mail" inputMode="email" value={correo} onChange={(e) => setCorreo(e.target.value)} maxLength={160} />
               </div>
               <div className="sm:col-span-2 space-y-1.5">
-                <Label htmlFor="c-dir">Dirección *</Label>
+                <Label htmlFor="c-dir">Dirección (opcional)</Label>
                 <Input id="c-dir" value={direccion} onChange={(e) => setDireccion(e.target.value)} maxLength={300} />
               </div>
               <div className="sm:col-span-2 space-y-1.5">
