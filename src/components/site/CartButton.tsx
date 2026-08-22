@@ -135,6 +135,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
             nombre: nombre.trim(),
             cedula: cedula.trim(),
             ruc: ruc.trim(),
+            numero_asociado: numeroAsociado.trim(),
             telefono: telefono.trim(),
             correo: correo.trim(),
             direccion: direccion.trim(),
