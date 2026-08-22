@@ -168,6 +168,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
   const completo =
     nombre.trim().length >= 3 &&
     telefono.replace(/\D/g, "").length >= 7 &&
+    (tipo !== "asociado" || numeroAsociado.trim().length >= 1) &&
     (!correo.trim() || /.+@.+\..+/.test(correo.trim()));
 
   return (

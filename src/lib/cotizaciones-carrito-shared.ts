@@ -52,6 +52,7 @@ export const finalizarSolicitudCotizacionSchema = z.object({
     nombre: z.string().trim().max(120),
     cedula: z.string().trim().max(40),
     ruc: z.string().trim().max(60).optional(),
+    numero_asociado: z.string().trim().max(40).optional(),
     telefono: z.string().trim().max(30),
     correo: z.string().trim().max(160),
     direccion: z.string().trim().max(300),
