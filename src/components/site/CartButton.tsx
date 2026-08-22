@@ -164,12 +164,11 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
     }
   };
 
+  // Solo nombre y WhatsApp son obligatorios; el correo se valida si lo escriben.
   const completo =
     nombre.trim().length >= 3 &&
-    cedula.trim().length >= 4 &&
-    telefono.trim().length >= 6 &&
-    /.+@.+\..+/.test(correo.trim()) &&
-    direccion.trim().length >= 4;
+    telefono.replace(/\D/g, "").length >= 7 &&
+    (!correo.trim() || /.+@.+\..+/.test(correo.trim()));
 
   return (
     <Dialog
