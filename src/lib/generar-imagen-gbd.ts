@@ -3,6 +3,9 @@ import { esAsociado, etiquetaTipoCliente } from "./pricing-gbd";
 import { fmt } from "./pricing-gbd";
 import logoIcono from "@/assets/calculadora/logo-icono.png";
 
+/** Escala del lienzo: alta resolución (3x) para imagen y PDF nítidos. */
+export const ESCALA = 3;
+
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -136,9 +139,12 @@ export async function generarImagenCotizacion({
 
 
   const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = W * ESCALA;
+  canvas.height = H * ESCALA;
   const ctx = canvas.getContext("2d")!;
+  ctx.scale(ESCALA, ESCALA);
+  ctx.imageSmoothingQuality = "high";
+
 
   ctx.fillStyle = "#F4F9FF";
   ctx.fillRect(0, 0, W, H);
@@ -548,9 +554,11 @@ export async function generarImagenGobierno({
   const H = headerH + 46 + infoH + 34 + (totales.lineas.length + 1) * rowH + 120;
 
   const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = W * ESCALA;
+  canvas.height = H * ESCALA;
   const ctx = canvas.getContext("2d")!;
+  ctx.scale(ESCALA, ESCALA);
+  ctx.imageSmoothingQuality = "high";
 
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0, 0, W, H);
