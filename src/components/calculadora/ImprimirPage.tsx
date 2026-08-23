@@ -73,35 +73,51 @@ export function ImprimirPage({ id }: { id: string }) {
   }, [estado, eliminarEnlace]);
 
   const descargarPdf = useCallback(async () => {
-    if (!docRef.current) return;
+    if (!datos) return;
     setDescargandoPdf(true);
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
+      const [{ jsPDF }, { generarImagenCotizacion, generarImagenGobierno }] = await Promise.all([
         import("jspdf"),
+        import("@/lib/generar-imagen-gbd"),
       ]);
-      const canvas = await html2canvas(docRef.current, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-      });
-      const imgData = canvas.toDataURL("image/jpeg", 0.95);
-      // 8.5" x 14" (legal)
-      const pdf = new jsPDF({ orientation: "portrait", unit: "in", format: [8.5, 14] });
-      const pageW = 8.5;
-      const pageH = 14;
-      const imgW = pageW;
-      const imgH = (canvas.height * imgW) / canvas.width;
-      let heightLeft = imgH;
-      let position = 0;
-      pdf.addImage(imgData, "JPEG", 0, position, imgW, imgH);
-      heightLeft -= pageH;
-      while (heightLeft > 0) {
-        position -= pageH;
-        pdf.addPage([8.5, 14], "portrait");
-        pdf.addImage(imgData, "JPEG", 0, position, imgW, imgH);
-        heightLeft -= pageH;
+
+      // El PDF se arma con la MISMA imagen de alta resolución que se descarga,
+      // así ambos formatos quedan idénticos.
+      let imgData: string;
+      if (datos.tipo_cliente === "gobierno") {
+        imgData = await generarImagenGobierno({
+          totales: calcularGobierno(datos.productos),
+          cliente: datos.cliente ?? undefined,
+        });
+      } else {
+        const calc = datos.productos.map((p) => ({ ...p, calc: calcularProducto(p) }));
+        const tot = calcularTotales(calc, datos.tipo_cliente);
+        const asociado = esAsociado(datos.tipo_cliente);
+        imgData = await generarImagenCotizacion({
+          tipoCliente: datos.tipo_cliente,
+          calculados: calc,
+          contadoTotal: asociado ? tot.promoAsociado : tot.promoTercero,
+          creditoTotal: asociado ? tot.precioCreditoAsociado : tot.precioCreditoTercero,
+          planTotal: tot.planTotal,
+          cliente: datos.cliente ?? undefined,
+          capacidad: datos.capacidad ?? undefined,
+          promo: asociado
+            ? { precioEtiqueta: tot.precioContado, cuota3m: tot.cuotaPromoContado, meses: tot.mesesPromo }
+            : undefined,
+        });
       }
+
+      const dims = await new Promise<{ w: number; h: number }>((resolve, reject) => {
+        const im = new Image();
+        im.onload = () => resolve({ w: im.width, h: im.height });
+        im.onerror = () => reject(new Error("imagen inválida"));
+        im.src = imgData;
+      });
+
+      const pageW = 8.5;
+      const pageH = (dims.h * pageW) / dims.w;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "in", format: [pageW, pageH] });
+      pdf.addImage(imgData, "PNG", 0, 0, pageW, pageH);
       pdf.save("cotizacion-gbd.pdf");
     } catch (e) {
       console.error(e);
@@ -109,7 +125,8 @@ export function ImprimirPage({ id }: { id: string }) {
     } finally {
       setDescargandoPdf(false);
     }
-  }, []);
+  }, [datos]);
+
 
   if (estado === "cargando") {
     return (
