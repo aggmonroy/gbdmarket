@@ -108,6 +108,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
       { rel: "apple-touch-icon", sizes: "192x192", href: "/app-icon-192.png" },
 
+      // Pantallas de inicio (splash) para iOS · Safari «Agregar a pantalla de inicio»
+      ...([
+        [320, 568, 2, "640x1136"],
+        [375, 667, 2, "750x1334"],
+        [414, 896, 2, "828x1792"],
+        [375, 812, 3, "1125x2436"],
+        [390, 844, 3, "1170x2532"],
+        [393, 852, 3, "1179x2556"],
+        [414, 736, 3, "1242x2208"],
+        [414, 896, 3, "1242x2688"],
+        [428, 926, 3, "1284x2778"],
+        [430, 932, 3, "1290x2796"],
+        [768, 1024, 2, "1536x2048"],
+        [810, 1080, 2, "1620x2160"],
+        [834, 1112, 2, "1668x2224"],
+        [834, 1194, 2, "1668x2388"],
+        [1024, 1366, 2, "2048x2732"],
+      ] as const).map(([w, h, r, file]) => ({
+        rel: "apple-touch-startup-image",
+        href: `/splash/splash-${file}.png`,
+        media: `(device-width: ${w}px) and (device-height: ${h}px) and (-webkit-device-pixel-ratio: ${r}) and (orientation: portrait)`,
+      })),
+
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" },

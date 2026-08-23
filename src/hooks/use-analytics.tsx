@@ -3,7 +3,18 @@ import { useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
 const SESSION_KEY = "gbd_sid";
-const EVENT_TYPES = ["page_view", "product_view", "whatsapp_click", "form_submit", "cta_click", "quote_click"] as const;
+const EVENT_TYPES = [
+  "page_view",
+  "product_view",
+  "whatsapp_click",
+  "form_submit",
+  "cta_click",
+  "quote_click",
+  "pwa_prompt",
+  "pwa_install",
+  "pwa_dismiss",
+  "pwa_launch",
+] as const;
 type EventType = (typeof EVENT_TYPES)[number];
 
 function getSessionId(): string {
