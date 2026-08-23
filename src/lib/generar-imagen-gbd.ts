@@ -136,9 +136,12 @@ export async function generarImagenCotizacion({
 
 
   const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = W * ESCALA;
+  canvas.height = H * ESCALA;
   const ctx = canvas.getContext("2d")!;
+  ctx.scale(ESCALA, ESCALA);
+  ctx.imageSmoothingQuality = "high";
+
 
   ctx.fillStyle = "#F4F9FF";
   ctx.fillRect(0, 0, W, H);
