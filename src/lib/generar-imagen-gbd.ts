@@ -554,9 +554,11 @@ export async function generarImagenGobierno({
   const H = headerH + 46 + infoH + 34 + (totales.lineas.length + 1) * rowH + 120;
 
   const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = W * ESCALA;
+  canvas.height = H * ESCALA;
   const ctx = canvas.getContext("2d")!;
+  ctx.scale(ESCALA, ESCALA);
+  ctx.imageSmoothingQuality = "high";
 
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0, 0, W, H);
