@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -23,6 +23,7 @@ const searchSchema = z.object({
   cat: z.string().optional(),
   brand: z.string().optional(),
   q: z.string().optional(),
+  p: z.string().optional(),
 });
 
 export const Route = createFileRoute("/catalogo")({
@@ -65,7 +66,7 @@ function irAlFormularioBordados() {
 
 /* ---------- CATÁLOGO COMPLETO ---------- */
 function CatalogoCompleto() {
-  const { cat, brand, q } = Route.useSearch();
+  const { cat, brand, q, p: sharedId } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [selected, setSelected] = useState<ProductLite | null>(null);
 
@@ -96,6 +97,16 @@ function CatalogoCompleto() {
       return data ?? [];
     },
   });
+
+  const abiertoDesdeEnlace = useRef(false);
+  useEffect(() => {
+    if (!sharedId || abiertoDesdeEnlace.current) return;
+    const encontrado = products.find((x: any) => x.id === sharedId);
+    if (encontrado) {
+      abiertoDesdeEnlace.current = true;
+      setSelected(encontrado as any);
+    }
+  }, [sharedId, products]);
 
   const filtered = useMemo(() => {
     if (!q) return products;

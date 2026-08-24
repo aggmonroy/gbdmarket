@@ -8,7 +8,8 @@ import { crearPreorden } from "@/lib/pedidos.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { DataConsent } from "@/components/site/DataConsent";
 import { toast } from "sonner";
-import { FileText, MessageCircle, Package, Scissors, ShoppingCart } from "lucide-react";
+import { FileText, MessageCircle, Package, Scissors, Share2, ShoppingCart } from "lucide-react";
+import { compartirProducto } from "@/lib/compartir";
 import { useCart } from "@/lib/cart";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 import { ProductGallery } from "./ProductGallery";
@@ -113,6 +114,12 @@ export function ProductDetailDialog({
               {product.brand && <span className="rounded-full bg-primary-soft px-2 py-1 font-medium text-primary">{product.brand}</span>}
               {product.model && <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Modelo {product.model}</span>}
               {product.code && <span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Código {product.code}</span>}
+            </div>
+
+            <div className="mt-3">
+              <Button variant="outline" size="sm" onClick={() => void compartirProducto(product)}>
+                <Share2 className="mr-2 h-4 w-4" /> Compartir enlace del artículo
+              </Button>
             </div>
 
             {!esBordado && (
