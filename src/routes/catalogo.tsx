@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { buildWaUrl } from "@/lib/whatsapp";
 import { crearSolicitudBordado } from "@/lib/embroidery.functions";
 
@@ -124,10 +125,12 @@ function CatalogoCompleto() {
     setTimeout(irAlFormularioBordados, 250);
   };
 
+  const activos = [cat && "categoría", brand && "marca"].filter(Boolean).length;
+
   return (
-    <div className="grid lg:grid-cols-[260px_1fr] gap-8">
-      <aside className="space-y-6">
-        <div className="relative">
+    <div>
+      <div className="mb-6 flex items-center gap-2">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar por nombre..."
@@ -137,28 +140,56 @@ function CatalogoCompleto() {
           />
         </div>
 
-        <FilterGroup title="Categoría">
-          <FilterChip active={!cat} onClick={() => setSearch({ cat: "" })}>Todas</FilterChip>
-          {categories.map((c: any) => (
-            <FilterChip key={c.id} active={cat === c.slug} onClick={() => setSearch({ cat: c.slug })}>
-              {c.name}
-            </FilterChip>
-          ))}
-        </FilterGroup>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="shrink-0 gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              Filtros
+              {activos > 0 && (
+                <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {activos}
+                </span>
+              )}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[300px] overflow-y-auto sm:w-[340px]">
+            <SheetHeader>
+              <SheetTitle className="font-display">Filtrar catálogo</SheetTitle>
+            </SheetHeader>
 
-        {brands.length > 0 && (
-          <FilterGroup title="Marca">
-            <FilterChip active={!brand} onClick={() => setSearch({ brand: "" })}>Todas</FilterChip>
-            {brands.map((b) => (
-              <FilterChip key={b} active={brand === b} onClick={() => setSearch({ brand: b })}>
-                {b}
-              </FilterChip>
-            ))}
-          </FilterGroup>
-        )}
-      </aside>
+            <div className="mt-6 space-y-6">
+              <FilterGroup title="Categoría">
+                <FilterChip active={!cat} onClick={() => setSearch({ cat: "" })}>Todas</FilterChip>
+                {categories.map((c: any) => (
+                  <FilterChip key={c.id} active={cat === c.slug} onClick={() => setSearch({ cat: c.slug })}>
+                    {c.name}
+                  </FilterChip>
+                ))}
+              </FilterGroup>
+
+              {brands.length > 0 && (
+                <FilterGroup title="Marca">
+                  <FilterChip active={!brand} onClick={() => setSearch({ brand: "" })}>Todas</FilterChip>
+                  {brands.map((b) => (
+                    <FilterChip key={b} active={brand === b} onClick={() => setSearch({ brand: b })}>
+                      {b}
+                    </FilterChip>
+                  ))}
+                </FilterGroup>
+              )}
+
+              {activos > 0 && (
+                <Button variant="ghost" className="w-full" onClick={() => setSearch({ cat: "", brand: "" })}>
+                  Limpiar filtros
+                </Button>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
 
       <section>
+
         <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
           <span>
             <SlidersHorizontal className="inline h-3.5 w-3.5 mr-1" />
