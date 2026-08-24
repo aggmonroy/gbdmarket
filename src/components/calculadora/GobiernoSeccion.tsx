@@ -80,7 +80,6 @@ export function GobiernoSeccion({
           <Campo label="Cédula" value={cliente.cedula} onChange={(v) => updateCliente("cedula", v)} />
           <Campo label="Teléfono" value={cliente.telefono} onChange={(v) => updateCliente("telefono", v)} />
           <Campo label="Correo electrónico" value={cliente.correo} onChange={(v) => updateCliente("correo", v)} />
-          <Campo label="Dirección" value={cliente.direccion} onChange={(v) => updateCliente("direccion", v)} placeholder="TONOSÍ" />
           <Campo
             label="Condiciones de pago"
             value={cliente.condicionesPago || ""}
