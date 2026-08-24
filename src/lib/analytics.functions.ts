@@ -11,6 +11,10 @@ const EVENT_TYPES = [
   "form_submit",
   "cta_click",
   "quote_click",
+  "pwa_prompt",
+  "pwa_install",
+  "pwa_dismiss",
+  "pwa_launch",
 ] as const;
 
 async function assertAdmin(supabase: any, userId: string) {
@@ -119,6 +123,12 @@ export const getUsageReport = createServerFn({ method: "GET" })
       .slice(0, 15);
 
     return {
+      pwa: {
+        prompts: byType["pwa_prompt"] ?? 0,
+        installs: byType["pwa_install"] ?? 0,
+        dismissed: byType["pwa_dismiss"] ?? 0,
+        launches: byType["pwa_launch"] ?? 0,
+      },
       total_events: events.length,
       unique_sessions: new Set(events.map((e: any) => e.session_id).filter(Boolean)).size,
       by_type: byType,

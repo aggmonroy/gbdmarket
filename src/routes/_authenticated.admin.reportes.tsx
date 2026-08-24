@@ -63,6 +63,13 @@ function ReportsPage() {
             <StatCard title="Clics WhatsApp / Cotizar" value={(totals.whatsapp_click ?? 0) + (totals.quote_click ?? 0)} />
           </div>
 
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard title="Instalaciones de la app" value={data.pwa?.installs ?? 0} />
+            <StatCard title="Aperturas como app" value={data.pwa?.launches ?? 0} />
+            <StatCard title="Invitaciones mostradas" value={data.pwa?.prompts ?? 0} />
+            <StatCard title="Instalación rechazada" value={data.pwa?.dismissed ?? 0} />
+          </div>
+
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-base">Tráfico diario</CardTitle></CardHeader>
             <CardContent className="h-72">
