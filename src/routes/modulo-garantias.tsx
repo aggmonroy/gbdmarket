@@ -374,9 +374,6 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
           <Campo label="Teléfono">
             <Input value={form.telefono_cliente} onChange={(e) => set("telefono_cliente", e.target.value)} />
           </Campo>
-          <Campo label="Dirección">
-            <Input value={form.direccion_cliente} onChange={(e) => set("direccion_cliente", e.target.value)} />
-          </Campo>
           <Campo label="Número de factura">
             <Input value={form.numero_factura} onChange={(e) => set("numero_factura", e.target.value)} />
           </Campo>

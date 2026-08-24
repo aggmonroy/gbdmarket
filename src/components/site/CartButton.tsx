@@ -115,7 +115,6 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
   const [numeroAsociado, setNumeroAsociado] = useState("");
   const [telefono, setTelefono] = useState("");
   const [correo, setCorreo] = useState("");
-  const [direccion, setDireccion] = useState("");
   const [notas, setNotas] = useState("");
   const [consent, setConsent] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -138,7 +137,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
             numero_asociado: numeroAsociado.trim(),
             telefono: telefono.trim(),
             correo: correo.trim(),
-            direccion: direccion.trim(),
+            direccion: "",
           },
           items: items.map((i) => ({
             product_id: i.id,
@@ -269,10 +268,6 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
               <div className="space-y-1.5">
                 <Label htmlFor="c-mail">Correo electrónico (opcional)</Label>
                 <Input id="c-mail" inputMode="email" value={correo} onChange={(e) => setCorreo(e.target.value)} maxLength={160} />
-              </div>
-              <div className="sm:col-span-2 space-y-1.5">
-                <Label htmlFor="c-dir">Dirección (opcional)</Label>
-                <Input id="c-dir" value={direccion} onChange={(e) => setDireccion(e.target.value)} maxLength={300} />
               </div>
               <div className="sm:col-span-2 space-y-1.5">
                 <Label htmlFor="c-notas">Comentarios (opcional)</Label>

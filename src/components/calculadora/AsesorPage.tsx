@@ -239,9 +239,6 @@ export function AsesorPage({
                 <ClienteField label="Cédula" value={cliente.cedula} onChange={(v) => updateCliente("cedula", v)} />
                 <ClienteField label="Teléfono (WhatsApp)" value={cliente.telefono} onChange={(v) => updateCliente("telefono", v)} placeholder="6xxx-xxxx" inputMode="tel" />
                 <ClienteField label="Correo electrónico" value={cliente.correo} onChange={(v) => updateCliente("correo", v)} inputMode="email" />
-                <div className="sm:col-span-2">
-                  <ClienteField label="Dirección" value={cliente.direccion} onChange={(v) => updateCliente("direccion", v)} />
-                </div>
               </div>
               <p className="text-[10px] text-[#8793A5] mt-2">
                 Si escribes el teléfono, el botón de WhatsApp abrirá directamente el chat de ese cliente.

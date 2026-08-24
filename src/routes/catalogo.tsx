@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -23,6 +23,7 @@ const searchSchema = z.object({
   cat: z.string().optional(),
   brand: z.string().optional(),
   q: z.string().optional(),
+  p: z.string().optional(),
 });
 
 export const Route = createFileRoute("/catalogo")({
@@ -65,7 +66,7 @@ function irAlFormularioBordados() {
 
 /* ---------- CATÁLOGO COMPLETO ---------- */
 function CatalogoCompleto() {
-  const { cat, brand, q } = Route.useSearch();
+  const { cat, brand, q, p: sharedId } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [selected, setSelected] = useState<ProductLite | null>(null);
 
@@ -96,6 +97,16 @@ function CatalogoCompleto() {
       return data ?? [];
     },
   });
+
+  const abiertoDesdeEnlace = useRef(false);
+  useEffect(() => {
+    if (!sharedId || abiertoDesdeEnlace.current) return;
+    const encontrado = products.find((x: any) => x.id === sharedId);
+    if (encontrado) {
+      abiertoDesdeEnlace.current = true;
+      setSelected(encontrado as any);
+    }
+  }, [sharedId, products]);
 
   const filtered = useMemo(() => {
     if (!q) return products;
@@ -275,7 +286,6 @@ const cotizacionSchema = z.object({
   name: z.string().trim().min(2, "Tu nombre").max(100),
   phone: z.string().trim().min(6, "Teléfono válido").max(30),
   email: z.string().trim().email("Email inválido").max(255).optional().or(z.literal("")),
-  address: z.string().trim().min(3, "Indica tu dirección").max(300),
   description: z.string().trim().min(5, "Describe tu pedido").max(2000),
 });
 type CotizacionVals = z.infer<typeof cotizacionSchema>;
@@ -298,7 +308,7 @@ function FormularioBordados() {
         email: vals.email || "",
         service_type: "Solicitud de cotización",
         quantity: 1,
-        placement: vals.address,
+        placement: "",
         notes: vals.description,
         consent: true,
         policy_accepted: true,
@@ -310,7 +320,6 @@ function FormularioBordados() {
         `Nombre: ${vals.name}`,
         `Tel: ${vals.phone}`,
         vals.email ? `Correo: ${vals.email}` : null,
-        `Dirección: ${vals.address}`,
         `Pedido: ${vals.description}`,
       ].filter(Boolean).join("\n");
       window.open(buildWaUrl("bordados", msg), "_blank");
@@ -342,9 +351,6 @@ function FormularioBordados() {
         </Field>
         <Field label="Email (opcional)" error={errors.email?.message}>
           <Input type="email" {...register("email")} placeholder="tu@correo.com" />
-        </Field>
-        <Field label="Dirección" error={errors.address?.message}>
-          <Input {...register("address")} placeholder="Provincia, distrito, barrio..." />
         </Field>
         <Field label="Descripción del pedido" error={errors.description?.message} className="sm:col-span-2">
           <Textarea {...register("description")} rows={4} placeholder="Cuéntanos qué necesitas: productos, cantidades, colores, fechas..." />

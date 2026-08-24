@@ -1,8 +1,9 @@
-import { Package, MessageCircle, ShoppingCart, Scissors } from "lucide-react";
+import { Package, MessageCircle, ShoppingCart, Scissors, Share2 } from "lucide-react";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 import type { ProductLite } from "./ProductDetailDialog";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
+import { compartirProducto } from "@/lib/compartir";
 
 
 export function ProductCard({
@@ -63,10 +64,21 @@ export function ProductCard({
             <DisponibilidadBadge disponibilidad={product.disponibilidad} />
           </div>
         )}
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-3 flex items-center justify-between gap-1">
           <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:underline">
             <MessageCircle className="h-3.5 w-3.5" /> Ver detalle
           </span>
+
+          <button
+            type="button"
+            aria-label="Compartir enlace del artículo"
+            title="Compartir enlace"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); void compartirProducto(product); }}
+            className="ml-auto inline-flex items-center justify-center rounded-md border border-border p-1.5 text-muted-foreground hover:text-primary hover:border-primary/40 transition"
+          >
+            <Share2 className="h-3.5 w-3.5" />
+          </button>
 
           <button
             type="button"
