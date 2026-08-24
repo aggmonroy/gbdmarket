@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Download, Share, Plus, X } from "lucide-react";
+import { trackInteraction } from "@/hooks/use-analytics";
 
 type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
@@ -13,6 +14,16 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
       window.matchMedia?.("(display-mode: standalone)").matches ||
       (window.navigator as any).standalone === true;
     setInstalada(Boolean(standalone));
+    if (standalone) {
+      try {
+        const key = "gbd_pwa_launch_day";
+        const hoy = new Date().toISOString().slice(0, 10);
+        if (window.localStorage.getItem(key) !== hoy) {
+          window.localStorage.setItem(key, hoy);
+          void trackInteraction("pwa_launch");
+        }
+      } catch { /* ignore */ }
+    }
 
     const onPrompt = (e: Event) => {
       e.preventDefault();
@@ -21,6 +32,7 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
     const onInstalled = () => {
       setInstalada(true);
       setPromptEvent(null);
+      void trackInteraction("pwa_install");
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
@@ -34,12 +46,15 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
 
   const handleClick = async () => {
     if (promptEvent) {
+      void trackInteraction("pwa_prompt", { meta: { modo: "nativo" } });
       await promptEvent.prompt();
       const res = await promptEvent.userChoice.catch(() => null);
       if (res?.outcome === "accepted") setInstalada(true);
+      else void trackInteraction("pwa_dismiss");
       setPromptEvent(null);
       return;
     }
+    void trackInteraction("pwa_prompt", { meta: { modo: "manual" } });
     setAyuda(true);
   };
 
