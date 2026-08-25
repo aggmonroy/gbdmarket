@@ -7,6 +7,7 @@ import { Plus, Calculator, Users, UserCheck, Eye, EyeOff, AlertTriangle, X, User
 import {
   calcularProducto,
   calcularTotales,
+  calcularGobierno,
   clienteVacio,
   fmt,
   nuevoProducto,
@@ -135,6 +136,37 @@ export function AsesorPage({
   const contadoTotal = esAsociado(tipoCliente) ? totales.promoAsociado : totales.promoTercero;
   const creditoTotal = esAsociado(tipoCliente) ? totales.precioCreditoAsociado : totales.precioCreditoTercero;
 
+  /**
+   * Guarda la cotización como "cotización activa" (tarea pendiente).
+   * Se ejecuta automáticamente al generar el enlace para el cliente y
+   * también desde el botón manual. Solo se registra una vez.
+   */
+  const guardarCotizacionActiva = async (silencioso = false) => {
+    if (!token || onFinalizar || numeroCot || guardandoCot) return;
+    setGuardandoCot(true);
+    try {
+      const total =
+        tipoCliente === "gobierno" ? calcularGobierno(productos).total : contadoTotal;
+      const r: any = await crearCotFn({
+        data: {
+          token,
+          cliente: cliente.nombre || "",
+          tipo_cliente: tipoCliente,
+          total: total.toFixed(2),
+          resumen: productos
+            .map((p, i) => `${p.cantidad || 1} × ${p.nombre || `Producto ${i + 1}`}`)
+            .join(", "),
+        } as any,
+      });
+      setNumeroCot(r.numero_orden);
+      toast.success(`Cotización activa ${r.numero_orden} creada`);
+    } catch (e: any) {
+      if (!silencioso) toast.error(e?.message ?? "No se pudo guardar la cotización");
+    } finally {
+      setGuardandoCot(false);
+    }
+  };
+
   return (
     <div className="rounded-xl overflow-hidden border border-[#DBE2EB] bg-[#F4F9FF] text-[#071123]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       <Header>
@@ -223,6 +255,7 @@ export function AsesorPage({
             addProducto={addProducto}
             finalizando={finalizando}
             etiquetaFinalizar={etiquetaFinalizar}
+            onEnlaceGenerado={() => guardarCotizacionActiva(true)}
             onFinalizar={onFinalizar ? () => onFinalizar({ tipoCliente, cliente, productos }) : undefined}
           />
         )}
@@ -329,7 +362,14 @@ export function AsesorPage({
               <Calculator size={18} /> Evaluar capacidad de pago
             </button>
 
-            <EnlaceGeneradorCard tipoCliente={tipoCliente} calculados={calculados} modo="ver" cliente={cliente} capacidad={capacidadInfo} />
+            <EnlaceGeneradorCard
+              tipoCliente={tipoCliente}
+              calculados={calculados}
+              modo="ver"
+              cliente={cliente}
+              capacidad={capacidadInfo}
+              onGenerado={() => guardarCotizacionActiva(true)}
+            />
 
             {token && !onFinalizar && (
               <div className="bg-white rounded-xl border border-[#DBE2EB] p-4">
@@ -337,8 +377,8 @@ export function AsesorPage({
                   <ClipboardCheck size={14} /> Cotización activa
                 </p>
                 <p className="text-[11px] text-[#8793A5] mb-3">
-                  Guarda esta cotización como tarea pendiente en Solicitudes Activas para darle seguimiento y cerrarla
-                  luego como compra o como rechazo.
+                  Cada cotización se registra automáticamente en Solicitudes Activas al generar el enlace para el
+                  cliente, para darle seguimiento y cerrarla luego como compra o como rechazo.
                 </p>
                 {numeroCot ? (
                   <p className="text-xs font-bold text-[#2F5D3A] bg-[#E4EEE0] rounded-lg px-3 py-2">
@@ -347,28 +387,7 @@ export function AsesorPage({
                 ) : (
                   <button
                     disabled={guardandoCot}
-                    onClick={async () => {
-                      setGuardandoCot(true);
-                      try {
-                        const r: any = await crearCotFn({
-                          data: {
-                            token,
-                            cliente: cliente.nombre || "",
-                            tipo_cliente: tipoCliente,
-                            total: contadoTotal.toFixed(2),
-                            resumen: calculados
-                              .map((p, i) => `${p.cantidad || 1} × ${p.nombre || `Producto ${i + 1}`}`)
-                              .join(", "),
-                          } as any,
-                        });
-                        setNumeroCot(r.numero_orden);
-                        toast.success(`Cotización activa ${r.numero_orden} creada`);
-                      } catch (e: any) {
-                        toast.error(e?.message ?? "No se pudo guardar la cotización");
-                      } finally {
-                        setGuardandoCot(false);
-                      }
-                    }}
+                    onClick={() => guardarCotizacionActiva()}
                     className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#1F6DD8] hover:bg-[#0054BD] disabled:opacity-60 text-white font-bold text-sm transition-colors"
                   >
                     <ClipboardCheck size={16} /> {guardandoCot ? "Guardando…" : "Guardar como cotización activa"}
