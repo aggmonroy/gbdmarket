@@ -44,7 +44,7 @@ export function VistaGobierno({
         <Line label="RUC" value={cliente?.ruc || "—"} />
         <Line label="Cédula" value={cliente?.cedula || "—"} />
         <Line label="Teléfono" value={cliente?.telefono || "—"} />
-        <Line label="Dirección" value={cliente?.direccion || "—"} />
+        
         <Line label="Condiciones de pago" value={cliente?.condicionesPago || "Contado"} />
         <div className="sm:col-span-2">
           <Line label="Observaciones" value={cliente?.observaciones || "VÁLIDO 30 DÍAS"} />
