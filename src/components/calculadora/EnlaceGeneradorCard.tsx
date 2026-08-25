@@ -9,9 +9,11 @@ interface Props {
   modo: "ver" | "imprimir";
   cliente?: ClienteInfo;
   capacidad?: CapacidadInfo;
+  /** Se ejecuta tras generar el enlace (registra la cotización activa). */
+  onGenerado?: () => void | Promise<void>;
 }
 
-export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, capacidad }: Props) {
+export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, capacidad, onGenerado }: Props) {
   const esImprimir = modo === "imprimir";
   const [estado, setEstado] = useState<"idle" | "generando" | "listo" | "error">("idle");
   const [enlace, setEnlace] = useState("");
@@ -49,6 +51,11 @@ export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, ca
       const ruta = esImprimir ? "imprimir" : "cotizacion";
       setEnlace(`${window.location.origin}/${ruta}/${nuevoId}`);
       setEstado("listo");
+      try {
+        await onGenerado?.();
+      } catch {
+        // el registro de la cotización activa no debe romper el enlace
+      }
     } catch (e) {
       console.error("Error generando enlace:", e);
       setMensajeError(e instanceof Error ? e.message : String(e));

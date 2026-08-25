@@ -255,6 +255,7 @@ export function AsesorPage({
             addProducto={addProducto}
             finalizando={finalizando}
             etiquetaFinalizar={etiquetaFinalizar}
+            onEnlaceGenerado={() => guardarCotizacionActiva(true)}
             onFinalizar={onFinalizar ? () => onFinalizar({ tipoCliente, cliente, productos }) : undefined}
           />
         )}

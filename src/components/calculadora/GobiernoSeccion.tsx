@@ -21,6 +21,7 @@ interface Props {
   onFinalizar?: () => void;
   finalizando?: boolean;
   etiquetaFinalizar?: string;
+  onEnlaceGenerado?: () => void | Promise<void>;
 }
 
 export function GobiernoSeccion({
@@ -34,6 +35,7 @@ export function GobiernoSeccion({
   onFinalizar,
   finalizando,
   etiquetaFinalizar = "Finalizar cotización",
+  onEnlaceGenerado,
 }: Props) {
   const totales = calcularGobierno(productos);
   const calculadosVacios: never[] = [];
@@ -127,6 +129,7 @@ export function GobiernoSeccion({
         calculados={productos.map((p) => ({ ...p, calc: null as never }))}
         modo="ver"
         cliente={cliente}
+        onGenerado={onEnlaceGenerado}
       />
       {onFinalizar && (
         <button
