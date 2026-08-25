@@ -135,6 +135,37 @@ export function AsesorPage({
   const contadoTotal = esAsociado(tipoCliente) ? totales.promoAsociado : totales.promoTercero;
   const creditoTotal = esAsociado(tipoCliente) ? totales.precioCreditoAsociado : totales.precioCreditoTercero;
 
+  /**
+   * Guarda la cotización como "cotización activa" (tarea pendiente).
+   * Se ejecuta automáticamente al generar el enlace para el cliente y
+   * también desde el botón manual. Solo se registra una vez.
+   */
+  const guardarCotizacionActiva = async (silencioso = false) => {
+    if (!token || onFinalizar || numeroCot || guardandoCot) return;
+    setGuardandoCot(true);
+    try {
+      const total =
+        tipoCliente === "gobierno" ? calcularGobierno(productos).total : contadoTotal;
+      const r: any = await crearCotFn({
+        data: {
+          token,
+          cliente: cliente.nombre || "",
+          tipo_cliente: tipoCliente,
+          total: total.toFixed(2),
+          resumen: productos
+            .map((p, i) => `${p.cantidad || 1} × ${p.nombre || `Producto ${i + 1}`}`)
+            .join(", "),
+        } as any,
+      });
+      setNumeroCot(r.numero_orden);
+      toast.success(`Cotización activa ${r.numero_orden} creada`);
+    } catch (e: any) {
+      if (!silencioso) toast.error(e?.message ?? "No se pudo guardar la cotización");
+    } finally {
+      setGuardandoCot(false);
+    }
+  };
+
   return (
     <div className="rounded-xl overflow-hidden border border-[#DBE2EB] bg-[#F4F9FF] text-[#071123]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       <Header>
