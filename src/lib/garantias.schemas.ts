@@ -72,13 +72,6 @@ export const cierreSchema = z.object({
 
 export const idTokenSchema = z.object({ token: z.string().min(1), garantia_id: z.string().uuid() });
 
-export const facturaIaSchema = z.object({
-  token: z.string().min(1),
-  filename: z.string().max(200).optional(),
-  contentType: z.string().max(100),
-  base64: z.string().min(10),
-});
-
 export const colaboradorSchema = z.object({
   id: z.string().uuid().optional(),
   nombre: z.string().trim().min(2).max(200),

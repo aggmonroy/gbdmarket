@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Upload, Search, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
   listAllProducts,
