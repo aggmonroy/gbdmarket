@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Upload, Search, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
   listAllProducts,
@@ -11,7 +11,6 @@ import {
   bulkImportProducts,
 } from "@/lib/products-admin.functions";
 import { listAllCategories } from "@/lib/categories-admin.functions";
-import { leerFichaProveedor } from "@/lib/ai-product.functions";
 import { usePublishFlag } from "@/hooks/use-draft-mode";
 import { GaleriaUploader, DocumentoUploader } from "@/components/admin/GaleriaUploader";
 
@@ -101,9 +100,6 @@ function ProductsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [csvText, setCsvText] = useState("");
   const [importing, setImporting] = useState(false);
-  const [enlaceIA, setEnlaceIA] = useState("");
-  const [leyendo, setLeyendo] = useState(false);
-  const leerFichaFn = useServerFn(leerFichaProveedor);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -140,34 +136,6 @@ function ProductsPage() {
       is_published: !!p.is_published,
     });
     setOpen(true);
-  }
-
-  async function leerFicha() {
-    const url = enlaceIA.trim();
-    if (!url) { toast.error("Pega el enlace del proveedor"); return; }
-    setLeyendo(true);
-    try {
-      const f: any = await leerFichaFn({ data: { url } });
-      const cat = categories.find(
-        (c: any) => c.name?.toLowerCase() === String(f.categoria ?? "").toLowerCase(),
-      );
-      setForm((prev: any) => ({
-        ...prev,
-        name: f.name || prev.name,
-        brand: f.brand || prev.brand,
-        model: f.model || prev.model,
-        code: f.code || prev.code,
-        category_id: cat?.id ?? prev.category_id,
-        description: f.description || prev.description,
-        features: (f.features ?? []).join("\n") || prev.features,
-        images: (f.images ?? []).join("\n") || prev.images,
-      }));
-      toast.success("Ficha generada. Revisa y completa precio y disponibilidad.");
-    } catch (e: any) {
-      toast.error(e?.message ?? "No se pudo leer el enlace");
-    } finally {
-      setLeyendo(false);
-    }
   }
 
   async function handleSave() {
@@ -358,25 +326,6 @@ function ProductsPage() {
             <DialogTitle>{editingId ? "Editar producto" : "Nuevo producto"}</DialogTitle>
           </DialogHeader>
 
-          <div className="rounded-md border border-dashed border-primary/40 bg-primary-soft/30 p-3 space-y-2">
-            <Label className="flex items-center gap-2 text-sm font-semibold text-primary">
-              <Sparkles className="h-4 w-4" /> Lectura con IA desde el enlace del proveedor
-            </Label>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Input
-                placeholder="https://proveedor.com/producto/..."
-                value={enlaceIA}
-                onChange={(e) => setEnlaceIA(e.target.value)}
-              />
-              <Button type="button" variant="secondary" disabled={leyendo} onClick={leerFicha}>
-                {leyendo ? "Leyendo…" : "Generar ficha"}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              La IA completa nombre, marca, modelo, código, categoría, descripción, características e imágenes. El precio y la
-              disponibilidad se llenan a mano y todo queda editable.
-            </p>
-          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2 space-y-2">
               <Label>Nombre *</Label>

@@ -55,7 +55,6 @@ import { Route as AuthenticatedAdminReportesRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated.admin.seo'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated.admin.usuarios'
 import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
-import { Route as ApiPublicHooksRefreshHomeGalleryRouteImport } from './routes/api/public/hooks/refresh-home-gallery'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -307,12 +306,6 @@ const ApiPublicBootstrapAdminRoute = ApiPublicBootstrapAdminRouteImport.update({
   path: '/api/public/bootstrap-admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicHooksRefreshHomeGalleryRoute =
-  ApiPublicHooksRefreshHomeGalleryRouteImport.update({
-    id: '/api/public/hooks/refresh-home-gallery',
-    path: '/api/public/hooks/refresh-home-gallery',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -360,7 +353,6 @@ export interface FileRoutesByFullPath {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
-  '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -407,7 +399,6 @@ export interface FileRoutesByTo {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
-  '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -457,7 +448,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
-  '/api/public/hooks/refresh-home-gallery': typeof ApiPublicHooksRefreshHomeGalleryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -507,7 +497,6 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/api/public/bootstrap-admin'
     | '/admin/'
-    | '/api/public/hooks/refresh-home-gallery'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -554,7 +543,6 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/api/public/bootstrap-admin'
     | '/admin'
-    | '/api/public/hooks/refresh-home-gallery'
   id:
     | '__root__'
     | '/'
@@ -603,7 +591,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/usuarios'
     | '/api/public/bootstrap-admin'
     | '/_authenticated/admin/'
-    | '/api/public/hooks/refresh-home-gallery'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -632,7 +619,6 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
-  ApiPublicHooksRefreshHomeGalleryRoute: typeof ApiPublicHooksRefreshHomeGalleryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -959,13 +945,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBootstrapAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/refresh-home-gallery': {
-      id: '/api/public/hooks/refresh-home-gallery'
-      path: '/api/public/hooks/refresh-home-gallery'
-      fullPath: '/api/public/hooks/refresh-home-gallery'
-      preLoaderRoute: typeof ApiPublicHooksRefreshHomeGalleryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -1058,7 +1037,6 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
-  ApiPublicHooksRefreshHomeGalleryRoute: ApiPublicHooksRefreshHomeGalleryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

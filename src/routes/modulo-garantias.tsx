@@ -15,7 +15,6 @@ import {
   Loader2,
   LogOut,
   Plus,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +30,6 @@ import {
   agregarSeguimiento,
   crearGarantia,
   getGarantia,
-  leerFacturaIA,
   listBitacoraCerradas,
   listGarantiasAbiertas,
   listSolicitudesCierre,
@@ -289,7 +287,6 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
   const [pin, setPin] = useState("");
   const previewFn = useServerFn(numeroGarantiaPreview);
   const crearFn = useServerFn(crearGarantia);
-  const iaFn = useServerFn(leerFacturaIA);
 
   const { data: numero } = useQuery({
     queryKey: ["gar-numero", form.fecha],
@@ -297,26 +294,6 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
   });
 
   const set = (k: keyof typeof vacio, v: any) => setForm((f) => ({ ...f, [k]: v }));
-
-  const ia = useMutation({
-    mutationFn: async (file: File) =>
-      iaFn({ data: { token, filename: file.name, contentType: file.type || "image/jpeg", base64: await fileToBase64(file) } }) as any,
-    onSuccess: (d: any) => {
-      setForm((f) => ({
-        ...f,
-        cliente: d.cliente || f.cliente,
-        cedula_cliente: d.cedula_cliente || f.cedula_cliente,
-        telefono_cliente: d.telefono_cliente || f.telefono_cliente,
-        direccion_cliente: d.direccion_cliente || f.direccion_cliente,
-        numero_factura: d.numero_factura || f.numero_factura,
-        fecha_facturacion: /^\d{4}-\d{2}-\d{2}$/.test(d.fecha_facturacion ?? "") ? d.fecha_facturacion : f.fecha_facturacion,
-        modelo_codigo: d.modelo_codigo || f.modelo_codigo,
-        descripcion_articulo: d.descripcion_articulo || f.descripcion_articulo,
-      }));
-      toast.success("Datos propuestos. Revísalos y corrige lo que haga falta antes de guardar.");
-    },
-    onError: (e: any) => toast.error(e.message ?? "No se pudo leer la factura"),
-  });
 
   const crear = useMutation({
     mutationFn: () => crearFn({ data: { token, pin, ...form } }) as any,
@@ -342,25 +319,6 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-md border border-dashed border-border p-3">
-          <Label className="flex items-center gap-2 text-sm">
-            <Sparkles className="h-4 w-4 text-primary" /> Leer factura con IA (opcional)
-          </Label>
-          <Input
-            type="file"
-            accept="image/*,application/pdf"
-            className="mt-2"
-            disabled={ia.isPending}
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) ia.mutate(f);
-            }}
-          />
-          <p className="mt-1 text-xs text-muted-foreground">
-            La IA solo propone datos: nada se guarda hasta que confirmes el formulario.
-          </p>
-        </div>
-
         <div className="grid gap-4 sm:grid-cols-2">
           <Campo label="Fecha del trámite">
             <Input type="date" value={form.fecha} onChange={(e) => set("fecha", e.target.value)} />
