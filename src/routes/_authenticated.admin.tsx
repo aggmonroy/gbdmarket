@@ -146,6 +146,14 @@ function AdminLayout() {
               <ExternalLink className="h-4 w-4" />
               Ver sitio público
             </Link>
+            <Link
+              to="/portal"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground/70 hover:bg-accent"
+            >
+              <Users className="h-4 w-4" />
+              Portal de colaboradores
+            </Link>
+
             <button
               onClick={signOut}
               className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground/70 hover:bg-accent"
