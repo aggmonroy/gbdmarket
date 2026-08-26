@@ -1575,7 +1575,6 @@ export type Database = {
         Args: { _fecha: string; _prefijo?: string }
         Returns: string
       }
-      rotar_galeria_inicio: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "viewer"
