@@ -21,7 +21,6 @@ import {
   colaboradorSchema,
   crearGarantiaSchema,
   evidenciaSchema,
-  facturaIaSchema,
   idTokenSchema,
   loginCedulaSchema,
   loginSchema,
@@ -341,53 +340,6 @@ export const misTareasPendientes = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true });
     if (error) throw new Error(error.message);
     return rows ?? [];
-  });
-
-/** Lectura asistida de la factura: propone campos, nunca guarda sin confirmación. */
-export const leerFacturaIA = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => facturaIaSchema.parse(d))
-  .handler(async ({ data }) => {
-    await requireEscritura(data.token);
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("La lectura con IA no está disponible");
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Extraes datos de facturas de electrodomésticos. Responde SOLO un JSON con las claves cliente, cedula_cliente, telefono_cliente, direccion_cliente, numero_factura, fecha_facturacion (AAAA-MM-DD), modelo_codigo, descripcion_articulo. Usa cadena vacía si no aparece el dato.",
-          },
-          {
-            role: "user",
-            content: [
-              { type: "text", text: "Extrae los datos de esta factura." },
-              data.contentType.includes("pdf")
-                ? {
-                    type: "file",
-                    file: {
-                      filename: data.filename ?? "factura.pdf",
-                      file_data: `data:${data.contentType};base64,${data.base64}`,
-                    },
-                  }
-                : { type: "image_url", image_url: { url: `data:${data.contentType};base64,${data.base64}` } },
-            ],
-          },
-        ],
-      }),
-    });
-    if (!res.ok) throw new Error("No se pudo leer la factura");
-    const json: any = await res.json();
-    const texto: string = json?.choices?.[0]?.message?.content ?? "{}";
-    const match = texto.match(/\{[\s\S]*\}/);
-    try {
-      return JSON.parse(match ? match[0] : "{}") as Record<string, string>;
-    } catch {
-      return {} as Record<string, string>;
-    }
   });
 
 /* ---------- Gestión de colaboradores desde el panel /admin (sesión Supabase) ---------- */

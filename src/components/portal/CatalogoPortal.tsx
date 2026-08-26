@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { guardarProductoPortal, listCatalogoPortal } from "@/lib/productos-portal.functions";
-import { leerFichaProveedorPortal } from "@/lib/ai-product.functions";
 import { uploadAssetPortal } from "@/lib/uploads.functions";
 
 type Sesion = { token: string; colaborador: { id: string; nombre: string; rol: string } };
@@ -56,12 +55,10 @@ export function CatalogoPortal({ sesion }: { sesion: Sesion }) {
   const soloLectura = sesion.colaborador.rol === "gerente";
   const listFn = useServerFn(listCatalogoPortal);
   const guardarFn = useServerFn(guardarProductoPortal);
-  const iaFn = useServerFn(leerFichaProveedorPortal);
   const uploadFn = useServerFn(uploadAssetPortal);
 
   const [q, setQ] = useState("");
   const [form, setForm] = useState<Form | null>(null);
-  const [enlace, setEnlace] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [subiendo, setSubiendo] = useState(false);
 
@@ -73,25 +70,6 @@ export function CatalogoPortal({ sesion }: { sesion: Sesion }) {
   const productos: any[] = data?.productos ?? [];
 
   const set = (patch: Partial<Form>) => setForm((f) => (f ? { ...f, ...patch } : f));
-
-  const ia = useMutation({
-    mutationFn: () => iaFn({ data: { token: sesion.token, url: enlace.trim() } }) as any,
-    onSuccess: (ficha: any) => {
-      const cat = categorias.find((c) => c.name === ficha.categoria);
-      set({
-        name: ficha.name || form?.name || "",
-        brand: ficha.brand || "",
-        model: ficha.model || "",
-        code: ficha.code || "",
-        description: ficha.description || "",
-        features: (ficha.features ?? []).join("\n"),
-        images: ficha.images ?? [],
-        category_id: cat?.id ?? form?.category_id ?? "",
-      });
-      toast.success("Ficha generada. Revisa y completa el precio.");
-    },
-    onError: (e: any) => toast.error(e?.message ?? "No se pudo leer el enlace"),
-  });
 
   const guardar = useMutation({
     mutationFn: () =>
@@ -121,7 +99,6 @@ export function CatalogoPortal({ sesion }: { sesion: Sesion }) {
     onSuccess: () => {
       toast.success("Producto guardado");
       setForm(null);
-      setEnlace("");
       refetch();
     },
     onError: (e: any) => toast.error(e?.message ?? "No se pudo guardar"),
@@ -163,30 +140,6 @@ export function CatalogoPortal({ sesion }: { sesion: Sesion }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="rounded-lg border bg-muted/40 p-4">
-            <Label className="flex items-center gap-2 text-sm font-medium">
-              <Sparkles className="h-4 w-4 text-primary" /> Lectura con IA del enlace del proveedor
-            </Label>
-            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-              <Input
-                value={enlace}
-                onChange={(e) => setEnlace(e.target.value)}
-                placeholder="https://proveedor.com/producto"
-              />
-              <Button
-                type="button"
-                onClick={() => ia.mutate()}
-                disabled={!enlace.trim() || ia.isPending || soloLectura}
-              >
-                {ia.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                Generar ficha
-              </Button>
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              El precio y la disponibilidad se llenan a mano. Los demás campos se pueden editar después.
-            </p>
-          </div>
-
           <div className="grid gap-4 sm:grid-cols-2">
             <Campo label="Nombre" value={form.name} onChange={(v) => set({ name: v })} />
             <div className="space-y-2">
