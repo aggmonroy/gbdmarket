@@ -938,6 +938,42 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_difusiones: {
+        Row: {
+          asunto: string
+          creado_por: string | null
+          created_at: string
+          enviados: number
+          error: string | null
+          estado: string
+          id: string
+          post_ids: string[]
+          total_destinatarios: number
+        }
+        Insert: {
+          asunto: string
+          creado_por?: string | null
+          created_at?: string
+          enviados?: number
+          error?: string | null
+          estado?: string
+          id?: string
+          post_ids?: string[]
+          total_destinatarios?: number
+        }
+        Update: {
+          asunto?: string
+          creado_por?: string | null
+          created_at?: string
+          enviados?: number
+          error?: string | null
+          estado?: string
+          id?: string
+          post_ids?: string[]
+          total_destinatarios?: number
+        }
+        Relationships: []
+      }
       newsletter_posts: {
         Row: {
           created_at: string
