@@ -2,13 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Download, Mail } from "lucide-react";
+import { Plus, Pencil, Trash2, Download, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import {
   listarNewsletterAdmin,
   guardarNewsletterPost,
   eliminarNewsletterPost,
+  crearDifusion,
+  listarDifusiones,
 } from "@/lib/newsletter.functions";
+import { Checkbox } from "@/components/ui/checkbox";
 import { GaleriaUploader } from "@/components/admin/GaleriaUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
