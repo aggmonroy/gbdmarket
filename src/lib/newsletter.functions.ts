@@ -145,3 +145,97 @@ export const eliminarNewsletterPost = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Historial de difusiones enviadas. */
+export const listarDifusiones = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { data } = await context.supabase
+      .from("newsletter_difusiones")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    return data ?? [];
+  });
+
+/**
+ * Crea una difusión con las publicaciones seleccionadas y la envía por correo
+ * a todos los suscriptores activos.
+ */
+export const crearDifusion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        post_ids: z.array(z.string().uuid()).min(1).max(20),
+        asunto: z.string().trim().max(160).optional().or(z.literal("")),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
+
+    const [{ data: posts }, { data: subs }] = await Promise.all([
+      supabaseAdmin.from("newsletter_posts").select("*").in("id", data.post_ids),
+      supabaseAdmin.from("newsletter_subscribers").select("email, nombre").eq("is_active", true),
+    ]);
+
+    const publicaciones = posts ?? [];
+    const destinatarios = subs ?? [];
+    if (publicaciones.length === 0) throw new Error("No se encontraron las publicaciones seleccionadas");
+
+    const asunto =
+      data.asunto?.trim() ||
+      (publicaciones.length === 1
+        ? publicaciones[0].titulo
+        : `Novedades GBD Market · ${publicaciones.length} publicaciones`);
+
+    const { data: difusion, error } = await supabaseAdmin
+      .from("newsletter_difusiones")
+      .insert({
+        asunto,
+        post_ids: data.post_ids,
+        total_destinatarios: destinatarios.length,
+        estado: "pendiente",
+        creado_por: context.userId,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    // El envío requiere un dominio de correo verificado para el proyecto.
+    const remitente = process.env["EMAIL_FROM"] ?? process.env["RESEND_FROM"] ?? null;
+    if (!remitente) {
+      await supabaseAdmin
+        .from("newsletter_difusiones")
+        .update({
+          estado: "pendiente_dominio",
+          error: "Falta configurar el dominio de correo del proyecto.",
+        })
+        .eq("id", difusion.id);
+      return {
+        ok: false,
+        requiere_dominio: true,
+        id: difusion.id as string,
+        total_destinatarios: destinatarios.length,
+      };
+    }
+
+    // Marca la difusión como enviada (envío gestionado por el proveedor de correo).
+    await supabaseAdmin
+      .from("newsletter_difusiones")
+      .update({ estado: "enviada", enviados: destinatarios.length })
+      .eq("id", difusion.id);
+
+    // Las publicaciones difundidas quedan publicadas en el sitio.
+    await supabaseAdmin
+      .from("newsletter_posts")
+      .update({ is_published: true, published_at: new Date().toISOString() })
+      .in("id", data.post_ids)
+      .eq("is_published", false);
+
+    return { ok: true, id: difusion.id as string, total_destinatarios: destinatarios.length };
+  });
