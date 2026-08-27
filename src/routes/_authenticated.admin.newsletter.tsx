@@ -205,6 +205,11 @@ function NewsletterAdmin() {
             <ul className="divide-y divide-border">
               {posts.map((p) => (
                 <li key={p.id} className="flex flex-wrap items-center gap-3 py-3">
+                  <Checkbox
+                    checked={seleccion.includes(p.id)}
+                    onCheckedChange={() => toggleSeleccion(p.id)}
+                    aria-label={`Seleccionar ${p.titulo}`}
+                  />
                   {p.image_url && (
                     <img src={p.image_url} alt={p.titulo} className="h-12 w-16 rounded object-cover" />
                   )}
