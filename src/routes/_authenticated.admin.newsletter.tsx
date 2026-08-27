@@ -258,6 +258,39 @@ function NewsletterAdmin() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 font-semibold text-foreground">
+            <Send className="h-4 w-4 text-primary" /> Difusiones enviadas
+          </div>
+          {difusiones.length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Selecciona publicaciones y pulsa “Crear difusión” para enviarlas por correo a tus
+              suscriptores.
+            </p>
+          ) : (
+            <ul className="mt-3 divide-y divide-border text-sm">
+              {difusiones.map((d: any) => (
+                <li key={d.id} className="flex flex-wrap items-center gap-3 py-2">
+                  <span className="min-w-0 flex-1 truncate font-medium">{d.asunto}</span>
+                  <Badge variant={d.estado === "enviada" ? "default" : "outline"}>
+                    {d.estado === "enviada"
+                      ? `Enviada · ${d.enviados}`
+                      : d.estado === "pendiente_dominio"
+                        ? "Falta dominio de correo"
+                        : "Pendiente"}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(d.created_at).toLocaleString("es-PA")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2 font-semibold text-foreground">
             <Mail className="h-4 w-4 text-primary" /> Suscriptores
           </div>
           {suscriptores.length === 0 ? (
