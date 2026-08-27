@@ -68,6 +68,42 @@ function NewsletterAdmin() {
   const [form, setForm] = useState<any>(vacio);
   const [saving, setSaving] = useState(false);
 
+  const difusionFn = useServerFn(crearDifusion);
+  const difusionesFn = useServerFn(listarDifusiones);
+  const { data: difusiones = [] } = useQuery({
+    queryKey: ["admin-difusiones"],
+    queryFn: () => difusionesFn(),
+  });
+  const [seleccion, setSeleccion] = useState<string[]>([]);
+  const [enviando, setEnviando] = useState(false);
+
+  function toggleSeleccion(id: string) {
+    setSeleccion((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  }
+
+  async function enviarDifusion() {
+    if (seleccion.length === 0) return;
+    setEnviando(true);
+    try {
+      const res: any = await difusionFn({ data: { post_ids: seleccion } });
+      if (res?.requiere_dominio) {
+        toast.error(
+          "Falta configurar el dominio de correo del proyecto para poder enviar la difusión.",
+        );
+      } else {
+        toast.success(`Difusión enviada a ${res.total_destinatarios} suscriptores`);
+        setSeleccion([]);
+      }
+      qc.invalidateQueries({ queryKey: ["admin-difusiones"] });
+      qc.invalidateQueries({ queryKey: ["admin-newsletter"] });
+      qc.invalidateQueries({ queryKey: ["newsletter-publicado"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Error al crear la difusión");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   async function guardar() {
     setSaving(true);
     try {
