@@ -2,13 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Download, Mail } from "lucide-react";
+import { Plus, Pencil, Trash2, Download, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import {
   listarNewsletterAdmin,
   guardarNewsletterPost,
   eliminarNewsletterPost,
+  crearDifusion,
+  listarDifusiones,
 } from "@/lib/newsletter.functions";
+import { Checkbox } from "@/components/ui/checkbox";
 import { GaleriaUploader } from "@/components/admin/GaleriaUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +67,42 @@ function NewsletterAdmin() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<any>(vacio);
   const [saving, setSaving] = useState(false);
+
+  const difusionFn = useServerFn(crearDifusion);
+  const difusionesFn = useServerFn(listarDifusiones);
+  const { data: difusiones = [] } = useQuery({
+    queryKey: ["admin-difusiones"],
+    queryFn: () => difusionesFn(),
+  });
+  const [seleccion, setSeleccion] = useState<string[]>([]);
+  const [enviando, setEnviando] = useState(false);
+
+  function toggleSeleccion(id: string) {
+    setSeleccion((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  }
+
+  async function enviarDifusion() {
+    if (seleccion.length === 0) return;
+    setEnviando(true);
+    try {
+      const res: any = await difusionFn({ data: { post_ids: seleccion } });
+      if (res?.requiere_dominio) {
+        toast.error(
+          "Falta configurar el dominio de correo del proyecto para poder enviar la difusión.",
+        );
+      } else {
+        toast.success(`Difusión enviada a ${res.total_destinatarios} suscriptores`);
+        setSeleccion([]);
+      }
+      qc.invalidateQueries({ queryKey: ["admin-difusiones"] });
+      qc.invalidateQueries({ queryKey: ["admin-newsletter"] });
+      qc.invalidateQueries({ queryKey: ["newsletter-publicado"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Error al crear la difusión");
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   async function guardar() {
     setSaving(true);
@@ -131,7 +170,15 @@ function NewsletterAdmin() {
             {posts.length} publicaciones · {suscriptores.length} suscriptores
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            onClick={enviarDifusion}
+            disabled={seleccion.length === 0 || enviando}
+            className="bg-primary"
+          >
+            <Send className="mr-2 h-4 w-4" />
+            {enviando ? "Enviando…" : `Crear difusión (${seleccion.length})`}
+          </Button>
           <Button variant="outline" onClick={exportarCSV} disabled={suscriptores.length === 0}>
             <Download className="mr-2 h-4 w-4" /> Exportar suscriptores
           </Button>
@@ -158,6 +205,11 @@ function NewsletterAdmin() {
             <ul className="divide-y divide-border">
               {posts.map((p) => (
                 <li key={p.id} className="flex flex-wrap items-center gap-3 py-3">
+                  <Checkbox
+                    checked={seleccion.includes(p.id)}
+                    onCheckedChange={() => toggleSeleccion(p.id)}
+                    aria-label={`Seleccionar ${p.titulo}`}
+                  />
                   {p.image_url && (
                     <img src={p.image_url} alt={p.titulo} className="h-12 w-16 rounded object-cover" />
                   )}
@@ -202,6 +254,39 @@ function NewsletterAdmin() {
           )}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2 font-semibold text-foreground">
+            <Send className="h-4 w-4 text-primary" /> Difusiones enviadas
+          </div>
+          {difusiones.length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Selecciona publicaciones y pulsa “Crear difusión” para enviarlas por correo a tus
+              suscriptores.
+            </p>
+          ) : (
+            <ul className="mt-3 divide-y divide-border text-sm">
+              {difusiones.map((d: any) => (
+                <li key={d.id} className="flex flex-wrap items-center gap-3 py-2">
+                  <span className="min-w-0 flex-1 truncate font-medium">{d.asunto}</span>
+                  <Badge variant={d.estado === "enviada" ? "default" : "outline"}>
+                    {d.estado === "enviada"
+                      ? `Enviada · ${d.enviados}`
+                      : d.estado === "pendiente_dominio"
+                        ? "Falta dominio de correo"
+                        : "Pendiente"}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(d.created_at).toLocaleString("es-PA")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
 
       <Card>
         <CardContent className="pt-6">
