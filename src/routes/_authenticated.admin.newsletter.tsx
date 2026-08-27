@@ -170,7 +170,15 @@ function NewsletterAdmin() {
             {posts.length} publicaciones · {suscriptores.length} suscriptores
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            onClick={enviarDifusion}
+            disabled={seleccion.length === 0 || enviando}
+            className="bg-primary"
+          >
+            <Send className="mr-2 h-4 w-4" />
+            {enviando ? "Enviando…" : `Crear difusión (${seleccion.length})`}
+          </Button>
           <Button variant="outline" onClick={exportarCSV} disabled={suscriptores.length === 0}>
             <Download className="mr-2 h-4 w-4" /> Exportar suscriptores
           </Button>
