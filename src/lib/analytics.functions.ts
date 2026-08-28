@@ -101,6 +101,15 @@ export const getUsageReport = createServerFn({ method: "GET" })
     const productCounts: Record<string, number> = {};
     // Unique sessions per day
     const sessionsPerDay: Record<string, Set<string>> = {};
+    // PWA per day + per page
+    const pwaPerDay: Record<string, { installs: number; launches: number; prompts: number; dismissed: number }> = {};
+    const pwaPerPage: Record<string, { installs: number; launches: number; prompts: number; dismissed: number }> = {};
+    const PWA_KEY: Record<string, "installs" | "launches" | "prompts" | "dismissed"> = {
+      pwa_install: "installs",
+      pwa_launch: "launches",
+      pwa_prompt: "prompts",
+      pwa_dismiss: "dismissed",
+    };
 
     for (const e of events) {
       byType[e.event_type] = (byType[e.event_type] ?? 0) + 1;
@@ -115,11 +124,29 @@ export const getUsageReport = createServerFn({ method: "GET" })
       if (e.event_type === "product_view" && e.product_id) {
         productCounts[e.product_id] = (productCounts[e.product_id] ?? 0) + 1;
       }
+      const pwaKey = PWA_KEY[e.event_type as string];
+      if (pwaKey) {
+        pwaPerDay[day] ??= { installs: 0, launches: 0, prompts: 0, dismissed: 0 };
+        pwaPerDay[day][pwaKey]++;
+        const ruta = e.path || "(sin ruta)";
+        pwaPerPage[ruta] ??= { installs: 0, launches: 0, prompts: 0, dismissed: 0 };
+        pwaPerPage[ruta][pwaKey]++;
+      }
       if (e.session_id) {
         sessionsPerDay[day] ??= new Set();
         sessionsPerDay[day].add(e.session_id);
       }
     }
+
+    const pwaTimeseries = Object.entries(pwaPerDay)
+      .sort(([a], [b]) => (a < b ? -1 : 1))
+      .map(([date, v]) => ({ date, ...v }));
+
+    const pwaByPage = Object.entries(pwaPerPage)
+      .map(([path, v]) => ({ path, ...v, total: v.installs + v.launches + v.prompts + v.dismissed }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 15);
+
 
     const timeseries = Object.entries(perDay)
       .sort(([a], [b]) => (a < b ? -1 : 1))
