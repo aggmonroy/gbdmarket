@@ -100,6 +100,65 @@ function ReportsPage() {
           </div>
 
           <Card>
+            <CardHeader className="pb-2"><CardTitle className="text-base">App: instalaciones, aperturas e invitaciones por día</CardTitle></CardHeader>
+            <CardContent className="h-72">
+              {(data.pwa_timeseries?.length ?? 0) === 0 ? (
+                <p className="text-sm text-muted-foreground">Sin datos de la app en este rango.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={data.pwa_timeseries}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="date" fontSize={11} />
+                    <YAxis fontSize={11} allowDecimals={false} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="installs" name="Instalaciones" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="launches" name="Aperturas" fill="#22c55e" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="prompts" name="Invitaciones" fill="#f59e0b" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="dismissed" name="Rechazos" fill="#ef4444" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2"><CardTitle className="text-base">App por página</CardTitle></CardHeader>
+            <CardContent>
+              {(data.pwa_by_page?.length ?? 0) === 0 ? (
+                <p className="text-sm text-muted-foreground">Sin datos de la app en este rango.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border text-left text-xs text-muted-foreground">
+                        <th className="py-2">Página</th>
+                        <th className="py-2 text-right">Instalaciones</th>
+                        <th className="py-2 text-right">Aperturas</th>
+                        <th className="py-2 text-right">Invitaciones</th>
+                        <th className="py-2 text-right">Rechazos</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.pwa_by_page.map((r: any) => (
+                        <tr key={r.path} className="border-b border-border/50">
+                          <td className="py-1.5 max-w-[16rem] truncate">{r.path}</td>
+                          <td className="py-1.5 text-right">{r.installs}</td>
+                          <td className="py-1.5 text-right">{r.launches}</td>
+                          <td className="py-1.5 text-right">{r.prompts}</td>
+                          <td className="py-1.5 text-right">{r.dismissed}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+
+
+          <Card>
             <CardHeader className="pb-2"><CardTitle className="text-base">Tráfico diario</CardTitle></CardHeader>
             <CardContent className="h-72">
               <ResponsiveContainer width="100%" height="100%">
