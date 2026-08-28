@@ -177,8 +177,12 @@ export const getUsageReport = createServerFn({ method: "GET" })
       unique_sessions: new Set(events.map((e: any) => e.session_id).filter(Boolean)).size,
       by_type: byType,
       timeseries,
+      pwa_timeseries: pwaTimeseries,
+      pwa_by_page: pwaByPage,
       top_pages: topPages,
       top_products: topProducts,
       window_days: days,
+      desde: desdeISO.slice(0, 10),
+      hasta: hastaISO ? hastaISO.slice(0, 10) : new Date().toISOString().slice(0, 10),
     };
   });
