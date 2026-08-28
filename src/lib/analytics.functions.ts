@@ -50,26 +50,43 @@ export const trackEvent = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Admin: usage report over the last N days. */
+/** Admin: usage report over a date range (or last N days). */
 export const getUsageReport = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { days?: number } = {}) =>
-    z.object({ days: z.number().int().min(1).max(90).optional() }).parse(d ?? {}),
+  .inputValidator((d: { days?: number; desde?: string; hasta?: string } = {}) =>
+    z
+      .object({
+        days: z.number().int().min(1).max(365).optional(),
+        desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      })
+      .parse(d ?? {}),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
     const supabaseAdmin: any = sbAdmin;
+
+    const usaRango = Boolean(data.desde || data.hasta);
     const days = data.days ?? 30;
-    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const desdeISO = usaRango
+      ? new Date(`${data.desde ?? "2000-01-01"}T00:00:00.000Z`).toISOString()
+      : new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const hastaISO = usaRango && data.hasta
+      ? new Date(`${data.hasta}T23:59:59.999Z`).toISOString()
+      : null;
+
+    let q = supabaseAdmin
+      .from("page_events")
+      .select("event_type,path,product_id,category_slug,created_at,session_id")
+      .gte("created_at", desdeISO);
+    if (hastaISO) q = q.lte("created_at", hastaISO);
 
     const [{ data: rows }, { data: products }] = await Promise.all([
-      supabaseAdmin
-        .from("page_events")
-        .select("event_type,path,product_id,category_slug,created_at,session_id")
-        .gte("created_at", since),
+      q,
       supabaseAdmin.from("products").select("id,name"),
     ]);
+
 
     const events = rows ?? [];
     const productNames = new Map<string, string>((products ?? []).map((p: any) => [p.id, p.name]));
@@ -84,6 +101,15 @@ export const getUsageReport = createServerFn({ method: "GET" })
     const productCounts: Record<string, number> = {};
     // Unique sessions per day
     const sessionsPerDay: Record<string, Set<string>> = {};
+    // PWA per day + per page
+    const pwaPerDay: Record<string, { installs: number; launches: number; prompts: number; dismissed: number }> = {};
+    const pwaPerPage: Record<string, { installs: number; launches: number; prompts: number; dismissed: number }> = {};
+    const PWA_KEY: Record<string, "installs" | "launches" | "prompts" | "dismissed"> = {
+      pwa_install: "installs",
+      pwa_launch: "launches",
+      pwa_prompt: "prompts",
+      pwa_dismiss: "dismissed",
+    };
 
     for (const e of events) {
       byType[e.event_type] = (byType[e.event_type] ?? 0) + 1;
@@ -98,11 +124,29 @@ export const getUsageReport = createServerFn({ method: "GET" })
       if (e.event_type === "product_view" && e.product_id) {
         productCounts[e.product_id] = (productCounts[e.product_id] ?? 0) + 1;
       }
+      const pwaKey = PWA_KEY[e.event_type as string];
+      if (pwaKey) {
+        pwaPerDay[day] ??= { installs: 0, launches: 0, prompts: 0, dismissed: 0 };
+        pwaPerDay[day][pwaKey]++;
+        const ruta = e.path || "(sin ruta)";
+        pwaPerPage[ruta] ??= { installs: 0, launches: 0, prompts: 0, dismissed: 0 };
+        pwaPerPage[ruta][pwaKey]++;
+      }
       if (e.session_id) {
         sessionsPerDay[day] ??= new Set();
         sessionsPerDay[day].add(e.session_id);
       }
     }
+
+    const pwaTimeseries = Object.entries(pwaPerDay)
+      .sort(([a], [b]) => (a < b ? -1 : 1))
+      .map(([date, v]) => ({ date, ...v }));
+
+    const pwaByPage = Object.entries(pwaPerPage)
+      .map(([path, v]) => ({ path, ...v, total: v.installs + v.launches + v.prompts + v.dismissed }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 15);
+
 
     const timeseries = Object.entries(perDay)
       .sort(([a], [b]) => (a < b ? -1 : 1))
@@ -133,8 +177,12 @@ export const getUsageReport = createServerFn({ method: "GET" })
       unique_sessions: new Set(events.map((e: any) => e.session_id).filter(Boolean)).size,
       by_type: byType,
       timeseries,
+      pwa_timeseries: pwaTimeseries,
+      pwa_by_page: pwaByPage,
       top_pages: topPages,
       top_products: topProducts,
       window_days: days,
+      desde: desdeISO.slice(0, 10),
+      hasta: hastaISO ? hastaISO.slice(0, 10) : new Date().toISOString().slice(0, 10),
     };
   });
