@@ -50,26 +50,43 @@ export const trackEvent = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Admin: usage report over the last N days. */
+/** Admin: usage report over a date range (or last N days). */
 export const getUsageReport = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { days?: number } = {}) =>
-    z.object({ days: z.number().int().min(1).max(90).optional() }).parse(d ?? {}),
+  .inputValidator((d: { days?: number; desde?: string; hasta?: string } = {}) =>
+    z
+      .object({
+        days: z.number().int().min(1).max(365).optional(),
+        desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      })
+      .parse(d ?? {}),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
     const supabaseAdmin: any = sbAdmin;
+
+    const usaRango = Boolean(data.desde || data.hasta);
     const days = data.days ?? 30;
-    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const desdeISO = usaRango
+      ? new Date(`${data.desde ?? "2000-01-01"}T00:00:00.000Z`).toISOString()
+      : new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const hastaISO = usaRango && data.hasta
+      ? new Date(`${data.hasta}T23:59:59.999Z`).toISOString()
+      : null;
+
+    let q = supabaseAdmin
+      .from("page_events")
+      .select("event_type,path,product_id,category_slug,created_at,session_id")
+      .gte("created_at", desdeISO);
+    if (hastaISO) q = q.lte("created_at", hastaISO);
 
     const [{ data: rows }, { data: products }] = await Promise.all([
-      supabaseAdmin
-        .from("page_events")
-        .select("event_type,path,product_id,category_slug,created_at,session_id")
-        .gte("created_at", since),
+      q,
       supabaseAdmin.from("products").select("id,name"),
     ]);
+
 
     const events = rows ?? [];
     const productNames = new Map<string, string>((products ?? []).map((p: any) => [p.id, p.name]));
