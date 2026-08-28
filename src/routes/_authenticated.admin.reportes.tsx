@@ -6,10 +6,14 @@ import { getUsageReport } from "@/lib/analytics.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   ResponsiveContainer,
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip,
@@ -24,33 +28,58 @@ export const Route = createFileRoute("/_authenticated/admin/reportes")({
 function ReportsPage() {
   const reportFn = useServerFn(getUsageReport);
   const [days, setDays] = useState(30);
+  const [desde, setDesde] = useState("");
+  const [hasta, setHasta] = useState("");
+  const usaRango = Boolean(desde || hasta);
   const { data, isLoading } = useQuery({
-    queryKey: ["usage-report", days],
-    queryFn: () => reportFn({ data: { days } }),
+    queryKey: ["usage-report", days, desde, hasta],
+    queryFn: () =>
+      reportFn({
+        data: usaRango
+          ? { desde: desde || undefined, hasta: hasta || undefined }
+          : { days },
+      }),
   });
 
   const totals = data?.by_type ?? {};
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold">Reporte de uso del sitio</h1>
           <p className="text-sm text-muted-foreground">
-            Interacciones anónimas registradas en el sitio público. Últimos {days} días.
+            Interacciones anónimas del sitio público.{" "}
+            {usaRango ? `Del ${data?.desde ?? desde} al ${data?.hasta ?? hasta}.` : `Últimos ${days} días.`}
           </p>
         </div>
-        <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">Últimos 7 días</SelectItem>
-            <SelectItem value="14">Últimos 14 días</SelectItem>
-            <SelectItem value="30">Últimos 30 días</SelectItem>
-            <SelectItem value="60">Últimos 60 días</SelectItem>
-            <SelectItem value="90">Últimos 90 días</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap items-end gap-2">
+          <Select value={String(days)} onValueChange={(v) => { setDays(Number(v)); setDesde(""); setHasta(""); }}>
+            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Últimos 7 días</SelectItem>
+              <SelectItem value="14">Últimos 14 días</SelectItem>
+              <SelectItem value="30">Últimos 30 días</SelectItem>
+              <SelectItem value="60">Últimos 60 días</SelectItem>
+              <SelectItem value="90">Últimos 90 días</SelectItem>
+            </SelectContent>
+          </Select>
+          <div>
+            <label className="block text-[11px] text-muted-foreground">Desde</label>
+            <Input type="date" value={desde} onChange={(e) => setDesde(e.target.value)} className="w-[9.5rem]" />
+          </div>
+          <div>
+            <label className="block text-[11px] text-muted-foreground">Hasta</label>
+            <Input type="date" value={hasta} onChange={(e) => setHasta(e.target.value)} className="w-[9.5rem]" />
+          </div>
+          {usaRango && (
+            <Button variant="outline" size="sm" onClick={() => { setDesde(""); setHasta(""); }}>
+              Limpiar
+            </Button>
+          )}
+        </div>
       </div>
+
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Cargando…</p>
