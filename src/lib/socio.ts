@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
+
 /**
  * Socios aliados (puntos de venta externos).
  *
@@ -57,4 +60,17 @@ export function socioActivo(): Socio | null {
 export function enlaceSocio(slug: string) {
   const base = typeof window !== "undefined" ? window.location.origin : "";
   return `${base}/catalogo?socio=${encodeURIComponent(slug)}`;
+}
+
+/**
+ * Hook reactivo: socio activo en esta sesión. Se recalcula al cambiar la URL
+ * y evita lecturas de sessionStorage durante SSR (sin mismatch de hidratación).
+ */
+export function useSocioActivo(): Socio | null {
+  const searchStr = useRouterState({ select: (s) => s.location.searchStr });
+  const [socio, setSocio] = useState<Socio | null>(null);
+  useEffect(() => {
+    setSocio(socioActivo());
+  }, [searchStr]);
+  return socio;
 }
