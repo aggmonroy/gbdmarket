@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { useSocioActivo } from "@/lib/socio";
 import { CartButton } from "@/components/site/CartButton";
 
 
@@ -12,14 +13,21 @@ const nav = [
   { to: "/contacto", label: "Contacto" },
 ];
 
+const navSocio = [
+  { to: "/catalogo", label: "Catálogo" },
+  { to: "/novedades", label: "Novedades" },
+];
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { branding, contact } = useSiteSettings();
-  const siteName = branding?.site_name || "Línea Blanca y Bordados GBD";
-  const tagline = branding?.site_tagline || "Cooperativa Gladys B. de Ducasa, R.L.";
+  const socio = useSocioActivo();
+  const siteName = socio?.nombre || branding?.site_name || "Línea Blanca y Bordados GBD";
+  const tagline = socio?.descripcion || branding?.site_tagline || "Cooperativa Gladys B. de Ducasa, R.L.";
   const logoUrl = branding?.logo_url || "";
-  const whatsApp = contact?.whatsapp_lineablanca || "50767841941";
+  const whatsApp = socio?.whatsapp || contact?.whatsapp_lineablanca || "50767841941";
+  const items = socio ? navSocio : nav;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -39,7 +47,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {nav.map((n) => {
+          {items.map((n) => {
             const active = pathname === n.to || (n.to !== "/" && pathname.startsWith(n.to));
             return (
               <Link
@@ -83,7 +91,7 @@ export function SiteHeader() {
       {open && (
         <div className="lg:hidden border-t border-border bg-background">
           <div className="container mx-auto px-4 py-3 flex flex-col gap-1">
-            {nav.map((n) => (
+            {items.map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
