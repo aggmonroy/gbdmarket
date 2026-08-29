@@ -12,21 +12,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
-function periodoSiguiente() {
+function periodoActual() {
   const d = new Date();
-  const m = d.getMonth() + 1;
-  const y = m > 11 ? d.getFullYear() + 1 : d.getFullYear();
-  const mes = m > 11 ? 0 : m;
-  return { periodo: `${y}-${String(mes + 1).padStart(2, "0")}`, etiqueta: `${MESES[mes]} ${y}` };
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function etiquetaPeriodo(periodo: string) {
+  const [y, m] = periodo.split("-").map(Number);
+  return `${MESES[(m ?? 1) - 1] ?? ""} ${y ?? ""}`.trim();
 }
 
 /** Selección mensual de 12 artículos en stock para "Promociones del mes". */
 export function PromocionesMes() {
   const qc = useQueryClient();
   const guardar = useServerFn(guardarPromocionesMes);
-  const { periodo, etiqueta } = periodoSiguiente();
-  const dia = new Date().getDate();
-  const enVentana = dia >= 20 && dia <= 30;
+  const [periodo, setPeriodo] = useState(periodoActual);
+  const etiqueta = etiquetaPeriodo(periodo);
 
   const [busqueda, setBusqueda] = useState("");
   const [seleccion, setSeleccion] = useState<string[] | null>(null);
