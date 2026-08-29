@@ -32,7 +32,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
-        <Link to="/" className="flex items-center gap-3 min-w-0">
+        <Link to={socio ? "/catalogo" : "/"} className="flex items-center gap-3 min-w-0">
           {logoUrl ? (
             <img src={logoUrl} alt={siteName} className="h-12 w-12 shrink-0 rounded-xl object-contain" />
           ) : (
