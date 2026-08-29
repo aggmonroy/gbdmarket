@@ -98,8 +98,8 @@ export function PromocionesMes() {
           <div>
             <CardTitle className="text-base">Promociones del mes — {etiqueta}</CardTitle>
             <CardDescription>
-              Elige 12 artículos marcados como <strong>en stock</strong> (no se incluyen bordados). La selección
-              del mes siguiente se realiza entre el 20 y el 30 de cada mes.
+              Elige 12 artículos marcados como <strong>en stock</strong> (no se incluyen bordados). Puedes
+              actualizar la selección en cualquier fecha y para cualquier mes.
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -107,12 +107,20 @@ export function PromocionesMes() {
             <Button onClick={save} disabled={elegidos.length === 0}>Guardar selección</Button>
           </div>
         </div>
-        {!enVentana && (
-          <div className="mt-2 flex items-center gap-2 rounded-md border border-dashed p-2 text-xs text-muted-foreground">
-            <CalendarClock className="h-3.5 w-3.5" />
-            Fuera del período recomendado (día 20 al 30). Puedes ajustar la selección de todas formas.
-          </div>
-        )}
+        <div className="mt-2 flex flex-wrap items-center gap-2 rounded-md border border-dashed p-2 text-xs text-muted-foreground">
+          <CalendarClock className="h-3.5 w-3.5" />
+          <span>Mes de la promoción</span>
+          <Input
+            type="month"
+            className="h-8 w-40"
+            value={periodo}
+            onChange={(e) => {
+              if (!e.target.value) return;
+              setPeriodo(e.target.value);
+              setSeleccion(null);
+            }}
+          />
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <Input
