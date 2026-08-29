@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { buildWaUrl } from "@/lib/whatsapp";
+import { activarSocio, socioActivo, enlaceSocio, type Socio } from "@/lib/socio";
 import { crearSolicitudBordado } from "@/lib/embroidery.functions";
 
 const searchSchema = z.object({
@@ -24,6 +25,7 @@ const searchSchema = z.object({
   brand: z.string().optional(),
   q: z.string().optional(),
   p: z.string().optional(),
+  socio: z.string().optional(),
 });
 
 export const Route = createFileRoute("/catalogo")({
@@ -41,8 +43,17 @@ export const Route = createFileRoute("/catalogo")({
 });
 
 function Catalogo() {
+  const { socio: socioParam } = Route.useSearch();
+  const [socio, setSocio] = useState<Socio | null>(null);
+
+  useEffect(() => {
+    if (socioParam) activarSocio(socioParam);
+    setSocio(socioActivo());
+  }, [socioParam]);
+
   return (
     <div className="container mx-auto px-4 lg:px-8 py-10">
+      {socio && <SocioBanner socio={socio} />}
       <header className="mb-8">
         <h1 className="font-display text-3xl lg:text-4xl font-bold">Nuestro Catálogo</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl">
@@ -51,6 +62,34 @@ function Catalogo() {
       </header>
 
       <CatalogoCompleto />
+    </div>
+  );
+}
+
+function SocioBanner({ socio }: { socio: Socio }) {
+  const enlace = enlaceSocio(socio.slug);
+  const compartir = async () => {
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: `Catálogo · ${socio.nombre}`, url: enlace });
+        return;
+      }
+      await navigator.clipboard.writeText(enlace);
+      toast.success("Enlace del catálogo copiado");
+    } catch (e: any) {
+      if (e?.name !== "AbortError") toast.error("No se pudo compartir el enlace");
+    }
+  };
+
+  return (
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary-soft/40 p-4">
+      <div className="min-w-0">
+        <p className="font-display text-base font-bold">{socio.nombre}</p>
+        <p className="text-xs text-muted-foreground">{socio.descripcion}</p>
+      </div>
+      <Button variant="outline" size="sm" onClick={compartir}>
+        Compartir este catálogo
+      </Button>
     </div>
   );
 }
