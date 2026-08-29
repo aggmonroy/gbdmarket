@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DataConsent } from "@/components/site/DataConsent";
 import { registrarContactoWhatsApp } from "@/lib/leads.functions";
 import { buildWaUrl, type WaChannel } from "@/lib/whatsapp";
+import { socioActivo } from "@/lib/socio";
 
 type Props = {
   open: boolean;
@@ -38,6 +39,19 @@ export function WhatsAppLeadDialog({ open, onOpenChange, channel, mensaje, produ
     if (telefono.trim().length < 6) return toast.error("Ingresa tu teléfono o WhatsApp");
     if (!consent) return toast.error("Debes aceptar el tratamiento de datos");
     setEnviando(true);
+    const socio = channel === "bordados" ? null : socioActivo();
+    if (socio) {
+      // El seguimiento lo hace el socio aliado; no registramos el contacto de nuestro lado.
+      const texto = [mensaje, `Nombre: ${nombre.trim()}`, `Tel: ${telefono.trim()}`, notas.trim() ? `Notas: ${notas.trim()}` : ""]
+        .filter(Boolean)
+        .join("\n");
+      window.open(buildWaUrl(channel, texto), "_blank");
+      onOpenChange(false);
+      setNotas("");
+      setConsent(false);
+      setEnviando(false);
+      return;
+    }
     try {
       await registrar({
         data: {
