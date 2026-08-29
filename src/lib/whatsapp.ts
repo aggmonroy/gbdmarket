@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { socioActivo } from "@/lib/socio";
 
 export const WHATSAPP_LINEA_BLANCA = "50767841941";
 export const WHATSAPP_BORDADOS = "50768298538";
