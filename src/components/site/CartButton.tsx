@@ -12,6 +12,7 @@ import { DataConsent } from "@/components/site/DataConsent";
 import { useCart } from "@/lib/cart";
 import { crearSolicitudCotizacion } from "@/lib/cotizaciones-carrito.functions";
 import { buildWaUrl } from "@/lib/whatsapp";
+import { socioActivo } from "@/lib/socio";
 
 const TIPOS = [
   { value: "asociado", label: "Asociado" },
@@ -126,6 +127,29 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
       return;
     }
     setEnviando(true);
+    const socio = socioActivo();
+    // Cotizaciones que vienen del enlace de un socio aliado van directo a su WhatsApp.
+    if (socio) {
+      const detalle = items
+        .map((i) => `• ${i.cantidad} x ${i.name}${i.model ? ` (Modelo ${i.model})` : ""}`)
+        .join("\n");
+      const texto = [
+        `Hola ${socio.nombre}, deseo una cotización:`,
+        detalle,
+        `Nombre: ${nombre.trim()}`,
+        `WhatsApp: ${telefono.trim()}`,
+        numeroAsociado.trim() ? `N° de asociado: ${numeroAsociado.trim()}` : "",
+        notas.trim() ? `Notas: ${notas.trim()}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+      window.open(buildWaUrl("linea-blanca", texto), "_blank");
+      clear();
+      setAbierto(false);
+      onOpenChange(false);
+      setEnviando(false);
+      return;
+    }
     try {
       const r: any = await crear({
         data: {
