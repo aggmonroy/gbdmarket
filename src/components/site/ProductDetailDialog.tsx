@@ -217,6 +217,9 @@ export function ProductDetailDialog({
 
           </div>
         </div>
+        {socio && (
+          <SocioProductoDialog open={socioForm} onOpenChange={setSocioForm} socio={socio} producto={product} />
+        )}
       </DialogContent>
     </Dialog>
   );
