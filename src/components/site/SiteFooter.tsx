@@ -25,6 +25,40 @@ export function SiteFooter() {
     { label: "coopgbd.com", url: "https://coopgbd.com/" },
   ];
 
+  if (socio) {
+    return (
+      <footer className="mt-24 border-t border-border bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 lg:px-8 py-10 grid gap-8 md:grid-cols-2">
+          <div>
+            <div className="font-display text-lg font-bold">{socio.nombre}</div>
+            <p className="mt-3 text-sm text-primary-foreground/80 leading-relaxed">{socio.descripcion}</p>
+            <a
+              href={`https://wa.me/${socio.whatsapp}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex items-center gap-2 text-sm hover:underline"
+            >
+              <MessageCircle className="h-4 w-4" /> +{socio.whatsapp}
+            </a>
+          </div>
+          <div>
+            <div className="text-sm font-semibold uppercase tracking-wider opacity-80">Navegación</div>
+            <ul className="mt-3 space-y-2 text-sm">
+              <li><Link to="/catalogo" className="hover:underline">Catálogo</Link></li>
+              <li><Link to="/novedades" className="hover:underline">Novedades</Link></li>
+              <li><Link to="/privacidad" className="hover:underline">Política de privacidad</Link></li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-primary-foreground/15">
+          <div className="container mx-auto px-4 py-4 text-xs text-primary-foreground/70">
+            © {new Date().getFullYear()} {socio.nombre}. Catálogo en alianza con {siteName}.
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="mt-24 border-t border-border bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 lg:px-8 py-12 grid gap-10 md:grid-cols-4">
