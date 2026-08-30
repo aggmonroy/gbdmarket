@@ -95,7 +95,9 @@ export function ProductCard({
             onClick={agregar}
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition"
           >
-            {esBordado ? (
+            {socio ? (
+              <><MessageCircle className="h-3.5 w-3.5" /> WhatsApp</>
+            ) : esBordado ? (
               <><Scissors className="h-3.5 w-3.5" /> Pedir bordado</>
             ) : (
               <><ShoppingCart className="h-3.5 w-3.5" /> Agregar</>
@@ -104,6 +106,11 @@ export function ProductCard({
         </div>
 
       </div>
+      {socio && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <SocioProductoDialog open={socioForm} onOpenChange={setSocioForm} socio={socio} producto={product} />
+        </div>
+      )}
     </div>
   );
 }
