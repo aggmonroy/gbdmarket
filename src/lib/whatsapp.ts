@@ -9,7 +9,7 @@ export type WaChannel = "linea-blanca" | "bordados";
 
 export function buildWaUrl(channel: WaChannel, message: string) {
   // Si el visitante entró por el enlace de un socio aliado, su cotización va al socio.
-  const socio = channel === "bordados" ? null : socioActivo();
+  const socio = socioActivo();
   const phone = socio ? socio.whatsapp : channel === "bordados" ? WHATSAPP_BORDADOS : WHATSAPP_LINEA_BLANCA;
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
