@@ -4,6 +4,9 @@ import type { ProductLite } from "./ProductDetailDialog";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import { compartirProducto } from "@/lib/compartir";
+import { useSocioActivo } from "@/lib/socio";
+import { SocioProductoDialog } from "./SocioProductoDialog";
+import { useState } from "react";
 
 
 export function ProductCard({
@@ -18,10 +21,16 @@ export function ProductCard({
   onSolicitarBordado?: () => void;
 }) {
   const { add, setAbierto } = useCart();
+  const socio = useSocioActivo();
+  const [socioForm, setSocioForm] = useState(false);
 
   const agregar = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+    if (socio) {
+      setSocioForm(true);
+      return;
+    }
     if (esBordado) {
       onSolicitarBordado?.();
       return;
@@ -86,7 +95,9 @@ export function ProductCard({
             onClick={agregar}
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition"
           >
-            {esBordado ? (
+            {socio ? (
+              <><MessageCircle className="h-3.5 w-3.5" /> WhatsApp</>
+            ) : esBordado ? (
               <><Scissors className="h-3.5 w-3.5" /> Pedir bordado</>
             ) : (
               <><ShoppingCart className="h-3.5 w-3.5" /> Agregar</>
@@ -95,6 +106,11 @@ export function ProductCard({
         </div>
 
       </div>
+      {socio && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <SocioProductoDialog open={socioForm} onOpenChange={setSocioForm} socio={socio} producto={product} />
+        </div>
+      )}
     </div>
   );
 }

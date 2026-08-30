@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { FileText, MessageCircle, Package, Scissors, Share2, ShoppingCart } from "lucide-react";
 import { compartirProducto } from "@/lib/compartir";
 import { useCart } from "@/lib/cart";
+import { useSocioActivo } from "@/lib/socio";
+import { SocioProductoDialog } from "./SocioProductoDialog";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 import { ProductGallery } from "./ProductGallery";
 
@@ -46,6 +48,8 @@ export function ProductDetailDialog({
   const [consent, setConsent] = useState(false);
   const crear = useServerFn(crearPreorden);
   const { add, setAbierto } = useCart();
+  const socio = useSocioActivo();
+  const [socioForm, setSocioForm] = useState(false);
   if (!product) return null;
 
 
@@ -140,7 +144,30 @@ export function ProductDetailDialog({
               </ul>
             )}
 
-            {esBordado ? (
+            {socio ? (
+              <>
+                <Button
+                  onClick={() => setSocioForm(true)}
+                  className="mt-6 w-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90"
+                  size="lg"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" /> Consultar por WhatsApp
+                </Button>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Te atiende directamente {socio.nombre}. Enviaremos el enlace de este artículo por WhatsApp.
+                </p>
+                {product.datasheet_url && (
+                  <a
+                    href={product.datasheet_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 text-sm text-primary hover:underline"
+                  >
+                    <FileText className="h-4 w-4" /> Descargar ficha técnica (PDF)
+                  </a>
+                )}
+              </>
+            ) : esBordado ? (
               <div className="mt-6 rounded-xl border border-border bg-primary-soft/40 p-4">
                 <div className="text-sm font-semibold text-primary">Pedido de bordado</div>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -190,6 +217,9 @@ export function ProductDetailDialog({
 
           </div>
         </div>
+        {socio && (
+          <SocioProductoDialog open={socioForm} onOpenChange={setSocioForm} socio={socio} producto={product} />
+        )}
       </DialogContent>
     </Dialog>
   );
