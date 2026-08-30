@@ -4,6 +4,9 @@ import type { ProductLite } from "./ProductDetailDialog";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import { compartirProducto } from "@/lib/compartir";
+import { useSocioActivo } from "@/lib/socio";
+import { SocioProductoDialog } from "./SocioProductoDialog";
+import { useState } from "react";
 
 
 export function ProductCard({
