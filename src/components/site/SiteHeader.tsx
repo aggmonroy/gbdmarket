@@ -65,7 +65,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2">
-          <CartButton />
+          {!socio && <CartButton />}
           <a
             href={`https://wa.me/${whatsApp}`}
             target="_blank"
@@ -77,7 +77,7 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <CartButton />
+          {!socio && <CartButton />}
         <button
           aria-label="Menú"
           onClick={() => setOpen(!open)}

@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { FileText, MessageCircle, Package, Scissors, Share2, ShoppingCart } from "lucide-react";
 import { compartirProducto } from "@/lib/compartir";
 import { useCart } from "@/lib/cart";
+import { useSocioActivo } from "@/lib/socio";
+import { SocioProductoDialog } from "./SocioProductoDialog";
 import { DisponibilidadBadge } from "./DisponibilidadBadge";
 import { ProductGallery } from "./ProductGallery";
 
