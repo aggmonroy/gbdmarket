@@ -13,6 +13,7 @@ function SocialIcon({ url }: { url: string }) {
 
 export function SiteFooter() {
   const { branding, contact } = useSiteSettings();
+  const socio = useSocioActivo();
   const siteName = branding?.site_name || "Cooperativa Gladys B. de Ducasa R.L.";
   const email = contact?.email || "lineablanca@coopgbd.com";
   const waLB = contact?.whatsapp_lineablanca || "50767841941";
