@@ -21,10 +21,16 @@ export function ProductCard({
   onSolicitarBordado?: () => void;
 }) {
   const { add, setAbierto } = useCart();
+  const socio = useSocioActivo();
+  const [socioForm, setSocioForm] = useState(false);
 
   const agregar = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+    if (socio) {
+      setSocioForm(true);
+      return;
+    }
     if (esBordado) {
       onSolicitarBordado?.();
       return;
