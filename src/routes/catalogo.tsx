@@ -256,7 +256,7 @@ function CatalogoCompleto() {
               Prueba con otra categoría o escríbenos por WhatsApp y te asesoramos directamente.
             </p>
             <a
-              href="https://wa.me/50767841941"
+              href={buildWaUrl("linea-blanca", "Hola, necesito ayuda para encontrar un producto del catálogo.")}
               target="_blank" rel="noreferrer"
               className="mt-5 inline-flex items-center rounded-md bg-whatsapp px-4 py-2 text-sm font-semibold text-whatsapp-foreground hover:opacity-90"
             >
