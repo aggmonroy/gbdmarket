@@ -48,6 +48,8 @@ export function ProductDetailDialog({
   const [consent, setConsent] = useState(false);
   const crear = useServerFn(crearPreorden);
   const { add, setAbierto } = useCart();
+  const socio = useSocioActivo();
+  const [socioForm, setSocioForm] = useState(false);
   if (!product) return null;
 
 
