@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, MapPin, Globe, Instagram, Facebook, Youtube, Music2 } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { useSocioActivo } from "@/lib/socio";
 
 function SocialIcon({ url }: { url: string }) {
   const u = url.toLowerCase();
