@@ -3,6 +3,7 @@ import { socioActivo } from "@/lib/socio";
 
 export const WHATSAPP_LINEA_BLANCA = "50767841941";
 export const WHATSAPP_BORDADOS = "50768298538";
+export const WHATSAPP_TONOSI = "50768711242";
 export const EMAIL_LINEA_BLANCA = "lineablanca@coopgbd.com";
 
 export type WaChannel = "linea-blanca" | "bordados";
