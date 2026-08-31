@@ -11,5 +11,11 @@ export const SUCURSAL_LABEL: Record<Sucursal, string> = {
   tonosi: "Sucursal Tonosí",
 };
 
+/** WhatsApp de seguimiento para cada sucursal (garantías y atención). */
+export const SUCURSAL_WHATSAPP: Record<Sucursal, string> = {
+  "las-tablas": "50767841941",
+  tonosi: "50768711242",
+};
+
 /** Responsable fijo de la sucursal de Tonosí (asignación automática). */
 export const RESPONSABLE_TONOSI = "VICTOR";
