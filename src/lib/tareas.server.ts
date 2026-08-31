@@ -69,6 +69,7 @@ export async function crearTareaDeOrigen(opts: {
   embroideryRequestId?: string | null;
   whatsappLeadId?: string | null;
   documentoUrl?: string | null;
+  asignadoA?: string | null;
 }) {
   const sb = await admin();
   const numero = await generarNumeroTarea(sb, "tarea");
@@ -83,6 +84,7 @@ export async function crearTareaDeOrigen(opts: {
     embroidery_request_id: opts.embroideryRequestId ?? null,
     whatsapp_lead_id: opts.whatsappLeadId ?? null,
     documento_url: opts.documentoUrl ?? null,
+    asignado_a: opts.asignadoA ?? null,
     fecha: hoyISO(),
     estado: "pendiente",
   });
@@ -105,4 +107,19 @@ export async function crearTareaDeSolicitud(opts: {
     bitacoraId: opts.bitacoraId,
     documentoUrl: `/pedido/${opts.numeroPedido}?t=${encodeURIComponent(await signPedidoToken(opts.numeroPedido))}`,
   });
+}
+
+/**
+ * Responsable automático por sucursal: todo lo de Tonosí queda a cargo de
+ * Víctor (cotizaciones del carrito y trámites de garantía).
+ */
+export async function responsableSucursal(sb: any, sucursal: string | null | undefined) {
+  if (sucursal !== "tonosi") return null;
+  const { data } = await sb
+    .from("colaboradores")
+    .select("id,nombre")
+    .eq("activo", true)
+    .is("deleted_at", null);
+  const victor = (data ?? []).find((c: any) => (c.nombre ?? "").toUpperCase().includes("VICTOR"));
+  return (victor?.id as string) ?? null;
 }
