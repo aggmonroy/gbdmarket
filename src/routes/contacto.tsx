@@ -7,7 +7,7 @@ export const Route = createFileRoute("/contacto")({
   head: () => ({
     meta: [
       { title: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
-      { name: "description", content: "Escríbenos por WhatsApp. Suscríbete al boletín y descubre promociones. Las Tablas: +507 6784-1941 · Bordados: +507 6829-8538." },
+      { name: "description", content: "Escríbenos por WhatsApp. Suscríbete al boletín y descubre promociones. Las Tablas: +507 6784-1941 · Tonosí: +507 6871-1242 · Bordados: +507 6829-8538." },
       { property: "og:title", content: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
       { property: "og:description", content: "WhatsApp directo, boletín de promociones y canales de atención al cliente." },
     ],
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/contacto")({
 
 const WA_LAS_TABLAS = "50767841941";
 const WA_BORDADOS = "50768298538";
+const WA_TONOSI = "50768711242";
 
 function Contacto() {
   return (
