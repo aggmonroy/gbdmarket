@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DataConsent } from "@/components/site/DataConsent";
 import { useCart } from "@/lib/cart";
 import { crearSolicitudCotizacion } from "@/lib/cotizaciones-carrito.functions";
+import { SUCURSALES, SUCURSAL_LABEL, type Sucursal } from "@/lib/sucursales";
 import { buildWaUrl } from "@/lib/whatsapp";
 import { socioActivo } from "@/lib/socio";
 
@@ -110,6 +111,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
   const { items, clear, setAbierto } = useCart();
   const crear = useServerFn(crearSolicitudCotizacion);
   const [tipo, setTipo] = useState<"asociado" | "colaborador" | "tercero" | "gobierno">("asociado");
+  const [sucursal, setSucursal] = useState<Sucursal>("las-tablas");
   const [nombre, setNombre] = useState("");
   const [cedula, setCedula] = useState("");
   const [ruc, setRuc] = useState("");
@@ -136,6 +138,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
       const texto = [
         `Hola ${socio.nombre}, deseo una cotización:`,
         detalle,
+        `Sucursal: ${SUCURSAL_LABEL[sucursal]}`,
         `Nombre: ${nombre.trim()}`,
         `WhatsApp: ${telefono.trim()}`,
         numeroAsociado.trim() ? `N° de asociado: ${numeroAsociado.trim()}` : "",
@@ -154,6 +157,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
       const r: any = await crear({
         data: {
           tipo_cliente: tipo,
+          sucursal,
           cliente: {
             nombre: nombre.trim(),
             cedula: cedula.trim(),
@@ -254,6 +258,26 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
                     }`}
                   >
                     {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Sucursal *</Label>
+              <div className="mt-1.5 flex flex-wrap gap-2">
+                {SUCURSALES.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSucursal(s)}
+                    className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+                      sucursal === s
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground/80 hover:bg-accent"
+                    }`}
+                  >
+                    {SUCURSAL_LABEL[s]}
                   </button>
                 ))}
               </div>

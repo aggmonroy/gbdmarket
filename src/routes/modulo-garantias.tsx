@@ -269,6 +269,7 @@ function Panel({ sesion, onSalir }: { sesion: Sesion; onSalir: () => void }) {
 
 const vacio = {
   fecha: hoy(),
+  sucursal: "las-tablas" as Sucursal,
   cliente: "",
   cedula_cliente: "",
   telefono_cliente: "",
@@ -322,6 +323,21 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
         <div className="grid gap-4 sm:grid-cols-2">
           <Campo label="Fecha del trámite">
             <Input type="date" value={form.fecha} onChange={(e) => set("fecha", e.target.value)} />
+          </Campo>
+          <Campo label="Sucursal">
+            <div className="flex flex-wrap gap-2">
+              {SUCURSALES.map((s) => (
+                <Button
+                  key={s}
+                  type="button"
+                  size="sm"
+                  variant={form.sucursal === s ? "default" : "outline"}
+                  onClick={() => set("sucursal", s)}
+                >
+                  {SUCURSAL_LABEL[s]}
+                </Button>
+              ))}
+            </div>
           </Campo>
           <Campo label="Cliente">
             <Input value={form.cliente} onChange={(e) => set("cliente", e.target.value)} />
