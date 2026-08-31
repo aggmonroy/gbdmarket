@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SUCURSALES } from "./sucursales";
 
 const ESTADOS = ["proceso", "revision", "cerrada_cliente_credito", "cerrada_proveedor_cliente"] as const;
 const CIERRES = ["cerrada_cliente_credito", "cerrada_proveedor_cliente"] as const;
@@ -33,6 +34,7 @@ export const crearGarantiaSchema = z.object({
   token: z.string().min(1),
   pin: pin4,
   fecha: z.string().min(10).max(10),
+  sucursal: z.enum(SUCURSALES),
   cliente: z.string().trim().min(2).max(200),
   cedula_cliente: z.string().trim().max(60).optional().or(z.literal("")),
   telefono_cliente: z.string().trim().max(60).optional().or(z.literal("")),

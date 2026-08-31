@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { admin, verifySesion } from "./garantias.server";
-import { crearTareaDeOrigen, hoyISO } from "./tareas.server";
+import { crearTareaDeOrigen, hoyISO, responsableSucursal } from "./tareas.server";
+import { SUCURSAL_LABEL } from "./sucursales";
 import {
   crearSolicitudCotizacionSchema,
   finalizarSolicitudCotizacionSchema,
@@ -61,6 +62,7 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
         tipo_cliente: data.tipo_cliente,
         cliente: data.cliente,
         items,
+        sucursal: data.sucursal,
         notas: data.notas || null,
         estado: "pendiente",
       })
@@ -68,12 +70,14 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
+    const asignadoA = await responsableSucursal(sb, data.sucursal);
     const numeroTarea = await crearTareaDeOrigen({
       origen: "cotizacion",
       titulo: `Cotizar carrito ${row.numero} · ${data.cliente.nombre}`,
-      descripcion: `${ETIQUETA_TIPO[data.tipo_cliente]} · ${items.length} artículo(s): ${resumen}${
+      descripcion: `${SUCURSAL_LABEL[data.sucursal]} · ${ETIQUETA_TIPO[data.tipo_cliente]} · ${items.length} artículo(s): ${resumen}${
         data.notas ? ` · Nota: ${data.notas}` : ""
       }`,
+      asignadoA,
     });
 
     const { data: tarea } = await sb

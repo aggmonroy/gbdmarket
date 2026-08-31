@@ -334,6 +334,7 @@ export type Database = {
           notas: string | null
           numero: string
           resultado: Json | null
+          sucursal: string | null
           tarea_id: string | null
           tipo_cliente: string
           updated_at: string
@@ -349,6 +350,7 @@ export type Database = {
           notas?: string | null
           numero: string
           resultado?: Json | null
+          sucursal?: string | null
           tarea_id?: string | null
           tipo_cliente?: string
           updated_at?: string
@@ -364,6 +366,7 @@ export type Database = {
           notas?: string | null
           numero?: string
           resultado?: Json | null
+          sucursal?: string | null
           tarea_id?: string | null
           tipo_cliente?: string
           updated_at?: string
@@ -659,6 +662,7 @@ export type Database = {
           no_mal_uso: boolean
           numero_factura: string | null
           numero_garantia: string
+          sucursal: string | null
           tarea_vinculada_id: string | null
           telefono_cliente: string | null
           tramitado_por: string
@@ -681,6 +685,7 @@ export type Database = {
           no_mal_uso?: boolean
           numero_factura?: string | null
           numero_garantia: string
+          sucursal?: string | null
           tarea_vinculada_id?: string | null
           telefono_cliente?: string | null
           tramitado_por: string
@@ -703,6 +708,7 @@ export type Database = {
           no_mal_uso?: boolean
           numero_factura?: string | null
           numero_garantia?: string
+          sucursal?: string | null
           tarea_vinculada_id?: string | null
           telefono_cliente?: string | null
           tramitado_por?: string

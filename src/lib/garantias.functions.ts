@@ -30,6 +30,8 @@ import {
   solicitudPinCedulaSchema,
   tokenSchema,
 } from "./garantias.schemas";
+import { responsableSucursal } from "./tareas.server";
+import { SUCURSAL_LABEL } from "./sucursales";
 
 /** Lista mínima de colaboradores activos para la pantalla de ingreso por PIN. */
 export const listColaboradoresLogin = createServerFn({ method: "GET" }).handler(async () => {
@@ -139,6 +141,7 @@ export const crearGarantia = createServerFn({ method: "POST" })
       .insert({
         numero_garantia: numero,
         fecha: data.fecha,
+        sucursal: data.sucursal,
         cliente: data.cliente,
         cedula_cliente: data.cedula_cliente || null,
         telefono_cliente: data.telefono_cliente || null,
@@ -160,8 +163,8 @@ export const crearGarantia = createServerFn({ method: "POST" })
       .from("tareas")
       .insert({
         titulo: `Seguimiento de garantía: ${data.cliente}`,
-        descripcion: `Garantía ${numero}`,
-        asignado_a: sesion.cid,
+        descripcion: `Garantía ${numero} · ${SUCURSAL_LABEL[data.sucursal]}`,
+        asignado_a: (await responsableSucursal(sb, data.sucursal)) ?? sesion.cid,
         garantia_id: garantia.id,
         estado: "pendiente",
       })

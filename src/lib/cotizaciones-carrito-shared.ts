@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SUCURSALES } from "./sucursales";
 
 export const TIPOS_CLIENTE_COTIZACION = ["asociado", "colaborador", "tercero", "gobierno"] as const;
 
@@ -31,6 +32,7 @@ export const itemCarritoSchema = z.object({
 
 export const crearSolicitudCotizacionSchema = z.object({
   tipo_cliente: z.enum(TIPOS_CLIENTE_COTIZACION),
+  sucursal: z.enum(SUCURSALES),
   cliente: clienteCotizacionSchema,
   items: z.array(itemCarritoSchema).min(1).max(30),
   notas: z.string().trim().max(1000).optional().or(z.literal("")),
