@@ -20,7 +20,7 @@ export const SOCIOS: Socio[] = [
   {
     slug: "el-progreso",
     nombre: "Cooperativa El Progreso",
-    whatsapp: "50766848849",
+    whatsapp: "50765647668",
     descripcion: "Punto de venta aliado · precios y cotizaciones gestionadas por El Progreso",
   },
 ];
