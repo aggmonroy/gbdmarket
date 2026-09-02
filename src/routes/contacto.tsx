@@ -26,10 +26,12 @@ function Contacto() {
       <h1 className="font-display text-3xl lg:text-4xl font-bold">Hablemos</h1>
       <p className="mt-3 text-muted-foreground">Te respondemos por WhatsApp de inmediato. Elige el canal que prefieras.</p>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
+      <div className="mt-10 grid gap-6 md:grid-cols-3">
         <ChannelCard title="Línea Blanca · Las Tablas" phone="+507 6784-1941" href={`https://wa.me/${WA_LAS_TABLAS}`} />
+        <ChannelCard title="Mueblería GBD · Sucursal Tonosí" phone="+507 6871-1242" href={`https://wa.me/${WA_TONOSI}`} />
         <ChannelCard title="Bordados" phone="+507 6829-8538" href={`https://wa.me/${WA_BORDADOS}`} />
       </div>
+
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
         <Info Icon={Mail} title="Email">lineablanca@coopgbd.com</Info>
