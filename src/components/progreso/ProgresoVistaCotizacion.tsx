@@ -11,12 +11,15 @@ export function ProgresoVistaCotizacion({
   cliente,
   totales,
   refNode,
+  interno = false,
 }: {
   numero: string;
   fecha: string;
   cliente: ClienteProgreso;
   totales: TotalesProgreso;
   refNode?: (el: HTMLDivElement | null) => void;
+  /** Solo la vista de asesor muestra margen y tope de plazo. */
+  interno?: boolean;
 }) {
   return (
     <div ref={refNode} className="mx-auto w-full max-w-[820px] bg-white p-6 text-[#1a2433]">
@@ -88,9 +91,11 @@ export function ProgresoVistaCotizacion({
         <div className="rounded-lg border-2 border-[#0F7B3E] p-4 text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest text-[#4a5768]">Total a crédito</p>
           <p className="text-2xl font-bold text-[#0F7B3E]">{fmtGP(totales.totalCredito)}</p>
-          <p className="text-[10px] text-[#68758A]">
-            Margen aplicado {totales.margenPct}% · plazo máximo {totales.plazoTope} meses
-          </p>
+          {interno && (
+            <p className="text-[10px] text-[#68758A]">
+              Margen aplicado {totales.margenPct}% · plazo máximo {totales.plazoTope} meses
+            </p>
+          )}
         </div>
       </div>
 
