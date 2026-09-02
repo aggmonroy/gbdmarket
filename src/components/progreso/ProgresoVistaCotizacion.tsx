@@ -11,12 +11,15 @@ export function ProgresoVistaCotizacion({
   cliente,
   totales,
   refNode,
+  interno = false,
 }: {
   numero: string;
   fecha: string;
   cliente: ClienteProgreso;
   totales: TotalesProgreso;
   refNode?: (el: HTMLDivElement | null) => void;
+  /** Solo la vista de asesor muestra margen y tope de plazo. */
+  interno?: boolean;
 }) {
   return (
     <div ref={refNode} className="mx-auto w-full max-w-[820px] bg-white p-6 text-[#1a2433]">
