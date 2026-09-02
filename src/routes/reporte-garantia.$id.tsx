@@ -6,6 +6,10 @@ import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getGarantia, getGarantiaReporte } from "@/lib/garantias.functions";
 import { ESTADO_LABEL, TEXTO_CONSENTIMIENTO, siguientePaso, type GarantiaEstado } from "@/lib/garantias-shared";
+import { SUCURSAL_LABEL, SUCURSAL_WHATSAPP, type Sucursal } from "@/lib/sucursales";
+
+/** +507 6871-1242 a partir de 50768711242. */
+const waVisible = (n: string) => `+${n.slice(0, 3)} ${n.slice(3, 7)}-${n.slice(7)}`;
 
 export const Route = createFileRoute("/reporte-garantia/$id")({
   validateSearch: (s: Record<string, unknown>) => ({ t: typeof s.t === "string" ? s.t : undefined }),
