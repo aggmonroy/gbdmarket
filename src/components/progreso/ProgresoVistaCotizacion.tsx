@@ -91,9 +91,11 @@ export function ProgresoVistaCotizacion({
         <div className="rounded-lg border-2 border-[#0F7B3E] p-4 text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest text-[#4a5768]">Total a crédito</p>
           <p className="text-2xl font-bold text-[#0F7B3E]">{fmtGP(totales.totalCredito)}</p>
-          <p className="text-[10px] text-[#68758A]">
-            Margen aplicado {totales.margenPct}% · plazo máximo {totales.plazoTope} meses
-          </p>
+          {interno && (
+            <p className="text-[10px] text-[#68758A]">
+              Margen aplicado {totales.margenPct}% · plazo máximo {totales.plazoTope} meses
+            </p>
+          )}
         </div>
       </div>
 
