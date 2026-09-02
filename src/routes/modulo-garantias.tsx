@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { SUCURSALES, SUCURSAL_LABEL, type Sucursal } from "@/lib/sucursales";
+import { SUCURSALES, SUCURSAL_LABEL, SUCURSAL_WHATSAPP, type Sucursal } from "@/lib/sucursales";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -694,6 +694,25 @@ function DetalleCaso({
             <div className="rounded-md bg-muted/50 p-3 text-xs">
               <strong>Siguiente paso:</strong> {siguientePaso(g.dentro_15_dias, g.no_mal_uso)}
             </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <Badge variant="outline">{SUCURSAL_LABEL[(g.sucursal ?? "las-tablas") as Sucursal]}</Badge>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  window.open(
+                    `https://wa.me/${SUCURSAL_WHATSAPP[(g.sucursal ?? "las-tablas") as Sucursal]}?text=${encodeURIComponent(
+                      `Seguimiento de garantía ${g.numero_garantia} · ${g.cliente ?? ""}`
+                    )}`,
+                    "_blank"
+                  )
+                }
+              >
+                WhatsApp de seguimiento
+              </Button>
+            </div>
+
 
             {antig && (
               <div className="flex flex-wrap gap-2 text-xs">

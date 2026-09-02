@@ -24,6 +24,7 @@ import { Route as ModuloGarantiasRouteImport } from './routes/modulo-garantias'
 import { Route as NovedadesRouteImport } from './routes/novedades'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as ProgresoRouteImport } from './routes/progreso'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -128,6 +129,11 @@ const PortalRoute = PortalRouteImport.update({
 const PrivacidadRoute = PrivacidadRouteImport.update({
   id: '/privacidad',
   path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgresoRoute = ProgresoRouteImport.update({
+  id: '/progreso',
+  path: '/progreso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -322,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
+  '/progreso': typeof ProgresoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -369,6 +376,7 @@ export interface FileRoutesByTo {
   '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
+  '/progreso': typeof ProgresoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -417,6 +425,7 @@ export interface FileRoutesById {
   '/novedades': typeof NovedadesRoute
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
+  '/progreso': typeof ProgresoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -466,6 +475,7 @@ export interface FileRouteTypes {
     | '/novedades'
     | '/portal'
     | '/privacidad'
+    | '/progreso'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -513,6 +523,7 @@ export interface FileRouteTypes {
     | '/novedades'
     | '/portal'
     | '/privacidad'
+    | '/progreso'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -560,6 +571,7 @@ export interface FileRouteTypes {
     | '/novedades'
     | '/portal'
     | '/privacidad'
+    | '/progreso'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -609,6 +621,7 @@ export interface RootRouteChildren {
   NovedadesRoute: typeof NovedadesRoute
   PortalRoute: typeof PortalRoute
   PrivacidadRoute: typeof PrivacidadRoute
+  ProgresoRoute: typeof ProgresoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -726,6 +739,13 @@ declare module '@tanstack/react-router' {
       path: '/privacidad'
       fullPath: '/privacidad'
       preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progreso': {
+      id: '/progreso'
+      path: '/progreso'
+      fullPath: '/progreso'
+      preLoaderRoute: typeof ProgresoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -1026,6 +1046,7 @@ const rootRouteChildren: RootRouteChildren = {
   NovedadesRoute: NovedadesRoute,
   PortalRoute: PortalRoute,
   PrivacidadRoute: PrivacidadRoute,
+  ProgresoRoute: ProgresoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:

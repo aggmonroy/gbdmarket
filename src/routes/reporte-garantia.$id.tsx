@@ -6,6 +6,10 @@ import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getGarantia, getGarantiaReporte } from "@/lib/garantias.functions";
 import { ESTADO_LABEL, TEXTO_CONSENTIMIENTO, siguientePaso, type GarantiaEstado } from "@/lib/garantias-shared";
+import { SUCURSAL_LABEL, SUCURSAL_WHATSAPP, type Sucursal } from "@/lib/sucursales";
+
+/** +507 6871-1242 a partir de 50768711242. */
+const waVisible = (n: string) => `+${n.slice(0, 3)} ${n.slice(3, 7)}-${n.slice(7)}`;
 
 export const Route = createFileRoute("/reporte-garantia/$id")({
   validateSearch: (s: Record<string, unknown>) => ({ t: typeof s.t === "string" ? s.t : undefined }),
@@ -68,7 +72,12 @@ function ReporteGarantia() {
         <h1 className="font-display text-2xl font-bold">Reporte de trámite de garantía</h1>
         <p className="text-sm text-muted-foreground">Cooperativa GBD · {ESTADO_LABEL[g.estado as GarantiaEstado]}</p>
         <p className="mt-1 font-mono text-sm font-semibold">{g.numero_garantia}</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {SUCURSAL_LABEL[(g.sucursal ?? "las-tablas") as Sucursal]} · WhatsApp de seguimiento:{" "}
+          {waVisible(SUCURSAL_WHATSAPP[(g.sucursal ?? "las-tablas") as Sucursal])}
+        </p>
       </header>
+
 
       <section className="mt-6 grid grid-cols-2 gap-3 text-sm">
         <Fila k="Fecha del trámite" v={g.fecha} />
