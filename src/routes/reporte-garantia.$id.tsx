@@ -68,7 +68,12 @@ function ReporteGarantia() {
         <h1 className="font-display text-2xl font-bold">Reporte de trámite de garantía</h1>
         <p className="text-sm text-muted-foreground">Cooperativa GBD · {ESTADO_LABEL[g.estado as GarantiaEstado]}</p>
         <p className="mt-1 font-mono text-sm font-semibold">{g.numero_garantia}</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {SUCURSAL_LABEL[(g.sucursal ?? "las-tablas") as Sucursal]} · WhatsApp de seguimiento:{" "}
+          {waVisible(SUCURSAL_WHATSAPP[(g.sucursal ?? "las-tablas") as Sucursal])}
+        </p>
       </header>
+
 
       <section className="mt-6 grid grid-cols-2 gap-3 text-sm">
         <Fila k="Fecha del trámite" v={g.fecha} />
