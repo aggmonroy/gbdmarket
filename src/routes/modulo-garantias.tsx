@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { SUCURSALES, SUCURSAL_LABEL, type Sucursal } from "@/lib/sucursales";
+import { SUCURSALES, SUCURSAL_LABEL, SUCURSAL_WHATSAPP, type Sucursal } from "@/lib/sucursales";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
