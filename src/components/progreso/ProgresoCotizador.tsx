@@ -147,10 +147,25 @@ export function ProgresoCotizador() {
           >
             Enviar por WhatsApp
           </Button>
+          <Button variant="secondary" onClick={() => setConvertir(true)}>
+            <ShoppingCart className="mr-2 h-4 w-4" /> Convertir a pedido
+          </Button>
           <Button variant="ghost" onClick={cerrar}>
             <X className="mr-2 h-4 w-4" /> Cerrar y borrar
           </Button>
         </div>
+
+        <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+          Vista de asesor · Margen {reglas.margenPct}% · Tope de plazo {reglas.plazoTope} meses. El cliente no ve estos datos.
+        </div>
+
+        <ProgresoConvertirPedido
+          lineas={lineas}
+          numero={emitida.numero}
+          open={convertir}
+          onOpenChange={setConvertir}
+        />
+
 
         {enlace && (
           <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-border bg-muted/40 p-3 text-xs">
