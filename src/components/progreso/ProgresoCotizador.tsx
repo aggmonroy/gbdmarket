@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Copy, Download, Image as ImageIcon, Plus, Printer, Search, Trash2, X } from "lucide-react";
+import { Copy, Download, Image as ImageIcon, Plus, Printer, Search, ShoppingCart, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
