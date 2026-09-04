@@ -4,26 +4,17 @@ import { toast } from "sonner";
 import { Loader2, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { crearSolicitudCotizacion } from "@/lib/cotizaciones-carrito.functions";
 import { SUCURSALES, SUCURSAL_LABEL, type Sucursal } from "@/lib/sucursales";
-import type { LineaProgreso } from "@/lib/progreso";
-
-type TipoCliente = "asociado" | "colaborador" | "tercero" | "gobierno";
-
-const TIPOS: Array<{ v: TipoCliente; label: string }> = [
-  { v: "tercero", label: "Cliente particular" },
-  { v: "asociado", label: "Asociado" },
-  { v: "colaborador", label: "Colaborador" },
-  { v: "gobierno", label: "Pedido institucional" },
-];
+import { PUNTO_VENTA_PROGRESO, type LineaProgreso } from "@/lib/progreso";
 
 /**
  * Convierte una cotización de El Progreso en una solicitud regular del carrito
- * de la mueblería: el asesor de El Progreso llena los datos del cliente como
- * cualquier cliente directo y la solicitud entra al flujo normal de GBD.
+ * de la mueblería. Los datos del cliente que llegan a GBD son los del punto de
+ * venta El Progreso (ellos son el comprador/revendedor), nunca los del cliente
+ * final que cotizó en El Progreso.
  */
 export function ProgresoConvertirPedido({
   lineas,
@@ -38,23 +29,9 @@ export function ProgresoConvertirPedido({
 }) {
   const crear = useServerFn(crearSolicitudCotizacion);
   const [enviando, setEnviando] = useState(false);
-  const [tipo, setTipo] = useState<TipoCliente>("tercero");
   const [sucursal, setSucursal] = useState<Sucursal>("las-tablas");
-  const [form, setForm] = useState({
-    nombre: "",
-    telefono: "",
-    cedula: "",
-    correo: "",
-    numero_asociado: "",
-    ruc: "",
-  });
-
-  const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   const enviar = async () => {
-    if (form.nombre.trim().length < 3) return toast.error("Coloca el nombre completo del cliente");
-    if (form.telefono.replace(/\D/g, "").length < 7) return toast.error("Coloca un WhatsApp válido");
-
     const items = lineas
       .filter((l) => (l.nombre || "").trim())
       .map((l) => ({
@@ -70,19 +47,19 @@ export function ProgresoConvertirPedido({
     try {
       await crear({
         data: {
-          tipo_cliente: tipo,
+          tipo_cliente: "tercero",
           sucursal,
           cliente: {
-            nombre: form.nombre.trim(),
-            telefono: form.telefono.trim(),
-            cedula: form.cedula.trim(),
-            correo: form.correo.trim(),
-            numero_asociado: form.numero_asociado.trim(),
-            ruc: form.ruc.trim(),
+            nombre: PUNTO_VENTA_PROGRESO.nombre,
+            telefono: PUNTO_VENTA_PROGRESO.whatsappVisible,
+            cedula: "",
+            correo: "",
+            numero_asociado: "",
+            ruc: "",
             direccion: "",
           },
           items,
-          notas: `Pedido convertido desde la cotización ${numero} del punto de venta Cooperativa El Progreso R.L.`,
+          notas: `Pedido del punto de venta ${PUNTO_VENTA_PROGRESO.nombre} (convenio comercial), convertido desde su cotización ${numero}.`,
           consent: true,
         },
       } as never);
@@ -97,61 +74,23 @@ export function ProgresoConvertirPedido({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-primary" /> Convertir a pedido
           </DialogTitle>
           <DialogDescription>
-            Los datos del cliente pasan a la mueblería como una cotización regular del carrito ({numero}).
+            El pedido entra a la mueblería a nombre del punto de venta El Progreso (cotización {numero}).
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="pp-nombre">Nombre completo *</Label>
-            <Input id="pp-nombre" value={form.nombre} onChange={(e) => set("nombre", e.target.value)} />
+        <div className="space-y-3">
+          <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
+            <p className="font-semibold">{PUNTO_VENTA_PROGRESO.nombre}</p>
+            <p className="text-muted-foreground">WhatsApp {PUNTO_VENTA_PROGRESO.whatsappVisible}</p>
+            <p className="text-xs text-muted-foreground">{PUNTO_VENTA_PROGRESO.atencion}</p>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="pp-tel">WhatsApp *</Label>
-            <Input id="pp-tel" inputMode="tel" value={form.telefono} onChange={(e) => set("telefono", e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="pp-ced">Cédula</Label>
-            <Input id="pp-ced" value={form.cedula} onChange={(e) => set("cedula", e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="pp-mail">Correo</Label>
-            <Input id="pp-mail" type="email" value={form.correo} onChange={(e) => set("correo", e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <Label>Tipo de cliente</Label>
-            <Select value={tipo} onValueChange={(v) => setTipo(v as TipoCliente)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TIPOS.map((t) => (
-                  <SelectItem key={t.v} value={t.v}>
-                    {t.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {tipo === "asociado" && (
-            <div className="space-y-1">
-              <Label htmlFor="pp-asoc">Número de asociado</Label>
-              <Input id="pp-asoc" value={form.numero_asociado} onChange={(e) => set("numero_asociado", e.target.value)} />
-            </div>
-          )}
-          {tipo === "gobierno" && (
-            <div className="space-y-1">
-              <Label htmlFor="pp-ruc">RUC de la institución</Label>
-              <Input id="pp-ruc" value={form.ruc} onChange={(e) => set("ruc", e.target.value)} />
-            </div>
-          )}
-          <div className="space-y-1 sm:col-span-2">
             <Label>Sucursal que atiende</Label>
             <Select value={sucursal} onValueChange={(v) => setSucursal(v as Sucursal)}>
               <SelectTrigger>
