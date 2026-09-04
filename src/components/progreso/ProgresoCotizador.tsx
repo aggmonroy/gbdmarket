@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Copy, Download, Image as ImageIcon, Plus, Printer, Search, ShoppingCart, Trash2, X } from "lucide-react";
+import { Copy, Download, Image as ImageIcon, Pencil, Plus, Printer, Search, ShoppingCart, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,7 @@ export function ProgresoCotizador() {
   const [generando, setGenerando] = useState(false);
   const [convertir, setConvertir] = useState(false);
   const vistaRef = useRef<HTMLDivElement | null>(null);
+  const enlaceRef = useRef<string | null>(null);
 
   const totales = calcularProgreso(lineas, reglas);
 
@@ -60,6 +61,7 @@ export function ProgresoCotizador() {
 
   const cerrar = () => {
     if (enlace) URL.revokeObjectURL(enlace);
+    enlaceRef.current = null;
     setEnlace(null);
     setEmitida(null);
   };
@@ -112,6 +114,7 @@ export function ProgresoCotizador() {
         1
       )}" alt="Cotización ${emitida?.numero}"></body></html>`;
       const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+      enlaceRef.current = url;
       setEnlace(url);
       toast.success("Enlace temporal listo. Se borra al cerrar la cotización.");
     } catch (e) {
@@ -121,6 +124,25 @@ export function ProgresoCotizador() {
     }
   };
 
+
+  /** Envía el enlace de la cotización al WhatsApp del cliente. */
+  const enviarPorWhatsApp = async () => {
+    const tel = cliente.telefono.replace(/\D/g, "");
+    if (tel.length < 7) {
+      toast.error("Coloca el WhatsApp del cliente para enviarle el enlace");
+      return;
+    }
+    let url = enlace;
+    if (!url) {
+      await generarEnlace();
+      url = enlaceRef.current;
+    }
+    const destino = tel.startsWith("507") ? tel : `507${tel}`;
+    const texto = `Cotización ${emitida?.numero} · ${PUNTO_VENTA_PROGRESO.nombre}\nTotal al contado: ${fmtGP(
+      totales.totalContado
+    )}\nTotal a crédito: ${fmtGP(totales.totalCredito)}${url ? `\n\nVer cotización: ${url}` : ""}`;
+    window.open(`https://wa.me/${destino}?text=${encodeURIComponent(texto)}`, "_blank");
+  };
 
   if (emitida)
     return (
