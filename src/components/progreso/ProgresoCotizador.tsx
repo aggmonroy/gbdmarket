@@ -33,6 +33,7 @@ export function ProgresoCotizador() {
   const [emitida, setEmitida] = useState<{ numero: string; fecha: string } | null>(null);
   const [enlace, setEnlace] = useState<string | null>(null);
   const [generando, setGenerando] = useState(false);
+  const [convertir, setConvertir] = useState(false);
   const vistaRef = useRef<HTMLDivElement | null>(null);
 
   const totales = calcularProgreso(lineas, reglas);
