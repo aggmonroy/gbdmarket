@@ -1,12 +1,14 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Copy, Download, Image as ImageIcon, Plus, Printer, Search, Trash2, X } from "lucide-react";
+import { Copy, Download, Image as ImageIcon, Plus, Printer, Search, ShoppingCart, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProgresoProductoPicker, type ProductoPublico } from "./ProgresoProductoPicker";
 import { ProgresoVistaCotizacion } from "./ProgresoVistaCotizacion";
+import { ProgresoConvertirPedido } from "./ProgresoConvertirPedido";
+import { descargarArchivo } from "@/lib/generar-imagen-gbd";
 import {
   PUNTO_VENTA_PROGRESO,
   calcularProgreso,
@@ -31,6 +33,7 @@ export function ProgresoCotizador() {
   const [emitida, setEmitida] = useState<{ numero: string; fecha: string } | null>(null);
   const [enlace, setEnlace] = useState<string | null>(null);
   const [generando, setGenerando] = useState(false);
+  const [convertir, setConvertir] = useState(false);
   const vistaRef = useRef<HTMLDivElement | null>(null);
 
   const totales = calcularProgreso(lineas, reglas);
@@ -63,23 +66,19 @@ export function ProgresoCotizador() {
 
   const capturar = async () => {
     const node = vistaRef.current;
-    if (!node) return null;
-    const html2canvas = (await import("html2canvas")).default;
-    const canvas = await html2canvas(node, { scale: 3, backgroundColor: "#ffffff", useCORS: true });
-    return canvas;
+    if (!node) throw new Error("La vista de la cotización no está lista");
+    // html2canvas-pro: soporta colores oklch del tema (html2canvas v1 falla).
+    const html2canvas = (await import("html2canvas-pro")).default;
+    return await html2canvas(node, { scale: 3, backgroundColor: "#ffffff", useCORS: true });
   };
 
   const descargarImagen = async () => {
     setGenerando(true);
     try {
       const canvas = await capturar();
-      if (!canvas) return;
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/png", 1);
-      a.download = `Cotizacion-${emitida?.numero ?? "GP"}.png`;
-      a.click();
-    } catch {
-      toast.error("No se pudo generar la imagen");
+      await descargarArchivo(canvas.toDataURL("image/png", 1), `Cotizacion-${emitida?.numero ?? "GP"}.png`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo generar la imagen");
     } finally {
       setGenerando(false);
     }
@@ -89,7 +88,6 @@ export function ProgresoCotizador() {
     setGenerando(true);
     try {
       const canvas = await capturar();
-      if (!canvas) return;
       const { default: JsPDF } = await import("jspdf");
       const pdf = new JsPDF({ unit: "pt", format: "letter" });
       const pw = pdf.internal.pageSize.getWidth();
@@ -97,8 +95,8 @@ export function ProgresoCotizador() {
       const ratio = Math.min(pw / canvas.width, ph / canvas.height);
       pdf.addImage(canvas.toDataURL("image/png", 1), "PNG", (pw - canvas.width * ratio) / 2, 16, canvas.width * ratio, canvas.height * ratio);
       pdf.save(`Cotizacion-${emitida?.numero ?? "GP"}.pdf`);
-    } catch {
-      toast.error("No se pudo generar el PDF");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo generar el PDF");
     } finally {
       setGenerando(false);
     }
@@ -109,7 +107,6 @@ export function ProgresoCotizador() {
     setGenerando(true);
     try {
       const canvas = await capturar();
-      if (!canvas) return;
       const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Cotización ${emitida?.numero}</title><style>body{margin:0;background:#eef2f6;display:grid;place-items:start center;padding:16px;font-family:system-ui,sans-serif}img{max-width:100%;box-shadow:0 8px 30px rgba(0,0,0,.15);border-radius:8px}</style></head><body><img src="${canvas.toDataURL(
         "image/png",
         1
@@ -117,12 +114,13 @@ export function ProgresoCotizador() {
       const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
       setEnlace(url);
       toast.success("Enlace temporal listo. Se borra al cerrar la cotización.");
-    } catch {
-      toast.error("No se pudo generar el enlace");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo generar el enlace");
     } finally {
       setGenerando(false);
     }
   };
+
 
   if (emitida)
     return (
@@ -150,10 +148,25 @@ export function ProgresoCotizador() {
           >
             Enviar por WhatsApp
           </Button>
+          <Button variant="secondary" onClick={() => setConvertir(true)}>
+            <ShoppingCart className="mr-2 h-4 w-4" /> Convertir a pedido
+          </Button>
           <Button variant="ghost" onClick={cerrar}>
             <X className="mr-2 h-4 w-4" /> Cerrar y borrar
           </Button>
         </div>
+
+        <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+          Vista de asesor · Margen {reglas.margenPct}% · Tope de plazo {reglas.plazoTope} meses. El cliente no ve estos datos.
+        </div>
+
+        <ProgresoConvertirPedido
+          lineas={lineas}
+          numero={emitida.numero}
+          open={convertir}
+          onOpenChange={setConvertir}
+        />
+
 
         {enlace && (
           <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-border bg-muted/40 p-3 text-xs">
