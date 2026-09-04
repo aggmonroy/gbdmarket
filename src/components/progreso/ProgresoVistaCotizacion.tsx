@@ -22,10 +22,9 @@ export function ProgresoVistaCotizacion({
   interno?: boolean;
 }) {
   return (
-    <div ref={refNode} className="mx-auto w-full max-w-[820px] bg-white p-6 text-[#1a2433]">
+    <div ref={refNode} className="mx-auto w-[8.5in] max-w-full bg-white p-8 text-[#1a2433]">
       <header className="border-b-2 border-[#0F7B3E] pb-4 text-center">
         <img src={membrete.url} alt="Convenio comercial Cooperativa GBD y Cooperativa El Progreso" className="mx-auto max-h-28 object-contain" />
-        <p className="mt-2 text-[11px] font-semibold text-[#4a5768]">{PUNTO_VENTA_PROGRESO.convenio}</p>
       </header>
 
       <div className="mt-4 flex flex-wrap items-start justify-between gap-3 text-xs">
