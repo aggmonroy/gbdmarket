@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProgresoProductoPicker, type ProductoPublico } from "./ProgresoProductoPicker";
 import { ProgresoVistaCotizacion } from "./ProgresoVistaCotizacion";
+import { ProgresoConvertirPedido } from "./ProgresoConvertirPedido";
+import { descargarArchivo } from "@/lib/generar-imagen-gbd";
 import {
   PUNTO_VENTA_PROGRESO,
   calcularProgreso,
