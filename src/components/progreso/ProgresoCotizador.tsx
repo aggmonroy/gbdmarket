@@ -135,21 +135,14 @@ export function ProgresoCotizador() {
           <Button variant="outline" onClick={generarEnlace} disabled={generando}>
             <Download className="mr-2 h-4 w-4" /> Generar enlace
           </Button>
-          <Button
-            variant="outline"
-            onClick={() =>
-              window.open(
-                `https://wa.me/${PUNTO_VENTA_PROGRESO.whatsapp}?text=${encodeURIComponent(
-                  `Cotización ${emitida.numero} · ${PUNTO_VENTA_PROGRESO.nombre}\nTotal contado: ${fmtGP(totales.totalContado)}\nTotal crédito: ${fmtGP(totales.totalCredito)}`
-                )}`,
-                "_blank"
-              )
-            }
-          >
+          <Button variant="outline" onClick={enviarPorWhatsApp} disabled={generando}>
             Enviar por WhatsApp
           </Button>
           <Button variant="secondary" onClick={() => setConvertir(true)}>
             <ShoppingCart className="mr-2 h-4 w-4" /> Convertir a pedido
+          </Button>
+          <Button variant="outline" onClick={() => setEmitida(null)}>
+            <Pencil className="mr-2 h-4 w-4" /> Modificar cotización
           </Button>
           <Button variant="ghost" onClick={cerrar}>
             <X className="mr-2 h-4 w-4" /> Cerrar y borrar
