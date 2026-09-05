@@ -16,8 +16,8 @@ export const PUNTO_VENTA_PROGRESO = {
   lema: "Al Servicio del Productor",
   convenio:
     "Convenio comercial: Cooperativa de Servicios Integrales Gladys B. de Ducasa, R.L. & Coop. El Progreso, R.L.",
-  whatsapp: "50765647668",
-  whatsappVisible: "+507 6564-7668",
+  whatsapp: "50765725656",
+  whatsappVisible: "+507 6572-5656",
   atencion: "Punto de venta El Progreso · Lunes a sábado",
 };
 
