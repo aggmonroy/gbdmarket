@@ -4,6 +4,23 @@ import { trackInteraction } from "@/hooks/use-analytics";
 
 type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
+function plataforma(): string {
+  if (typeof navigator === "undefined") return "desconocida";
+  const ua = navigator.userAgent;
+  if (/iphone|ipad|ipod/i.test(ua)) return "iOS";
+  if (/android/i.test(ua)) return "Android";
+  return "Escritorio";
+}
+
+/** Registra la instalación una sola vez por dispositivo. */
+function registrarInstalacion(via: string) {
+  try {
+    if (window.localStorage.getItem("gbd_pwa_installed") === "1") return;
+    window.localStorage.setItem("gbd_pwa_installed", "1");
+  } catch { /* ignore */ }
+  void trackInteraction("pwa_install", { meta: { plataforma: plataforma(), via } });
+}
+
 export function InstallAppButton({ className = "" }: { className?: string }) {
   const [promptEvent, setPromptEvent] = useState<BIPEvent | null>(null);
   const [instalada, setInstalada] = useState(false);
@@ -20,7 +37,7 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
         const hoy = new Date().toISOString().slice(0, 10);
         if (window.localStorage.getItem(key) !== hoy) {
           window.localStorage.setItem(key, hoy);
-          void trackInteraction("pwa_launch");
+          void trackInteraction("pwa_launch", { meta: { plataforma: plataforma() } });
         }
       } catch { /* ignore */ }
     }
@@ -32,7 +49,7 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
     const onInstalled = () => {
       setInstalada(true);
       setPromptEvent(null);
-      void trackInteraction("pwa_install");
+      registrarInstalacion("appinstalled");
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
@@ -46,15 +63,19 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
 
   const handleClick = async () => {
     if (promptEvent) {
-      void trackInteraction("pwa_prompt", { meta: { modo: "nativo" } });
+      void trackInteraction("pwa_prompt", { meta: { modo: "nativo", plataforma: plataforma() } });
       await promptEvent.prompt();
       const res = await promptEvent.userChoice.catch(() => null);
-      if (res?.outcome === "accepted") setInstalada(true);
-      else void trackInteraction("pwa_dismiss");
+      if (res?.outcome === "accepted") {
+        setInstalada(true);
+        registrarInstalacion("prompt");
+      } else {
+        void trackInteraction("pwa_dismiss", { meta: { plataforma: plataforma() } });
+      }
       setPromptEvent(null);
       return;
     }
-    void trackInteraction("pwa_prompt", { meta: { modo: "manual" } });
+    void trackInteraction("pwa_prompt", { meta: { modo: "manual", plataforma: plataforma() } });
     setAyuda(true);
   };
 
