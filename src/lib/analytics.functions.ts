@@ -78,7 +78,7 @@ export const getUsageReport = createServerFn({ method: "GET" })
 
     let q = supabaseAdmin
       .from("page_events")
-      .select("event_type,path,product_id,category_slug,created_at,session_id")
+      .select("event_type,path,product_id,category_slug,created_at,session_id,meta")
       .gte("created_at", desdeISO);
     if (hastaISO) q = q.lte("created_at", hastaISO);
 
@@ -138,6 +138,14 @@ export const getUsageReport = createServerFn({ method: "GET" })
       }
     }
 
+    // Instalaciones por plataforma (Android / iOS / Escritorio)
+    const pwaPorPlataforma: Record<string, number> = {};
+    for (const e of events) {
+      if (e.event_type !== "pwa_install") continue;
+      const plat = (e.meta as any)?.plataforma || "Sin identificar";
+      pwaPorPlataforma[plat] = (pwaPorPlataforma[plat] ?? 0) + 1;
+    }
+
     const pwaTimeseries = Object.entries(pwaPerDay)
       .sort(([a], [b]) => (a < b ? -1 : 1))
       .map(([date, v]) => ({ date, ...v }));
@@ -179,10 +187,102 @@ export const getUsageReport = createServerFn({ method: "GET" })
       timeseries,
       pwa_timeseries: pwaTimeseries,
       pwa_by_page: pwaByPage,
+      pwa_por_plataforma: Object.entries(pwaPorPlataforma)
+        .map(([plataforma, total]) => ({ plataforma, total }))
+        .sort((a, b) => b.total - a.total),
       top_pages: topPages,
       top_products: topProducts,
       window_days: days,
       desde: desdeISO.slice(0, 10),
       hasta: hastaISO ? hastaISO.slice(0, 10) : new Date().toISOString().slice(0, 10),
     };
+  });
+
+/** Admin: histórico mensual de uso (por defecto los últimos 24 meses). */
+export const getUsageHistorico = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { meses?: number } = {}) =>
+    z.object({ meses: z.number().int().min(1).max(60).optional() }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin: sbAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin: any = sbAdmin;
+
+    const meses = data.meses ?? 24;
+    const desde = new Date();
+    desde.setUTCDate(1);
+    desde.setUTCHours(0, 0, 0, 0);
+    desde.setUTCMonth(desde.getUTCMonth() - (meses - 1));
+
+    const filas: any[] = [];
+    const paso = 1000;
+    for (let i = 0; i < 40; i++) {
+      const { data: chunk, error } = await supabaseAdmin
+        .from("page_events")
+        .select("event_type,created_at,session_id")
+        .gte("created_at", desde.toISOString())
+        .order("created_at", { ascending: true })
+        .range(i * paso, i * paso + paso - 1);
+      if (error) throw new Error(error.message);
+      if (!chunk?.length) break;
+      filas.push(...chunk);
+      if (chunk.length < paso) break;
+    }
+
+    const porMes: Record<
+      string,
+      {
+        vistas: number;
+        sesiones: Set<string>;
+        whatsapp: number;
+        formularios: number;
+        instalaciones: number;
+        aperturas: number;
+        invitaciones: number;
+        rechazos: number;
+      }
+    > = {};
+
+    for (const e of filas) {
+      const mes = (e.created_at as string).slice(0, 7);
+      porMes[mes] ??= {
+        vistas: 0,
+        sesiones: new Set(),
+        whatsapp: 0,
+        formularios: 0,
+        instalaciones: 0,
+        aperturas: 0,
+        invitaciones: 0,
+        rechazos: 0,
+      };
+      const m = porMes[mes];
+      if (e.session_id) m.sesiones.add(e.session_id);
+      switch (e.event_type) {
+        case "page_view": m.vistas++; break;
+        case "whatsapp_click":
+        case "quote_click": m.whatsapp++; break;
+        case "form_submit": m.formularios++; break;
+        case "pwa_install": m.instalaciones++; break;
+        case "pwa_launch": m.aperturas++; break;
+        case "pwa_prompt": m.invitaciones++; break;
+        case "pwa_dismiss": m.rechazos++; break;
+      }
+    }
+
+    const mensual = Object.entries(porMes)
+      .sort(([a], [b]) => (a < b ? -1 : 1))
+      .map(([mes, v]) => ({
+        mes,
+        vistas: v.vistas,
+        sesiones: v.sesiones.size,
+        whatsapp: v.whatsapp,
+        formularios: v.formularios,
+        instalaciones: v.instalaciones,
+        aperturas: v.aperturas,
+        invitaciones: v.invitaciones,
+        rechazos: v.rechazos,
+      }));
+
+    return { mensual, meses, desde: desde.toISOString().slice(0, 10) };
   });

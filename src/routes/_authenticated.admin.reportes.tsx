@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { getUsageReport } from "@/lib/analytics.functions";
+import { getUsageReport, getUsageHistorico } from "@/lib/analytics.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,8 @@ export const Route = createFileRoute("/_authenticated/admin/reportes")({
 
 function ReportsPage() {
   const reportFn = useServerFn(getUsageReport);
+  const historicoFn = useServerFn(getUsageHistorico);
+  const [meses, setMeses] = useState(12);
   const [days, setDays] = useState(30);
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
@@ -41,7 +43,33 @@ function ReportsPage() {
       }),
   });
 
+  const { data: hist } = useQuery({
+    queryKey: ["usage-historico", meses],
+    queryFn: () => historicoFn({ data: { meses } }),
+  });
+
   const totals = data?.by_type ?? {};
+
+  const descargarCSV = () => {
+    const filas = hist?.mensual ?? [];
+    if (!filas.length) return;
+    const cab = [
+      "Mes", "Visitas", "Personas (sesiones)", "Clics WhatsApp/Cotizar", "Formularios",
+      "Instalaciones app", "Aperturas app", "Invitaciones", "Rechazos",
+    ];
+    const csv = [
+      cab.join(","),
+      ...filas.map((f: any) =>
+        [f.mes, f.vistas, f.sesiones, f.whatsapp, f.formularios, f.instalaciones, f.aperturas, f.invitaciones, f.rechazos].join(","),
+      ),
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `uso-gbd-historico-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-6">
@@ -157,6 +185,113 @@ function ReportsPage() {
           </Card>
 
 
+
+          <Card>
+            <CardHeader className="pb-2"><CardTitle className="text-base">Resumen para la gerencia</CardTitle></CardHeader>
+            <CardContent className="text-sm space-y-1.5">
+              <p>
+                En el período consultado <b>{(data.unique_sessions ?? 0).toLocaleString("es-PA")}</b> personas
+                distintas visitaron el sitio y generaron <b>{(totals.page_view ?? 0).toLocaleString("es-PA")}</b> visitas
+                a páginas.
+              </p>
+              <p>
+                <b>{(data.pwa?.installs ?? 0).toLocaleString("es-PA")}</b> instalaron la aplicación en su teléfono
+                y se abrió <b>{(data.pwa?.launches ?? 0).toLocaleString("es-PA")}</b> veces como app instalada.
+                Se mostró la invitación a instalar <b>{(data.pwa?.prompts ?? 0).toLocaleString("es-PA")}</b> veces
+                {(data.pwa?.prompts ?? 0) > 0 && (
+                  <> (aceptación del {(((data.pwa?.installs ?? 0) / (data.pwa?.prompts || 1)) * 100).toFixed(0)}%)</>
+                )}
+                .
+              </p>
+              <p>
+                Contactos generados: <b>{((totals.whatsapp_click ?? 0) + (totals.quote_click ?? 0)).toLocaleString("es-PA")}</b> clics
+                a WhatsApp o cotización y <b>{(totals.form_submit ?? 0).toLocaleString("es-PA")}</b> formularios enviados.
+              </p>
+            </CardContent>
+          </Card>
+
+          {(data.pwa_por_plataforma?.length ?? 0) > 0 && (
+            <Card>
+              <CardHeader className="pb-2"><CardTitle className="text-base">Instalaciones por tipo de teléfono</CardTitle></CardHeader>
+              <CardContent>
+                <ul className="space-y-1 text-sm">
+                  {data.pwa_por_plataforma.map((p: any) => (
+                    <li key={p.plataforma} className="flex items-center justify-between gap-2 border-b border-border/50 py-1.5">
+                      <span>{p.plataforma}</span>
+                      <Badge variant="secondary">{p.total}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader className="flex-row items-center justify-between gap-3 pb-2">
+              <CardTitle className="text-base">Histórico mensual</CardTitle>
+              <div className="flex items-center gap-2">
+                <Select value={String(meses)} onValueChange={(v) => setMeses(Number(v))}>
+                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="6">Últimos 6 meses</SelectItem>
+                    <SelectItem value="12">Últimos 12 meses</SelectItem>
+                    <SelectItem value="24">Últimos 24 meses</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="sm" onClick={descargarCSV}>Descargar Excel/CSV</Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(hist?.mensual?.length ?? 0) === 0 ? (
+                <p className="text-sm text-muted-foreground">Aún no hay histórico disponible.</p>
+              ) : (
+                <>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={hist!.mensual}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                        <XAxis dataKey="mes" fontSize={11} />
+                        <YAxis fontSize={11} allowDecimals={false} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="instalaciones" name="Instalaciones" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="aperturas" name="Aperturas como app" fill="#22c55e" radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="sesiones" name="Personas" fill="#f59e0b" radius={[3, 3, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border text-left text-xs text-muted-foreground">
+                          <th className="py-2">Mes</th>
+                          <th className="py-2 text-right">Personas</th>
+                          <th className="py-2 text-right">Visitas</th>
+                          <th className="py-2 text-right">WhatsApp/Cotizar</th>
+                          <th className="py-2 text-right">Formularios</th>
+                          <th className="py-2 text-right">Instalaciones</th>
+                          <th className="py-2 text-right">Aperturas</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {hist!.mensual.map((f: any) => (
+                          <tr key={f.mes} className="border-b border-border/50">
+                            <td className="py-1.5">{f.mes}</td>
+                            <td className="py-1.5 text-right">{f.sesiones}</td>
+                            <td className="py-1.5 text-right">{f.vistas}</td>
+                            <td className="py-1.5 text-right">{f.whatsapp}</td>
+                            <td className="py-1.5 text-right">{f.formularios}</td>
+                            <td className="py-1.5 text-right">{f.instalaciones}</td>
+                            <td className="py-1.5 text-right">{f.aperturas}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-base">Tráfico diario</CardTitle></CardHeader>

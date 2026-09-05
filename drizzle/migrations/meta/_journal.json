@@ -8,6 +8,13 @@
       "when": 1788178361164,
       "tag": "0000_add_sucursal_cotizaciones_garantias",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788625381238,
+      "tag": "0001_allow_pwa_page_events",
+      "breakpoints": true
     }
   ]
 }
