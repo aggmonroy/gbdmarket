@@ -32,6 +32,7 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
       (window.navigator as any).standalone === true;
     setInstalada(Boolean(standalone));
     if (standalone) {
+      registrarInstalacion("deteccion");
       try {
         const key = "gbd_pwa_launch_day";
         const hoy = new Date().toISOString().slice(0, 10);
