@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Share, Plus, X } from "lucide-react";
+import { Download, Share, Plus, X, Copy, ExternalLink } from "lucide-react";
 import { trackInteraction } from "@/hooks/use-analytics";
 
 type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
@@ -11,6 +11,18 @@ function plataforma(): string {
   if (/android/i.test(ua)) return "Android";
   return "Escritorio";
 }
+
+/** Detecta navegadores donde el instalador automático no aparece (Honor/Huawei, Samsung, apps sociales). */
+function tipoNavegador(): "ios" | "huawei" | "samsung" | "inapp" | "otro" {
+  if (typeof navigator === "undefined") return "otro";
+  const ua = navigator.userAgent;
+  if (/iphone|ipad|ipod/i.test(ua)) return "ios";
+  if (/FBAN|FBAV|Instagram|Line\/|Twitter|TikTok|WhatsApp/i.test(ua)) return "inapp";
+  if (/HuaweiBrowser|Huawei|HONOR|HarmonyOS|HMSCore|petal/i.test(ua)) return "huawei";
+  if (/SamsungBrowser/i.test(ua)) return "samsung";
+  return "otro";
+}
+
 
 /** Registra la instalación una sola vez por dispositivo. */
 function registrarInstalacion(via: string) {
