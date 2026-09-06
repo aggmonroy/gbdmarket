@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Share, Plus, X } from "lucide-react";
+import { Download, Share, Plus, X, Copy, ExternalLink } from "lucide-react";
 import { trackInteraction } from "@/hooks/use-analytics";
 
 type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
@@ -11,6 +11,18 @@ function plataforma(): string {
   if (/android/i.test(ua)) return "Android";
   return "Escritorio";
 }
+
+/** Detecta navegadores donde el instalador automático no aparece (Honor/Huawei, Samsung, apps sociales). */
+function tipoNavegador(): "ios" | "huawei" | "samsung" | "inapp" | "otro" {
+  if (typeof navigator === "undefined") return "otro";
+  const ua = navigator.userAgent;
+  if (/iphone|ipad|ipod/i.test(ua)) return "ios";
+  if (/FBAN|FBAV|Instagram|Line\/|Twitter|TikTok|WhatsApp/i.test(ua)) return "inapp";
+  if (/HuaweiBrowser|Huawei|HONOR|HarmonyOS|HMSCore|petal/i.test(ua)) return "huawei";
+  if (/SamsungBrowser/i.test(ua)) return "samsung";
+  return "otro";
+}
+
 
 /** Registra la instalación una sola vez por dispositivo. */
 function registrarInstalacion(via: string) {
@@ -80,7 +92,59 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
     setAyuda(true);
   };
 
-  const esIOS = typeof navigator !== "undefined" && /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const tipo = tipoNavegador();
+
+  const pasos: Record<string, { titulo: string; items: React.ReactNode[] }> = {
+    ios: {
+      titulo: "En iPhone (Safari)",
+      items: [
+        <span key="1" className="flex items-center gap-2">
+          <Share className="h-4 w-4 text-primary" /> Toca el botón <b>Compartir</b>.
+        </span>,
+        <span key="2" className="flex items-center gap-2">
+          <Plus className="h-4 w-4 text-primary" /> Elige <b>Agregar a pantalla de inicio</b>.
+        </span>,
+        <span key="3">Confirma con <b>Agregar</b>.</span>,
+      ],
+    },
+    huawei: {
+      titulo: "En Honor o Huawei",
+      items: [
+        <span key="1">Toca el menú <b>⋮</b> (o las tres rayas) abajo a la derecha.</span>,
+        <span key="2">Elige <b>Agregar a pantalla de inicio</b> o <b>Añadir acceso directo</b>.</span>,
+        <span key="3">
+          Si no aparece esa opción, copia el enlace y ábrelo en <b>Chrome</b>: allí verás
+          <b> Instalar aplicación</b>.
+        </span>,
+      ],
+    },
+    samsung: {
+      titulo: "En Samsung Internet",
+      items: [
+        <span key="1">Toca el menú <b>☰</b> abajo a la derecha.</span>,
+        <span key="2">Elige <b>Agregar página a</b> → <b>Pantalla de inicio</b>.</span>,
+      ],
+    },
+    inapp: {
+      titulo: "Abre primero en tu navegador",
+      items: [
+        <span key="1">Estás dentro de otra aplicación (WhatsApp, Instagram, Facebook).</span>,
+        <span key="2">Toca <b>⋮</b> y elige <b>Abrir en el navegador</b>, o copia el enlace aquí abajo.</span>,
+        <span key="3">Ya en Chrome, vuelve a tocar <b>Descargar app</b>.</span>,
+      ],
+    },
+    otro: {
+      titulo: "En tu teléfono Android",
+      items: [
+        <span key="1">Abre el menú <b>⋮</b> de tu navegador.</span>,
+        <span key="2">Elige <b>Instalar aplicación</b> o <b>Agregar a pantalla de inicio</b>.</span>,
+        <span key="3">Confirma la instalación.</span>,
+      ],
+    },
+  };
+
+  const guia = pasos[tipo] ?? pasos.otro;
+  const enlace = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
     <>
@@ -113,26 +177,32 @@ export function InstallAppButton({ className = "" }: { className?: string }) {
               <X className="h-4 w-4" />
             </button>
             <h2 className="font-display text-lg font-bold">Instalar GBD Market</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Agrega el acceso directo a la pantalla de inicio de tu teléfono:
-            </p>
-            {esIOS ? (
-              <ol className="mt-3 space-y-2 text-sm">
-                <li className="flex items-center gap-2">
-                  <Share className="h-4 w-4 text-primary" /> Toca el botón <b>Compartir</b> en Safari.
-                </li>
-                <li className="flex items-center gap-2">
-                  <Plus className="h-4 w-4 text-primary" /> Elige <b>Agregar a pantalla de inicio</b>.
-                </li>
-                <li>Confirma con <b>Agregar</b>.</li>
-              </ol>
-            ) : (
-              <ol className="mt-3 space-y-2 text-sm">
-                <li>Abre el menú <b>⋮</b> de tu navegador.</li>
-                <li>Elige <b>Instalar aplicación</b> o <b>Agregar a pantalla de inicio</b>.</li>
-                <li>Confirma la instalación.</li>
-              </ol>
-            )}
+            <p className="mt-1 text-sm text-muted-foreground">{guia.titulo}</p>
+            <ol className="mt-3 list-decimal space-y-2 pl-4 text-sm">
+              {guia.items.map((it, i) => (
+                <li key={i}>{it}</li>
+              ))}
+            </ol>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(enlace);
+                  void trackInteraction("cta_click", { meta: { accion: "copiar_enlace_instalacion" } });
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-xs font-semibold hover:bg-muted"
+              >
+                <Copy className="h-3.5 w-3.5" /> Copiar enlace
+              </button>
+              {tipo !== "ios" && (
+                <a
+                  href={`intent://${enlace.replace(/^https?:\/\//, "")}#Intent;scheme=https;package=com.android.chrome;end`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-xs font-semibold hover:bg-muted"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" /> Abrir en Chrome
+                </a>
+              )}
+            </div>
           </div>
         </div>
       )}
