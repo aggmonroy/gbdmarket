@@ -239,6 +239,11 @@ function CatalogoCompleto() {
       </div>
 
       <section>
+        {cat === BORDADOS_SLUG && (
+          <div className="mb-10">
+            <FormularioBordados />
+          </div>
+        )}
 
         <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
           <span>
