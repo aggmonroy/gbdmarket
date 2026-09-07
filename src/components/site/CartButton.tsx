@@ -134,7 +134,10 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
     // Cotizaciones que vienen del enlace de un socio aliado van directo a su WhatsApp.
     if (socio) {
       const detalle = items
-        .map((i) => `• ${i.cantidad} x ${i.name}${i.model ? ` (Modelo ${i.model})` : ""}`)
+        .map(
+          (i) =>
+            `• ${i.cantidad} x ${i.name}${i.model ? ` · Modelo: ${i.model}` : ""}${i.code ? ` · Código: ${i.code}` : ""}`
+        )
         .join("\n");
       const texto = [
         `Hola ${socio.nombre}, deseo una cotización:`,
