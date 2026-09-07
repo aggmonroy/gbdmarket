@@ -284,11 +284,6 @@ function CatalogoCompleto() {
           </div>
         )}
 
-        {cat === BORDADOS_SLUG && (
-          <div className="mt-14">
-            <FormularioBordados />
-          </div>
-        )}
       </section>
 
       <ProductDetailDialog
