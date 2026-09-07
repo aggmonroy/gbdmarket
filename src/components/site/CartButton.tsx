@@ -122,6 +122,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
   const [consent, setConsent] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [numero, setNumero] = useState("");
+  const [detalleWa, setDetalleWa] = useState("");
 
   const enviar = async () => {
     if (!consent) {
@@ -133,7 +134,10 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
     // Cotizaciones que vienen del enlace de un socio aliado van directo a su WhatsApp.
     if (socio) {
       const detalle = items
-        .map((i) => `• ${i.cantidad} x ${i.name}${i.model ? ` (Modelo ${i.model})` : ""}`)
+        .map(
+          (i) =>
+            `• ${i.cantidad} x ${i.name}${i.model ? ` · Modelo: ${i.model}` : ""}${i.code ? ` · Código: ${i.code}` : ""}`
+        )
         .join("\n");
       const texto = [
         `Hola ${socio.nombre}, deseo una cotización:`,
@@ -181,6 +185,16 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
         } as any,
       });
       setNumero(r.numero);
+      // Se guarda el detalle (con modelo y código) antes de vaciar el carrito,
+      // para que el mensaje de WhatsApp lo incluya.
+      setDetalleWa(
+        items
+          .map(
+            (i) =>
+              `• ${i.cantidad} x ${i.name}${i.model ? ` · Modelo: ${i.model}` : ""}${i.code ? ` · Código: ${i.code}` : ""}`
+          )
+          .join("\n")
+      );
       clear();
       setAbierto(false);
     } catch (e: any) {
@@ -228,7 +242,12 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
               Guarda este número: con él podemos ubicar tu solicitud en cualquier sucursal.
             </p>
             <a
-              href={buildWaUrl("linea-blanca", `Hola Mueblería GBD,\nSolicité una cotización de línea blanca.\nNúmero: ${numero}${nombre ? `\nNombre: ${nombre.trim()}` : ""}${telefono ? `\nWhatsApp: ${telefono.trim()}` : ""}`)}
+              href={buildWaUrl(
+                "linea-blanca",
+                `Hola Mueblería GBD,\nSolicité una cotización de línea blanca.\nNúmero: ${numero}${
+                  nombre ? `\nNombre: ${nombre.trim()}` : ""
+                }${telefono ? `\nWhatsApp: ${telefono.trim()}` : ""}${detalleWa ? `\nArtículos:\n${detalleWa}` : ""}`
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="block"

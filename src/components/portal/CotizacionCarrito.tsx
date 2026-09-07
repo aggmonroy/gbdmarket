@@ -63,8 +63,15 @@ export function CotizacionCarrito({
     descAsociadoPct: DESC_MAX_ASOCIADO,
     descTerceroPct: DESC_MAX_TERCERO,
     imagen: i.imagen || "",
-    descripcion: i.descripcion || i.nombre || "",
-    referencia: i.modelo || i.codigo || "",
+    // El modelo y el código del artículo deben quedar visibles en la cotización.
+    descripcion: [
+      i.modelo ? `Modelo: ${i.modelo}` : "",
+      i.codigo ? `Código: ${i.codigo}` : "",
+      i.descripcion || "",
+    ]
+      .filter(Boolean)
+      .join(" · "),
+    referencia: [i.modelo, i.codigo].filter(Boolean).join(" · "),
     cantidad: String(i.cantidad || 1),
     precioUnitario: "",
     descGobiernoPct: 0,
