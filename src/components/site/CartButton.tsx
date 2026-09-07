@@ -181,6 +181,16 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
         } as any,
       });
       setNumero(r.numero);
+      // Se guarda el detalle (con modelo y código) antes de vaciar el carrito,
+      // para que el mensaje de WhatsApp lo incluya.
+      setDetalleWa(
+        items
+          .map(
+            (i) =>
+              `• ${i.cantidad} x ${i.name}${i.model ? ` · Modelo: ${i.model}` : ""}${i.code ? ` · Código: ${i.code}` : ""}`
+          )
+          .join("\n")
+      );
       clear();
       setAbierto(false);
     } catch (e: any) {
