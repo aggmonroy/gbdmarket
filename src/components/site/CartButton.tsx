@@ -122,6 +122,7 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
   const [consent, setConsent] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [numero, setNumero] = useState("");
+  const [detalleWa, setDetalleWa] = useState("");
 
   const enviar = async () => {
     if (!consent) {
