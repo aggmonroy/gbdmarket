@@ -239,7 +239,12 @@ function CartQuoteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
               Guarda este número: con él podemos ubicar tu solicitud en cualquier sucursal.
             </p>
             <a
-              href={buildWaUrl("linea-blanca", `Hola Mueblería GBD,\nSolicité una cotización de línea blanca.\nNúmero: ${numero}${nombre ? `\nNombre: ${nombre.trim()}` : ""}${telefono ? `\nWhatsApp: ${telefono.trim()}` : ""}`)}
+              href={buildWaUrl(
+                "linea-blanca",
+                `Hola Mueblería GBD,\nSolicité una cotización de línea blanca.\nNúmero: ${numero}${
+                  nombre ? `\nNombre: ${nombre.trim()}` : ""
+                }${telefono ? `\nWhatsApp: ${telefono.trim()}` : ""}${detalleWa ? `\nArtículos:\n${detalleWa}` : ""}`
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="block"
