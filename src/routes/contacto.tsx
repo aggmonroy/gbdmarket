@@ -78,11 +78,11 @@ function ChannelCard({ title, phone, href }: { title: string; phone: string; hre
 
 function Info({ Icon, title, children }: { Icon: any; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border p-4">
-      <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
-        <Icon className="h-4 w-4" /> {title}
+    <div className="rounded-lg border border-border p-3">
+      <div className="flex items-center gap-2 text-muted-foreground text-[11px] uppercase tracking-wider font-semibold">
+        <Icon className="h-3.5 w-3.5" /> {title}
       </div>
-      <div className="mt-1.5 font-medium">{children}</div>
+      <div className="mt-1 font-medium">{children}</div>
     </div>
   );
 }
