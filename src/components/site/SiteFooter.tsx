@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, MapPin, Globe, Instagram, Facebook, Youtube, Music2 } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSocioActivo } from "@/lib/socio";
-import { InstagramCarousel } from "@/components/site/InstagramCarousel";
+
 
 function SocialIcon({ url }: { url: string }) {
   const u = url.toLowerCase();
@@ -64,7 +64,15 @@ export function SiteFooter() {
     <footer className="mt-24 border-t border-border bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 lg:px-8 py-12 grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
-          <InstagramCarousel />
+          <div className="text-sm font-semibold uppercase tracking-wider opacity-80">Síguenos</div>
+          <ul className="mt-3 space-y-2 text-sm">
+            {socials.map((s, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <SocialIcon url={s.url} />
+                <a href={s.url} target="_blank" rel="noreferrer" className="hover:underline">{s.label}</a>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div>
