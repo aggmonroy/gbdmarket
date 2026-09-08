@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, MapPin, Globe, Instagram, Facebook, Youtube, Music2 } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSocioActivo } from "@/lib/socio";
-import { InstagramCarousel } from "@/components/site/InstagramCarousel";
+
 
 function SocialIcon({ url }: { url: string }) {
   const u = url.toLowerCase();
@@ -61,10 +61,13 @@ export function SiteFooter() {
   }
 
   return (
-    <footer className="mt-24 border-t border-border bg-primary text-primary-foreground">
-      <div className="container mx-auto px-4 lg:px-8 py-12 grid gap-10 md:grid-cols-4">
-        <div className="md:col-span-2">
-          <InstagramCarousel />
+    <footer className="mt-14 border-t border-border bg-primary text-primary-foreground">
+      <div className="container mx-auto px-4 lg:px-8 py-8 grid gap-6 md:grid-cols-4">
+        <div>
+          <div className="font-display text-lg font-bold">{siteName}</div>
+          <p className="mt-3 text-sm text-primary-foreground/80 leading-relaxed">
+            Mueblería y Bordados GBD · Las Tablas y Tonosí, Los Santos, Panamá.
+          </p>
         </div>
 
         <div>
