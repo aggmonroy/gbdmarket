@@ -123,6 +123,7 @@ function Home() {
       <HeroFused />
       <BordadosSection />
       <Sucursales />
+      <InstagramDuo />
       <Trayectoria />
     </>
   );
