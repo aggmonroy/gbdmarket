@@ -13,50 +13,46 @@ const CUENTAS = [
     perfil: "https://www.instagram.com/bordadosgbd/",
     embed: "https://www.instagram.com/bordadosgbd/embed",
   },
+  {
+    usuario: "@coopgladysducasa",
+    nombre: "Coop. Gladys B. de Ducasa R.L.",
+    perfil: "https://www.instagram.com/coopgladysducasa/",
+    embed: "https://www.instagram.com/coopgladysducasa/embed",
+  },
 ];
 
 export function InstagramDuo() {
   return (
     <section className="bg-background">
-      <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-8">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-primary">
-            <Instagram className="h-4 w-4" /> Síguenos en Instagram
-          </div>
-          <div className="hidden sm:flex gap-4 text-xs font-semibold">
-            {CUENTAS.map((c) => (
-              <a key={c.usuario} href={c.perfil} target="_blank" rel="noreferrer" className="hover:underline text-muted-foreground">
-                {c.usuario}
-              </a>
-            ))}
-          </div>
+      <div className="container mx-auto px-4 lg:px-8 py-4 sm:py-6">
+        <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-primary">
+          <Instagram className="h-4 w-4" /> Síguenos en Instagram
         </div>
 
-        <div className="mt-3 grid gap-3 sm:gap-4 md:grid-cols-2">
+        <div className="mt-3 grid grid-cols-3 gap-1.5 sm:gap-3">
           {CUENTAS.map((c, idx) => (
             <div
               key={c.usuario}
-              className="overflow-hidden rounded-xl border border-border bg-card animate-fade-up"
+              className="overflow-hidden rounded-lg sm:rounded-xl border border-border bg-card animate-fade-up"
               style={{ animationDelay: `${idx * 80}ms` }}
             >
               <iframe
                 src={c.embed}
                 title={`Publicaciones de Instagram ${c.usuario}`}
-                className="h-[420px] w-full border-0"
+                className="h-[300px] sm:h-[420px] w-full border-0"
                 loading="lazy"
                 allowTransparency
                 scrolling="no"
               />
-              <div className="flex items-center justify-between border-t border-border px-3 py-2">
+              <div className="border-t border-border px-2 py-1.5 text-center">
                 <a
                   href={c.perfil}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+                  className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold hover:underline"
                 >
-                  <Instagram className="h-3.5 w-3.5" /> {c.usuario}
+                  <Instagram className="h-3 w-3" /> <span className="truncate">{c.usuario}</span>
                 </a>
-                <span className="text-[11px] text-muted-foreground">{c.nombre}</span>
               </div>
             </div>
           ))}
