@@ -116,13 +116,11 @@ function Contacto() {
 
 function ChannelCard({
   title,
-  phone,
   href,
   icon: Icon = MessageCircle,
   action = "Abrir chat →",
 }: {
   title: string;
-  phone?: string;
   href: string;
   icon?: any;
   action?: string;
@@ -133,7 +131,6 @@ function ChannelCard({
         {Icon === FileText ? <ExternalLink className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
       </div>
       <div className="mt-1.5 break-words text-[8px] font-semibold uppercase leading-tight text-muted-foreground sm:text-[10px]">{title}</div>
-      {phone && <div className="mt-0.5 break-words font-display text-[9px] font-bold leading-tight sm:text-sm">{phone}</div>}
       <div className="mt-1 text-[8px] font-semibold text-primary group-hover:underline sm:text-[10px]">{action}</div>
     </a>
   );
