@@ -55,7 +55,6 @@ function Contacto() {
             <ChannelCard
               key={a.wa}
               title={a.label}
-              phone={a.phone}
               href={`https://wa.me/${a.wa}`}
               icon={MessageCircle}
             />
