@@ -39,10 +39,7 @@ const FORMULARIOS = [
 function Contacto() {
   return (
     <div className="container mx-auto px-4 lg:px-8 py-6 lg:py-8 max-w-6xl">
-      <h1 className="font-display text-xl lg:text-2xl font-bold">Hablemos</h1>
-      <p className="mt-1 text-xs text-muted-foreground">Te respondemos por WhatsApp de inmediato. Elige el canal que prefieras.</p>
-
-      <div className="mt-4 grid grid-cols-4 gap-1 sm:gap-2">
+      <div className="grid grid-cols-3 gap-1 sm:gap-2">
         <ChannelCard title="Línea Blanca · Las Tablas" phone="+507 6784-1941" href={`https://wa.me/${WA_LAS_TABLAS}`} />
         <ChannelCard title="Mueblería GBD · Tonosí" phone="+507 6871-1242" href={`https://wa.me/${WA_TONOSI}`} />
         <ChannelCard title="Bordados" phone="+507 6829-8538" href={`https://wa.me/${WA_BORDADOS}`} />
@@ -53,7 +50,7 @@ function Contacto() {
         <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
           <PhoneCall className="h-3.5 w-3.5 text-primary" /> Números de atención
         </div>
-        <div className="grid grid-cols-4 gap-1 sm:gap-2">
+        <div className="grid grid-cols-3 gap-1 sm:gap-2">
           {ATENCION.map((a) => (
             <ChannelCard
               key={a.wa}
@@ -71,7 +68,7 @@ function Contacto() {
         <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
           <FileText className="h-3.5 w-3.5 text-primary" /> Formularios y trámites
         </div>
-        <div className="grid grid-cols-4 gap-1 sm:gap-2">
+        <div className="grid grid-cols-3 gap-1 sm:gap-2">
           {FORMULARIOS.map((f) => (
             <ChannelCard
               key={f.url}
