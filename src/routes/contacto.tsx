@@ -50,7 +50,7 @@ function Contacto() {
         <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
           <PhoneCall className="h-3.5 w-3.5 text-primary" /> Números de atención
         </div>
-        <div className="grid grid-cols-4 gap-1 sm:gap-2">
+        <div className="grid grid-cols-3 gap-1 sm:gap-2">
           {ATENCION.map((a) => (
             <ChannelCard
               key={a.wa}
