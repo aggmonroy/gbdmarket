@@ -173,7 +173,7 @@ export const finalizarTarea = createServerFn({ method: "POST" })
     const sb = await admin();
     const { data: t, error: e0 } = await sb
       .from("tareas")
-      .select("asignado_a,apoyo_a,finalizada_responsable_en,finalizada_apoyo_en,nota_cierre")
+      .select("asignado_a,apoyo_a,verificador_a,verificada_en,finalizada_responsable_en,finalizada_apoyo_en,nota_cierre")
       .eq("id", data.id)
       .maybeSingle();
     if (e0) throw new Error(e0.message);
@@ -182,16 +182,20 @@ export const finalizarTarea = createServerFn({ method: "POST" })
     const ahora = new Date().toISOString();
     const esResponsable = !t.asignado_a || t.asignado_a === s.cid || s.rol === "admin";
     const esApoyo = t.apoyo_a === s.cid;
-    if (!esResponsable && !esApoyo) throw new Error("Esta tarea no está a tu cargo");
+    const esVerificador = t.verificador_a === s.cid;
+    if (!esResponsable && !esApoyo && !esVerificador) throw new Error("Esta tarea no está a tu cargo");
 
     const patch: Record<string, any> = {};
     if (esApoyo) patch.finalizada_apoyo_en = ahora;
     if (esResponsable) patch.finalizada_responsable_en = ahora;
+    if (esVerificador) patch.verificada_en = ahora;
     if (data.nota_cierre) patch.nota_cierre = [t.nota_cierre, `${s.nombre}: ${data.nota_cierre}`].filter(Boolean).join("\n");
 
     const respOk = patch.finalizada_responsable_en ?? t.finalizada_responsable_en;
     const apoyoOk = patch.finalizada_apoyo_en ?? t.finalizada_apoyo_en;
-    const cerrada = Boolean(respOk) && (!t.apoyo_a || Boolean(apoyoOk));
+    const verifOk = patch.verificada_en ?? t.verificada_en;
+    // Si hay verificador asignado, la tarea solo se cierra cuando este valida.
+    const cerrada = Boolean(respOk) && (!t.apoyo_a || Boolean(apoyoOk)) && (!t.verificador_a || Boolean(verifOk));
 
     if (cerrada) {
       patch.estado = "finalizada";
