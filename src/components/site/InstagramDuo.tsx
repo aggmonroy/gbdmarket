@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getInstagramPosts } from "@/lib/instagram.functions";
 
@@ -41,7 +41,7 @@ export function InstagramDuo() {
           <Instagram className="h-4 w-4" /> Síguenos en Instagram
         </div>
 
-        <div className="mt-3 grid gap-3 md:grid-cols-3">
+        <div className="mt-3 grid grid-cols-3 gap-1.5 sm:gap-3">
           {CUENTAS.map((c, idx) => (
             <InstagramGallery
               key={c.usuario}
@@ -82,36 +82,30 @@ function InstagramGallery({
 
   return (
     <article className="min-w-0 overflow-hidden rounded-lg border border-border bg-card animate-fade-up">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-border px-3 py-2">
+      <header className="flex min-w-0 items-center justify-between gap-1 border-b border-border px-1.5 py-1.5 sm:px-3 sm:py-2">
         <a
           href={cuenta.perfil}
           target="_blank"
           rel="noreferrer"
-          className="flex min-w-0 items-center gap-2 text-xs font-semibold hover:text-primary"
+          className="flex min-w-0 items-center gap-1 text-[9px] font-semibold hover:text-primary sm:gap-2 sm:text-xs"
         >
-          <Instagram className="h-4 w-4 shrink-0 text-primary" />
+          <Instagram className="h-3 w-3 shrink-0 text-primary sm:h-4 sm:w-4" />
           <span className="truncate">{cuenta.usuario}</span>
         </a>
-        {count > 1 && (
-          <div className="flex shrink-0 items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={previous} aria-label={`Publicación anterior de ${cuenta.usuario}`}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="w-8 text-center text-[10px] text-muted-foreground">{current + 1}/{count}</span>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={next} aria-label={`Publicación siguiente de ${cuenta.usuario}`}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <Button asChild variant="ghost" size="icon" className="h-6 w-6 shrink-0 sm:h-7 sm:w-7">
+          <a href={cuenta.perfil} target="_blank" rel="noreferrer" aria-label={`Ver perfil de ${cuenta.usuario}`} title="Ver perfil">
+            <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+          </a>
+        </Button>
       </header>
 
-      <div className="relative h-[470px] w-full bg-muted/20 sm:h-[520px] md:h-[470px]">
+      <div className="relative aspect-square w-full overflow-hidden bg-muted/20">
         {shortcode ? (
           <iframe
             key={shortcode}
             src={`https://www.instagram.com/p/${shortcode}/embed/captioned`}
             title={`Publicación de Instagram ${cuenta.usuario}`}
-            className="h-full w-full border-0"
+            className="absolute left-0 top-[-54px] h-[620px] w-full border-0 sm:top-[-58px]"
             loading="lazy"
             allowTransparency
             scrolling="no"
@@ -121,7 +115,20 @@ function InstagramGallery({
             Cargando publicación…
           </div>
         )}
+        {count > 1 && (
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between px-0.5 sm:px-1">
+            <Button variant="secondary" size="icon" className="pointer-events-auto h-6 w-6 bg-background/90 shadow-sm sm:h-7 sm:w-7" onClick={previous} aria-label={`Publicación anterior de ${cuenta.usuario}`}>
+              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+            </Button>
+            <Button variant="secondary" size="icon" className="pointer-events-auto h-6 w-6 bg-background/90 shadow-sm sm:h-7 sm:w-7" onClick={next} aria-label={`Publicación siguiente de ${cuenta.usuario}`}>
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+            </Button>
+          </div>
+        )}
       </div>
+      <Button asChild variant="ghost" className="h-7 w-full rounded-none border-t border-border px-1 text-[9px] sm:h-8 sm:text-xs">
+        <a href={cuenta.perfil} target="_blank" rel="noreferrer">Ver perfil</a>
+      </Button>
     </article>
   );
 }
