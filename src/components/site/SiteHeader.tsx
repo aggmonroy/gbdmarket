@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Landmark, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSocioActivo } from "@/lib/socio";
 import { CartButton } from "@/components/site/CartButton";
+import { Button } from "@/components/ui/button";
 
 
 const nav = [
@@ -28,10 +29,17 @@ export function SiteHeader() {
   const logoUrl = branding?.logo_url || "";
   const whatsApp = socio?.whatsapp || contact?.whatsapp_lineablanca || "50767841941";
   const items = socio ? navSocio : nav;
+  const bancaButton = !socio ? (
+    <Button asChild variant="outline" size="icon" title="Banca en línea" aria-label="Banca en línea">
+      <a href="https://bancagbd.com/bancagbd/login/" target="_blank" rel="noopener noreferrer">
+        <Landmark className="h-5 w-5" />
+      </a>
+    </Button>
+  ) : null;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
+      <div className="container mx-auto grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:px-4 lg:px-8">
         <Link to={socio ? "/catalogo" : "/"} className="flex items-center gap-3 min-w-0">
           {logoUrl ? (
             <img src={logoUrl} alt={siteName} className="h-12 w-12 shrink-0 rounded-xl object-contain" />
@@ -65,6 +73,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2">
+          {bancaButton}
           {!socio && <CartButton />}
           <a
             href={`https://wa.me/${whatsApp}`}
@@ -77,14 +86,17 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
+          {bancaButton}
           {!socio && <CartButton />}
-        <button
-          aria-label="Menú"
-          onClick={() => setOpen(!open)}
-          className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+          <Button
+            aria-label="Menú"
+            title="Menú"
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
       </div>
 
