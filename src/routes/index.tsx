@@ -482,7 +482,7 @@ function Trayectoria() {
             ))}
           </div>
         </div>
-      </div>
+      </a>
     </section>
   );
 }
