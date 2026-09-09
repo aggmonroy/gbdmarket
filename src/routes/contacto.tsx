@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { MessageCircle, Mail, MapPin, Clock, Instagram, Globe, PhoneCall, FileText, ExternalLink } from "lucide-react";
+import { Mail, MapPin, Clock, Instagram, Globe, PhoneCall, FileText } from "lucide-react";
 import { NewsletterSignup } from "@/components/site/NewsletterSignup";
 import { NewsletterPosts } from "@/components/site/NewsletterPosts";
 
@@ -34,6 +34,8 @@ const FORMULARIOS = [
   { label: "Apoyo Económico para Lentes", url: "https://coopgbd.com/lentes/" },
   { label: "Beneficio Funerario", url: "https://coopgbd.com/funerario/" },
   { label: "Solicita tu Préstamo", url: "https://coopgbd.com/solicitar-prestamo/" },
+  { label: "Bienes Adjudicados · Formulario", url: "https://coopgbd.com/bienes/" },
+  { label: "Bienes Adjudicados · Consultar listado", url: "https://coopgbd.com/adjudicados/" },
 ];
 
 function Contacto() {
@@ -56,7 +58,6 @@ function Contacto() {
               key={a.wa}
               title={a.label}
               href={`https://wa.me/${a.wa}`}
-              icon={MessageCircle}
             />
           ))}
         </div>
@@ -73,7 +74,6 @@ function Contacto() {
               key={f.url}
               title={f.label}
               href={f.url}
-              icon={FileText}
               action="Abrir formulario →"
             />
           ))}
@@ -117,21 +117,16 @@ function Contacto() {
 function ChannelCard({
   title,
   href,
-  icon: Icon = MessageCircle,
   action = "Abrir chat →",
 }: {
   title: string;
   href: string;
-  icon?: any;
   action?: string;
 }) {
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="min-w-0 rounded-lg border border-border bg-card p-1.5 hover:shadow-elevated hover:border-primary transition group text-center sm:p-2 sm:text-left">
-      <div className="mx-auto grid h-6 w-6 place-items-center rounded-full bg-whatsapp text-whatsapp-foreground sm:mx-0 sm:h-8 sm:w-8">
-        {Icon === FileText ? <ExternalLink className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
-      </div>
-      <div className="mt-1.5 break-words text-[8px] font-semibold uppercase leading-tight text-muted-foreground sm:text-[10px]">{title}</div>
-      <div className="mt-1 text-[8px] font-semibold text-primary group-hover:underline sm:text-[10px]">{action}</div>
+    <a href={href} target="_blank" rel="noreferrer" className="flex min-h-full min-w-0 flex-col justify-between rounded-lg border border-border bg-card p-2 hover:shadow-elevated hover:border-primary transition group text-center sm:p-3 sm:text-left">
+      <div className="break-words text-xs font-bold uppercase leading-tight text-foreground sm:text-sm">{title}</div>
+      <div className="mt-2 text-xs font-semibold text-primary group-hover:underline sm:text-sm">{action}</div>
     </a>
   );
 }
