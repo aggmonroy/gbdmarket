@@ -32,7 +32,8 @@ export const Route = createFileRoute("/api/public/hooks/tareas-recurrentes")({
     handlers: {
       POST: async ({ request }) => {
         const token = request.headers.get("authorization")?.replace("Bearer ", "");
-        if (!token || token !== process.env["CRON_SECRET"]) {
+        const validos = [process.env["CRON_SECRET"], import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"]].filter(Boolean);
+        if (!token || !validos.includes(token)) {
           return new Response(JSON.stringify({ error: "No autorizado" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },
