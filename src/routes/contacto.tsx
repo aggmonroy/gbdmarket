@@ -64,47 +64,51 @@ function Contacto() {
         <a href="https://www.instagram.com/coopgladysducasa/" target="_blank" rel="noreferrer" className="text-primary hover:underline">@coopgladysducasa</a>
       </div>
 
-      {/* Servicios de la Cooperativa */}
-      <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-3">
-        <a
+      {/* Banca en línea · un solo enlace */}
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-3">
+        <ChannelCard
+          title="Cooperativa GBD · Banca en línea"
+          phone="bancagbd.com"
           href="https://bancagbd.com/bancagbd/login/"
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-xl border border-border bg-card p-3 hover:shadow-elevated hover:border-primary transition group"
-        >
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground"><Landmark className="h-4 w-4" /></div>
-          <div className="mt-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Cooperativa GBD</div>
-          <div className="font-display text-sm font-bold leading-tight">Banca en línea</div>
-          <div className="mt-1 text-[11px] text-primary font-semibold group-hover:underline inline-flex items-center gap-1">Ingresar <ExternalLink className="h-3 w-3" /></div>
-        </a>
+          icon={Landmark}
+          action="Ingresar →"
+        />
+      </div>
 
-        <div className="rounded-xl border border-border bg-card p-3 col-span-2 lg:col-span-1">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground"><PhoneCall className="h-4 w-4" /></div>
-          <div className="mt-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Cooperativa GBD</div>
-          <div className="font-display text-sm font-bold">Números de atención</div>
-          <ul className="mt-1.5 space-y-1 text-[11px]">
-            {ATENCION.map((a) => (
-              <li key={a.wa} className="flex items-center justify-between gap-2">
-                <span className="text-muted-foreground truncate">{a.label}</span>
-                <a href={`https://wa.me/${a.wa}`} target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline shrink-0">{a.phone}</a>
-              </li>
-            ))}
-          </ul>
+      {/* Números de atención · un enlace por tarjeta */}
+      <div className="mt-4">
+        <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+          <PhoneCall className="h-3.5 w-3.5 text-primary" /> Números de atención · Cooperativa GBD
         </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-3">
+          {ATENCION.map((a) => (
+            <ChannelCard
+              key={a.wa}
+              title={`Cooperativa GBD · ${a.label}`}
+              phone={a.phone}
+              href={`https://wa.me/${a.wa}`}
+              icon={MessageCircle}
+            />
+          ))}
+        </div>
+      </div>
 
-        <div className="rounded-xl border border-border bg-card p-3 col-span-2 lg:col-span-1">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground"><FileText className="h-4 w-4" /></div>
-          <div className="mt-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Cooperativa GBD</div>
-          <div className="font-display text-sm font-bold">Formularios y trámites</div>
-          <ul className="mt-1.5 space-y-1 text-[11px]">
-            {FORMULARIOS.map((f) => (
-              <li key={f.url}>
-                <a href={f.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary font-semibold hover:underline">
-                  {f.label} <ExternalLink className="h-3 w-3 shrink-0" />
-                </a>
-              </li>
-            ))}
-          </ul>
+      {/* Formularios y trámites · un enlace por tarjeta */}
+      <div className="mt-4">
+        <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+          <FileText className="h-3.5 w-3.5 text-primary" /> Formularios y trámites · Cooperativa GBD
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-3">
+          {FORMULARIOS.map((f) => (
+            <ChannelCard
+              key={f.url}
+              title={f.label}
+              phone="coopgbd.com"
+              href={f.url}
+              icon={FileText}
+              action="Abrir formulario →"
+            />
+          ))}
         </div>
       </div>
 
@@ -126,13 +130,27 @@ function Contacto() {
   );
 }
 
-function ChannelCard({ title, phone, href }: { title: string; phone: string; href: string }) {
+function ChannelCard({
+  title,
+  phone,
+  href,
+  icon: Icon = MessageCircle,
+  action = "Abrir chat →",
+}: {
+  title: string;
+  phone: string;
+  href: string;
+  icon?: any;
+  action?: string;
+}) {
   return (
     <a href={href} target="_blank" rel="noreferrer" className="rounded-xl border border-border bg-card p-2 sm:p-3 hover:shadow-elevated hover:border-primary transition group text-center sm:text-left">
-      <div className="mx-auto sm:mx-0 grid h-8 w-8 place-items-center rounded-full bg-whatsapp text-whatsapp-foreground"><MessageCircle className="h-4 w-4" /></div>
+      <div className="mx-auto sm:mx-0 grid h-8 w-8 place-items-center rounded-full bg-whatsapp text-whatsapp-foreground">
+        {Icon === FileText || Icon === Landmark ? <ExternalLink className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+      </div>
       <div className="mt-2 text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-muted-foreground leading-tight">{title}</div>
       <div className="mt-0.5 font-display text-xs sm:text-base font-bold leading-tight">{phone}</div>
-      <div className="mt-1 text-[10px] sm:text-xs text-primary font-semibold group-hover:underline">Abrir chat →</div>
+      <div className="mt-1 text-[10px] sm:text-xs text-primary font-semibold group-hover:underline">{action}</div>
     </a>
   );
 }
