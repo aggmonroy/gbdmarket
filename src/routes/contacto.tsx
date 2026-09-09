@@ -21,11 +21,11 @@ const WA_BORDADOS = "50768298538";
 const WA_TONOSI = "50768711242";
 
 const ATENCION = [
-  { label: "Ingresos / Atención", phone: "+507 6330-4320", wa: "50763304320" },
-  { label: "Crédito 1", phone: "+507 6955-5664", wa: "50769555664" },
-  { label: "Crédito 2", phone: "+507 6955-4680", wa: "50769554680" },
-  { label: "Cobros", phone: "+507 6349-9434", wa: "50763499434" },
-  { label: "Contabilidad", phone: "+507 6732-1360", wa: "50767321360" },
+  { label: "Ingresos / Atención", wa: "50763304320" },
+  { label: "Crédito 1", wa: "50769555664" },
+  { label: "Crédito 2", wa: "50769554680" },
+  { label: "Cobros", wa: "50763499434" },
+  { label: "Contabilidad", wa: "50767321360" },
 ];
 
 const FORMULARIOS = [
