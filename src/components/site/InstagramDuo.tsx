@@ -24,7 +24,7 @@ const CUENTAS = [
     perfil: "https://www.instagram.com/coopgladysducasa/",
     key: "coopgladysducasa",
   },
-];
+] as const;
 
 export function InstagramDuo() {
   const fetchPosts = useServerFn(getInstagramPosts);
