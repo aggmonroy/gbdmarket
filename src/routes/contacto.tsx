@@ -67,7 +67,7 @@ function Contacto() {
       {/* Banca en línea · un solo enlace */}
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-3">
         <ChannelCard
-          title="Cooperativa GBD · Banca en línea"
+          title="Banca en línea"
           phone="bancagbd.com"
           href="https://bancagbd.com/bancagbd/login/"
           icon={Landmark}
