@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Clock, Instagram, Globe, PhoneCall, FileText } from "lucide-react";
 import { NewsletterSignup } from "@/components/site/NewsletterSignup";
 import { NewsletterPosts } from "@/components/site/NewsletterPosts";
+import { ContactoWaDialog, type ContactoCanal } from "@/components/site/ContactoWaDialog";
 
 export const Route = createFileRoute("/contacto")({
   head: () => ({
@@ -16,20 +18,25 @@ export const Route = createFileRoute("/contacto")({
   component: Contacto,
 });
 
-const WA_LAS_TABLAS = "50767841941";
-const WA_BORDADOS = "50768298538";
-const WA_TONOSI = "50768711242";
+const HORARIO_MUEBLERIA = "Lunes a sábado de 8:00 AM a 5:00 PM";
+const HORARIO_COOP = "Lunes a viernes de 8:00 AM a 4:00 PM · Sábados de 8:00 AM a 12:00 PM";
 
-const ATENCION = [
-  { label: "Ingresos / Atención", wa: "50763304320" },
-  { label: "Crédito 1", wa: "50769555664" },
-  { label: "Crédito 2", wa: "50769554680" },
-  { label: "Cobros", wa: "50763499434" },
-  { label: "Contabilidad", wa: "50767321360" },
+const MUEBLERIA: ContactoCanal[] = [
+  { title: "Mueblería GBD Las Tablas", wa: "50767841941", horario: HORARIO_MUEBLERIA },
+  { title: "Mueblería GBD · Sucursal Tonosí", wa: "50768711242", horario: HORARIO_COOP },
+  { title: "Bordados", wa: "50768298538", horario: HORARIO_MUEBLERIA },
+];
+
+const ATENCION: ContactoCanal[] = [
+  { title: "Ingresos / Atención", wa: "50763304320", horario: HORARIO_COOP },
+  { title: "Crédito 1", wa: "50769555664", horario: HORARIO_COOP },
+  { title: "Crédito 2", wa: "50769554680", horario: HORARIO_COOP },
+  { title: "Cobros", wa: "50763499434", horario: HORARIO_COOP },
+  { title: "Contabilidad", wa: "50767321360", horario: HORARIO_COOP },
 ];
 
 const FORMULARIOS = [
-  { label: "¿Quieres formar parte de nuestros asociados?", url: "https://coopgbd.com/asociado/" },
+  { label: "¿Quieres formar parte de nuestros asociados?", url: "https://coopgbd.com/asociado/", destacado: true },
   { label: "Ahorros", url: "https://coopgbd.com/ahorros/" },
   { label: "Apoyo Económico para Lentes", url: "https://coopgbd.com/lentes/" },
   { label: "Beneficio Funerario", url: "https://coopgbd.com/funerario/" },
@@ -38,44 +45,56 @@ const FORMULARIOS = [
   { label: "Bienes Adjudicados · Consultar listado", url: "https://coopgbd.com/adjudicados/" },
 ];
 
+const CARD_BASE =
+  "flex min-h-[64px] min-w-0 items-center justify-center rounded-lg border p-2 text-center transition hover:shadow-elevated sm:min-h-[76px] sm:p-3";
+const AZUL = "border-sky-300/70 bg-gradient-to-br from-sky-50 to-sky-100 text-sky-950 hover:border-sky-500 dark:border-sky-800/70 dark:from-sky-950 dark:to-sky-900/60 dark:text-sky-50";
+const VERDE = "border-emerald-300/70 bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-950 hover:border-emerald-500 dark:border-emerald-800/70 dark:from-emerald-950 dark:to-emerald-900/60 dark:text-emerald-50";
+const AMARILLO = "border-amber-300/70 bg-gradient-to-br from-amber-50 to-amber-100 text-amber-950 hover:border-amber-500 dark:border-amber-800/70 dark:from-amber-950 dark:to-amber-900/60 dark:text-amber-50";
+const AMARILLO_FUERTE = "border-amber-500 bg-gradient-to-br from-amber-200 to-amber-300 text-amber-950 ring-2 ring-amber-400/60 hover:border-amber-600 dark:from-amber-800 dark:to-amber-700 dark:text-amber-50";
+
 function Contacto() {
+  const [canal, setCanal] = useState<ContactoCanal | null>(null);
+
   return (
     <div className="container mx-auto px-4 lg:px-8 py-6 lg:py-8 max-w-6xl">
       <div className="grid grid-cols-3 gap-1 sm:gap-2">
-        <ChannelCard title="Mueblería GBD Las Tablas" href={`https://wa.me/${WA_LAS_TABLAS}`} />
-        <ChannelCard title="Mueblería GBD · Sucursal Tonosí" href={`https://wa.me/${WA_TONOSI}`} />
-        <ChannelCard title="Bordados" href={`https://wa.me/${WA_BORDADOS}`} />
+        {MUEBLERIA.map((c) => (
+          <button key={c.wa} type="button" onClick={() => setCanal(c)} className={`${CARD_BASE} ${AZUL}`}>
+            <span className="break-words text-xs font-bold uppercase leading-tight sm:text-sm">{c.title}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Números de atención · un enlace por tarjeta */}
+      {/* Números de atención de la cooperativa */}
       <div className="mt-4">
         <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
           <PhoneCall className="h-3.5 w-3.5 text-primary" /> Números de atención
         </div>
         <div className="grid grid-cols-3 gap-1 sm:gap-2">
-          {ATENCION.map((a) => (
-            <ChannelCard
-              key={a.wa}
-              title={a.label}
-              href={`https://wa.me/${a.wa}`}
-            />
+          {ATENCION.map((c) => (
+            <button key={c.wa} type="button" onClick={() => setCanal(c)} className={`${CARD_BASE} ${VERDE}`}>
+              <span className="break-words text-xs font-bold uppercase leading-tight sm:text-sm">{c.title}</span>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Formularios y trámites · un enlace por tarjeta */}
+      {/* Formularios y trámites */}
       <div className="mt-4">
         <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
           <FileText className="h-3.5 w-3.5 text-primary" /> Formularios y trámites
         </div>
         <div className="grid grid-cols-3 gap-1 sm:gap-2">
           {FORMULARIOS.map((f) => (
-            <ChannelCard
+            <a
               key={f.url}
-              title={f.label}
               href={f.url}
-              action="Abrir formulario →"
-            />
+              target="_blank"
+              rel="noreferrer"
+              className={`${CARD_BASE} ${f.destacado ? AMARILLO_FUERTE : AMARILLO}`}
+            >
+              <span className="break-words text-xs font-bold uppercase leading-tight sm:text-sm">{f.label}</span>
+            </a>
           ))}
         </div>
       </div>
@@ -110,24 +129,9 @@ function Contacto() {
         <span className="text-muted-foreground">·</span>
         <a href="https://www.instagram.com/coopgladysducasa/" target="_blank" rel="noreferrer" className="text-primary hover:underline">@coopgladysducasa</a>
       </div>
-    </div>
-  );
-}
 
-function ChannelCard({
-  title,
-  href,
-  action = "Abrir chat →",
-}: {
-  title: string;
-  href: string;
-  action?: string;
-}) {
-  return (
-    <a href={href} target="_blank" rel="noreferrer" className="flex min-h-full min-w-0 flex-col justify-between rounded-lg border border-border bg-card p-2 hover:shadow-elevated hover:border-primary transition group text-center sm:p-3 sm:text-left">
-      <div className="break-words text-xs font-bold uppercase leading-tight text-foreground sm:text-sm">{title}</div>
-      <div className="mt-2 text-xs font-semibold text-primary group-hover:underline sm:text-sm">{action}</div>
-    </a>
+      <ContactoWaDialog canal={canal} onOpenChange={(o) => !o && setCanal(null)} />
+    </div>
   );
 }
 
