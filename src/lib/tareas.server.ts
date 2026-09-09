@@ -18,6 +18,7 @@ export async function decorar(sb: any, rows: any[]) {
     responsable: t.asignado_a ? nombres.get(t.asignado_a) ?? "—" : "Sin asignar",
     apoyo: t.apoyo_a ? nombres.get(t.apoyo_a) ?? "—" : null,
     autor: t.creado_por ? nombres.get(t.creado_por) ?? "—" : "Sistema",
+    verificador: t.verificador_a ? nombres.get(t.verificador_a) ?? "—" : null,
     cerrada_por: t.completada_por ? nombres.get(t.completada_por) ?? "—" : null,
   }));
 }

@@ -1402,6 +1402,8 @@ export type Database = {
           tipo: string
           titulo: string
           updated_at: string
+          verificada_en: string | null
+          verificador_a: string | null
           whatsapp_lead_id: string | null
         }
         Insert: {
@@ -1433,6 +1435,8 @@ export type Database = {
           tipo?: string
           titulo: string
           updated_at?: string
+          verificada_en?: string | null
+          verificador_a?: string | null
           whatsapp_lead_id?: string | null
         }
         Update: {
@@ -1464,6 +1468,8 @@ export type Database = {
           tipo?: string
           titulo?: string
           updated_at?: string
+          verificada_en?: string | null
+          verificador_a?: string | null
           whatsapp_lead_id?: string | null
         }
         Relationships: [
@@ -1514,6 +1520,13 @@ export type Database = {
             columns: ["garantia_id"]
             isOneToOne: false
             referencedRelation: "garantias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_verificador_a_fkey"
+            columns: ["verificador_a"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
             referencedColumns: ["id"]
           },
           {

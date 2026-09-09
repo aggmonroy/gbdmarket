@@ -15,6 +15,13 @@
       "when": 1788625381238,
       "tag": "0001_allow_pwa_page_events",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788974342254,
+      "tag": "0002_tareas_verificador",
+      "breakpoints": true
     }
   ]
 }
