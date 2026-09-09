@@ -7,7 +7,7 @@ export const Route = createFileRoute("/contacto")({
   head: () => ({
     meta: [
       { title: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
-      { name: "description", content: "Escríbenos por WhatsApp. Suscríbete al boletín y descubre promociones. Las Tablas: +507 6784-1941 · Tonosí: +507 6871-1242 · Bordados: +507 6829-8538." },
+      { name: "description", content: "Escríbenos por WhatsApp. Suscríbete al boletín y descubre promociones. Mueblería GBD Las Tablas, Sucursal Tonosí y Bordados GBD." },
       { property: "og:title", content: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
       { property: "og:description", content: "WhatsApp directo, boletín de promociones y canales de atención al cliente." },
     ],
@@ -21,11 +21,11 @@ const WA_BORDADOS = "50768298538";
 const WA_TONOSI = "50768711242";
 
 const ATENCION = [
-  { label: "Ingresos / Atención", phone: "+507 6330-4320", wa: "50763304320" },
-  { label: "Crédito 1", phone: "+507 6955-5664", wa: "50769555664" },
-  { label: "Crédito 2", phone: "+507 6955-4680", wa: "50769554680" },
-  { label: "Cobros", phone: "+507 6349-9434", wa: "50763499434" },
-  { label: "Contabilidad", phone: "+507 6732-1360", wa: "50767321360" },
+  { label: "Ingresos / Atención", wa: "50763304320" },
+  { label: "Crédito 1", wa: "50769555664" },
+  { label: "Crédito 2", wa: "50769554680" },
+  { label: "Cobros", wa: "50763499434" },
+  { label: "Contabilidad", wa: "50767321360" },
 ];
 
 const FORMULARIOS = [
@@ -40,9 +40,9 @@ function Contacto() {
   return (
     <div className="container mx-auto px-4 lg:px-8 py-6 lg:py-8 max-w-6xl">
       <div className="grid grid-cols-3 gap-1 sm:gap-2">
-        <ChannelCard title="Línea Blanca · Las Tablas" phone="+507 6784-1941" href={`https://wa.me/${WA_LAS_TABLAS}`} />
-        <ChannelCard title="Mueblería GBD · Tonosí" phone="+507 6871-1242" href={`https://wa.me/${WA_TONOSI}`} />
-        <ChannelCard title="Bordados" phone="+507 6829-8538" href={`https://wa.me/${WA_BORDADOS}`} />
+        <ChannelCard title="Mueblería GBD Las Tablas" href={`https://wa.me/${WA_LAS_TABLAS}`} />
+        <ChannelCard title="Mueblería GBD · Sucursal Tonosí" href={`https://wa.me/${WA_TONOSI}`} />
+        <ChannelCard title="Bordados" href={`https://wa.me/${WA_BORDADOS}`} />
       </div>
 
       {/* Números de atención · un enlace por tarjeta */}
@@ -55,7 +55,6 @@ function Contacto() {
             <ChannelCard
               key={a.wa}
               title={a.label}
-              phone={a.phone}
               href={`https://wa.me/${a.wa}`}
               icon={MessageCircle}
             />
@@ -117,13 +116,11 @@ function Contacto() {
 
 function ChannelCard({
   title,
-  phone,
   href,
   icon: Icon = MessageCircle,
   action = "Abrir chat →",
 }: {
   title: string;
-  phone?: string;
   href: string;
   icon?: any;
   action?: string;
@@ -134,7 +131,6 @@ function ChannelCard({
         {Icon === FileText ? <ExternalLink className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
       </div>
       <div className="mt-1.5 break-words text-[8px] font-semibold uppercase leading-tight text-muted-foreground sm:text-[10px]">{title}</div>
-      {phone && <div className="mt-0.5 break-words font-display text-[9px] font-bold leading-tight sm:text-sm">{phone}</div>}
       <div className="mt-1 text-[8px] font-semibold text-primary group-hover:underline sm:text-[10px]">{action}</div>
     </a>
   );
