@@ -7,7 +7,7 @@ export const Route = createFileRoute("/contacto")({
   head: () => ({
     meta: [
       { title: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
-      { name: "description", content: "Escríbenos por WhatsApp. Suscríbete al boletín y descubre promociones. Las Tablas: +507 6784-1941 · Tonosí: +507 6871-1242 · Bordados: +507 6829-8538." },
+      { name: "description", content: "Escríbenos por WhatsApp. Suscríbete al boletín y descubre promociones. Mueblería GBD Las Tablas, Sucursal Tonosí y Bordados GBD." },
       { property: "og:title", content: "Contacto · Cooperativa Gladys B. de Ducasa R.L." },
       { property: "og:description", content: "WhatsApp directo, boletín de promociones y canales de atención al cliente." },
     ],
