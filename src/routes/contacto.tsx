@@ -40,9 +40,9 @@ function Contacto() {
   return (
     <div className="container mx-auto px-4 lg:px-8 py-6 lg:py-8 max-w-6xl">
       <div className="grid grid-cols-3 gap-1 sm:gap-2">
-        <ChannelCard title="Línea Blanca · Las Tablas" phone="+507 6784-1941" href={`https://wa.me/${WA_LAS_TABLAS}`} />
-        <ChannelCard title="Mueblería GBD · Tonosí" phone="+507 6871-1242" href={`https://wa.me/${WA_TONOSI}`} />
-        <ChannelCard title="Bordados" phone="+507 6829-8538" href={`https://wa.me/${WA_BORDADOS}`} />
+        <ChannelCard title="Mueblería GBD Las Tablas" href={`https://wa.me/${WA_LAS_TABLAS}`} />
+        <ChannelCard title="Mueblería GBD · Sucursal Tonosí" href={`https://wa.me/${WA_TONOSI}`} />
+        <ChannelCard title="Bordados" href={`https://wa.me/${WA_BORDADOS}`} />
       </div>
 
       {/* Números de atención · un enlace por tarjeta */}
