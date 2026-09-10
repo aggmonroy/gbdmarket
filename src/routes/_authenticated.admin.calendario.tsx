@@ -147,11 +147,8 @@ function CalendarioPage() {
                     {events.length > 4 && (
                       <div className="text-[10px] text-muted-foreground">+{events.length - 4} más</div>
                     )}
-
-                    {events.length > 3 && (
-                      <div className="text-[10px] text-muted-foreground">+{events.length - 3} más</div>
-                    )}
                   </div>
+
                 </div>
               );
             })}
