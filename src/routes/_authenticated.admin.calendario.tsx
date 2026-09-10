@@ -137,12 +137,17 @@ function CalendarioPage() {
                   className={`min-h-[100px] rounded-md border p-1.5 ${isCurrentMonth ? "bg-background" : "bg-muted/30"} ${isToday ? "border-primary" : "border-border"}`}>
                   <div className={`text-[10px] font-bold mb-1 ${isCurrentMonth ? "text-foreground" : "text-muted-foreground"}`}>{d.getDate()}</div>
                   <div className="space-y-1">
-                    {events.slice(0, 3).map((e: any) => (
-                      <button key={e.id} onClick={() => setSelected(e)}
-                        className="w-full text-left text-[10px] rounded px-1.5 py-0.5 bg-primary-soft/70 hover:bg-primary/20 truncate">
-                        <span className="font-semibold truncate">{e.cliente_nombre}</span>
+                    {events.slice(0, 4).map((e: any) => (
+                      <button key={e.id} onClick={() => (e.__tarea ? null : setSelected(e))}
+                        title={e.__tarea ? `${e.titulo} · ${e.responsable}${e.verificador ? ` · Verifica: ${e.verificador}` : ""}` : e.cliente_nombre}
+                        className={`w-full text-left text-[10px] rounded px-1.5 py-0.5 truncate ${e.__tarea ? "bg-accent/60 hover:bg-accent" : "bg-primary-soft/70 hover:bg-primary/20"}`}>
+                        <span className="font-semibold truncate">{e.__tarea ? "✓ " : ""}{e.cliente_nombre}</span>
                       </button>
                     ))}
+                    {events.length > 4 && (
+                      <div className="text-[10px] text-muted-foreground">+{events.length - 4} más</div>
+                    )}
+
                     {events.length > 3 && (
                       <div className="text-[10px] text-muted-foreground">+{events.length - 3} más</div>
                     )}
