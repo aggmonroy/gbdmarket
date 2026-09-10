@@ -3,6 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { listBitacora } from "@/lib/bitacora.functions";
+import { listTareasAdmin } from "@/lib/tareas-admin.functions";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +21,9 @@ const TYPE_FILTERS = [
   { key: "pedidos", label: "Pedidos", estados: ["en_proceso","produccion","listo"] },
   { key: "entregas", label: "Entregas", estados: ["entregado"] },
   { key: "garantias", label: "Garantías", estados: ["garantia"] },
+  { key: "tareas", label: "Tareas fijas" },
 ] as const;
+
 
 function startOfMonth(d: Date) { return new Date(d.getFullYear(), d.getMonth(), 1); }
 function daysGrid(anchor: Date) {
@@ -42,6 +46,7 @@ const DIA = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 
 function CalendarioPage() {
   const listFn = useServerFn(listBitacora);
+  const tareasFn = useServerFn(listTareasAdmin);
   const [anchor, setAnchor] = useState(new Date());
   const [filter, setFilter] = useState<string>("todos");
   const [selected, setSelected] = useState<any | null>(null);
@@ -51,11 +56,28 @@ function CalendarioPage() {
     queryFn: () => listFn({ data: { limit: 1000 } as any }),
   });
 
+  const { data: tareas = [] } = useQuery({
+    queryKey: ["calendario-tareas"],
+    queryFn: () => tareasFn({ data: {} }),
+  });
+
+  const eventosTareas = useMemo(
+    () =>
+      (tareas as any[]).map((t) => ({
+        ...t,
+        __tarea: true,
+        cliente_nombre: t.titulo,
+        fecha_entrega: t.fecha_vencimiento ?? t.fecha,
+      })),
+    [tareas],
+  );
+
   const filtered = useMemo(() => {
+    if (filter === "todos") return [...rows, ...eventosTareas];
+    if (filter === "tareas") return eventosTareas;
     const f = TYPE_FILTERS.find((x) => x.key === filter);
-    if (!f || filter === "todos") return rows;
-    return rows.filter((r: any) => (f as any).estados?.includes(r.estado));
-  }, [rows, filter]);
+    return rows.filter((r: any) => (f as any)?.estados?.includes(r.estado));
+  }, [rows, eventosTareas, filter]);
 
   const byDay = useMemo(() => {
     const map = new Map<string, any[]>();
@@ -67,6 +89,7 @@ function CalendarioPage() {
     }
     return map;
   }, [filtered]);
+
 
   const days = daysGrid(anchor);
   const today = new Date();
@@ -114,16 +137,18 @@ function CalendarioPage() {
                   className={`min-h-[100px] rounded-md border p-1.5 ${isCurrentMonth ? "bg-background" : "bg-muted/30"} ${isToday ? "border-primary" : "border-border"}`}>
                   <div className={`text-[10px] font-bold mb-1 ${isCurrentMonth ? "text-foreground" : "text-muted-foreground"}`}>{d.getDate()}</div>
                   <div className="space-y-1">
-                    {events.slice(0, 3).map((e: any) => (
-                      <button key={e.id} onClick={() => setSelected(e)}
-                        className="w-full text-left text-[10px] rounded px-1.5 py-0.5 bg-primary-soft/70 hover:bg-primary/20 truncate">
-                        <span className="font-semibold truncate">{e.cliente_nombre}</span>
+                    {events.slice(0, 4).map((e: any) => (
+                      <button key={e.id} onClick={() => (e.__tarea ? null : setSelected(e))}
+                        title={e.__tarea ? `${e.titulo} · ${e.responsable}${e.verificador ? ` · Verifica: ${e.verificador}` : ""}` : e.cliente_nombre}
+                        className={`w-full text-left text-[10px] rounded px-1.5 py-0.5 truncate ${e.__tarea ? "bg-accent/60 hover:bg-accent" : "bg-primary-soft/70 hover:bg-primary/20"}`}>
+                        <span className="font-semibold truncate">{e.__tarea ? "✓ " : ""}{e.cliente_nombre}</span>
                       </button>
                     ))}
-                    {events.length > 3 && (
-                      <div className="text-[10px] text-muted-foreground">+{events.length - 3} más</div>
+                    {events.length > 4 && (
+                      <div className="text-[10px] text-muted-foreground">+{events.length - 4} más</div>
                     )}
                   </div>
+
                 </div>
               );
             })}
