@@ -19,7 +19,9 @@ const TYPE_FILTERS = [
   { key: "pedidos", label: "Pedidos", estados: ["en_proceso","produccion","listo"] },
   { key: "entregas", label: "Entregas", estados: ["entregado"] },
   { key: "garantias", label: "Garantías", estados: ["garantia"] },
+  { key: "tareas", label: "Tareas fijas" },
 ] as const;
+
 
 function startOfMonth(d: Date) { return new Date(d.getFullYear(), d.getMonth(), 1); }
 function daysGrid(anchor: Date) {
