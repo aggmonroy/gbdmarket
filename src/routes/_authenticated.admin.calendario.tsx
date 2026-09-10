@@ -44,6 +44,7 @@ const DIA = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 
 function CalendarioPage() {
   const listFn = useServerFn(listBitacora);
+  const tareasFn = useServerFn(listTareasAdmin);
   const [anchor, setAnchor] = useState(new Date());
   const [filter, setFilter] = useState<string>("todos");
   const [selected, setSelected] = useState<any | null>(null);
@@ -53,11 +54,28 @@ function CalendarioPage() {
     queryFn: () => listFn({ data: { limit: 1000 } as any }),
   });
 
+  const { data: tareas = [] } = useQuery({
+    queryKey: ["calendario-tareas"],
+    queryFn: () => tareasFn({ data: {} }),
+  });
+
+  const eventosTareas = useMemo(
+    () =>
+      (tareas as any[]).map((t) => ({
+        ...t,
+        __tarea: true,
+        cliente_nombre: t.titulo,
+        fecha_entrega: t.fecha_vencimiento ?? t.fecha,
+      })),
+    [tareas],
+  );
+
   const filtered = useMemo(() => {
+    if (filter === "todos") return [...rows, ...eventosTareas];
+    if (filter === "tareas") return eventosTareas;
     const f = TYPE_FILTERS.find((x) => x.key === filter);
-    if (!f || filter === "todos") return rows;
-    return rows.filter((r: any) => (f as any).estados?.includes(r.estado));
-  }, [rows, filter]);
+    return rows.filter((r: any) => (f as any)?.estados?.includes(r.estado));
+  }, [rows, eventosTareas, filter]);
 
   const byDay = useMemo(() => {
     const map = new Map<string, any[]>();
@@ -69,6 +87,7 @@ function CalendarioPage() {
     }
     return map;
   }, [filtered]);
+
 
   const days = daysGrid(anchor);
   const today = new Date();
