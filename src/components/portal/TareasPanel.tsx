@@ -236,12 +236,13 @@ export function TareasPanel({ sesion }: { sesion: Sesion }) {
                     {t.descripcion && <div className="text-xs text-muted-foreground">{t.descripcion}</div>}
                     <div className="text-xs text-muted-foreground">
                       {t.fecha} · Responsable: {t.responsable} · Registró: {t.autor}
+                      {t.verificador ? ` · Verifica: ${t.verificador}` : ""}
                       {t.fecha_vencimiento ? ` · Vence: ${t.fecha_vencimiento}` : ""}
                       {t.cerrada_por ? ` · Culminó: ${t.cerrada_por}` : ""}
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    {t.estado === "pendiente" ? (
+                    {t.estado !== "finalizada" && t.estado !== "completada" ? (
                       <Button size="sm" variant="outline" onClick={() => cerrar.mutate(t.id)}>
                         <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Culminada
                       </Button>
@@ -253,6 +254,7 @@ export function TareasPanel({ sesion }: { sesion: Sesion }) {
                       )
                     )}
                   </div>
+
                 </div>
               </div>
             ))}

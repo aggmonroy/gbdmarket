@@ -75,7 +75,6 @@ export const Route = createFileRoute("/api/public/hooks/tareas-recurrentes")({
         }) {
           if (await existeTarea(opts.titulo, opts.asignadoA ?? null)) return;
           const numero = await generarNumeroTarea(sb, "tarea");
-          const ahora = new Date().toISOString();
           const { error } = await sb.from("tareas").insert({
             tipo: "tarea",
             origen: "sistema",
@@ -86,9 +85,9 @@ export const Route = createFileRoute("/api/public/hooks/tareas-recurrentes")({
             verificador_a: opts.verificadorA ?? null,
             fecha: hoy,
             fecha_vencimiento: hoy,
-            estado: "aceptada",
-            aceptada_en: ahora,
+            estado: "pendiente",
           });
+
           if (error) throw new Error(error.message);
           creadas.push(`${numero} · ${opts.titulo}`);
         }
