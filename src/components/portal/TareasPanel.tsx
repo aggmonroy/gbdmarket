@@ -23,6 +23,16 @@ import {
 type Sesion = { token: string; colaborador: { id: string; nombre: string; rol: string } };
 const hoy = () => new Date().toISOString().slice(0, 10);
 
+/** Días que una tarea de limpieza lleva sin culminarse (0 si no aplica). */
+function diasIgnoradaLimpieza(t: any): number {
+  if (t.estado === "finalizada" || t.estado === "completada" || t.estado === "cancelada") return 0;
+  if (!/limpieza/i.test(t.titulo ?? "")) return 0;
+  const base = t.fecha_vencimiento || t.fecha;
+  if (!base) return 0;
+  const diff = Math.floor((Date.now() - new Date(`${base}T00:00:00`).getTime()) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+
 export function TareasPanel({ sesion }: { sesion: Sesion }) {
   const rol = sesion.colaborador.rol;
   const esGerente = rol === "gerente";
@@ -221,12 +231,26 @@ export function TareasPanel({ sesion }: { sesion: Sesion }) {
           {!(tareas as any[]).length && <p className="text-sm text-muted-foreground">No hay registros con estos filtros.</p>}
 
           <div className="space-y-3">
-            {(tareas as any[]).map((t) => (
-              <div key={t.id} className="rounded-md border border-border bg-card p-3 space-y-1">
+            {(tareas as any[]).map((t) => {
+              const diasIgnorada = diasIgnoradaLimpieza(t);
+              return (
+              <div
+                key={t.id}
+                className={`rounded-md border p-3 space-y-1 ${
+                  diasIgnorada > 0 ? "border-destructive bg-destructive/10" : "border-border bg-card"
+                }`}
+              >
+                {diasIgnorada > 0 && (
+                  <div className="flex items-center gap-2 rounded-sm bg-destructive px-3 py-2 text-destructive-foreground">
+                    <span className="text-base font-extrabold uppercase tracking-wide">
+                      Limpieza sin realizar: lleva {diasIgnorada} {diasIgnorada === 1 ? "día" : "días"} ignorada
+                    </span>
+                  </div>
+                )}
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant={t.tipo === "incidencia" ? "destructive" : "default"}>
+                      <Badge variant={t.tipo === "incidencia" || diasIgnorada > 0 ? "destructive" : "default"}>
                         {TIPO_TAREA_LABEL[t.tipo as TipoTarea] ?? t.tipo}
                       </Badge>
                       <span className="font-mono text-sm font-semibold">{t.numero_orden ?? "—"}</span>
@@ -257,7 +281,8 @@ export function TareasPanel({ sesion }: { sesion: Sesion }) {
 
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>

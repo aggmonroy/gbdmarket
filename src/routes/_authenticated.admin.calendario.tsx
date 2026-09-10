@@ -137,13 +137,33 @@ function CalendarioPage() {
                   className={`min-h-[100px] rounded-md border p-1.5 ${isCurrentMonth ? "bg-background" : "bg-muted/30"} ${isToday ? "border-primary" : "border-border"}`}>
                   <div className={`text-[10px] font-bold mb-1 ${isCurrentMonth ? "text-foreground" : "text-muted-foreground"}`}>{d.getDate()}</div>
                   <div className="space-y-1">
-                    {events.slice(0, 4).map((e: any) => (
-                      <button key={e.id} onClick={() => (e.__tarea ? null : setSelected(e))}
-                        title={e.__tarea ? `${e.titulo} · ${e.responsable}${e.verificador ? ` · Verifica: ${e.verificador}` : ""}` : e.cliente_nombre}
-                        className={`w-full text-left text-[10px] rounded px-1.5 py-0.5 truncate ${e.__tarea ? "bg-accent/60 hover:bg-accent" : "bg-primary-soft/70 hover:bg-primary/20"}`}>
-                        <span className="font-semibold truncate">{e.__tarea ? "✓ " : ""}{e.cliente_nombre}</span>
-                      </button>
-                    ))}
+                    {events.slice(0, 4).map((e: any) => {
+                      const limpiezaIgnorada =
+                        e.__tarea &&
+                        /limpieza/i.test(e.titulo ?? "") &&
+                        !["finalizada", "completada", "cancelada"].includes(e.estado) &&
+                        e.fecha_entrega &&
+                        new Date(e.fecha_entrega + "T23:59:59") < new Date();
+                      const dias = limpiezaIgnorada
+                        ? Math.floor((Date.now() - new Date(e.fecha_entrega + "T00:00:00").getTime()) / 86400000)
+                        : 0;
+                      return (
+                        <button key={e.id} onClick={() => (e.__tarea ? null : setSelected(e))}
+                          title={e.__tarea ? `${e.titulo} · ${e.responsable}${e.verificador ? ` · Verifica: ${e.verificador}` : ""}${limpiezaIgnorada ? ` · Ignorada hace ${dias} días` : ""}` : e.cliente_nombre}
+                          className={`w-full text-left text-[10px] rounded px-1.5 py-0.5 truncate ${
+                            limpiezaIgnorada
+                              ? "bg-destructive text-destructive-foreground font-bold"
+                              : e.__tarea
+                                ? "bg-accent/60 hover:bg-accent"
+                                : "bg-primary-soft/70 hover:bg-primary/20"
+                          }`}>
+                          <span className="font-semibold truncate">
+                            {e.__tarea ? "✓ " : ""}{e.cliente_nombre}
+                            {limpiezaIgnorada ? ` · ${dias}d sin hacer` : ""}
+                          </span>
+                        </button>
+                      );
+                    })}
                     {events.length > 4 && (
                       <div className="text-[10px] text-muted-foreground">+{events.length - 4} más</div>
                     )}
