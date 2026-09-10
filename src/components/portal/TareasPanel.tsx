@@ -281,7 +281,8 @@ export function TareasPanel({ sesion }: { sesion: Sesion }) {
 
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
