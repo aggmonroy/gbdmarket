@@ -23,6 +23,16 @@ import {
 type Sesion = { token: string; colaborador: { id: string; nombre: string; rol: string } };
 const hoy = () => new Date().toISOString().slice(0, 10);
 
+/** Días que una tarea de limpieza lleva sin culminarse (0 si no aplica). */
+function diasIgnoradaLimpieza(t: any): number {
+  if (t.estado === "finalizada" || t.estado === "completada" || t.estado === "cancelada") return 0;
+  if (!/limpieza/i.test(t.titulo ?? "")) return 0;
+  const base = t.fecha_vencimiento || t.fecha;
+  if (!base) return 0;
+  const diff = Math.floor((Date.now() - new Date(`${base}T00:00:00`).getTime()) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+
 export function TareasPanel({ sesion }: { sesion: Sesion }) {
   const rol = sesion.colaborador.rol;
   const esGerente = rol === "gerente";
