@@ -496,7 +496,7 @@ export function AsesorPage({
                 onChange={(e) => setPlazoElegido(Number(e.target.value))}
                 className="w-full mt-1 border border-[#DBE2EB] rounded-lg px-3 py-2 text-sm"
               >
-                {PLAZOS.map((m) => (
+                {(totales.planTotal.length ? totales.planTotal.map((r) => r.meses) : [...PLAZOS]).map((m) => (
                   <option key={m} value={m}>
                     {m} meses
                   </option>
