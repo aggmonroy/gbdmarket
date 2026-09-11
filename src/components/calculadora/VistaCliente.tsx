@@ -142,23 +142,41 @@ export function VistaCliente({ calculados, totales, tipoCliente, plazoElegido, s
           })}
         </div>
 
-        {calculados.length > 1 && cuota && (
+        {cuota && (
           <div className="mt-4 pt-4 border-t border-[#E3EFFF]">
-            <p className="text-[11px] uppercase text-[#68758A] font-bold mb-2">Desglose por producto — {plazoElegido} meses</p>
-            <div className="space-y-1.5">
-              {calculados.map(({ nombre, calc }, i) => {
-                const precioCredito = esAsociado(tipoCliente) ? calc.precioCreditoAsociado : calc.precioCreditoTercero;
-                const cuotaProd = precioCredito / plazoElegido;
-                return (
-                  <div key={i} className="flex items-center justify-between text-xs border-b border-[#E3EFFF] pb-1.5 last:border-0">
-                    <span className="text-[#535E6F]">{nombre || `Producto ${i + 1}`}</span>
-                    <span className="font-bold text-[#002362]">{fmt(cuotaProd)} / mes</span>
-                  </div>
-                );
-              })}
+            <div className="mb-3 grid grid-cols-3 gap-2">
+              <MiniDato label="Abono inicial" value={fmt(cuota.abonoInicial ?? cuota.cuotaMensual)} />
+              <MiniDato label="Cuota mensual" value={fmt(cuota.cuotaMensual)} />
+              <MiniDato label="Letra quincenal" value={fmt(cuota.letraQuincenal)} />
             </div>
+            {calculados.length > 1 && (
+              <>
+                <p className="text-[11px] uppercase text-[#68758A] font-bold mb-2">
+                  Desglose por artículo — {plazoElegido} meses
+                </p>
+                <div className="space-y-1.5">
+                  {calculados.map(({ nombre, calc }, i) => {
+                    const precioCredito = esAsociado(tipoCliente) ? calc.precioCreditoAsociado : calc.precioCreditoTercero;
+                    const cuotaProd = precioCredito / plazoElegido;
+                    return (
+                      <div key={i} className="border-b border-[#E3EFFF] pb-1.5 last:border-0">
+                        <p className="text-xs font-bold text-[#002362]">{nombre || `Producto ${i + 1}`}</p>
+                        <div className="grid grid-cols-3 gap-2 text-[11px] text-[#535E6F]">
+                          <span>Total: <b className="text-[#002362]">{fmt(precioCredito)}</b></span>
+                          <span>Mensual: <b className="text-[#002362]">{fmt(cuotaProd)}</b></span>
+                          <span>Quincenal: <b className="text-[#002362]">{fmt(cuotaProd / 2)}</b></span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         )}
+        </>
+        )}
+
 
         {esAsociado(tipoCliente) && (
           <div className="mt-4 rounded-2xl overflow-hidden border-2 border-[#1F6DD8] shadow-sm">
