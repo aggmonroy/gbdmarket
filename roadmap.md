@@ -1,8 +1,9 @@
 # Roadmap
 
 ## En curso
-- [ ] Modo embebido `?embed=1` (sin cabecera/pie/WhatsApp flotante/Descargar App) + tarjeta "Insertar en coopgbd.com" en el panel admin con códigos listos.
-- [ ] Regla de descuento en cotizaciones de contado: tope por defecto 7%, ajustable manualmente hasta 10%.
+- (ninguna)
 
-## Completados recientes
+## Completados
+- [x] Modo embebido `?embed=1` (oculta cabecera, pie, WhatsApp flotante y "Descargar App") + tarjeta "Insertar en coopgbd.com" en el panel admin con códigos copiables.
+- [x] Descuento de contado: por defecto 7%, ajuste manual hasta tope 10% (asociados, colaboradores y no asociados).
 - [x] Enlaces individuales para publicaciones del newsletter (/novedades/:id + compartir).
