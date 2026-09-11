@@ -157,3 +157,11 @@
   }
 }
 
+/* Modo embebido (?embed=1): página limpia para mostrar dentro de coopgbd.com */
+html.embed .site-header,
+html.embed .site-footer,
+html.embed .wa-float,
+html.embed .install-app-btn {
+  display: none !important;
+}
+

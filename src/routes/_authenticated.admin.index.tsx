@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Package, Eye, MessageCircle, Scissors, AlertTriangle, Star } from "lucide-react";
+import { Package, Eye, MessageCircle, Scissors, AlertTriangle, Star, Copy } from "lucide-react";
+import { toast } from "sonner";
 import { getDashboardStats } from "@/lib/admin.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: DashboardPage,
