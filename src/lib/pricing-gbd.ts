@@ -165,16 +165,8 @@ export function calcularProducto(p: ProductoInput): CalculoProducto {
   const cuota3mContado = precioContado / 3; // promo 3 meses a contado (solo asociados)
   const quincenal3mContado = cuota3mContado / 2; // G22
 
-  const planAsociado: PlazoCuota[] = PLAZOS.map((meses) => ({
-    meses,
-    cuotaMensual: precioCreditoAsociado / meses,
-    letraQuincenal: precioCreditoAsociado / meses / 2,
-  }));
-  const planTercero: PlazoCuota[] = PLAZOS.map((meses) => ({
-    meses,
-    cuotaMensual: precioCreditoTercero / meses,
-    letraQuincenal: precioCreditoTercero / meses / 2,
-  }));
+  const planAsociado = construirPlan(precioContado, precioCreditoAsociado);
+  const planTercero = construirPlan(precioContado, precioCreditoTercero);
 
   return {
     precioContado,
