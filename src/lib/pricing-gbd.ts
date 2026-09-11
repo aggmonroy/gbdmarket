@@ -9,7 +9,32 @@ export const MARKUP_CREDITO_TERCERO = 1.48; // P26 = G18*1.48
 export const DESC_MAX_ASOCIADO = 0.1; // N16 tope 10%
 export const DESC_MAX_TERCERO = 0.07; // N22 tope 7%
 export const DESC_MAX_GOBIERNO = 0.1; // tope 10% editable (institucional)
-export const PLAZOS = [4, 6, 8, 10, 12, 18, 24] as const;
+export const PLAZOS = [2, 4, 6, 8, 10, 12, 18, 24] as const;
+
+// ---- Reglas de plazo (asociados, colaboradores y no asociados) ----
+export const MONTO_SOLO_CONTADO = 30; // < 30 → solo contado
+export const MONTO_PLAZO_CORTO = 50; // 30 a < 50 → hasta 2 meses
+export const PLAZO_CORTO_MESES = 2;
+export const TOPE_MESES = 24;
+export const MIN_LETRA_QUINCENAL = 10; // no se muestran letras menores a B/. 10
+
+/** Meses permitidos según el monto de contado y el monto a crédito. */
+export function plazosPermitidos(montoContado: number, montoCredito: number): number[] {
+  if (!(montoContado > 0) || montoContado < MONTO_SOLO_CONTADO) return [];
+  if (montoContado < MONTO_PLAZO_CORTO) return [PLAZO_CORTO_MESES];
+  return PLAZOS.filter(
+    (m) => m > PLAZO_CORTO_MESES && m <= TOPE_MESES && montoCredito / m / 2 >= MIN_LETRA_QUINCENAL,
+  );
+}
+
+function construirPlan(montoContado: number, montoCredito: number): PlazoCuota[] {
+  return plazosPermitidos(montoContado, montoCredito).map((meses) => ({
+    meses,
+    cuotaMensual: montoCredito / meses,
+    letraQuincenal: montoCredito / meses / 2,
+    abonoInicial: montoCredito / meses,
+  }));
+}
 
 export type TipoCliente = "asociado" | "colaborador" | "tercero" | "gobierno";
 
