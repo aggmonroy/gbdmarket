@@ -200,6 +200,8 @@ export interface Totales {
   precioCreditoAsociado: number;
   precioCreditoTercero: number;
   planTotal: PlazoCuota[];
+  /** Monto menor a B/. 30: la cotización se maneja solo al contado. */
+  soloContado: boolean;
 }
 
 export function calcularTotales(calculados: CalculadoProducto[], tipoCliente: TipoCliente): Totales {
