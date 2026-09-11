@@ -31,6 +31,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as CotizacionIdRouteImport } from './routes/cotizacion.$id'
 import { Route as ImprimirIdRouteImport } from './routes/imprimir.$id'
+import { Route as NovedadesIndexRouteImport } from './routes/novedades.index'
 import { Route as NovedadesIdRouteImport } from './routes/novedades.$id'
 import { Route as PedidoNumeroRouteImport } from './routes/pedido.$numero'
 import { Route as ReporteGarantiaIdRouteImport } from './routes/reporte-garantia.$id'
@@ -169,6 +170,11 @@ const ImprimirIdRoute = ImprimirIdRouteImport.update({
   id: '/imprimir/$id',
   path: '/imprimir/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const NovedadesIndexRoute = NovedadesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => NovedadesRoute,
 } as any)
 const NovedadesIdRoute = NovedadesIdRouteImport.update({
   id: '/$id',
@@ -351,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/novedades/$id': typeof NovedadesIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
+  '/novedades/': typeof NovedadesIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
@@ -388,7 +395,6 @@ export interface FileRoutesByTo {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
-  '/novedades': typeof NovedadesRouteWithChildren
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/progreso': typeof ProgresoRoute
@@ -400,6 +406,7 @@ export interface FileRoutesByTo {
   '/novedades/$id': typeof NovedadesIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
+  '/novedades': typeof NovedadesIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
@@ -452,6 +459,7 @@ export interface FileRoutesById {
   '/novedades/$id': typeof NovedadesIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
+  '/novedades/': typeof NovedadesIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
@@ -504,6 +512,7 @@ export interface FileRouteTypes {
     | '/novedades/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
+    | '/novedades/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/auditoria'
@@ -541,7 +550,6 @@ export interface FileRouteTypes {
     | '/linea-blanca'
     | '/mcp'
     | '/modulo-garantias'
-    | '/novedades'
     | '/portal'
     | '/privacidad'
     | '/progreso'
@@ -553,6 +561,7 @@ export interface FileRouteTypes {
     | '/novedades/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
+    | '/novedades'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/auditoria'
@@ -604,6 +613,7 @@ export interface FileRouteTypes {
     | '/novedades/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
+    | '/novedades/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/auditoria'
@@ -815,6 +825,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/imprimir/$id'
       preLoaderRoute: typeof ImprimirIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/novedades/': {
+      id: '/novedades/'
+      path: '/'
+      fullPath: '/novedades/'
+      preLoaderRoute: typeof NovedadesIndexRouteImport
+      parentRoute: typeof NovedadesRoute
     }
     '/novedades/$id': {
       id: '/novedades/$id'
@@ -1072,10 +1089,12 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface NovedadesRouteChildren {
   NovedadesIdRoute: typeof NovedadesIdRoute
+  NovedadesIndexRoute: typeof NovedadesIndexRoute
 }
 
 const NovedadesRouteChildren: NovedadesRouteChildren = {
   NovedadesIdRoute: NovedadesIdRoute,
+  NovedadesIndexRoute: NovedadesIndexRoute,
 }
 
 const NovedadesRouteWithChildren = NovedadesRoute._addFileChildren(
