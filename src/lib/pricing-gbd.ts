@@ -224,7 +224,13 @@ export function calcularTotales(calculados: CalculadoProducto[], tipoCliente: Ti
   const creditoTotal = esAsociado(tipoCliente) ? acc.precioCreditoAsociado : acc.precioCreditoTercero;
   const planTotal = construirPlan(acc.precioContado, creditoTotal);
   const mesesPromo = mesesPromoContado(tipoCliente);
-  return { ...acc, planTotal, mesesPromo, cuotaPromoContado: acc.precioContado / mesesPromo };
+  return {
+    ...acc,
+    planTotal,
+    mesesPromo,
+    cuotaPromoContado: acc.precioContado / mesesPromo,
+    soloContado: acc.precioContado > 0 && acc.precioContado < MONTO_SOLO_CONTADO,
+  };
 }
 
 export const fmt = (n: number) =>
