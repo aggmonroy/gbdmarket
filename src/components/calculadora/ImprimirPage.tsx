@@ -279,18 +279,21 @@ export function ImprimirPage({ id }: { id: string }) {
             <p className="text-2xl font-bold">{fmt(contadoTotal)}</p>
           </div>
 
-          <div>
-            <p className="text-xs uppercase font-bold text-[#68758A] mb-2">Plazos disponibles a crédito (total {fmt(creditoTotal)})</p>
-            <div className="grid grid-cols-2 gap-2">
-              {totales.planTotal.map((row) => (
-                <div key={row.meses} className="border border-[#DBE2EB] rounded-lg px-3 py-2">
-                  <p className="text-xs font-bold text-[#002362]">{row.meses} meses</p>
-                  <p className="text-sm font-bold text-[#002362]">{fmt(row.cuotaMensual)}/mes</p>
-                  <p className="text-[10px] font-bold text-[#68758A]">{fmt(row.letraQuincenal)} quincenal</p>
-                </div>
-              ))}
+          {totales.planTotal.length > 0 && (
+            <div>
+              <p className="text-xs uppercase font-bold text-[#68758A] mb-2">Plazos disponibles a crédito (total {fmt(creditoTotal)})</p>
+              <p className="text-[10px] text-[#8793A5] mb-2">Abono inicial equivalente a una cuota mensual.</p>
+              <div className="grid grid-cols-2 gap-2">
+                {totales.planTotal.map((row) => (
+                  <div key={row.meses} className="border border-[#DBE2EB] rounded-lg px-3 py-2">
+                    <p className="text-xs font-bold text-[#002362]">{row.meses} meses</p>
+                    <p className="text-sm font-bold text-[#002362]">{fmt(row.cuotaMensual)}/mes</p>
+                    <p className="text-[10px] font-bold text-[#68758A]">{fmt(row.letraQuincenal)} quincenal</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {tipo_cliente_asociado && (
             <div className="rounded-xl overflow-hidden border-2 border-[#1F6DD8]">
