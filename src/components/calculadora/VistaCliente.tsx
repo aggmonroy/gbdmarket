@@ -225,6 +225,15 @@ export function VistaCliente({ calculados, totales, tipoCliente, plazoElegido, s
   );
 }
 
+function MiniDato({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-[#F4F9FF] border border-[#E3EFFF] rounded-lg px-2 py-1.5 text-center">
+      <p className="text-[9px] uppercase text-[#68758A] font-bold">{label}</p>
+      <p className="text-xs font-bold text-[#002362]">{value}</p>
+    </div>
+  );
+}
+
 function ClienteLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-2">
