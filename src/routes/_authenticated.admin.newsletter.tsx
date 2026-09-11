@@ -13,6 +13,7 @@ import {
 } from "@/lib/newsletter.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GaleriaUploader } from "@/components/admin/GaleriaUploader";
+import { VideoEmbed, resolverEmbed } from "@/components/site/VideoEmbed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,7 @@ const vacio = {
   cuerpo: "",
   tipo: "promocion",
   image_url: "",
+  video_url: "",
   cta_label: "",
   cta_url: "",
   is_published: false,
@@ -115,6 +117,7 @@ function NewsletterAdmin() {
           cuerpo: form.cuerpo.trim(),
           tipo: form.tipo,
           image_url: form.image_url.trim(),
+          video_url: (form.video_url ?? "").trim(),
           cta_label: form.cta_label.trim(),
           cta_url: form.cta_url.trim(),
           is_published: form.is_published,
@@ -236,6 +239,7 @@ function NewsletterAdmin() {
                         cuerpo: p.cuerpo ?? "",
                         tipo: p.tipo ?? "anuncio",
                         image_url: p.image_url ?? "",
+                        video_url: p.video_url ?? "",
                         cta_label: p.cta_label ?? "",
                         cta_url: p.cta_url ?? "",
                         is_published: !!p.is_published,
@@ -381,6 +385,24 @@ function NewsletterAdmin() {
                 value={form.image_url}
                 onChange={(e) => setForm({ ...form, image_url: e.target.value })}
               />
+            </div>
+            <div className="sm:col-span-2 space-y-2">
+              <Label>Video (YouTube o Instagram)</Label>
+              <Input
+                placeholder="https://www.youtube.com/watch?v=… o https://www.instagram.com/reel/…"
+                value={form.video_url ?? ""}
+                onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Si pegas un video, se mostrará y podrá reproducirse en lugar de la imagen.
+              </p>
+              {resolverEmbed((form.video_url ?? "").trim()) ? (
+                <VideoEmbed url={form.video_url.trim()} titulo={form.titulo} />
+              ) : (form.video_url ?? "").trim() ? (
+                <p className="text-xs text-destructive">
+                  Enlace no reconocido. Usa un enlace de YouTube o de una publicación/reel de Instagram.
+                </p>
+              ) : null}
             </div>
             <div className="space-y-2">
               <Label>Texto del botón</Label>

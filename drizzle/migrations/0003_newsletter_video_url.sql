@@ -1,0 +1,1 @@
+ALTER TABLE public.newsletter_posts ADD COLUMN IF NOT EXISTS video_url text;
