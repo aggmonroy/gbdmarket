@@ -97,6 +97,7 @@ const postSchema = z.object({
   cuerpo: z.string().trim().max(8000).optional().or(z.literal("")),
   tipo: z.enum(["promocion", "anuncio"]).default("anuncio"),
   image_url: z.string().trim().max(800).optional().or(z.literal("")),
+  video_url: z.string().trim().max(800).optional().or(z.literal("")),
   cta_label: z.string().trim().max(60).optional().or(z.literal("")),
   cta_url: z.string().trim().max(800).optional().or(z.literal("")),
   is_published: z.boolean().default(false),
