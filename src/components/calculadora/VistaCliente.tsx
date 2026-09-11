@@ -9,6 +9,7 @@ import {
   type TipoCliente,
   esAsociado,
   etiquetaTipoCliente,
+  MIN_LETRA_QUINCENAL,
 } from "@/lib/pricing-gbd";
 
 interface Props {
