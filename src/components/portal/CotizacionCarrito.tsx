@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AsesorPage } from "@/components/calculadora/AsesorPage";
 import { finalizarSolicitudCotizacion, obtenerSolicitudCotizacion } from "@/lib/cotizaciones-carrito.functions";
-import { DESC_MAX_ASOCIADO, DESC_MAX_TERCERO, type ProductoInput } from "@/lib/pricing-gbd";
+import { DESC_DEFAULT, type ProductoInput } from "@/lib/pricing-gbd";
 
 type Sesion = { token: string; colaborador: { id: string; nombre: string; rol: string } };
 
@@ -60,8 +60,8 @@ export function CotizacionCarrito({
     precioEtiqueta: "",
     flete: "0",
     instalacion: "0",
-    descAsociadoPct: DESC_MAX_ASOCIADO,
-    descTerceroPct: DESC_MAX_TERCERO,
+    descAsociadoPct: DESC_DEFAULT,
+    descTerceroPct: DESC_DEFAULT,
     imagen: i.imagen || "",
     // El modelo y el código del artículo deben quedar visibles en la cotización.
     descripcion: [

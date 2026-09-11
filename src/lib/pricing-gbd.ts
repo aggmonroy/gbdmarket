@@ -7,8 +7,10 @@ export const ITBMS = 0.07; // 7%
 export const MARKUP_CREDITO_ASOCIADO = 1.28; // G26 = G18*1.28
 export const MARKUP_CREDITO_TERCERO = 1.48; // P26 = G18*1.48
 export const DESC_MAX_ASOCIADO = 0.1; // N16 tope 10%
-export const DESC_MAX_TERCERO = 0.07; // N22 tope 7%
+export const DESC_MAX_TERCERO = 0.1; // tope 10% (igual que asociados; el cambio es manual)
 export const DESC_MAX_GOBIERNO = 0.1; // tope 10% editable (institucional)
+/** Contado: si el asesor no ajusta el descuento manualmente se aplica 7%. */
+export const DESC_DEFAULT = 0.07;
 export const PLAZOS = [2, 4, 6, 8, 10, 12, 18, 24] as const;
 
 // ---- Reglas de plazo (asociados, colaboradores y no asociados) ----
@@ -246,8 +248,8 @@ export function nuevoProducto(): ProductoInput {
     precioEtiqueta: "",
     flete: "0",
     instalacion: "0",
-    descAsociadoPct: DESC_MAX_ASOCIADO,
-    descTerceroPct: DESC_MAX_TERCERO,
+    descAsociadoPct: DESC_DEFAULT,
+    descTerceroPct: DESC_DEFAULT,
     imagen: "",
     descripcion: "",
     referencia: "",
