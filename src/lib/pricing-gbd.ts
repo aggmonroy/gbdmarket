@@ -220,11 +220,7 @@ export function calcularTotales(calculados: CalculadoProducto[], tipoCliente: Ti
     acc.precioCreditoTercero += calc.precioCreditoTercero;
   });
   const creditoTotal = esAsociado(tipoCliente) ? acc.precioCreditoAsociado : acc.precioCreditoTercero;
-  const planTotal: PlazoCuota[] = PLAZOS.map((meses) => ({
-    meses,
-    cuotaMensual: creditoTotal / meses,
-    letraQuincenal: creditoTotal / meses / 2,
-  }));
+  const planTotal = construirPlan(acc.precioContado, creditoTotal);
   const mesesPromo = mesesPromoContado(tipoCliente);
   return { ...acc, planTotal, mesesPromo, cuotaPromoContado: acc.precioContado / mesesPromo };
 }
