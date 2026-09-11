@@ -115,6 +115,8 @@ export interface PlazoCuota {
   meses: number;
   cuotaMensual: number;
   letraQuincenal: number;
+  /** El abono inicial equivale a una cuota mensual. */
+  abonoInicial?: number;
 }
 
 export interface CalculoProducto {
