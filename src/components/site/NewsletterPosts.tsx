@@ -4,6 +4,7 @@ import { Megaphone, Tag } from "lucide-react";
 import { listarNewsletterPublicado } from "@/lib/newsletter.functions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { VideoEmbed, resolverEmbed } from "@/components/site/VideoEmbed";
 
 export function NewsletterPosts() {
   const listFn = useServerFn(listarNewsletterPublicado);
@@ -24,13 +25,17 @@ export function NewsletterPosts() {
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {posts.map((p: any) => (
         <article key={p.id} className="overflow-hidden rounded-2xl border border-border bg-card">
-          {p.image_url && (
-            <img
-              src={p.image_url}
-              alt={p.titulo}
-              loading="lazy"
-              className="h-44 w-full object-cover"
-            />
+          {resolverEmbed(p.video_url ?? "") ? (
+            <VideoEmbed url={p.video_url} titulo={p.titulo} />
+          ) : (
+            p.image_url && (
+              <img
+                src={p.image_url}
+                alt={p.titulo}
+                loading="lazy"
+                className="h-44 w-full object-cover"
+              />
+            )
           )}
           <div className="p-5">
             <Badge variant={p.tipo === "promocion" ? "default" : "secondary"} className="gap-1">

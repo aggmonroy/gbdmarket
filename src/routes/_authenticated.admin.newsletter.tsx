@@ -46,6 +46,7 @@ const vacio = {
   cuerpo: "",
   tipo: "promocion",
   image_url: "",
+  video_url: "",
   cta_label: "",
   cta_url: "",
   is_published: false,

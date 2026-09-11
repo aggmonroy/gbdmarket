@@ -64,7 +64,7 @@ export const suscribirNewsletter = createServerFn({ method: "POST" })
 export const listarNewsletterPublicado = createServerFn({ method: "GET" }).handler(async () => {
   const { data } = await publicClient()
     .from("newsletter_posts")
-    .select("id, titulo, resumen, cuerpo, tipo, image_url, cta_label, cta_url, published_at")
+    .select("id, titulo, resumen, cuerpo, tipo, image_url, video_url, cta_label, cta_url, published_at")
     .eq("is_published", true)
     .order("published_at", { ascending: false, nullsFirst: false })
     .limit(50);
@@ -116,6 +116,7 @@ export const guardarNewsletterPost = createServerFn({ method: "POST" })
       cuerpo: data.cuerpo || null,
       tipo: data.tipo,
       image_url: data.image_url || null,
+      video_url: data.video_url || null,
       cta_label: data.cta_label || null,
       cta_url: data.cta_url || null,
       is_published: data.is_published,
