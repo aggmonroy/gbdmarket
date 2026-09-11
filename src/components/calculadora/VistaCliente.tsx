@@ -104,8 +104,19 @@ export function VistaCliente({ calculados, totales, tipoCliente, plazoElegido, s
 
       <div className="bg-white rounded-xl border border-[#DBE2EB] p-5">
         <p className="text-xs uppercase tracking-wide text-[#68758A] font-bold mb-1">Plazos disponibles a crédito</p>
+        {totales.planTotal.length === 0 ? (
+          <p className="text-xs text-[#535E6F]">
+            {totales.soloContado
+              ? "Esta cotización se maneja únicamente con precio de contado."
+              : "No hay plazos disponibles para este monto: la letra quincenal mínima es de " +
+                fmt(MIN_LETRA_QUINCENAL) +
+                "."}
+          </p>
+        ) : (
+        <>
         <p className="text-[10px] text-[#8793A5] mb-3">
-          Total a crédito: {fmt(creditoTotal)} · toca un plazo para ver el desglose por producto
+          Total a crédito: {fmt(creditoTotal)} · abono inicial equivalente a una cuota mensual · toca un plazo para ver
+          el desglose por artículo
         </p>
 
         <div className="space-y-1.5 mb-1">
