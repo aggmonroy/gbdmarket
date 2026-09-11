@@ -29,6 +29,16 @@ export function VistaCliente({ calculados, totales, tipoCliente, plazoElegido, s
   const contadoTotal = esAsociado(tipoCliente) ? totales.promoAsociado : totales.promoTercero;
   const tieneCliente = !!cliente && Object.values(cliente).some((v) => (v ?? "").toString().trim() !== "");
 
+  // Si el plazo elegido ya no está disponible por las reglas de monto, se ajusta al primero válido.
+  const plazosOk = totales.planTotal.map((r) => r.meses).join(",");
+  useEffect(() => {
+    if (totales.planTotal.length === 0) return;
+    if (!totales.planTotal.some((r) => r.meses === plazoElegido)) {
+      setPlazoElegido(totales.planTotal[0]!.meses);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plazosOk, plazoElegido]);
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-center gap-2 bg-[#E3EFFF] border border-[#BFD6F5] text-[#0C4C9E] rounded-full py-2 px-4 text-xs font-bold">
