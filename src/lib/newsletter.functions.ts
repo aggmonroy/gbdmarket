@@ -66,7 +66,7 @@ export const listarNewsletterPublicado = createServerFn({ method: "GET" }).handl
     .from("newsletter_posts")
     .select("id, titulo, resumen, cuerpo, tipo, image_url, video_url, cta_label, cta_url, published_at")
     .eq("is_published", true)
-    .order("published_at", { ascending: false, nullsFirst: false })
+    .order("published_at", { ascending: true, nullsFirst: false })
     .limit(50);
   return data ?? [];
 });
