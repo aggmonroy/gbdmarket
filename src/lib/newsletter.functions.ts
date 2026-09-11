@@ -71,6 +71,20 @@ export const listarNewsletterPublicado = createServerFn({ method: "GET" }).handl
   return data ?? [];
 });
 
+/** Una publicación pública por su enlace individual. */
+export const obtenerNewsletterPublicado = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data: input }) => {
+    const { data, error } = await publicClient()
+      .from("newsletter_posts")
+      .select("id, titulo, resumen, cuerpo, tipo, image_url, video_url, cta_label, cta_url, published_at")
+      .eq("id", input.id)
+      .eq("is_published", true)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
 export const listarNewsletterAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
