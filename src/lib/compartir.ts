@@ -22,3 +22,20 @@ export async function compartirProducto(p: { id: string; name: string; brand?: s
     toast.error("No se pudo compartir el enlace");
   }
 }
+
+/** Comparte el enlace individual de una publicación del boletín. */
+export async function compartirNewsletter(p: { id: string; titulo: string; resumen?: string | null }) {
+  const base = typeof window !== "undefined" ? window.location.origin : "";
+  const url = `${base}/novedades/${encodeURIComponent(p.id)}`;
+  try {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      await navigator.share({ title: p.titulo, text: p.resumen || p.titulo, url });
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+    toast.success("Enlace de la publicación copiado");
+  } catch (e: any) {
+    if (e?.name === "AbortError") return;
+    toast.error("No se pudo compartir el enlace");
+  }
+}

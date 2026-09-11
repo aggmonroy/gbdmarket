@@ -1,7 +1,9 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Megaphone, Tag } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ExternalLink, Megaphone, Share2, Tag } from "lucide-react";
 import { listarNewsletterPublicado } from "@/lib/newsletter.functions";
+import { compartirNewsletter } from "@/lib/compartir";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VideoEmbed, resolverEmbed } from "@/components/site/VideoEmbed";
@@ -68,13 +70,28 @@ export function NewsletterPosts() {
               {p.cuerpo && (
                 <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-foreground/90">{p.cuerpo}</p>
               )}
-              {p.cta_url && (
-                <Button asChild size="sm" className="mt-5 w-fit">
-                  <a href={p.cta_url} target="_blank" rel="noreferrer">
-                    {p.cta_label || "Ver más"}
-                  </a>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Button asChild size="sm">
+                  <Link to="/novedades/$id" params={{ id: p.id }}>
+                    <ExternalLink /> Abrir publicación
+                  </Link>
                 </Button>
-              )}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => compartirNewsletter({ id: p.id, titulo: p.titulo, resumen: p.resumen })}
+                >
+                  <Share2 /> Compartir
+                </Button>
+                {p.cta_url && (
+                  <Button asChild size="sm" variant="secondary">
+                    <a href={p.cta_url} target="_blank" rel="noreferrer">
+                      {p.cta_label || "Ver más"}
+                    </a>
+                  </Button>
+                )}
+              </div>
             </div>
 
             {hasVisual && (

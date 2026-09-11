@@ -31,6 +31,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as CotizacionIdRouteImport } from './routes/cotizacion.$id'
 import { Route as ImprimirIdRouteImport } from './routes/imprimir.$id'
+import { Route as NovedadesIdRouteImport } from './routes/novedades.$id'
 import { Route as PedidoNumeroRouteImport } from './routes/pedido.$numero'
 import { Route as ReporteGarantiaIdRouteImport } from './routes/reporte-garantia.$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -168,6 +169,11 @@ const ImprimirIdRoute = ImprimirIdRouteImport.update({
   id: '/imprimir/$id',
   path: '/imprimir/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const NovedadesIdRoute = NovedadesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => NovedadesRoute,
 } as any)
 const PedidoNumeroRoute = PedidoNumeroRouteImport.update({
   id: '/pedido/$numero',
@@ -332,7 +338,7 @@ export interface FileRoutesByFullPath {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
-  '/novedades': typeof NovedadesRoute
+  '/novedades': typeof NovedadesRouteWithChildren
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/progreso': typeof ProgresoRoute
@@ -342,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/cotizacion/$id': typeof CotizacionIdRoute
   '/imprimir/$id': typeof ImprimirIdRoute
+  '/novedades/$id': typeof NovedadesIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -381,7 +388,7 @@ export interface FileRoutesByTo {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
-  '/novedades': typeof NovedadesRoute
+  '/novedades': typeof NovedadesRouteWithChildren
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/progreso': typeof ProgresoRoute
@@ -390,6 +397,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/cotizacion/$id': typeof CotizacionIdRoute
   '/imprimir/$id': typeof ImprimirIdRoute
+  '/novedades/$id': typeof NovedadesIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -431,7 +439,7 @@ export interface FileRoutesById {
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
   '/modulo-garantias': typeof ModuloGarantiasRoute
-  '/novedades': typeof NovedadesRoute
+  '/novedades': typeof NovedadesRouteWithChildren
   '/portal': typeof PortalRoute
   '/privacidad': typeof PrivacidadRoute
   '/progreso': typeof ProgresoRoute
@@ -441,6 +449,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/cotizacion/$id': typeof CotizacionIdRoute
   '/imprimir/$id': typeof ImprimirIdRoute
+  '/novedades/$id': typeof NovedadesIdRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/reporte-garantia/$id': typeof ReporteGarantiaIdRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -492,6 +501,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cotizacion/$id'
     | '/imprimir/$id'
+    | '/novedades/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -540,6 +550,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/cotizacion/$id'
     | '/imprimir/$id'
+    | '/novedades/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -590,6 +601,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/cotizacion/$id'
     | '/imprimir/$id'
+    | '/novedades/$id'
     | '/pedido/$numero'
     | '/reporte-garantia/$id'
     | '/.lovable/oauth/consent'
@@ -631,7 +643,7 @@ export interface RootRouteChildren {
   LineaBlancaRoute: typeof LineaBlancaRoute
   McpRoute: typeof McpRoute
   ModuloGarantiasRoute: typeof ModuloGarantiasRoute
-  NovedadesRoute: typeof NovedadesRoute
+  NovedadesRoute: typeof NovedadesRouteWithChildren
   PortalRoute: typeof PortalRoute
   PrivacidadRoute: typeof PrivacidadRoute
   ProgresoRoute: typeof ProgresoRoute
@@ -803,6 +815,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/imprimir/$id'
       preLoaderRoute: typeof ImprimirIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/novedades/$id': {
+      id: '/novedades/$id'
+      path: '/$id'
+      fullPath: '/novedades/$id'
+      preLoaderRoute: typeof NovedadesIdRouteImport
+      parentRoute: typeof NovedadesRoute
     }
     '/pedido/$numero': {
       id: '/pedido/$numero'
@@ -1051,6 +1070,18 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface NovedadesRouteChildren {
+  NovedadesIdRoute: typeof NovedadesIdRoute
+}
+
+const NovedadesRouteChildren: NovedadesRouteChildren = {
+  NovedadesIdRoute: NovedadesIdRoute,
+}
+
+const NovedadesRouteWithChildren = NovedadesRoute._addFileChildren(
+  NovedadesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
@@ -1064,7 +1095,7 @@ const rootRouteChildren: RootRouteChildren = {
   LineaBlancaRoute: LineaBlancaRoute,
   McpRoute: McpRoute,
   ModuloGarantiasRoute: ModuloGarantiasRoute,
-  NovedadesRoute: NovedadesRoute,
+  NovedadesRoute: NovedadesRouteWithChildren,
   PortalRoute: PortalRoute,
   PrivacidadRoute: PrivacidadRoute,
   ProgresoRoute: ProgresoRoute,
