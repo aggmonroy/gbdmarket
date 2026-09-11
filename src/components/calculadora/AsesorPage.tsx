@@ -320,6 +320,13 @@ export function AsesorPage({
                 <span className="font-bold text-[#F4F9FF]">{fmt(creditoTotal)}</span>
               </p>
 
+              {totales.planTotal.length === 0 && (
+                <p className="text-[11px] text-[#F4F9FF] mb-2">
+                  {totales.soloContado
+                    ? "Monto menor a B/. 30.00: solo precio de contado."
+                    : "Sin plazos válidos: la letra quincenal mínima es B/. 10.00."}
+                </p>
+              )}
               <div className="grid grid-cols-4 gap-2">
                 {totales.planTotal.map((row) => (
                   <div key={row.meses} className="bg-[#003581] rounded-lg px-2 py-2 text-center">
