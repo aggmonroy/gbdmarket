@@ -13,6 +13,7 @@ import {
 } from "@/lib/newsletter.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GaleriaUploader } from "@/components/admin/GaleriaUploader";
+import { VideoEmbed, resolverEmbed } from "@/components/site/VideoEmbed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
