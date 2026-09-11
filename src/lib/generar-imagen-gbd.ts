@@ -306,10 +306,21 @@ export async function generarImagenCotizacion({
   ctx.fillText(fmt(contadoTotal), 60, y + 68);
   y += 116;
 
-  ctx.fillStyle = "#002362";
-  ctx.font = "bold 16px Arial";
-  ctx.fillText(`Plazos disponibles a crédito (total ${fmt(creditoTotal)})`, 40, y);
-  y += 16;
+  if (planTotal.length > 0) {
+    ctx.fillStyle = "#002362";
+    ctx.font = "bold 16px Arial";
+    ctx.fillText(`Plazos disponibles a crédito (total ${fmt(creditoTotal)})`, 40, y);
+    y += 6;
+    ctx.fillStyle = "#68758A";
+    ctx.font = "11px Arial";
+    ctx.fillText("Abono inicial equivalente a una cuota mensual.", 40, y + 14);
+    y += 22;
+  } else {
+    ctx.fillStyle = "#002362";
+    ctx.font = "bold 14px Arial";
+    ctx.fillText("Esta cotización se maneja únicamente con precio de contado.", 40, y);
+    y += 16;
+  }
 
   const colW = 770 / 2;
   planTotal.forEach((row, idx) => {

@@ -9,7 +9,32 @@ export const MARKUP_CREDITO_TERCERO = 1.48; // P26 = G18*1.48
 export const DESC_MAX_ASOCIADO = 0.1; // N16 tope 10%
 export const DESC_MAX_TERCERO = 0.07; // N22 tope 7%
 export const DESC_MAX_GOBIERNO = 0.1; // tope 10% editable (institucional)
-export const PLAZOS = [4, 6, 8, 10, 12, 18, 24] as const;
+export const PLAZOS = [2, 4, 6, 8, 10, 12, 18, 24] as const;
+
+// ---- Reglas de plazo (asociados, colaboradores y no asociados) ----
+export const MONTO_SOLO_CONTADO = 30; // < 30 → solo contado
+export const MONTO_PLAZO_CORTO = 50; // 30 a < 50 → hasta 2 meses
+export const PLAZO_CORTO_MESES = 2;
+export const TOPE_MESES = 24;
+export const MIN_LETRA_QUINCENAL = 10; // no se muestran letras menores a B/. 10
+
+/** Meses permitidos según el monto de contado y el monto a crédito. */
+export function plazosPermitidos(montoContado: number, montoCredito: number): number[] {
+  if (!(montoContado > 0) || montoContado < MONTO_SOLO_CONTADO) return [];
+  if (montoContado < MONTO_PLAZO_CORTO) return [PLAZO_CORTO_MESES];
+  return PLAZOS.filter(
+    (m) => m > PLAZO_CORTO_MESES && m <= TOPE_MESES && montoCredito / m / 2 >= MIN_LETRA_QUINCENAL,
+  );
+}
+
+function construirPlan(montoContado: number, montoCredito: number): PlazoCuota[] {
+  return plazosPermitidos(montoContado, montoCredito).map((meses) => ({
+    meses,
+    cuotaMensual: montoCredito / meses,
+    letraQuincenal: montoCredito / meses / 2,
+    abonoInicial: montoCredito / meses,
+  }));
+}
 
 export type TipoCliente = "asociado" | "colaborador" | "tercero" | "gobierno";
 
@@ -90,6 +115,8 @@ export interface PlazoCuota {
   meses: number;
   cuotaMensual: number;
   letraQuincenal: number;
+  /** El abono inicial equivale a una cuota mensual. */
+  abonoInicial?: number;
 }
 
 export interface CalculoProducto {
@@ -138,16 +165,8 @@ export function calcularProducto(p: ProductoInput): CalculoProducto {
   const cuota3mContado = precioContado / 3; // promo 3 meses a contado (solo asociados)
   const quincenal3mContado = cuota3mContado / 2; // G22
 
-  const planAsociado: PlazoCuota[] = PLAZOS.map((meses) => ({
-    meses,
-    cuotaMensual: precioCreditoAsociado / meses,
-    letraQuincenal: precioCreditoAsociado / meses / 2,
-  }));
-  const planTercero: PlazoCuota[] = PLAZOS.map((meses) => ({
-    meses,
-    cuotaMensual: precioCreditoTercero / meses,
-    letraQuincenal: precioCreditoTercero / meses / 2,
-  }));
+  const planAsociado = construirPlan(precioContado, precioCreditoAsociado);
+  const planTercero = construirPlan(precioContado, precioCreditoTercero);
 
   return {
     precioContado,
@@ -181,6 +200,8 @@ export interface Totales {
   precioCreditoAsociado: number;
   precioCreditoTercero: number;
   planTotal: PlazoCuota[];
+  /** Monto menor a B/. 30: la cotización se maneja solo al contado. */
+  soloContado: boolean;
 }
 
 export function calcularTotales(calculados: CalculadoProducto[], tipoCliente: TipoCliente): Totales {
@@ -201,13 +222,15 @@ export function calcularTotales(calculados: CalculadoProducto[], tipoCliente: Ti
     acc.precioCreditoTercero += calc.precioCreditoTercero;
   });
   const creditoTotal = esAsociado(tipoCliente) ? acc.precioCreditoAsociado : acc.precioCreditoTercero;
-  const planTotal: PlazoCuota[] = PLAZOS.map((meses) => ({
-    meses,
-    cuotaMensual: creditoTotal / meses,
-    letraQuincenal: creditoTotal / meses / 2,
-  }));
+  const planTotal = construirPlan(acc.precioContado, creditoTotal);
   const mesesPromo = mesesPromoContado(tipoCliente);
-  return { ...acc, planTotal, mesesPromo, cuotaPromoContado: acc.precioContado / mesesPromo };
+  return {
+    ...acc,
+    planTotal,
+    mesesPromo,
+    cuotaPromoContado: acc.precioContado / mesesPromo,
+    soloContado: acc.precioContado > 0 && acc.precioContado < MONTO_SOLO_CONTADO,
+  };
 }
 
 export const fmt = (n: number) =>
