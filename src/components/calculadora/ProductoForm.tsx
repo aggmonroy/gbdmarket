@@ -170,6 +170,9 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
                 )}
               </span>
             </div>
+            <p className="text-[9px] text-[#8793A5] mt-1">
+              Por defecto 7%. El ajuste es manual, hasta un tope del 10%.
+            </p>
             <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
               <Row
                 label="Precio promocional a pagar"

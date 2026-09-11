@@ -28,7 +28,7 @@ export function SiteFooter() {
 
   if (socio) {
     return (
-      <footer className="mt-24 border-t border-border bg-primary text-primary-foreground">
+      <footer className="site-footer mt-24 border-t border-border bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 lg:px-8 py-10 grid gap-8 md:grid-cols-2">
           <div>
             <div className="font-display text-lg font-bold">{socio.nombre}</div>
@@ -61,7 +61,7 @@ export function SiteFooter() {
   }
 
   return (
-    <footer className="mt-14 border-t border-border bg-primary text-primary-foreground">
+    <footer className="site-footer mt-14 border-t border-border bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 lg:px-8 py-8 grid gap-6 md:grid-cols-4">
         <div>
           <div className="font-display text-lg font-bold">{siteName}</div>

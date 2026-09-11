@@ -16,7 +16,7 @@ export function WhatsAppFloat() {
   const socio = useSocioActivo();
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+    <div className="wa-float fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
       {open && !socio && (
         <div className="w-72 rounded-xl bg-card text-card-foreground shadow-elevated border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2">
           <div className="bg-gradient-primary px-4 py-3 text-primary-foreground">
