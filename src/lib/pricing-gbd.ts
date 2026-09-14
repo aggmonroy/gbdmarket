@@ -24,8 +24,10 @@ export const MIN_LETRA_QUINCENAL = 10; // no se muestran letras menores a B/. 10
 export function plazosPermitidos(montoContado: number, montoCredito: number): number[] {
   if (!(montoContado > 0) || montoContado < MONTO_SOLO_CONTADO) return [];
   if (montoContado < MONTO_PLAZO_CORTO) return [PLAZO_CORTO_MESES];
+  // Se incluyen todos los plazos (desde 2 meses) cuya letra quincenal
+  // cumpla el mínimo de B/. 10; así montos apenas sobre B/. 50 sí ofrecen crédito.
   return PLAZOS.filter(
-    (m) => m > PLAZO_CORTO_MESES && m <= TOPE_MESES && montoCredito / m / 2 >= MIN_LETRA_QUINCENAL,
+    (m) => m >= PLAZO_CORTO_MESES && m <= TOPE_MESES && montoCredito / m / 2 >= MIN_LETRA_QUINCENAL,
   );
 }
 
