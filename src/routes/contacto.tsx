@@ -22,7 +22,7 @@ const HORARIO_MUEBLERIA = "Lunes a sábado de 8:00 AM a 5:00 PM";
 const HORARIO_COOP = "Lunes a viernes de 8:00 AM a 4:00 PM · Sábados de 8:00 AM a 12:00 PM";
 
 const MUEBLERIA: ContactoCanal[] = [
-  { title: "Mueblería GBD Las Tablas", wa: "50767841941", horario: HORARIO_MUEBLERIA },
+  { title: "Mueblería GBD Las Tablas", wa: "50767841941", horario: HORARIO_MUEBLERIA, permiteAdjunto: true },
   { title: "Mueblería GBD · Sucursal Tonosí", wa: "50768711242", horario: HORARIO_COOP },
   { title: "Bordados", wa: "50768298538", horario: HORARIO_MUEBLERIA },
 ];

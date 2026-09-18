@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DataConsent } from "@/components/site/DataConsent";
 import { uploadPublicAttachment } from "@/lib/uploads.functions";
-import { fileToBase64, formatFileSize, PUBLIC_ATTACHMENT_MAX_BYTES } from "@/lib/file-upload-client";
+import { contentTypeForFile, fileToBase64, formatFileSize, PUBLIC_ATTACHMENT_MAX_BYTES } from "@/lib/file-upload-client";
 
 export type ContactoCanal = {
   title: string;
@@ -48,7 +48,7 @@ export function ContactoWaDialog({
           data: {
             folder: "contacto",
             filename: archivo.name,
-            contentType: archivo.type || "application/octet-stream",
+            contentType: contentTypeForFile(archivo),
             base64,
           },
         });
