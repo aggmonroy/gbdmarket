@@ -12,6 +12,8 @@ import { PromosBanner } from "@/components/site/PromosBanner";
 import { BordadoPolicyDialogLink, SHORT_BORDADO_NOTICE } from "@/components/site/BordadoPolicy";
 import { InstallAppButton } from "@/components/site/InstallAppButton";
 import { InstagramDuo } from "@/components/site/InstagramDuo";
+import { YappyPaymentDialog } from "@/components/site/YappyPaymentDialog";
+import yappyLogoAsset from "@/assets/yappy-logo.png.asset.json";
 
 
 
@@ -22,6 +24,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Muebles, electrodomésticos, tecnología y bordados con respaldo cooperativo desde 1961. Cotizaciones personalizadas por WhatsApp." },
       { property: "og:title", content: "Línea Blanca y Bordados GBD" },
       { property: "og:description", content: "Inspiración para crear el hogar que siempre has soñado." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
@@ -136,6 +140,7 @@ function Home() {
 function HeroFused() {
   const items = useGallerySection("home.gallery", FALLBACK_AMBIENT);
   const [i, setI] = useState(0);
+  const [yappyOpen, setYappyOpen] = useState(false);
 
   const next = useCallback(() => setI((p) => (p + 1) % Math.max(items.length, 1)), [items.length]);
   const prev = () => setI((p) => (p - 1 + items.length) % items.length);
@@ -191,14 +196,24 @@ function HeroFused() {
               Solo ilustrativa — no realizamos trabajos de construcción ni acabados.
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link to="/catalogo" className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 shadow-glow transition">
                 Ver Catálogo <ArrowRight className="h-4 w-4" />
               </Link>
+              <button
+                type="button"
+                onClick={() => setYappyOpen(true)}
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white px-5 py-2 text-sm font-bold text-slate-900 shadow-glow transition hover:bg-sky-50"
+              >
+                <img src={yappyLogoAsset.url} alt="Yappy" className="h-7 w-auto object-contain" />
+                Registrar pago por Yappy
+              </button>
             </div>
 
 
           </div>
+
+          <YappyPaymentDialog open={yappyOpen} onOpenChange={setYappyOpen} />
 
           {/* Info cards */}
           {/* Info cards — 3 columns, uniform height, clamped text */}
