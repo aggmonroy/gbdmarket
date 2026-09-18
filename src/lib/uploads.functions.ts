@@ -25,20 +25,26 @@ const fileSchema = z.object({
   base64: z.string().min(1).max(36_000_000), // ~26 MB decodificados
 });
 
-const publicFileSchema = z.object({
-  folder: z.enum(["contacto", "yappy"]),
-  filename: z.string().min(1).max(200),
-  contentType: z
-    .string()
-    .min(1)
-    .max(160)
-    .refine(
-      (t) =>
-        /^(image\/(png|jpe?g|webp|heic|heif)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|application\/vnd\.ms-excel|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet)$/i.test(t),
-      "Formato permitido: imagen, PDF, Word o Excel",
-    ),
-  base64: z.string().min(1).max(36_000_000), // ~26 MB decodificados
-});
+const publicFileSchema = z
+  .object({
+    folder: z.enum(["contacto", "yappy"]),
+    filename: z.string().min(1).max(200),
+    contentType: z
+      .string()
+      .min(1)
+      .max(160)
+      .refine(
+        (t) =>
+          /^(image\/(png|jpe?g|webp|heic|heif)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|application\/vnd\.ms-excel|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet)$/i.test(t),
+        "Formato permitido: imagen, PDF, Word o Excel",
+      ),
+    base64: z.string().min(1).max(36_000_000), // ~26 MB decodificados
+  })
+  .superRefine((data, ctx) => {
+    if (data.folder === "yappy" && !/^image\//i.test(data.contentType)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["contentType"], message: "El comprobante de Yappy debe ser una imagen" });
+    }
+  });
 
 async function guardar(
   data: { bucket: string; filename: string; contentType: string; base64: string },
