@@ -62,6 +62,7 @@ export const finalizarSolicitudCotizacionSchema = z.object({
   productos: z
     .array(
       z.object({
+        catalogProductId: z.string().uuid().optional(),
         nombre: z.string().trim().max(200),
         precioProveedor: z.union([z.string(), z.number()]).optional(),
         precioEtiqueta: z.union([z.string(), z.number()]).optional(),

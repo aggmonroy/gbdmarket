@@ -2,6 +2,28 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { admin, verifySesion } from "./garantias.server";
 
+const precioCotizacionProductoSchema = z.object({
+  token: z.string().min(1),
+  productos: z
+    .array(
+      z.object({
+        catalogProductId: z.string().uuid().optional(),
+        precioProveedor: z.union([z.string(), z.number()]).optional(),
+        precioEtiqueta: z.union([z.string(), z.number()]).optional(),
+        flete: z.union([z.string(), z.number()]).optional(),
+        instalacion: z.union([z.string(), z.number()]).optional(),
+      }),
+    )
+    .min(1)
+    .max(30),
+});
+
+function numeroEditable(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
 const productoPortalSchema = z.object({
   token: z.string().min(1),
   id: z.string().uuid().optional(),
@@ -14,6 +36,10 @@ const productoPortalSchema = z.object({
   features: z.array(z.string().max(300)).max(40).optional(),
   price_cash: z.number().nonnegative(),
   price_financed: z.number().nonnegative().nullable().optional(),
+  quote_price_provider: z.number().nonnegative().nullable().optional(),
+  quote_price_label: z.number().nonnegative().nullable().optional(),
+  quote_freight: z.number().nonnegative().nullable().optional(),
+  quote_installation: z.number().nonnegative().nullable().optional(),
   disponibilidad: z.enum(["en_stock", "bajo_pedido"]).default("en_stock"),
   images: z.array(z.string().max(2000)).max(10).optional(),
   datasheet_url: z.string().trim().max(2000).optional().or(z.literal("")),
@@ -32,7 +58,7 @@ export const listCatalogoPortal = createServerFn({ method: "POST" })
       (async () => {
         let q: any = sb
           .from("products")
-          .select("id,name,brand,model,code,category_id,price_cash,disponibilidad,is_published,images,created_at")
+          .select("id,name,brand,model,code,category_id,price_cash,disponibilidad,is_published,images,created_at,quote_price_provider,quote_price_label,quote_freight,quote_installation,quote_prices_updated_at")
           .order("created_at", { ascending: false })
           .limit(300);
         if (data.q) q = q.or(`name.ilike.%${data.q}%,brand.ilike.%${data.q}%,code.ilike.%${data.q}%`);
@@ -61,6 +87,10 @@ export const guardarProductoPortal = createServerFn({ method: "POST" })
       features: rest.features ?? [],
       price_cash: rest.price_cash,
       price_financed: rest.price_financed ?? null,
+      quote_price_provider: rest.quote_price_provider ?? null,
+      quote_price_label: rest.quote_price_label ?? null,
+      quote_freight: rest.quote_freight ?? null,
+      quote_installation: rest.quote_installation ?? null,
       disponibilidad: rest.disponibilidad,
       stock: rest.disponibilidad === "en_stock" ? 1 : 0,
       images: rest.images ?? [],
@@ -104,7 +134,7 @@ export const buscarProductosCotizacion = createServerFn({ method: "POST" })
     const sb = await admin();
     let q: any = sb
       .from("products")
-      .select("id,name,brand,model,code,description,images,price_cash,categories(slug,name)")
+      .select("id,name,brand,model,code,description,images,price_cash,quote_price_provider,quote_price_label,quote_freight,quote_installation,categories(slug,name)")
       .eq("is_published", true)
       .order("name")
       .limit(60);
@@ -123,10 +153,42 @@ export const buscarProductosCotizacion = createServerFn({ method: "POST" })
         description: p.description ? String(p.description).slice(0, 220) : null,
         images: p.images ?? [],
         price_cash: p.price_cash ?? null,
+        quote_price_provider: p.quote_price_provider ?? null,
+        quote_price_label: p.quote_price_label ?? null,
+        quote_freight: p.quote_freight ?? null,
+        quote_installation: p.quote_installation ?? null,
         categoria: p.categories?.name ?? null,
         es_bordado: p.categories?.slug === "bordados",
       }))
       .filter((p: any) => (data.incluir_bordados ? true : !p.es_bordado));
 
     return { productos };
+  });
+
+/** Guarda precios internos usados en cotización para reutilizarlos luego. */
+export const guardarPreciosCotizacionProductos = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => precioCotizacionProductoSchema.parse(d))
+  .handler(async ({ data }) => {
+    const s = await verifySesion(data.token);
+    if (s.rol === "gerente") throw new Error("La gerencia tiene acceso de solo lectura");
+    const sb = await admin();
+    const idsActualizados: string[] = [];
+
+    for (const producto of data.productos) {
+      if (!producto.catalogProductId) continue;
+      const payload = {
+        quote_price_provider: numeroEditable(producto.precioProveedor),
+        quote_price_label: numeroEditable(producto.precioEtiqueta),
+        quote_freight: numeroEditable(producto.flete),
+        quote_installation: numeroEditable(producto.instalacion),
+        quote_prices_updated_at: new Date().toISOString(),
+      };
+      const tienePrecio = Object.values(payload).some((v, idx) => idx < 4 && v !== null);
+      if (!tienePrecio) continue;
+      const { error } = await sb.from("products").update(payload).eq("id", producto.catalogProductId);
+      if (error) throw new Error(error.message);
+      idsActualizados.push(producto.catalogProductId);
+    }
+
+    return { updated: idsActualizados.length };
   });

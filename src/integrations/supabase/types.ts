@@ -1123,6 +1123,11 @@ export type Database = {
           price_cash: number
           price_financed: number | null
           quote_count: number
+          quote_freight: number | null
+          quote_installation: number | null
+          quote_price_label: number | null
+          quote_price_provider: number | null
+          quote_prices_updated_at: string | null
           stock: number
           updated_at: string
           views_count: number
@@ -1149,6 +1154,11 @@ export type Database = {
           price_cash?: number
           price_financed?: number | null
           quote_count?: number
+          quote_freight?: number | null
+          quote_installation?: number | null
+          quote_price_label?: number | null
+          quote_price_provider?: number | null
+          quote_prices_updated_at?: string | null
           stock?: number
           updated_at?: string
           views_count?: number
@@ -1175,6 +1185,11 @@ export type Database = {
           price_cash?: number
           price_financed?: number | null
           quote_count?: number
+          quote_freight?: number | null
+          quote_installation?: number | null
+          quote_price_label?: number | null
+          quote_price_provider?: number | null
+          quote_prices_updated_at?: string | null
           stock?: number
           updated_at?: string
           views_count?: number

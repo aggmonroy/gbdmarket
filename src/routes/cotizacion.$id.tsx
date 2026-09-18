@@ -9,6 +9,8 @@ export const Route = createFileRoute("/cotizacion/$id")({
       { name: "description", content: "Cotización de productos de Línea Blanca de la Cooperativa Gladys B. de Ducasa R.L. — válida por 30 días." },
       { property: "og:title", content: "Tu cotización de Línea Blanca" },
       { property: "og:description", content: "Consulta tu cotización con cuotas mensuales y quincenales." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

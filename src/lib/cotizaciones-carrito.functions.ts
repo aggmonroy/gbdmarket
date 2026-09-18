@@ -15,6 +15,29 @@ const ETIQUETA_TIPO: Record<string, string> = {
   gobierno: "Instituciones Gubernamentales",
 };
 
+function numeroEditable(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+async function guardarPreciosProductosCotizados(sb: Awaited<ReturnType<typeof admin>>, productos: any[]) {
+  for (const producto of productos) {
+    if (!producto.catalogProductId) continue;
+    const payload = {
+      quote_price_provider: numeroEditable(producto.precioProveedor),
+      quote_price_label: numeroEditable(producto.precioEtiqueta),
+      quote_freight: numeroEditable(producto.flete),
+      quote_installation: numeroEditable(producto.instalacion),
+      quote_prices_updated_at: new Date().toISOString(),
+    };
+    const tienePrecio = Object.values(payload).some((v, idx) => idx < 4 && v !== null);
+    if (!tienePrecio) continue;
+    const { error } = await sb.from("products").update(payload).eq("id", producto.catalogProductId);
+    if (error) throw new Error(error.message);
+  }
+}
+
 /**
  * El cliente envía su carrito desde el sitio público: se guarda la solicitud
  * con su número de cotización y se genera la tarea pendiente para que
@@ -34,7 +57,7 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
     if (ids.length) {
       const { data: prods } = await sb
         .from("products")
-        .select("id,name,brand,model,code,description,images")
+        .select("id,name,brand,model,code,description,images,quote_price_provider,quote_price_label,quote_freight,quote_installation")
         .in("id", ids);
       for (const p of prods ?? []) fichas.set(p.id as string, p);
     }
@@ -49,6 +72,10 @@ export const crearSolicitudCotizacion = createServerFn({ method: "POST" })
         codigo: f?.code || i.codigo || "",
         imagen: f?.images?.[0] || i.imagen || "",
         descripcion: desc.slice(0, 220),
+        quote_price_provider: f?.quote_price_provider ?? null,
+        quote_price_label: f?.quote_price_label ?? null,
+        quote_freight: f?.quote_freight ?? null,
+        quote_installation: f?.quote_installation ?? null,
       };
     });
 
@@ -141,6 +168,8 @@ export const finalizarSolicitudCotizacion = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (eCot) throw new Error(eCot.message);
+
+    await guardarPreciosProductosCotizados(sb, data.productos);
 
     const { error: eUp } = await sb
       .from("cotizacion_solicitudes")

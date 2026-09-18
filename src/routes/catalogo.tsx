@@ -36,6 +36,8 @@ export const Route = createFileRoute("/catalogo")({
       { name: "description", content: "Catálogo unificado: electrodomésticos, muebles y bordados personalizados. Busca por categoría o por nombre del producto." },
       { property: "og:title", content: "Catálogo Completo GBD" },
       { property: "og:description", content: "Todo nuestro catálogo en un solo lugar, con búsqueda por categoría y por nombre." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/catalogo" }],
   }),

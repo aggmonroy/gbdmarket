@@ -29,6 +29,13 @@
       "when": 1789149056382,
       "tag": "0003_newsletter_video_url",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789751731579,
+      "tag": "0004_add_internal_quote_prices_to_products",
+      "breakpoints": true
     }
   ]
 }

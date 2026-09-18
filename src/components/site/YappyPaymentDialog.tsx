@@ -5,6 +5,7 @@ import { Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { DataConsent } from "@/components/site/DataConsent";
 import { uploadPublicAttachment } from "@/lib/uploads.functions";
 import { contentTypeForFile, fileToBase64, formatFileSize, PUBLIC_ATTACHMENT_MAX_BYTES } from "@/lib/file-upload-client";
@@ -15,6 +16,7 @@ export function YappyPaymentDialog({ open, onOpenChange }: { open: boolean; onOp
   const [nombre, setNombre] = useState("");
   const [cedula, setCedula] = useState("");
   const [cuenta, setCuenta] = useState("");
+  const [comentario, setComentario] = useState("");
   const [comprobante, setComprobante] = useState<File | null>(null);
   const [consent, setConsent] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -24,6 +26,7 @@ export function YappyPaymentDialog({ open, onOpenChange }: { open: boolean; onOp
     setNombre("");
     setCedula("");
     setCuenta("");
+    setComentario("");
     setComprobante(null);
     setConsent(false);
   };
@@ -51,8 +54,11 @@ export function YappyPaymentDialog({ open, onOpenChange }: { open: boolean; onOp
         `Nombre del dueño de la cuenta: ${nombre.trim()}`,
         `Cédula: ${cedula.trim()}`,
         `Número de cuenta: ${cuenta.trim()}`,
+        comentario.trim() ? `Comentario: ${comentario.trim()}` : "",
         `Comprobante de pago: ${result.url}`,
-      ].join("\n");
+      ]
+        .filter(Boolean)
+        .join("\n");
       window.open(`https://wa.me/${WHATSAPP_YAPPY}?text=${encodeURIComponent(texto)}`, "_blank");
       onOpenChange(false);
       reset();
@@ -69,7 +75,7 @@ export function YappyPaymentDialog({ open, onOpenChange }: { open: boolean; onOp
         <DialogHeader>
           <DialogTitle className="font-display text-xl">Registrar pago por Yappy</DialogTitle>
           <DialogDescription>
-            Completa los datos y sube el comprobante para enviarlo por WhatsApp a Mueblería GBD Las Tablas.
+            Completa los datos y sube el comprobante para registrarlo. Si tienes dudas sobre el número de cuenta puedes consultar al 67841941.
           </DialogDescription>
         </DialogHeader>
 
@@ -77,6 +83,13 @@ export function YappyPaymentDialog({ open, onOpenChange }: { open: boolean; onOp
           <Input placeholder="Nombre del dueño de la cuenta *" maxLength={120} value={nombre} onChange={(e) => setNombre(e.target.value)} />
           <Input placeholder="Número de cédula *" maxLength={30} value={cedula} onChange={(e) => setCedula(e.target.value)} />
           <Input placeholder="Número de cuenta *" maxLength={60} value={cuenta} onChange={(e) => setCuenta(e.target.value)} />
+          <Textarea
+            placeholder="Comentario (opcional)"
+            rows={3}
+            maxLength={700}
+            value={comentario}
+            onChange={(e) => setComentario(e.target.value)}
+          />
           <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-3 text-sm transition hover:bg-muted/70">
             <span className="min-w-0">
               <span className="font-semibold text-foreground">Comprobante de pago *</span>

@@ -26,6 +26,10 @@ type Form = {
   features: string;
   price_cash: string;
   price_financed: string;
+  quote_price_provider: string;
+  quote_price_label: string;
+  quote_freight: string;
+  quote_installation: string;
   disponibilidad: "en_stock" | "bajo_pedido";
   images: string[];
   datasheet_url: string;
@@ -43,6 +47,10 @@ const vacio: Form = {
   features: "",
   price_cash: "",
   price_financed: "",
+  quote_price_provider: "",
+  quote_price_label: "",
+  quote_freight: "",
+  quote_installation: "",
   disponibilidad: "en_stock",
   images: [],
   datasheet_url: "",
@@ -89,6 +97,10 @@ export function CatalogoPortal({ sesion }: { sesion: Sesion }) {
             .filter(Boolean),
           price_cash: Number(form!.price_cash || 0),
           price_financed: form!.price_financed ? Number(form!.price_financed) : null,
+          quote_price_provider: form!.quote_price_provider ? Number(form!.quote_price_provider) : null,
+          quote_price_label: form!.quote_price_label ? Number(form!.quote_price_label) : null,
+          quote_freight: form!.quote_freight ? Number(form!.quote_freight) : null,
+          quote_installation: form!.quote_installation ? Number(form!.quote_installation) : null,
           disponibilidad: form!.disponibilidad,
           images: form!.images,
           datasheet_url: form!.datasheet_url.trim(),
@@ -187,6 +199,15 @@ export function CatalogoPortal({ sesion }: { sesion: Sesion }) {
               onChange={(v) => set({ price_financed: v })}
               type="number"
             />
+            <div className="space-y-2 sm:col-span-2 rounded-md border border-border bg-muted/30 p-3">
+              <Label>Precios internos para futuras cotizaciones</Label>
+              <div className="grid gap-3 sm:grid-cols-4">
+                <Campo label="Proveedor" value={form.quote_price_provider} onChange={(v) => set({ quote_price_provider: v })} type="number" />
+                <Campo label="Etiqueta" value={form.quote_price_label} onChange={(v) => set({ quote_price_label: v })} type="number" />
+                <Campo label="Flete" value={form.quote_freight} onChange={(v) => set({ quote_freight: v })} type="number" />
+                <Campo label="Instalación" value={form.quote_installation} onChange={(v) => set({ quote_installation: v })} type="number" />
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -329,6 +350,11 @@ export function CatalogoPortal({ sesion }: { sesion: Sesion }) {
                         code: p.code ?? "",
                         category_id: p.category_id ?? "",
                         price_cash: String(p.price_cash ?? ""),
+                        price_financed: p.price_financed != null ? String(p.price_financed) : "",
+                        quote_price_provider: p.quote_price_provider != null ? String(p.quote_price_provider) : "",
+                        quote_price_label: p.quote_price_label != null ? String(p.quote_price_label) : "",
+                        quote_freight: p.quote_freight != null ? String(p.quote_freight) : "",
+                        quote_installation: p.quote_installation != null ? String(p.quote_installation) : "",
                         disponibilidad: p.disponibilidad === "bajo_pedido" ? "bajo_pedido" : "en_stock",
                         images: p.images ?? [],
                         is_published: !!p.is_published,

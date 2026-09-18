@@ -63,6 +63,10 @@ const empty = {
   features: "",
   price_cash: "",
   price_financed: "",
+  quote_price_provider: "",
+  quote_price_label: "",
+  quote_freight: "",
+  quote_installation: "",
   disponibilidad: "en_stock",
   images: "",
   datasheet_url: "",
@@ -127,6 +131,10 @@ function ProductsPage() {
       features: (p.features ?? []).join("\n"),
       price_cash: String(p.price_cash ?? ""),
       price_financed: p.price_financed != null ? String(p.price_financed) : "",
+      quote_price_provider: p.quote_price_provider != null ? String(p.quote_price_provider) : "",
+      quote_price_label: p.quote_price_label != null ? String(p.quote_price_label) : "",
+      quote_freight: p.quote_freight != null ? String(p.quote_freight) : "",
+      quote_installation: p.quote_installation != null ? String(p.quote_installation) : "",
       disponibilidad: (p.disponibilidad ?? "en_stock") as string,
       images: (p.images ?? []).join("\n"),
       datasheet_url: p.datasheet_url ?? "",
@@ -153,6 +161,10 @@ function ProductsPage() {
           features: form.features.split("\n").map((s: string) => s.trim()).filter(Boolean),
           price_cash: Number(form.price_cash) || 0,
           price_financed: form.price_financed ? Number(form.price_financed) : null,
+          quote_price_provider: form.quote_price_provider ? Number(form.quote_price_provider) : null,
+          quote_price_label: form.quote_price_label ? Number(form.quote_price_label) : null,
+          quote_freight: form.quote_freight ? Number(form.quote_freight) : null,
+          quote_installation: form.quote_installation ? Number(form.quote_installation) : null,
           disponibilidad: form.disponibilidad as "en_stock" | "bajo_pedido",
           images: form.images.split("\n").map((s: string) => s.trim()).filter(Boolean),
           datasheet_url: form.datasheet_url.trim() || null,
@@ -362,6 +374,18 @@ function ProductsPage() {
             <div className="space-y-2">
               <Label>Precio financiado (USD)</Label>
               <Input type="number" step="0.01" value={form.price_financed} onChange={(e) => setForm({ ...form, price_financed: e.target.value })} />
+            </div>
+            <div className="sm:col-span-2 rounded-md border border-border bg-muted/30 p-3">
+              <div className="mb-3">
+                <Label>Precios internos para futuras cotizaciones</Label>
+                <p className="mt-1 text-xs text-muted-foreground">Solo se usan dentro del portal; no se muestran al cliente.</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-4">
+                <Input type="number" step="0.01" placeholder="Proveedor" value={form.quote_price_provider} onChange={(e) => setForm({ ...form, quote_price_provider: e.target.value })} />
+                <Input type="number" step="0.01" placeholder="Etiqueta" value={form.quote_price_label} onChange={(e) => setForm({ ...form, quote_price_label: e.target.value })} />
+                <Input type="number" step="0.01" placeholder="Flete" value={form.quote_freight} onChange={(e) => setForm({ ...form, quote_freight: e.target.value })} />
+                <Input type="number" step="0.01" placeholder="Instalación" value={form.quote_installation} onChange={(e) => setForm({ ...form, quote_installation: e.target.value })} />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Disponibilidad</Label>
