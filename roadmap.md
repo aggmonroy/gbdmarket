@@ -4,6 +4,8 @@
 - (ninguna)
 
 ## Completados
+- [x] Texto de Yappy ajustado y comentario opcional agregado.
+- [x] Precios internos de cotización guardados en productos para reutilizarse y seguir editables.
 - [x] Mensaje de WhatsApp para cotización con nuevo encabezado y saludo por hora.
 - [x] Adjuntos de alta resolución en formulario de contacto de Mueblería GBD Las Tablas.
 - [x] Botón Yappy en inicio con formulario, comprobante y envío a WhatsApp.

@@ -27,6 +27,7 @@ import { ActionBar } from "@/components/calculadora/ActionBar";
 import { EnlaceGeneradorCard } from "@/components/calculadora/EnlaceGeneradorCard";
 import { GobiernoSeccion } from "@/components/calculadora/GobiernoSeccion";
 import { ProductoPicker, type ProductoCatalogo } from "@/components/calculadora/ProductoPicker";
+import { guardarPreciosCotizacionProductos } from "@/lib/productos-portal.functions";
 
 
 
@@ -89,6 +90,7 @@ export function AsesorPage({
 
   // Cotización interna guardada como "cotización activa" en Solicitudes Activas.
   const crearCotFn = useServerFn(crearCotizacionInterna);
+  const guardarPreciosFn = useServerFn(guardarPreciosCotizacionProductos);
   const [guardandoCot, setGuardandoCot] = useState(false);
   const [numeroCot, setNumeroCot] = useState<string | null>(null);
 
@@ -98,12 +100,16 @@ export function AsesorPage({
       ...prev,
       {
         ...nuevoProducto(),
+        catalogProductId: p.id,
         nombre: p.name,
         descripcion: p.description || [p.brand, p.model && `Modelo ${p.model}`].filter(Boolean).join(" · "),
         referencia: p.model || p.code || "",
         imagen: p.images?.[0] || "",
-        precioEtiqueta: p.price_cash ? String(p.price_cash) : "",
-        precioUnitario: p.price_cash ? String(p.price_cash) : "",
+        precioProveedor: p.quote_price_provider ? String(p.quote_price_provider) : "",
+        precioEtiqueta: p.quote_price_label ? String(p.quote_price_label) : p.price_cash ? String(p.price_cash) : "",
+        precioUnitario: p.quote_price_label ? String(p.quote_price_label) : p.price_cash ? String(p.price_cash) : "",
+        flete: p.quote_freight ? String(p.quote_freight) : "0",
+        instalacion: p.quote_installation ? String(p.quote_installation) : "0",
       },
     ]);
 
@@ -145,6 +151,7 @@ export function AsesorPage({
     if (!token || onFinalizar || numeroCot || guardandoCot) return;
     setGuardandoCot(true);
     try {
+      await guardarPreciosFn({ data: { token, productos } });
       const total =
         tipoCliente === "gobierno" ? calcularGobierno(productos).total : contadoTotal;
       const r: any = await crearCotFn({

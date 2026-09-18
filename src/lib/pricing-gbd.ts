@@ -58,6 +58,8 @@ export const etiquetaTipoCliente = (t: TipoCliente) =>
 
 export interface ProductoInput {
   id: string;
+  /** ID del producto del catálogo, si fue escogido desde la ficha existente. */
+  catalogProductId?: string;
   nombre: string;
   precioProveedor: string | number;
   precioEtiqueta: string | number;

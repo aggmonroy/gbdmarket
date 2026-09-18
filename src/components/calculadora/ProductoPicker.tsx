@@ -15,6 +15,10 @@ export type ProductoCatalogo = {
   description: string | null;
   images: string[] | null;
   price_cash: number | null;
+  quote_price_provider: number | null;
+  quote_price_label: number | null;
+  quote_freight: number | null;
+  quote_installation: number | null;
   categoria: string | null;
   es_bordado: boolean;
 };
@@ -105,6 +109,9 @@ export function ProductoPicker({
                     .join(" · ")}
                 </div>
                 {p.description && <div className="truncate text-xs text-muted-foreground/80">{p.description}</div>}
+                {(p.quote_price_provider || p.quote_price_label) && (
+                  <div className="mt-1 text-[11px] font-semibold text-primary">Precio interno guardado</div>
+                )}
               </div>
             </button>
           ))}

@@ -19,6 +19,10 @@ const productSchema = z.object({
   features: z.array(z.string()).optional().nullable(),
   price_cash: z.number().nonnegative(),
   price_financed: z.number().nonnegative().optional().nullable(),
+  quote_price_provider: z.number().nonnegative().optional().nullable(),
+  quote_price_label: z.number().nonnegative().optional().nullable(),
+  quote_freight: z.number().nonnegative().optional().nullable(),
+  quote_installation: z.number().nonnegative().optional().nullable(),
   stock: z.number().int().nonnegative().optional(),
   disponibilidad: z.enum(["en_stock", "bajo_pedido"]).default("en_stock"),
   images: z.array(z.string()).optional().nullable(),
@@ -197,6 +201,22 @@ export const bulkImportProducts = createServerFn({ method: "POST" })
         price_cash: toNum(get(row, "precio", "price", "price_cash", "precio_contado")),
         price_financed: (() => {
           const v = get(row, "precio_financiado", "price_financed");
+          return v ? toNum(v) : null;
+        })(),
+        quote_price_provider: (() => {
+          const v = get(row, "precio_proveedor_cotizacion", "quote_price_provider");
+          return v ? toNum(v) : null;
+        })(),
+        quote_price_label: (() => {
+          const v = get(row, "precio_etiqueta_cotizacion", "quote_price_label");
+          return v ? toNum(v) : null;
+        })(),
+        quote_freight: (() => {
+          const v = get(row, "flete_cotizacion", "quote_freight");
+          return v ? toNum(v) : null;
+        })(),
+        quote_installation: (() => {
+          const v = get(row, "instalacion_cotizacion", "quote_installation");
           return v ? toNum(v) : null;
         })(),
         stock: Math.max(0, Math.round(toNum(get(row, "stock", "existencia", "cantidad")))),

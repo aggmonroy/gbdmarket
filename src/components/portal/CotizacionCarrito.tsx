@@ -55,6 +55,7 @@ export function CotizacionCarrito({
   const items: any[] = data.items ?? [];
   const productos: ProductoInput[] = items.map((i, idx) => ({
     id: `${data.id}-${idx}`,
+    catalogProductId: i.product_id || undefined,
     nombre: i.nombre || "",
     precioProveedor: "",
     precioEtiqueta: "",
