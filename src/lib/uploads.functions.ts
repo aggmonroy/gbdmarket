@@ -8,6 +8,8 @@ const ALLOWED_BUCKETS = new Set(["site-assets", "product-images"]);
 const PORTAL_BUCKET = "portal-uploads";
 // ~30 years in seconds — practical "forever" for a signed URL.
 const SIGNED_URL_TTL = 60 * 60 * 24 * 365 * 30;
+// Formularios públicos: enlaces temporales suficientes para seguimiento por WhatsApp.
+const PUBLIC_SIGNED_URL_TTL = 60 * 60 * 24 * 180;
 
 const fileSchema = z.object({
   bucket: z.string().refine((b) => ALLOWED_BUCKETS.has(b), "Bucket no permitido"),
@@ -23,18 +25,39 @@ const fileSchema = z.object({
   base64: z.string().min(1).max(36_000_000), // ~26 MB decodificados
 });
 
-async function guardar(data: z.infer<typeof fileSchema>) {
+const publicFileSchema = z.object({
+  folder: z.enum(["contacto", "yappy"]),
+  filename: z.string().min(1).max(200),
+  contentType: z
+    .string()
+    .min(1)
+    .max(160)
+    .refine(
+      (t) =>
+        /^(image\/(png|jpe?g|webp|heic|heif)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|application\/vnd\.ms-excel|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet)$/i.test(t),
+      "Formato permitido: imagen, PDF, Word o Excel",
+    ),
+  base64: z.string().min(1).max(36_000_000), // ~26 MB decodificados
+});
+
+async function guardar(
+  data: { bucket: string; filename: string; contentType: string; base64: string },
+  ttl = SIGNED_URL_TTL,
+  prefix = "",
+) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const bytes = Buffer.from(data.base64, "base64");
   const safeName = data.filename.replace(/[^\w.\-]+/g, "_");
-  const path = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${safeName}`;
+  const safePrefix = prefix.replace(/[^\w\-\/]+/g, "").replace(/^\/+|\/+$/g, "");
+  const basename = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${safeName}`;
+  const path = safePrefix ? `${safePrefix}/${basename}` : basename;
   const { error: upErr } = await supabaseAdmin.storage
     .from(data.bucket)
     .upload(path, bytes, { contentType: data.contentType, upsert: false });
   if (upErr) throw new Error(upErr.message);
   const { data: signed, error: sErr } = await supabaseAdmin.storage
     .from(data.bucket)
-    .createSignedUrl(path, SIGNED_URL_TTL);
+    .createSignedUrl(path, ttl);
   if (sErr || !signed) throw new Error(sErr?.message ?? "No se pudo generar URL");
   return { url: signed.signedUrl, path };
 }
@@ -66,4 +89,12 @@ export const uploadAssetPortal = createServerFn({ method: "POST" })
     const { token, bucket, ...rest } = data;
     // Solo un administrador con sesión real puede escribir en los buckets del sitio.
     return guardar({ ...rest, bucket: s.rol === "admin" ? bucket : PORTAL_BUCKET });
+  });
+
+/** Carga pública para formularios: guarda comprobantes o adjuntos y devuelve enlace temporal. */
+export const uploadPublicAttachment = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => publicFileSchema.parse(d))
+  .handler(async ({ data }) => {
+    const { folder, ...rest } = data;
+    return guardar({ ...rest, bucket: PORTAL_BUCKET }, PUBLIC_SIGNED_URL_TTL, folder);
   });
