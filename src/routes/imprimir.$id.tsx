@@ -9,6 +9,8 @@ export const Route = createFileRoute("/imprimir/$id")({
       { name: "description", content: "Documento de cotización de Línea Blanca listo para imprimir o descargar en PDF." },
       { property: "og:title", content: "Documento de cotización para imprimir" },
       { property: "og:description", content: "Versión imprimible de la cotización de Línea Blanca." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

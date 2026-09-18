@@ -57,10 +57,10 @@ export function CotizacionCarrito({
     id: `${data.id}-${idx}`,
     catalogProductId: i.product_id || undefined,
     nombre: i.nombre || "",
-    precioProveedor: "",
-    precioEtiqueta: "",
-    flete: "0",
-    instalacion: "0",
+    precioProveedor: i.quote_price_provider ? String(i.quote_price_provider) : "",
+    precioEtiqueta: i.quote_price_label ? String(i.quote_price_label) : "",
+    flete: i.quote_freight ? String(i.quote_freight) : "0",
+    instalacion: i.quote_installation ? String(i.quote_installation) : "0",
     descAsociadoPct: DESC_DEFAULT,
     descTerceroPct: DESC_DEFAULT,
     imagen: i.imagen || "",
@@ -74,7 +74,7 @@ export function CotizacionCarrito({
       .join(" · "),
     referencia: [i.modelo, i.codigo].filter(Boolean).join(" · "),
     cantidad: String(i.cantidad || 1),
-    precioUnitario: "",
+    precioUnitario: i.quote_price_label ? String(i.quote_price_label) : "",
     descGobiernoPct: 0,
   }));
 
