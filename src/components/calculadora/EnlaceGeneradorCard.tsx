@@ -74,10 +74,13 @@ export function EnlaceGeneradorCard({ tipoCliente, calculados, modo, cliente, ca
   };
 
   const enviarPorWhatsApp = () => {
-    const saludo = cliente?.nombre ? `Hola ${cliente.nombre.split(" ")[0]}, ` : "";
+    const hora = new Date().getHours();
+    const saludo = hora < 12 ? "Buenos días" : "Buenas tardes";
+    const nombreCliente = cliente?.nombre?.trim();
+    const destinatario = nombreCliente ? ` Sr. ${nombreCliente}` : "";
     const texto = esImprimir
-      ? `*Cooperativa Gladys B. de Ducasa R.L. — Línea Blanca*\n${saludo}aquí tienes tu documento para imprimir (enlace de un solo uso):\n${enlace}`
-      : `*Cooperativa Gladys B. de Ducasa R.L. — Línea Blanca*\n${saludo}aquí tienes tu cotización:\n${enlace}\n\nVálida por 30 días o hasta agotar existencias.`;
+      ? `Cooperativa de S/I Gladys B. de Ducasa R.L. — Sección Mueblería y Bordados\n\n${saludo}${destinatario}, a continuación le compartimos su documento para imprimir (enlace de un solo uso):\n\n${enlace}`
+      : `Cooperativa de S/I Gladys B. de Ducasa R.L. — Sección Mueblería y Bordados\n\n${saludo}${destinatario}, a continuación le compartimos su cotización:\n\n${enlace}\n\nVálida por 30 días o hasta agotar existencias.`;
     const numeroCliente = telefonoAWhatsapp(cliente?.telefono || "");
     const destino = numeroCliente || "50767841941";
     const a = document.createElement("a");
