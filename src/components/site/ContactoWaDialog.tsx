@@ -39,6 +39,9 @@ export function ContactoWaDialog({
     if (consulta.trim().length < 3) return toast.error("Cuéntanos tu consulta");
     if (archivo && archivo.size > PUBLIC_ATTACHMENT_MAX_BYTES) return toast.error("El archivo no debe superar 24 MB");
     if (!consent) return toast.error("Debes aceptar el tratamiento de datos");
+    // Abrir la pestaña dentro del gesto del usuario; los bloqueadores la
+    // rechazan si se abre después de esperar la subida del adjunto.
+    const waTab = window.open("", "_blank");
     setEnviando(true);
     try {
       let adjuntoUrl = "";
@@ -60,7 +63,12 @@ export function ContactoWaDialog({
       ]
         .filter(Boolean)
         .join("\n");
-      window.open(`https://wa.me/${canal.wa}?text=${encodeURIComponent(texto)}`, "_blank");
+      const waUrl = `https://wa.me/${canal.wa}?text=${encodeURIComponent(texto)}`;
+      if (waTab) {
+        waTab.location.href = waUrl;
+      } else {
+        window.location.href = waUrl;
+      }
       onOpenChange(false);
       setNombre("");
       setCedula("");
@@ -68,6 +76,7 @@ export function ContactoWaDialog({
       setArchivo(null);
       setConsent(false);
     } catch (e: any) {
+      waTab?.close();
       toast.error(e?.message ?? "No se pudo subir el archivo");
     } finally {
       setEnviando(false);

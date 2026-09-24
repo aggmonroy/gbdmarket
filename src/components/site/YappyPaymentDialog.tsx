@@ -39,6 +39,9 @@ export function YappyPaymentDialog({ open, onOpenChange }: { open: boolean; onOp
     if (comprobante.size > PUBLIC_ATTACHMENT_MAX_BYTES) return toast.error("La imagen no debe superar 24 MB");
     if (!consent) return toast.error("Debes aceptar el tratamiento de datos");
 
+    // Abrir la pestaña dentro del gesto del usuario; los bloqueadores de
+    // ventanas la rechazan si se abre después de un await largo.
+    const waTab = window.open("", "_blank");
     setEnviando(true);
     try {
       const result = await upload({
@@ -59,10 +62,17 @@ export function YappyPaymentDialog({ open, onOpenChange }: { open: boolean; onOp
       ]
         .filter(Boolean)
         .join("\n");
-      window.open(`https://wa.me/${WHATSAPP_YAPPY}?text=${encodeURIComponent(texto)}`, "_blank");
+      const waUrl = `https://wa.me/${WHATSAPP_YAPPY}?text=${encodeURIComponent(texto)}`;
+      if (waTab) {
+        waTab.location.href = waUrl;
+      } else {
+        // La pestaña fue bloqueada igual: redirigir esta misma ventana.
+        window.location.href = waUrl;
+      }
       onOpenChange(false);
       reset();
     } catch (e: any) {
+      waTab?.close();
       toast.error(e?.message ?? "No se pudo enviar el comprobante");
     } finally {
       setEnviando(false);
