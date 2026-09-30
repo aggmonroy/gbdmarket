@@ -28,7 +28,6 @@ import { ESTADO_PEDIDO_LABEL, type EstadoPedido } from "@/lib/pedidos-shared";
 import { TareasPanel } from "@/components/portal/TareasPanel";
 import { SolicitudesActivas } from "@/components/portal/SolicitudesActivas";
 import { CasosCerrados } from "@/components/portal/CasosCerrados";
-import { InformeMensualPortal } from "@/components/portal/InformeMensualPortal";
 import { CatalogoPortal } from "@/components/portal/CatalogoPortal";
 import { SeguimientoDialog } from "@/components/portal/SeguimientoDialog";
 import { AsesorPage } from "@/components/calculadora/AsesorPage";
@@ -125,9 +124,6 @@ function Portal() {
     { v: "calendario", label: "Calendario", icon: CalendarDays },
     { v: "catalogo", label: "Catálogo", icon: Package },
     { v: "calculadora", label: "Cotización", icon: Calculator },
-    ...(rol === "admin" || rol === "gerente"
-      ? [{ v: "informe" as typeof vista, label: "Informe", icon: FileBarChart }]
-      : []),
   ];
 
   return (
@@ -196,7 +192,6 @@ function Portal() {
             <AsesorPage token={sesion.token} permitirBordados />
           </div>
         )}
-        {vista === "informe" && <InformeMensualPortal sesion={sesion} />}
       </div>
     </div>
   );
@@ -367,18 +362,6 @@ function Menu({
         icon={Calculator}
         onClick={() => ir("calculadora")}
       />
-      {(rol === "admin" || rol === "gerente") && (
-        <Area
-          titulo="Informe mensual"
-          texto={
-            rol === "gerente"
-              ? "Consulta el informe mensual, trimestral y anual, y elige las secciones a imprimir."
-              : "Carga los reportes internos, genera el informe del mes y consulta el dashboard."
-          }
-          icon={FileBarChart}
-          onClick={() => ir("informe")}
-        />
-      )}
       {rol === "admin" && (
         <Area
           titulo="Panel administrativo"
