@@ -15,7 +15,6 @@ import {
   LogOut,
   Package,
   ShieldCheck,
-  FileBarChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +64,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
   const [vista, setVista] = useState<
-    "menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "cotizacion" | "informe"
+    "menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "cotizacion"
   >("menu");
   const [cotizacionTareaId, setCotizacionTareaId] = useState<string | null>(null);
 
@@ -310,7 +309,7 @@ function Menu({
   ir,
 }: {
   sesion: Sesion;
-  ir: (v: "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "informe") => void;
+  ir: (v: "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora") => void;
 }) {
   const rol = sesion.colaborador.rol;
   return (
