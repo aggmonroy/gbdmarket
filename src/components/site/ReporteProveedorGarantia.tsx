@@ -42,13 +42,13 @@ export function ReporteProveedorGarantia({ garantia, colaborador }: { garantia: 
       <FileImage className="mr-2 h-4 w-4" /> Generar reporte del proveedor
     </Button>
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-4xl min-w-0 overflow-y-auto">
         <DialogHeader><DialogTitle>Reporte del proveedor</DialogTitle></DialogHeader>
         <div className="flex flex-wrap gap-2">
           <Button onClick={preparar} disabled={busy}>{busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileImage className="mr-2 h-4 w-4" />} Generar imagen</Button>
           {blob && <Button onClick={descargar}><Download className="mr-2 h-4 w-4" /> Descargar imagen</Button>}
         </div>
-        <div className="overflow-x-auto">
+        <div className="min-w-0 w-full overflow-x-auto">
           <div ref={ref} className="warranty-supplier-report">
             <h2>{tituloProveedor(garantia)}</h2>
             <table><tbody>{filasProveedor(garantia, colaborador).map(([label, value]) => <tr key={label}><th>{label}</th><td>{value}</td></tr>)}</tbody></table>
