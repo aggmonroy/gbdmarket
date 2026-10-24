@@ -4,6 +4,8 @@
 - (ninguna)
 
 ## Completados
+- [x] Serie, marca y proveedor en garantías nuevas y existentes.
+- [x] Reporte del proveedor en imagen de alta resolución, verificado con una garantía existente.
 - [x] Texto de Yappy ajustado y comentario opcional agregado.
 - [x] Precios internos de cotización guardados en productos para reutilizarse y seguir editables.
 - [x] Mensaje de WhatsApp para cotización con nuevo encabezado y saludo por hora.

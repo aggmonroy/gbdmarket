@@ -20,6 +20,7 @@ import {
   cierreSchema,
   colaboradorSchema,
   crearGarantiaSchema,
+  datosProveedorSchema,
   evidenciaSchema,
   idTokenSchema,
   loginCedulaSchema,
@@ -149,6 +150,9 @@ export const crearGarantia = createServerFn({ method: "POST" })
         numero_factura: data.numero_factura || null,
         fecha_facturacion: data.fecha_facturacion || null,
         modelo_codigo: data.modelo_codigo || null,
+        numero_serie: data.numero_serie || null,
+        marca: data.marca || null,
+        proveedor: data.proveedor || null,
         descripcion_articulo: data.descripcion_articulo || null,
         dentro_15_dias: data.dentro_15_dias,
         no_mal_uso: data.dentro_15_dias ? data.no_mal_uso : false,
@@ -197,6 +201,18 @@ export const getGarantia = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await verifySesion(data.token);
     return garantiaCompleta(data.garantia_id);
+  });
+
+export const guardarDatosProveedorGarantia = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => datosProveedorSchema.parse(d))
+  .handler(async ({ data }) => {
+    await requireEscritura(data.token);
+    const sb = await admin();
+    const { data: row, error } = await sb.from("garantias").update({
+      numero_serie: data.numero_serie || null, marca: data.marca || null, proveedor: data.proveedor || null,
+    }).eq("id", data.garantia_id).select("id").single();
+    if (error || !row) throw new Error(error?.message ?? "Garantía no encontrada");
+    return { ok: true };
   });
 
 export const agregarSeguimiento = createServerFn({ method: "POST" })

@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ReporteProveedorGarantia } from "@/components/site/ReporteProveedorGarantia";
 import { getGarantia, getGarantiaReporte } from "@/lib/garantias.functions";
 import { ESTADO_LABEL, TEXTO_CONSENTIMIENTO, siguientePaso, type GarantiaEstado } from "@/lib/garantias-shared";
 import { SUCURSAL_LABEL, SUCURSAL_WHATSAPP, type Sucursal } from "@/lib/sucursales";
@@ -18,6 +19,10 @@ export const Route = createFileRoute("/reporte-garantia/$id")({
       { title: "Reporte de garantía · Cooperativa GBD" },
       { name: "robots", content: "noindex,nofollow" },
       { name: "description", content: "Reporte imprimible del trámite de garantía." },
+      { property: "og:title", content: "Reporte de garantía · Cooperativa GBD" },
+      { property: "og:description", content: "Datos del trámite y reporte descargable para el proveedor." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ReporteGarantia,
@@ -32,7 +37,7 @@ function ReporteGarantia() {
   const [listo, setListo] = useState(false);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem("gbd_garantias_sesion");
+    const raw = localStorage.getItem("gbd_garantias_sesion") ?? sessionStorage.getItem("gbd_garantias_sesion");
     if (raw) {
       try {
         setToken(JSON.parse(raw).token);
@@ -46,10 +51,11 @@ function ReporteGarantia() {
   // Con enlace firmado (?t=...) el reporte se imprime sin volver a pedir el PIN.
   const { data, error } = useQuery({
     queryKey: ["reporte", id, rt ?? token],
-    queryFn: () =>
-      (rt
-        ? getReporteFn({ data: { garantia_id: id, rt } })
-        : getFn({ data: { token: token!, garantia_id: id } })) as any,
+    queryFn: () => {
+      if (rt) return getReporteFn({ data: { garantia_id: id, rt } }) as any;
+      if (!token) throw new Error("Sesión no disponible");
+      return getFn({ data: { token, garantia_id: id } }) as any;
+    },
     enabled: !!rt || (listo && !!token),
   });
 
@@ -62,10 +68,11 @@ function ReporteGarantia() {
 
   return (
     <div className="mx-auto max-w-3xl bg-background p-8 print:p-0">
-      <div className="mb-6 flex justify-end print:hidden">
+      <div className="mb-6 flex flex-wrap justify-end gap-2 print:hidden">
         <Button onClick={() => window.print()}>
           <Printer className="mr-2 h-4 w-4" /> Imprimir o guardar PDF
         </Button>
+        <ReporteProveedorGarantia garantia={g} colaborador={data.colaborador?.nombre} />
       </div>
 
       <header className="border-b border-border pb-4">
@@ -88,6 +95,9 @@ function ReporteGarantia() {
         <Fila k="Factura" v={g.numero_factura} />
         <Fila k="Fecha de facturación" v={g.fecha_facturacion} />
         <Fila k="Modelo / código" v={g.modelo_codigo} />
+        <Fila k="Número de serie" v={g.numero_serie} />
+        <Fila k="Marca" v={g.marca} />
+        <Fila k="Proveedor" v={g.proveedor} />
         <Fila k="Tramitado por" v={data.colaborador?.nombre} />
         <Fila k="Fecha de cierre" v={g.fecha_cierre} />
       </section>

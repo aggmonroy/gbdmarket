@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.15"
   }
   public: {
     Tables: {
@@ -658,10 +658,13 @@ export type Database = {
           fecha_cierre: string | null
           fecha_facturacion: string | null
           id: string
+          marca: string | null
           modelo_codigo: string | null
           no_mal_uso: boolean
           numero_factura: string | null
           numero_garantia: string
+          numero_serie: string | null
+          proveedor: string | null
           sucursal: string | null
           tarea_vinculada_id: string | null
           telefono_cliente: string | null
@@ -681,10 +684,13 @@ export type Database = {
           fecha_cierre?: string | null
           fecha_facturacion?: string | null
           id?: string
+          marca?: string | null
           modelo_codigo?: string | null
           no_mal_uso?: boolean
           numero_factura?: string | null
           numero_garantia: string
+          numero_serie?: string | null
+          proveedor?: string | null
           sucursal?: string | null
           tarea_vinculada_id?: string | null
           telefono_cliente?: string | null
@@ -704,10 +710,13 @@ export type Database = {
           fecha_cierre?: string | null
           fecha_facturacion?: string | null
           id?: string
+          marca?: string | null
           modelo_codigo?: string | null
           no_mal_uso?: boolean
           numero_factura?: string | null
           numero_garantia?: string
+          numero_serie?: string | null
+          proveedor?: string | null
           sucursal?: string | null
           tarea_vinculada_id?: string | null
           telefono_cliente?: string | null

@@ -27,10 +27,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ReporteProveedorGarantia } from "@/components/site/ReporteProveedorGarantia";
 import {
   agregarSeguimiento,
   crearGarantia,
   getGarantia,
+  guardarDatosProveedorGarantia,
   listBitacoraCerradas,
   listGarantiasAbiertas,
   listSolicitudesCierre,
@@ -58,6 +60,10 @@ export const Route = createFileRoute("/modulo-garantias")({
       { title: "Módulo de trámite de garantías · Cooperativa GBD" },
       { name: "robots", content: "noindex,nofollow" },
       { name: "description", content: "Registro, seguimiento y cierre de trámites de garantía de Cooperativa GBD." },
+      { property: "og:title", content: "Trámite de garantías · Cooperativa GBD" },
+      { property: "og:description", content: "Registro de garantías y reportes para proveedores." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ModuloGarantias,
@@ -278,6 +284,9 @@ const vacio = {
   numero_factura: "",
   fecha_facturacion: "",
   modelo_codigo: "",
+  numero_serie: "",
+  marca: "",
+  proveedor: "",
   descripcion_articulo: "",
   dentro_15_dias: false,
   no_mal_uso: false,
@@ -357,6 +366,15 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
           </Campo>
           <Campo label="Modelo / código">
             <Input value={form.modelo_codigo} onChange={(e) => set("modelo_codigo", e.target.value)} />
+          </Campo>
+          <Campo label="Número de serie">
+            <Input aria-label="Número de serie" maxLength={200} value={form.numero_serie} onChange={(e) => set("numero_serie", e.target.value)} />
+          </Campo>
+          <Campo label="Marca">
+            <Input aria-label="Marca" maxLength={200} value={form.marca} onChange={(e) => set("marca", e.target.value)} />
+          </Campo>
+          <Campo label="Proveedor">
+            <Input aria-label="Proveedor" maxLength={200} value={form.proveedor} onChange={(e) => set("proveedor", e.target.value)} />
           </Campo>
         </div>
 
@@ -597,6 +615,7 @@ function DetalleCaso({
   const segFn = useServerFn(agregarSeguimiento);
   const evFn = useServerFn(subirEvidencia);
   const cierreFn = useServerFn(solicitarCierre);
+  const proveedorFn = useServerFn(guardarDatosProveedorGarantia);
   const soloLectura = rol === "gerente";
 
   const { data, refetch, isLoading } = useQuery({
@@ -616,6 +635,15 @@ function DetalleCaso({
   const [tipoCierre, setTipoCierre] = useState("cerrada_cliente_credito");
   const [notaFinal, setNotaFinal] = useState("");
   const [documento, setDocumento] = useState("");
+  const [producto, setProducto] = useState<{ numero_serie: string; marca: string; proveedor: string } | null>(null);
+  const guardarProducto = useMutation({
+    mutationFn: () => {
+      if (!producto) throw new Error("No hay cambios");
+      return proveedorFn({ data: { token, garantia_id: id, ...producto } });
+    },
+    onSuccess: () => { setProducto(null); refetch(); onCambio(); toast.success("Datos del producto actualizados"); },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const nuevoSeg = useMutation({
     mutationFn: () => segFn({ data: { token, garantia_id: id, fecha, via: via as any, texto } }) as any,
@@ -679,6 +707,13 @@ function DetalleCaso({
 
         {g && (
           <div className="space-y-6">
+            <section className="flex flex-wrap gap-2">
+              <Button variant="outline" disabled={!rtoken?.reporte_token} onClick={() => {
+                if (!rtoken?.reporte_token) return;
+                window.open(`/reporte-garantia/${id}?t=${encodeURIComponent(rtoken.reporte_token)}`, "_blank");
+              }}><FileText className="mr-2 h-4 w-4" /> Reporte imprimible</Button>
+              <ReporteProveedorGarantia garantia={g} colaborador={data.colaborador?.nombre} />
+            </section>
             <div className="grid gap-2 text-sm sm:grid-cols-2">
               <Dato k="Cliente" v={g.cliente} />
               <Dato k="Cédula" v={g.cedula_cliente} />
@@ -687,8 +722,19 @@ function DetalleCaso({
               <Dato k="Factura" v={g.numero_factura} />
               <Dato k="Fecha de facturación" v={g.fecha_facturacion} />
               <Dato k="Modelo / código" v={g.modelo_codigo} />
+              <Dato k="Número de serie" v={g.numero_serie} />
+              <Dato k="Marca" v={g.marca} />
+              <Dato k="Proveedor" v={g.proveedor} />
               <Dato k="Tramitado por" v={data.colaborador?.nombre} />
             </div>
+            {!soloLectura && <section className="space-y-3">
+              <div className="grid gap-3 sm:grid-cols-3">
+                {([['numero_serie', 'Número de serie'], ['marca', 'Marca'], ['proveedor', 'Proveedor']] as const).map(([key, label]) => <Campo key={key} label={label}>
+                  <Input aria-label={label} maxLength={200} value={producto?.[key] ?? g[key] ?? ''} onChange={e => setProducto(current => ({ numero_serie: g.numero_serie ?? '', marca: g.marca ?? '', proveedor: g.proveedor ?? '', ...current, [key]: e.target.value }))} />
+                </Campo>)}
+              </div>
+              <Button variant="outline" size="sm" disabled={!producto || guardarProducto.isPending} onClick={() => guardarProducto.mutate()}>Guardar datos del producto</Button>
+            </section>}
             <Dato k="Artículo / desperfecto" v={g.descripcion_articulo} />
             <Dato k="Acción realizada" v={g.accion_realizada} />
             <div className="rounded-md bg-muted/50 p-3 text-xs">
@@ -782,21 +828,6 @@ function DetalleCaso({
                   }}
                 />
               )}
-            </section>
-
-            <section className="flex flex-wrap gap-2 border-t border-border pt-4">
-              <Button
-                variant="outline"
-                disabled={!rtoken?.reporte_token}
-                onClick={() =>
-                  window.open(
-                    `/reporte-garantia/${id}?t=${encodeURIComponent(rtoken!.reporte_token)}`,
-                    "_blank",
-                  )
-                }
-              >
-                <FileText className="mr-2 h-4 w-4" /> Reporte imprimible
-              </Button>
             </section>
 
             {!soloLectura && g.estado === "proceso" && (

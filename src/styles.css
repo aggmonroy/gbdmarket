@@ -165,3 +165,12 @@ html.embed .install-app-btn {
   display: none !important;
 }
 
+/* Fixed high-resolution supplier document, matching the supplied monochrome form. */
+:root { --report-paper: #fff; --report-ink: #000; }
+.warranty-supplier-report { width: 800px; background: var(--report-paper); color: var(--report-ink); font: 16px Arial, sans-serif; }
+.warranty-supplier-report h2 { margin: 0; padding: 16px 12px; background: var(--report-ink); color: var(--report-paper); text-align: center; font: 20px Arial, sans-serif; letter-spacing: 0; overflow-wrap: anywhere; }
+.warranty-supplier-report table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.warranty-supplier-report th, .warranty-supplier-report td { border: 1px solid var(--report-ink); padding: 5px 6px; width: 50%; font-weight: normal; vertical-align: top; white-space: pre-wrap; overflow-wrap: anywhere; }
+.warranty-supplier-report th { text-align: left; }
+.warranty-supplier-report td { text-align: center; }
+

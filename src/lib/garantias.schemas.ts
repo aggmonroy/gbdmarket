@@ -42,6 +42,9 @@ export const crearGarantiaSchema = z.object({
   numero_factura: z.string().trim().max(80).optional().or(z.literal("")),
   fecha_facturacion: z.string().max(10).optional().or(z.literal("")),
   modelo_codigo: z.string().trim().max(200).optional().or(z.literal("")),
+  numero_serie: z.string().trim().max(200).optional(),
+  marca: z.string().trim().max(200).optional(),
+  proveedor: z.string().trim().max(200).optional(),
   descripcion_articulo: z.string().trim().max(500).optional().or(z.literal("")),
   dentro_15_dias: z.boolean().default(false),
   no_mal_uso: z.boolean().default(false),
@@ -73,6 +76,12 @@ export const cierreSchema = z.object({
 });
 
 export const idTokenSchema = z.object({ token: z.string().min(1), garantia_id: z.string().uuid() });
+
+export const datosProveedorSchema = idTokenSchema.extend({
+  numero_serie: z.string().trim().max(200),
+  marca: z.string().trim().max(200),
+  proveedor: z.string().trim().max(200),
+});
 
 export const colaboradorSchema = z.object({
   id: z.string().uuid().optional(),
