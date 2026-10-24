@@ -1,7 +1,8 @@
 # Roadmap
 
 ## En curso
-- (ninguna)
+- [ ] Serie, marca y proveedor en garantías nuevas y existentes.
+- [ ] Reporte del proveedor descargable basado en el formato enviado.
 
 ## Completados
 - [x] Texto de Yappy ajustado y comentario opcional agregado.

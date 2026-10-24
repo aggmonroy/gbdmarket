@@ -1,0 +1,1 @@
+ALTER TABLE public.garantias ADD COLUMN IF NOT EXISTS numero_serie text, ADD COLUMN IF NOT EXISTS marca text, ADD COLUMN IF NOT EXISTS proveedor text;
