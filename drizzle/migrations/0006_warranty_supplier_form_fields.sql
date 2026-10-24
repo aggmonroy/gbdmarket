@@ -1,0 +1,1 @@
+ALTER TABLE public.garantias ADD COLUMN IF NOT EXISTS datos_proveedor jsonb NOT NULL DEFAULT '{}'::jsonb;

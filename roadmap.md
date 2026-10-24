@@ -1,7 +1,8 @@
 # Roadmap
 
 ## En curso
-- (ninguna)
+- [ ] Completar todos los campos del formulario del proveedor en el trámite original.
+- [ ] Excluir acciones y seguimiento del reporte del proveedor, conservándolos en el imprimible.
 
 ## Completados
 - [x] Serie, marca y proveedor en garantías nuevas y existentes.

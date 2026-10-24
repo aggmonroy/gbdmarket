@@ -43,6 +43,13 @@
       "when": 1792850878746,
       "tag": "0005_warranty_supplier_details",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792851492646,
+      "tag": "0006_warranty_supplier_form_fields",
+      "breakpoints": true
     }
   ]
 }
