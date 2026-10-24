@@ -650,6 +650,7 @@ export type Database = {
           cedula_cliente: string | null
           cliente: string
           creado_en: string
+          datos_proveedor: Json
           dentro_15_dias: boolean
           descripcion_articulo: string | null
           direccion_cliente: string | null
@@ -676,6 +677,7 @@ export type Database = {
           cedula_cliente?: string | null
           cliente: string
           creado_en?: string
+          datos_proveedor?: Json
           dentro_15_dias?: boolean
           descripcion_articulo?: string | null
           direccion_cliente?: string | null
@@ -702,6 +704,7 @@ export type Database = {
           cedula_cliente?: string | null
           cliente?: string
           creado_en?: string
+          datos_proveedor?: Json
           dentro_15_dias?: boolean
           descripcion_articulo?: string | null
           direccion_cliente?: string | null
