@@ -1,0 +1,47 @@
+import { SUCURSAL_LABEL, SUCURSAL_WHATSAPP, type Sucursal } from './sucursales';
+import { ESTADO_LABEL, siguientePaso, type GarantiaEstado } from './garantias-shared';
+
+export type GarantiaProveedor = {
+  numero_garantia: string; fecha: string; cliente: string;
+  sucursal?: string | null; cedula_cliente?: string | null; telefono_cliente?: string | null;
+  direccion_cliente?: string | null; modelo_codigo?: string | null; numero_serie?: string | null;
+  marca?: string | null; proveedor?: string | null; numero_factura?: string | null;
+  fecha_facturacion?: string | null; descripcion_articulo?: string | null; accion_realizada?: string | null;
+  dentro_15_dias: boolean; no_mal_uso: boolean; estado: string; fecha_cierre?: string | null;
+};
+
+export function tituloProveedor(g: GarantiaProveedor) {
+  return ['REPORTE DE GARANTÍA', g.marca?.trim(), g.proveedor?.trim()].filter(Boolean).join(' · ');
+}
+
+export function filasProveedor(g: GarantiaProveedor, colaborador?: string | null): [string, string][] {
+  const sucursal: Sucursal = g.sucursal === 'tonosi' ? 'tonosi' : 'las-tablas';
+  const dato = (v?: string | null) => v?.trim() || '—';
+  return [
+    ['Fecha Solicitud', dato(g.fecha)],
+    ['Nombre y Apellido Cliente', dato(g.cliente)],
+    ['Contacto en tienda', dato(colaborador)],
+    ['Teléfono móvil', dato(g.telefono_cliente)],
+    ['País', 'Panamá'],
+    ['Provincia', '—'], ['Distrito', '—'], ['Corregimiento', '—'],
+    ['Dirección Cliente', dato(g.direccion_cliente)],
+    ['Nr. Orden Trabajo / Incidencia', g.numero_garantia],
+    ['Producto', dato(g.descripcion_articulo)],
+    ['FALLA REPORTADA', dato(g.descripcion_articulo)],
+    ['Modelo', dato(g.modelo_codigo)], ['Nr. Serial', dato(g.numero_serie)],
+    ['Fecha de compra', dato(g.fecha_facturacion)], ['Nr. Factura', dato(g.numero_factura)],
+    ['Tipo de servicio (Garantía / Facturado)', 'Garantía'],
+    ['Lugar de compra', `COOP. GLADYS B. DE DUCASA, R.L. · ${SUCURSAL_LABEL[sucursal]}`],
+    ['Nombre de la persona que reporta el servicio', dato(colaborador)],
+    ['Teléfono de la persona que reporta el servicio', SUCURSAL_WHATSAPP[sucursal]],
+    ['Taller solicitado por el cliente', '—'],
+    ['Marca', dato(g.marca)], ['Proveedor', dato(g.proveedor)],
+    ['Cédula del cliente', dato(g.cedula_cliente)],
+    ['Dentro de los primeros 15 días', g.dentro_15_dias ? 'Sí' : 'No'],
+    ['Examen descarta mal uso', g.no_mal_uso ? 'Sí' : 'No'],
+    ['Acción realizada', dato(g.accion_realizada)],
+    ['Siguiente paso', siguientePaso(g.dentro_15_dias, g.no_mal_uso)],
+    ['Estado', ESTADO_LABEL[g.estado as GarantiaEstado] ?? g.estado],
+    ['Fecha de cierre', dato(g.fecha_cierre)],
+  ];
+}
