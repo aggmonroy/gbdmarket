@@ -18,6 +18,10 @@ describe('Datos de garantía para proveedor', () => {
     expect(rows.get('Provincia')).toBe('—');
     expect(rows.get('Taller solicitado por el cliente')).toBe('—');
   });
+  it('no incluye acciones ni seguimiento interno', () => {
+    const rows = new Map(filasProveedor({ ...garantia, accion_realizada: 'Nota interna' }));
+    for (const k of ['Acción realizada', 'Siguiente paso', 'Estado', 'Fecha de cierre', 'Examen descarta mal uso', 'Dentro de los primeros 15 días']) expect(rows.has(k)).toBe(false);
+  });
   it('acepta los nuevos datos y permite garantías anteriores sin ellos', () => {
     const input = { ...garantia, token: 'test-token', pin: '1234' };
     expect(crearGarantiaSchema.parse(input).numero_serie).toBe('SN123');
