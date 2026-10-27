@@ -1,5 +1,4 @@
 import { SUCURSAL_LABEL, SUCURSAL_WHATSAPP, type Sucursal } from './sucursales';
-import { ESTADO_LABEL, siguientePaso, type GarantiaEstado } from './garantias-shared';
 
 export type GarantiaProveedor = {
   numero_garantia: string; fecha: string; cliente: string;
@@ -37,11 +36,5 @@ export function filasProveedor(g: GarantiaProveedor, colaborador?: string | null
     ['Taller solicitado por el cliente', '—'],
     ['Marca', dato(g.marca)], ['Proveedor', dato(g.proveedor)],
     ['Cédula del cliente', dato(g.cedula_cliente)],
-    ['Dentro de los primeros 15 días', g.dentro_15_dias ? 'Sí' : 'No'],
-    ['Examen descarta mal uso', g.no_mal_uso ? 'Sí' : 'No'],
-    ['Acción realizada', dato(g.accion_realizada)],
-    ['Siguiente paso', siguientePaso(g.dentro_15_dias, g.no_mal_uso)],
-    ['Estado', ESTADO_LABEL[g.estado as GarantiaEstado] ?? g.estado],
-    ['Fecha de cierre', dato(g.fecha_cierre)],
   ];
 }
