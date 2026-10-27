@@ -1,10 +1,11 @@
 # Roadmap
 
 ## En curso
-- [ ] Completar todos los campos del formulario del proveedor en el trámite original.
-- [ ] Excluir acciones y seguimiento del reporte del proveedor, conservándolos en el imprimible.
+- [ ] Comprobar registro y edición de una garantía desde una sesión de colaborador; falta una sesión autorizada del portal.
 
 ## Completados
+- [x] Agregar los campos solicitados de ubicación del cliente, tipo de servicio, sucursal de compra y datos fijos al formulario y ambos reportes; permitir edición en casos existentes.
+- [x] Excluir acciones y seguimiento del reporte del proveedor, conservándolos en el imprimible.
 - [x] Serie, marca y proveedor en garantías nuevas y existentes.
 - [x] Reporte del proveedor en imagen de alta resolución, verificado con una garantía existente.
 - [x] Texto de Yappy ajustado y comentario opcional agregado.

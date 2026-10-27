@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { SUCURSALES } from "./sucursales";
+import { formularioProveedorSchema } from './garantia-datos-proveedor';
 
 const ESTADOS = ["proceso", "revision", "cerrada_cliente_credito", "cerrada_proveedor_cliente"] as const;
 const CIERRES = ["cerrada_cliente_credito", "cerrada_proveedor_cliente"] as const;
@@ -45,6 +46,7 @@ export const crearGarantiaSchema = z.object({
   numero_serie: z.string().trim().max(200).optional(),
   marca: z.string().trim().max(200).optional(),
   proveedor: z.string().trim().max(200).optional(),
+  datos_proveedor: formularioProveedorSchema.optional(),
   descripcion_articulo: z.string().trim().max(500).optional().or(z.literal("")),
   dentro_15_dias: z.boolean().default(false),
   no_mal_uso: z.boolean().default(false),
@@ -81,6 +83,8 @@ export const datosProveedorSchema = idTokenSchema.extend({
   numero_serie: z.string().trim().max(200),
   marca: z.string().trim().max(200),
   proveedor: z.string().trim().max(200),
+  direccion_cliente: z.string().trim().max(400).optional(),
+  datos_proveedor: formularioProveedorSchema.optional(),
 });
 
 export const colaboradorSchema = z.object({
