@@ -28,6 +28,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ReporteProveedorGarantia } from "@/components/site/ReporteProveedorGarantia";
+import { GarantiaDatosProveedorFields } from '@/components/site/GarantiaDatosProveedorFields';
+import { DATOS_PROVEEDOR_VACIOS, leerDatosProveedor, LUGAR_COMPRA_GARANTIA, TELEFONO_REPORTA_GARANTIA, type DatosFormularioProveedor } from '@/lib/garantia-datos-proveedor';
 import {
   agregarSeguimiento,
   crearGarantia,
@@ -281,6 +283,7 @@ const vacio = {
   cedula_cliente: "",
   telefono_cliente: "",
   direccion_cliente: "",
+  datos_proveedor: { ...DATOS_PROVEEDOR_VACIOS },
   numero_factura: "",
   fecha_facturacion: "",
   modelo_codigo: "",
@@ -377,6 +380,9 @@ function FormularioNuevo({ token, onCreada }: { token: string; onCreada: () => v
             <Input aria-label="Proveedor" maxLength={200} value={form.proveedor} onChange={(e) => set("proveedor", e.target.value)} />
           </Campo>
         </div>
+
+        <GarantiaDatosProveedorFields datos={form.datos_proveedor} direccion={form.direccion_cliente}
+          onDatos={datos => set('datos_proveedor', datos)} onDireccion={direccion => set('direccion_cliente', direccion)} />
 
         <Campo label="Descripción del artículo y del desperfecto">
           <Textarea
@@ -635,13 +641,13 @@ function DetalleCaso({
   const [tipoCierre, setTipoCierre] = useState("cerrada_cliente_credito");
   const [notaFinal, setNotaFinal] = useState("");
   const [documento, setDocumento] = useState("");
-  const [producto, setProducto] = useState<{ numero_serie: string; marca: string; proveedor: string } | null>(null);
+  const [producto, setProducto] = useState<{ numero_serie: string; marca: string; proveedor: string; direccion_cliente?: string; datos_proveedor?: DatosFormularioProveedor } | null>(null);
   const guardarProducto = useMutation({
     mutationFn: () => {
       if (!producto) throw new Error("No hay cambios");
       return proveedorFn({ data: { token, garantia_id: id, ...producto } });
     },
-    onSuccess: () => { setProducto(null); refetch(); onCambio(); toast.success("Datos del producto actualizados"); },
+    onSuccess: () => { setProducto(null); refetch(); onCambio(); toast.success("Datos de garantía actualizados"); },
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -719,6 +725,13 @@ function DetalleCaso({
               <Dato k="Cédula" v={g.cedula_cliente} />
               <Dato k="Teléfono" v={g.telefono_cliente} />
               <Dato k="Dirección" v={g.direccion_cliente} />
+              <Dato k="País" v={leerDatosProveedor(g.datos_proveedor, g.sucursal).pais} />
+              <Dato k="Provincia" v={leerDatosProveedor(g.datos_proveedor, g.sucursal).provincia} />
+              <Dato k="Distrito" v={leerDatosProveedor(g.datos_proveedor, g.sucursal).distrito} />
+              <Dato k="Corregimiento" v={leerDatosProveedor(g.datos_proveedor, g.sucursal).corregimiento} />
+              <Dato k="Tipo de servicio" v={leerDatosProveedor(g.datos_proveedor, g.sucursal).tipo_servicio} />
+              <Dato k="Lugar de compra" v={`${LUGAR_COMPRA_GARANTIA} · ${leerDatosProveedor(g.datos_proveedor, g.sucursal).sucursal_compra}`} />
+              <Dato k="Teléfono de quien reporta el servicio" v={TELEFONO_REPORTA_GARANTIA} />
               <Dato k="Factura" v={g.numero_factura} />
               <Dato k="Fecha de facturación" v={g.fecha_facturacion} />
               <Dato k="Modelo / código" v={g.modelo_codigo} />
@@ -733,7 +746,10 @@ function DetalleCaso({
                   <Input aria-label={label} maxLength={200} value={producto?.[key] ?? g[key] ?? ''} onChange={e => setProducto(current => ({ numero_serie: g.numero_serie ?? '', marca: g.marca ?? '', proveedor: g.proveedor ?? '', ...current, [key]: e.target.value }))} />
                 </Campo>)}
               </div>
-              <Button variant="outline" size="sm" disabled={!producto || guardarProducto.isPending} onClick={() => guardarProducto.mutate()}>Guardar datos del producto</Button>
+              <GarantiaDatosProveedorFields datos={producto?.datos_proveedor ?? leerDatosProveedor(g.datos_proveedor, g.sucursal)} direccion={producto?.direccion_cliente ?? g.direccion_cliente ?? ''}
+                onDatos={datos => setProducto(current => ({ numero_serie: g.numero_serie ?? '', marca: g.marca ?? '', proveedor: g.proveedor ?? '', ...current, datos_proveedor: datos }))}
+                onDireccion={direccion => setProducto(current => ({ numero_serie: g.numero_serie ?? '', marca: g.marca ?? '', proveedor: g.proveedor ?? '', ...current, direccion_cliente: direccion }))} />
+              <Button variant="outline" size="sm" disabled={!producto || guardarProducto.isPending} onClick={() => guardarProducto.mutate()}>Guardar datos de garantía</Button>
             </section>}
             <Dato k="Artículo / desperfecto" v={g.descripcion_articulo} />
             <Dato k="Acción realizada" v={g.accion_realizada} />

@@ -7,11 +7,11 @@ describe('Datos de garantía para proveedor', () => {
   it('incluye marca y proveedor del caso en el título', () => {
     expect(tituloProveedor(garantia)).toBe('REPORTE DE GARANTÍA · Marca de prueba · Proveedor de prueba');
   });
-  it('conserva modelo y serie y usa el teléfono de la sucursal del trámite', () => {
+  it('conserva modelo y serie y usa el teléfono fijo de quien reporta', () => {
     const rows = new Map(filasProveedor(garantia, 'Asesor'));
     expect(rows.get('Modelo')).toBe('M123');
     expect(rows.get('Nr. Serial')).toBe('SN123');
-    expect(rows.get('Teléfono de la persona que reporta el servicio')).toBe('50768711242');
+    expect(rows.get('Teléfono de la persona que reporta el servicio')).toBe('67841941');
   });
   it('no inventa los datos que el formulario no recopila', () => {
     const rows = new Map(filasProveedor(garantia));

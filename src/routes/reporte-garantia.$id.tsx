@@ -8,6 +8,7 @@ import { ReporteProveedorGarantia } from "@/components/site/ReporteProveedorGara
 import { getGarantia, getGarantiaReporte } from "@/lib/garantias.functions";
 import { ESTADO_LABEL, TEXTO_CONSENTIMIENTO, siguientePaso, type GarantiaEstado } from "@/lib/garantias-shared";
 import { SUCURSAL_LABEL, SUCURSAL_WHATSAPP, type Sucursal } from "@/lib/sucursales";
+import { leerDatosProveedor, LUGAR_COMPRA_GARANTIA, TELEFONO_REPORTA_GARANTIA } from '@/lib/garantia-datos-proveedor';
 
 /** +507 6871-1242 a partir de 50768711242. */
 const waVisible = (n: string) => `+${n.slice(0, 3)} ${n.slice(3, 7)}-${n.slice(7)}`;
@@ -65,6 +66,7 @@ function ReporteGarantia() {
   if (!data) return <p className="p-8 text-center text-sm">Cargando reporte…</p>;
 
   const g = data.garantia;
+  const proveedor = leerDatosProveedor(g.datos_proveedor, g.sucursal);
 
   return (
     <div className="mx-auto max-w-3xl bg-background p-8 print:p-0">
@@ -92,6 +94,13 @@ function ReporteGarantia() {
         <Fila k="Cédula" v={g.cedula_cliente} />
         <Fila k="Teléfono" v={g.telefono_cliente} />
         <Fila k="Dirección" v={g.direccion_cliente} />
+        <Fila k="País" v={proveedor.pais} />
+        <Fila k="Provincia" v={proveedor.provincia} />
+        <Fila k="Distrito" v={proveedor.distrito} />
+        <Fila k="Corregimiento" v={proveedor.corregimiento} />
+        <Fila k="Tipo de servicio" v={proveedor.tipo_servicio} />
+        <Fila k="Lugar de compra" v={`${LUGAR_COMPRA_GARANTIA} · ${proveedor.sucursal_compra}`} />
+        <Fila k="Teléfono de quien reporta el servicio" v={TELEFONO_REPORTA_GARANTIA} />
         <Fila k="Factura" v={g.numero_factura} />
         <Fila k="Fecha de facturación" v={g.fecha_facturacion} />
         <Fila k="Modelo / código" v={g.modelo_codigo} />

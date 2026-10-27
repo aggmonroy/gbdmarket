@@ -153,6 +153,7 @@ export const crearGarantia = createServerFn({ method: "POST" })
         numero_serie: data.numero_serie || null,
         marca: data.marca || null,
         proveedor: data.proveedor || null,
+        datos_proveedor: data.datos_proveedor ?? {},
         descripcion_articulo: data.descripcion_articulo || null,
         dentro_15_dias: data.dentro_15_dias,
         no_mal_uso: data.dentro_15_dias ? data.no_mal_uso : false,
@@ -210,6 +211,8 @@ export const guardarDatosProveedorGarantia = createServerFn({ method: "POST" })
     const sb = await admin();
     const { data: row, error } = await sb.from("garantias").update({
       numero_serie: data.numero_serie || null, marca: data.marca || null, proveedor: data.proveedor || null,
+      ...(data.direccion_cliente !== undefined ? { direccion_cliente: data.direccion_cliente || null } : {}),
+      ...(data.datos_proveedor !== undefined ? { datos_proveedor: data.datos_proveedor } : {}),
     }).eq("id", data.garantia_id).select("id").single();
     if (error || !row) throw new Error(error?.message ?? "Garantía no encontrada");
     return { ok: true };
