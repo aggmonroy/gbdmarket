@@ -1,2 +1,3 @@
 ## Warranty reports
 - Supplier reports use a shared client-side table and image export, populated from the existing authorized warranty read; do not generate customer documents with AI or expose additional public data endpoints.
+- Warranty supplier location and purchase details use the existing datos_proveedor JSON with a shared validated schema; purchase branch is separate from routing branch to preserve task assignment and follow-up destinations.

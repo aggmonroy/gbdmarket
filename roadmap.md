@@ -2,7 +2,8 @@
 
 ## En curso
 - [ ] Completar todos los campos del formulario del proveedor en el trámite original.
-- [ ] Excluir acciones y seguimiento del reporte del proveedor, conservándolos en el imprimible.
+- [x] Excluir acciones y seguimiento del reporte del proveedor, conservándolos en el imprimible.
+- [ ] Agregar ubicación del cliente, tipo de servicio, sucursal de compra y datos fijos al formulario y reportes.
 
 ## Completados
 - [x] Serie, marca y proveedor en garantías nuevas y existentes.
