@@ -174,10 +174,10 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
 
 function Campo({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-1">
-      <Label className="text-xs">{label}</Label>
+    <Label className="block space-y-1 text-xs">
+      <span>{label}</span>
       {children}
-    </div>
+    </Label>
   );
 }
 
