@@ -174,3 +174,25 @@ html.embed .install-app-btn {
 .warranty-supplier-report th { text-align: left; }
 .warranty-supplier-report td { text-align: center; }
 
+
+/* Formato "Orden de combustible": dos copias por hoja carta horizontal, monocromo como el original. */
+.fuel-order-sheet { display: flex; gap: 28px; width: 960px; padding: 8px; background: var(--report-paper); color: var(--report-ink); font: 15px Calibri, Carlito, Arial, sans-serif; }
+.fuel-order { flex: 1; min-width: 0; border: 3px solid var(--report-ink); }
+.fuel-order__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 6px 4px 18px 10px; border-bottom: 3px solid var(--report-ink); text-align: right; font-weight: 700; line-height: 1.35; }
+.fuel-order__head img { width: 68px; height: auto; margin-top: 4px; }
+.fuel-order__name { font-size: 19px; }
+.fuel-order table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.fuel-order td { border: 2px solid var(--report-ink); padding: 3px 5px; height: 26px; text-align: center; vertical-align: middle; overflow-wrap: anywhere; }
+.fuel-order tr:first-child td { border-top: 0; }
+.fuel-order td:first-child { border-left: 0; }
+.fuel-order td:last-child { border-right: 0; }
+.fuel-order tr:last-child td { border-bottom: 0; }
+.fuel-order td.l { text-align: left; }
+.fuel-order td.b { font-weight: 700; }
+.fuel-order td.big { font-size: 16px; }
+.fuel-order__body { height: 92px !important; vertical-align: bottom !important; line-height: 2.1; }
+.fuel-order__note { height: 70px !important; vertical-align: bottom !important; line-height: 1.5; }
+@page fuel-order { size: letter landscape; margin: 10mm; }
+@media print {
+  .fuel-order-sheet { page: fuel-order; width: 100%; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
