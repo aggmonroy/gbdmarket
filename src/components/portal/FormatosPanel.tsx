@@ -20,11 +20,11 @@ const hoy = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
-type Formato = "orden-combustible";
+type Formato = "el-esfuerzo";
 
 export function FormatosPanel() {
   const [formato, setFormato] = useState<Formato | null>(null);
-  if (formato === "orden-combustible") return <OrdenCombustibleEditor onVolver={() => setFormato(null)} />;
+  if (formato === "el-esfuerzo") return <OrdenCombustibleEditor onVolver={() => setFormato(null)} />;
   return (
     <div className="space-y-4">
       <div>
@@ -32,15 +32,15 @@ export function FormatosPanel() {
         <p className="text-sm text-muted-foreground">Formatos internos listos para completar, imprimir o descargar.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <button type="button" onClick={() => setFormato("orden-combustible")} className="block w-full text-left">
+        <button type="button" onClick={() => setFormato("el-esfuerzo")} className="block w-full text-left">
           <Card className="h-full transition hover:border-primary hover:shadow-soft">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Fuel className="h-5 w-5 text-primary" /> Órdenes de combustible
+                <Fuel className="h-5 w-5 text-primary" /> Estación El Esfuerzo
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              Orden de compra de combustible para la estación, con fecha, vehículo, placa y firmas editables.
+              Orden de combustible para la estación El Esfuerzo, con fecha, vehículo, placa y firmas editables.
             </CardContent>
           </Card>
         </button>
@@ -98,11 +98,11 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
       const blob = await new Promise<Blob>((res, rej) =>
         canvas.toBlob((b) => (b ? res(b) : rej(new Error("No se pudo generar la imagen"))), "image/png"),
       );
-      const filename = `orden-combustible-${datos.fecha}-${datos.placa || "vehiculo"}.png`;
+      const filename = `estacion-el-esfuerzo-${datos.fecha}-${datos.placa || "vehiculo"}.png`;
       const file = new File([blob], filename, { type: "image/png" });
       if (matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: "Orden de combustible" });
+          await navigator.share({ files: [file], title: "Estación El Esfuerzo" });
           return;
         } catch (err) {
           if (err instanceof DOMException && err.name === "AbortError") return;
@@ -150,7 +150,7 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
       <Card className="print:hidden">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Fuel className="h-5 w-5 text-primary" /> Orden de combustible
+            <Fuel className="h-5 w-5 text-primary" /> Estación El Esfuerzo
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-3">
