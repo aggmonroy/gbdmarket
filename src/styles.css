@@ -192,7 +192,11 @@ html.embed .install-app-btn {
 .fuel-order td.big { font-size: 16px; }
 .fuel-order__body { height: 92px !important; vertical-align: bottom !important; line-height: 2.1; }
 .fuel-order__note { height: 70px !important; vertical-align: bottom !important; line-height: 1.5; }
-@page fuel-order { size: letter landscape; margin: 10mm; }
 @media print {
-  .fuel-order-sheet { page: fuel-order; width: 100%; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html.print-fuel-order .site-header,
+  html.print-fuel-order .site-footer,
+  html.print-fuel-order .wa-float,
+  html.print-fuel-order .install-app-btn { display: none !important; }
+  html.print-fuel-order body { background: var(--report-paper); }
+  .fuel-order-sheet { width: 100%; padding: 0; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

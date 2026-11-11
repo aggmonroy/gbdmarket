@@ -71,6 +71,22 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
   const set = (k: keyof OrdenCombustible) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setDatos((d) => ({ ...d, [k]: e.target.value }));
 
+  /** Imprime solo el formato, en carta horizontal (dos copias por hoja). */
+  function imprimir() {
+    const root = document.documentElement;
+    const style = document.createElement("style");
+    style.textContent = "@page { size: letter landscape; margin: 10mm; }";
+    document.head.appendChild(style);
+    root.classList.add("print-fuel-order");
+    const limpiar = () => {
+      root.classList.remove("print-fuel-order");
+      style.remove();
+      window.removeEventListener("afterprint", limpiar);
+    };
+    window.addEventListener("afterprint", limpiar);
+    window.print();
+  }
+
   async function descargar() {
     const el = ref.current;
     if (!el) return;
@@ -125,7 +141,7 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
             {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
             Descargar imagen
           </Button>
-          <Button size="sm" onClick={() => window.print()}>
+          <Button size="sm" onClick={imprimir}>
             <Printer className="mr-2 h-4 w-4" /> Imprimir
           </Button>
         </div>
