@@ -367,7 +367,7 @@ function Menu({
       />
       <Area
         titulo="Formatos"
-        texto="Formatos internos listos para completar e imprimir, como las órdenes de combustible."
+        texto="Formatos internos listos para completar e imprimir, como la orden de la estación El Esfuerzo."
         icon={FileText}
         onClick={() => ir("formatos")}
       />
