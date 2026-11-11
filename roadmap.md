@@ -4,6 +4,7 @@
 - [ ] Comprobar registro y edición de una garantía desde una sesión de colaborador; falta una sesión autorizada del portal.
 
 ## Completados
+- [x] Módulo "Formatos" en el portal con la orden de combustible editable, imprimible y descargable.
 - [x] Agregar los campos solicitados de ubicación del cliente, tipo de servicio, sucursal de compra y datos fijos al formulario y ambos reportes; permitir edición en casos existentes.
 - [x] Excluir acciones y seguimiento del reporte del proveedor, conservándolos en el imprimible.
 - [x] Serie, marca y proveedor en garantías nuevas y existentes.
