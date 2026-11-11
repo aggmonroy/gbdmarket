@@ -17,7 +17,6 @@ import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as CotizarRouteImport } from './routes/cotizar'
 import { Route as FinanciamientoRouteImport } from './routes/financiamiento'
-import { Route as FormatoCheckRouteImport } from './routes/formato-check'
 import { Route as GarantiasRouteImport } from './routes/garantias'
 import { Route as LineaBlancaRouteImport } from './routes/linea-blanca'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -98,11 +97,6 @@ const CotizarRoute = CotizarRouteImport.update({
 const FinanciamientoRoute = FinanciamientoRouteImport.update({
   id: '/financiamiento',
   path: '/financiamiento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FormatoCheckRoute = FormatoCheckRouteImport.update({
-  id: '/formato-check',
-  path: '/formato-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GarantiasRoute = GarantiasRouteImport.update({
@@ -346,7 +340,6 @@ export interface FileRoutesByFullPath {
   '/contacto': typeof ContactoRoute
   '/cotizar': typeof CotizarRoute
   '/financiamiento': typeof FinanciamientoRoute
-  '/formato-check': typeof FormatoCheckRoute
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
@@ -398,7 +391,6 @@ export interface FileRoutesByTo {
   '/contacto': typeof ContactoRoute
   '/cotizar': typeof CotizarRoute
   '/financiamiento': typeof FinanciamientoRoute
-  '/formato-check': typeof FormatoCheckRoute
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
@@ -450,7 +442,6 @@ export interface FileRoutesById {
   '/contacto': typeof ContactoRoute
   '/cotizar': typeof CotizarRoute
   '/financiamiento': typeof FinanciamientoRoute
-  '/formato-check': typeof FormatoCheckRoute
   '/garantias': typeof GarantiasRoute
   '/linea-blanca': typeof LineaBlancaRoute
   '/mcp': typeof McpRoute
@@ -504,7 +495,6 @@ export interface FileRouteTypes {
     | '/contacto'
     | '/cotizar'
     | '/financiamiento'
-    | '/formato-check'
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
@@ -556,7 +546,6 @@ export interface FileRouteTypes {
     | '/contacto'
     | '/cotizar'
     | '/financiamiento'
-    | '/formato-check'
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
@@ -607,7 +596,6 @@ export interface FileRouteTypes {
     | '/contacto'
     | '/cotizar'
     | '/financiamiento'
-    | '/formato-check'
     | '/garantias'
     | '/linea-blanca'
     | '/mcp'
@@ -661,7 +649,6 @@ export interface RootRouteChildren {
   ContactoRoute: typeof ContactoRoute
   CotizarRoute: typeof CotizarRoute
   FinanciamientoRoute: typeof FinanciamientoRoute
-  FormatoCheckRoute: typeof FormatoCheckRoute
   GarantiasRoute: typeof GarantiasRoute
   LineaBlancaRoute: typeof LineaBlancaRoute
   McpRoute: typeof McpRoute
@@ -739,13 +726,6 @@ declare module '@tanstack/react-router' {
       path: '/financiamiento'
       fullPath: '/financiamiento'
       preLoaderRoute: typeof FinanciamientoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/formato-check': {
-      id: '/formato-check'
-      path: '/formato-check'
-      fullPath: '/formato-check'
-      preLoaderRoute: typeof FormatoCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/garantias': {
@@ -1130,7 +1110,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContactoRoute: ContactoRoute,
   CotizarRoute: CotizarRoute,
   FinanciamientoRoute: FinanciamientoRoute,
-  FormatoCheckRoute: FormatoCheckRoute,
   GarantiasRoute: GarantiasRoute,
   LineaBlancaRoute: LineaBlancaRoute,
   McpRoute: McpRoute,
