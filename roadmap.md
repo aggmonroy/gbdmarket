@@ -17,3 +17,5 @@
 - [x] Modo embebido `?embed=1` (oculta cabecera, pie, WhatsApp flotante y "Descargar App") + tarjeta "Insertar en coopgbd.com" en el panel admin con códigos copiables.
 - [x] Descuento de contado: por defecto 7%, ajuste manual hasta tope 10% (asociados, colaboradores y no asociados).
 - [x] Enlaces individuales para publicaciones del newsletter (/novedades/:id + compartir).
+- [x] Formato de orden de combustible renombrado "Estación El Esfuerzo" (tarjeta, editor, archivo descargado y tarjeta del menú).
+- [ ] Formato nuevo para la estación El Progreso (diseño diferente) — en espera de que la usuaria suba el archivo.
