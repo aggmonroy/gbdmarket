@@ -8,6 +8,7 @@ import {
   Archive,
   CalendarDays,
   Calculator,
+  FileText,
   KeyRound,
   LayoutDashboard,
   ListChecks,
@@ -32,6 +33,7 @@ import { SeguimientoDialog } from "@/components/portal/SeguimientoDialog";
 import { AsesorPage } from "@/components/calculadora/AsesorPage";
 import { CotizacionCarrito } from "@/components/portal/CotizacionCarrito";
 import { PaseCotizacionCard } from "@/components/portal/PaseCotizacionCard";
+import { FormatosPanel } from "@/components/portal/FormatosPanel";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -64,7 +66,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 function Portal() {
   const [sesion, setSesion] = useState<Sesion | null>(null);
   const [vista, setVista] = useState<
-    "menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "cotizacion"
+    "menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "cotizacion" | "formatos"
   >("menu");
   const [cotizacionTareaId, setCotizacionTareaId] = useState<string | null>(null);
 
@@ -123,11 +125,12 @@ function Portal() {
     { v: "calendario", label: "Calendario", icon: CalendarDays },
     { v: "catalogo", label: "Catálogo", icon: Package },
     { v: "calculadora", label: "Cotización", icon: Calculator },
+    { v: "formatos", label: "Formatos", icon: FileText },
   ];
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+    <div className="min-h-screen bg-muted/30 print:bg-background">
+      <div className="sticky top-0 z-40 print:hidden border-b border-border bg-background/95 backdrop-blur">
         <div className="mx-auto max-w-5xl px-4 py-3">
           <header className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -160,7 +163,7 @@ function Portal() {
           </nav>
         </div>
       </div>
-      <div className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+      <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 print:max-w-none print:p-0">
         {vista === "menu" && <Menu sesion={sesion} ir={setVista} />}
         {vista === "seguimiento" && (
           <SolicitudesActivas
@@ -185,6 +188,7 @@ function Portal() {
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
         {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
+        {vista === "formatos" && <FormatosPanel />}
         {vista === "calculadora" && (
           <div className="space-y-4">
             <PaseCotizacionCard token={sesion.token} />
@@ -309,7 +313,7 @@ function Menu({
   ir,
 }: {
   sesion: Sesion;
-  ir: (v: "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora") => void;
+  ir: (v: "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "formatos") => void;
 }) {
   const rol = sesion.colaborador.rol;
   return (
@@ -360,6 +364,12 @@ function Menu({
         texto="Cotiza Línea Blanca al contado o a crédito, evalúa capacidad de pago y comparte el enlace con el cliente."
         icon={Calculator}
         onClick={() => ir("calculadora")}
+      />
+      <Area
+        titulo="Formatos"
+        texto="Formatos internos listos para completar e imprimir, como las órdenes de combustible."
+        icon={FileText}
+        onClick={() => ir("formatos")}
       />
       {rol === "admin" && (
         <Area
