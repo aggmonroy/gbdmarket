@@ -1,6 +1,7 @@
 # Roadmap
 
 ## En curso
+- [ ] Formatos nuevos de los Excel: arqueo de caja y caja menuda (con fotos de comprobantes de WhatsApp), pedido con proveedor manual, traslados Línea Blanca y envío a El Progreso (con sucursal de origen y destino), control de documentos, consulta de retiros, control de horas, solicitud de roles y solicitud de cambios.
 - [ ] Comprobar registro y edición de una garantía desde una sesión de colaborador; falta una sesión autorizada del portal.
 
 ## Completados

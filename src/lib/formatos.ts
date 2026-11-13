@@ -154,3 +154,75 @@ export const lineaHorasVacia = (): LineaHoras => ({ fecha: "", desde: "", hasta:
 export function totalesHoras(ls: LineaHoras[]) {
   return { horas: suma(ls.map((l) => num(l.horas))), aplicable: suma(ls.map((l) => num(l.aplicable))) };
 }
+
+/** Sucursales sugeridas para origen y destino de un traslado (se puede escribir otra). */
+export const SUCURSALES_TRASLADO = [
+  "Casa Matriz",
+  "Mueblería GBD Las Tablas (Línea Blanca)",
+  "Sucursal Tonosí",
+  "Punto de venta Coop. El Progreso, R.L.",
+  "Bordados GBD",
+] as const;
+
+export type TrasladoTipo = "linea-blanca" | "progreso";
+
+export const TRASLADO_CONFIG: Record<TrasladoTipo, { titulo: string; destino: string }> = {
+  // TRASLADOS.xlsx
+  "linea-blanca": {
+    titulo: "CONTROL DE ENVÍO Y TRASLADOS DE MERCANCÍA DE SECCIÓN LÍNEA BLANCA",
+    destino: "",
+  },
+  // PROGRESO_TRASLADOS.xlsx
+  progreso: {
+    titulo: "CONTROL DE ENVÍO DE MERCANCÍA Y ACTIVO FIJO A PUNTO DE VENTA COOP. EL PROGRESO, R.L.",
+    destino: "Punto de venta Coop. El Progreso, R.L.",
+  },
+};
+
+export type Traslado = {
+  fecha: string;
+  origen: string;
+  destino: string;
+  lineas: LineaTraslado[];
+  auditado: string;
+  auditadoHora: string;
+  autorizado: string;
+  autorizadoHora: string;
+  entregadoSalida: string;
+  entregadoRetorno: string;
+  recibidoSalida: string;
+  recibidoRetorno: string;
+  recibidoRetornoHora: string;
+  horaSalida: string;
+  horaRetorno: string;
+};
+
+export function trasladoInicial(tipo: TrasladoTipo): Traslado {
+  return {
+    fecha: hoyISO(),
+    origen: "Mueblería GBD Las Tablas (Línea Blanca)",
+    destino: TRASLADO_CONFIG[tipo].destino,
+    lineas: [lineaTrasladoVacia(), lineaTrasladoVacia()],
+    auditado: "",
+    auditadoHora: "",
+    autorizado: "",
+    autorizadoHora: "",
+    entregadoSalida: "",
+    entregadoRetorno: "",
+    recibidoSalida: "",
+    recibidoRetorno: "",
+    recibidoRetornoHora: "",
+    horaSalida: "",
+    horaRetorno: "",
+  };
+}
+
+/** Faltan datos obligatorios del traslado: sucursal de origen y de destino, distintas. */
+export function errorSucursalesTraslado(t: Pick<Traslado, "origen" | "destino">): string | null {
+  if (!t.origen.trim()) return "Indica la sucursal de origen.";
+  if (!t.destino.trim()) return "Indica la sucursal de destino.";
+  if (t.origen.trim().toLowerCase() === t.destino.trim().toLowerCase())
+    return "La sucursal de origen y la de destino deben ser distintas.";
+  return null;
+}
+export { fechaLarga } from "./orden-combustible";

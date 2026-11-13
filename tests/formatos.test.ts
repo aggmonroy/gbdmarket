@@ -6,6 +6,8 @@ import {
   totalPedido,
   totalesHoras,
   totalesTraslado,
+  trasladoInicial,
+  errorSucursalesTraslado,
 } from "../src/lib/formatos";
 
 describe("Arqueo de caja", () => {
@@ -67,5 +69,20 @@ describe("Pedido, traslados y horas", () => {
         { ...l, horas: "4.5", aplicable: "4" },
       ]),
     ).toEqual({ horas: 5, aplicable: 4.5 });
+  });
+});
+
+describe("Traslados: sucursal de origen y destino", () => {
+  it("envío a El Progreso trae el destino fijo y ambos traen origen", () => {
+    const t = trasladoInicial("progreso");
+    expect(t.destino).toBe("Punto de venta Coop. El Progreso, R.L.");
+    expect(t.origen).not.toBe("");
+    expect(trasladoInicial("linea-blanca").destino).toBe("");
+  });
+  it("exige origen y destino distintos", () => {
+    expect(errorSucursalesTraslado({ origen: "", destino: "Sucursal Tonosí" })).toMatch(/origen/);
+    expect(errorSucursalesTraslado({ origen: "Casa Matriz", destino: "" })).toMatch(/destino/);
+    expect(errorSucursalesTraslado({ origen: "Casa Matriz", destino: "casa matriz" })).toMatch(/distintas/);
+    expect(errorSucursalesTraslado({ origen: "Casa Matriz", destino: "Sucursal Tonosí" })).toBeNull();
   });
 });

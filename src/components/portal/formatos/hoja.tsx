@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowLeft, Download, Loader2, Printer, RotateCcw, type LucideIcon } from "lucide-react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { ArrowLeft, Download, ImagePlus, Loader2, Printer, RotateCcw, X, type LucideIcon } from "lucide-react";
+import logo from "@/assets/logo-cooperativa-gbd.png";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -183,6 +184,8 @@ type CeldaProps = {
   numero?: boolean;
   multilinea?: number;
   opciones?: readonly string[];
+  /** Sugerencias para elegir, permitiendo también escribir otro valor. */
+  sugerencias?: readonly string[];
   placeholder?: string;
   label?: string;
   className?: string;
@@ -199,11 +202,13 @@ export function Celda({
   numero,
   multilinea,
   opciones,
+  sugerencias,
   placeholder,
   label,
   className,
   bold,
 }: CeldaProps) {
+  const listaId = useId();
   const style = { textAlign: align, fontWeight: bold ? 700 : undefined } as const;
   const comunes = { "aria-label": label ?? placeholder, className: "fmt-in", style };
   let control: ReactNode;
@@ -234,6 +239,7 @@ export function Celda({
         {...comunes}
         type={type}
         inputMode={numero ? "decimal" : undefined}
+        list={sugerencias ? listaId : undefined}
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(numero ? e.target.value.replace(/[^\d.,-]/g, "") : e.target.value)}
@@ -243,6 +249,13 @@ export function Celda({
   return (
     <>
       {control}
+      {sugerencias && (
+        <datalist id={listaId}>
+          {sugerencias.map((o) => (
+            <option key={o} value={o} />
+          ))}
+        </datalist>
+      )}
       <span className={cn("fmt-out", multilinea && "fmt-out--block", className)} style={style}>
         {mostrar ?? value}
       </span>
@@ -282,17 +295,21 @@ export function Raya({
   value,
   onChange,
   type,
+  sugerencias,
+  mostrar,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  type?: "text" | "time";
+  type?: "text" | "time" | "date";
+  sugerencias?: readonly string[];
+  mostrar?: ReactNode;
 }) {
   return (
     <div className="fmt-raya">
       <span>{label}</span>
       <span className="fmt-raya__v">
-        <Celda value={value} onChange={onChange} label={label} type={type} align="center" />
+        <Celda value={value} onChange={onChange} label={label} type={type} align="center" sugerencias={sugerencias} mostrar={mostrar} />
       </span>
     </div>
   );
@@ -315,6 +332,127 @@ export function ControlFilas({ onAgregar, onQuitar, puedeQuitar }: { onAgregar: 
           − Quitar última fila
         </button>
       )}
+    </div>
+  );
+}
+
+/** Encabezado institucional de los formatos (logo, cooperativa, sección y título). */
+export function Encabezado({ seccion, titulo, children }: { seccion?: string; titulo: ReactNode; children?: ReactNode }) {
+  return (
+    <div className="fmt-head">
+      <img src={logo} alt="Cooperativa GBD" />
+      <div className="fmt-head__txt">
+        <div className="fmt-head__coop">COOPERATIVA DE SERVICIOS INTEGRALES GLADYS B. DE DUCASA, R.L.</div>
+        {seccion && <div className="fmt-head__sec">{seccion}</div>}
+        <div className="fmt-head__tit">{titulo}</div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export type ImagenAnexa = { id: string; src: string; nota: string };
+
+/** Reduce la foto (máx. 1600 px, JPEG) para que imprima nítida sin llenar la memoria del teléfono. */
+async function comprimirImagen(file: File): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const escala = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * escala));
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * escala));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("No se pudo leer la imagen");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.85);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/** Fotos de comprobantes anexas al formato; se imprimen y descargan con la hoja. */
+export function AnexosImagenes({
+  titulo = "Anexos: comprobantes",
+  imagenes,
+  onChange,
+}: {
+  titulo?: string;
+  imagenes: ImagenAnexa[];
+  onChange: (imgs: ImagenAnexa[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [cargando, setCargando] = useState(false);
+
+  async function agregar(files: FileList | null) {
+    if (!files?.length) return;
+    setCargando(true);
+    const nuevas: ImagenAnexa[] = [];
+    for (const f of Array.from(files)) {
+      if (!f.type.startsWith("image/")) {
+        toast.error(`${f.name} no es una imagen`);
+        continue;
+      }
+      try {
+        nuevas.push({ id: crypto.randomUUID(), src: await comprimirImagen(f), nota: "" });
+      } catch {
+        toast.error(`No se pudo leer ${f.name}`);
+      }
+    }
+    onChange([...imagenes, ...nuevas]);
+    setCargando(false);
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  return (
+    <div className={cn("fmt-anexos", imagenes.length === 0 && "fmt-anexos--vacio")}>
+      <div className="fmt-anexos__tit">{titulo}</div>
+      <div className="fmt-anexos__grid">
+        {imagenes.map((img, i) => (
+          <figure key={img.id} className="fmt-anexo">
+            <img src={img.src} alt={img.nota || `Comprobante ${i + 1}`} />
+            <figcaption>
+              <Celda
+                value={img.nota}
+                onChange={(v) => onChange(imagenes.map((x) => (x.id === img.id ? { ...x, nota: v } : x)))}
+                placeholder="Detalle (ej. Yappy B/. 25.00)"
+                label={`Detalle del comprobante ${i + 1}`}
+                align="center"
+                mostrar={img.nota || `Comprobante ${i + 1}`}
+              />
+            </figcaption>
+            <button
+              type="button"
+              className="fmt-noprint fmt-anexo__quitar"
+              aria-label={`Quitar comprobante ${i + 1}`}
+              onClick={() => onChange(imagenes.filter((x) => x.id !== img.id))}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </figure>
+        ))}
+      </div>
+      <div className="fmt-noprint mt-2 flex flex-wrap items-center gap-2">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => void agregar(e.target.files)}
+        />
+        <button type="button" className="fmt-btn inline-flex items-center gap-1" onClick={() => inputRef.current?.click()} disabled={cargando}>
+          {cargando ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+          Anexar fotos de comprobantes
+        </button>
+        <span className="text-xs text-muted-foreground">
+          Capturas de WhatsApp (Yappy, ACH, BAC…). Las fotos no se guardan: se pierden al salir del formato.
+        </span>
+      </div>
     </div>
   );
 }
