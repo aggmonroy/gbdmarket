@@ -134,7 +134,7 @@ export function EditorFormato({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
         <Button variant="ghost" size="sm" onClick={onVolver}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Formatos
+          <ArrowLeft className="mr-2 h-4 w-4" /> Volver a formatos
         </Button>
         <div className="flex flex-wrap gap-2">
           <Button

@@ -1,5 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Download, Fuel, Loader2, Printer, RotateCcw } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRightLeft,
+  Calculator,
+  Clock,
+  Download,
+  FolderOpen,
+  Fuel,
+  KeyRound,
+  Loader2,
+  Printer,
+  RotateCcw,
+  Search,
+  ShoppingCart,
+  Truck,
+  Wallet,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +31,13 @@ import {
   periodoFiscal,
   type OrdenCombustible,
 } from "@/lib/orden-combustible";
+import { ArqueoEditor } from "./formatos/arqueo";
+import { PedidoEditor } from "./formatos/pedido";
+import { TrasladoEditor } from "./formatos/traslado";
+import { DocumentosEditor } from "./formatos/documentos";
+import { RetirosEditor } from "./formatos/retiros";
+import { HorasEditor } from "./formatos/horas";
+import { CambiosEditor, RolesEditor } from "./formatos/solicitudes";
 
 const STORAGE_KEY = "gbd_formato_orden_combustible";
 const hoy = () => {
@@ -20,31 +45,91 @@ const hoy = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
-type Formato = "el-esfuerzo";
+type Formato =
+  | "el-esfuerzo"
+  | "arqueo-caja"
+  | "arqueo-caja-menuda"
+  | "pedido"
+  | "traslado-linea-blanca"
+  | "traslado-progreso"
+  | "documentos"
+  | "retiros"
+  | "horas"
+  | "roles"
+  | "cambios";
+
+const FORMATOS: { id: Formato; titulo: string; descripcion: string; icono: LucideIcon; grupo: string }[] = [
+  { id: "arqueo-caja", titulo: "Arqueo de caja", descripcion: "Billetes, monedas, BAC, cheques, Yappy, ACH y anulación; resta el fondo y marca sobrante o faltante. Con fotos de comprobantes.", icono: Calculator, grupo: "Caja" },
+  { id: "arqueo-caja-menuda", titulo: "Arqueo de caja menuda", descripcion: "Efectivo y comprobantes con fondo de 100. Con fotos de comprobantes de WhatsApp.", icono: Wallet, grupo: "Caja" },
+  { id: "pedido", titulo: "Pedido a proveedor", descripcion: "Pedido con el proveedor escrito a mano, cantidades, modelos y total.", icono: ShoppingCart, grupo: "Mercancía" },
+  { id: "traslado-linea-blanca", titulo: "Traslados de Línea Blanca", descripcion: "Envío y traslado de mercancía con sucursal de origen y de destino.", icono: ArrowRightLeft, grupo: "Mercancía" },
+  { id: "traslado-progreso", titulo: "Envío a El Progreso", descripcion: "Mercancía y activo fijo al punto de venta Coop. El Progreso, con origen y destino.", icono: Truck, grupo: "Mercancía" },
+  { id: "documentos", titulo: "Control de documentos", descripcion: "Documentos enviados y recibidos por cada licenciado y los devueltos a Línea Blanca.", icono: FolderOpen, grupo: "Administración" },
+  { id: "retiros", titulo: "Consulta de retiros", descripcion: "Cédula, si es cliente de Línea Blanca y saldo.", icono: Search, grupo: "Administración" },
+  { id: "horas", titulo: "Control de horas", descripcion: "Horas y tiempo aplicable por empleado; llegadas tarde en negativo.", icono: Clock, grupo: "Administración" },
+  { id: "roles", titulo: "Solicitud de roles", descripcion: "Creación de usuario, asignación o baja de roles y correo.", icono: KeyRound, grupo: "Sistema" },
+  { id: "cambios", titulo: "Solicitud de cambios en el sistema", descripcion: "Descripción y justificación del cambio, con aprobación.", icono: Wrench, grupo: "Sistema" },
+  { id: "el-esfuerzo", titulo: "Estación El Esfuerzo", descripcion: "Orden de combustible para la estación El Esfuerzo, con fecha, vehículo, placa y firmas editables.", icono: Fuel, grupo: "Combustible" },
+];
 
 export function FormatosPanel() {
   const [formato, setFormato] = useState<Formato | null>(null);
-  if (formato === "el-esfuerzo") return <OrdenCombustibleEditor onVolver={() => setFormato(null)} />;
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [formato]);
+  const volver = () => setFormato(null);
+  switch (formato) {
+    case "el-esfuerzo":
+      return <OrdenCombustibleEditor onVolver={volver} />;
+    case "arqueo-caja":
+      return <ArqueoEditor tipo="caja" onVolver={volver} />;
+    case "arqueo-caja-menuda":
+      return <ArqueoEditor tipo="caja-menuda" onVolver={volver} />;
+    case "pedido":
+      return <PedidoEditor onVolver={volver} />;
+    case "traslado-linea-blanca":
+      return <TrasladoEditor tipo="linea-blanca" onVolver={volver} />;
+    case "traslado-progreso":
+      return <TrasladoEditor tipo="progreso" onVolver={volver} />;
+    case "documentos":
+      return <DocumentosEditor onVolver={volver} />;
+    case "retiros":
+      return <RetirosEditor onVolver={volver} />;
+    case "horas":
+      return <HorasEditor onVolver={volver} />;
+    case "roles":
+      return <RolesEditor onVolver={volver} />;
+    case "cambios":
+      return <CambiosEditor onVolver={volver} />;
+  }
+  const grupos = Array.from(new Set(FORMATOS.map((f) => f.grupo)));
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
         <h2 className="font-display text-xl font-bold">Formatos</h2>
-        <p className="text-sm text-muted-foreground">Formatos internos listos para completar, imprimir o descargar.</p>
+        <p className="text-sm text-muted-foreground">
+          Formatos internos listos para completar, imprimir o descargar. No se guardan en el sistema.
+        </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <button type="button" onClick={() => setFormato("el-esfuerzo")} className="block w-full text-left">
-          <Card className="h-full transition hover:border-primary hover:shadow-soft">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Fuel className="h-5 w-5 text-primary" /> Estación El Esfuerzo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Orden de combustible para la estación El Esfuerzo, con fecha, vehículo, placa y firmas editables.
-            </CardContent>
-          </Card>
-        </button>
-      </div>
+      {grupos.map((g) => (
+        <section key={g} className="space-y-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{g}</h3>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {FORMATOS.filter((f) => f.grupo === g).map((f) => (
+              <button key={f.id} type="button" onClick={() => setFormato(f.id)} className="block w-full text-left">
+                <Card className="h-full transition hover:border-primary hover:shadow-soft">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <f.icono className="h-5 w-5 text-primary" /> {f.titulo}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground">{f.descripcion}</CardContent>
+                </Card>
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
@@ -127,7 +212,7 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
         <Button variant="ghost" size="sm" onClick={onVolver}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Formatos
+          <ArrowLeft className="mr-2 h-4 w-4" /> Volver a formatos
         </Button>
         <div className="flex flex-wrap gap-2">
           <Button
