@@ -69,6 +69,8 @@ function Portal() {
     "menu" | "seguimiento" | "cerrados" | "calendario" | "tareas" | "catalogo" | "calculadora" | "cotizacion" | "formatos"
   >("menu");
   const [cotizacionTareaId, setCotizacionTareaId] = useState<string | null>(null);
+  // Tocar "Formatos" estando dentro de un formato regresa a la lista.
+  const [formatosKey, setFormatosKey] = useState(0);
 
   useEffect(() => {
     const s = leerSesion();
@@ -149,7 +151,10 @@ function Portal() {
               <button
                 key={v}
                 type="button"
-                onClick={() => setVista(v)}
+                onClick={() => {
+                  if (v === "formatos") setFormatosKey((k) => k + 1);
+                  setVista(v);
+                }}
                 className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                   vista === v || (v === "seguimiento" && vista === "cotizacion")
                     ? "bg-primary text-primary-foreground"
@@ -188,7 +193,7 @@ function Portal() {
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
         {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
-        {vista === "formatos" && <FormatosPanel />}
+        {vista === "formatos" && <FormatosPanel key={formatosKey} />}
         {vista === "calculadora" && (
           <div className="space-y-4">
             <PaseCotizacionCard token={sesion.token} />
@@ -367,7 +372,7 @@ function Menu({
       />
       <Area
         titulo="Formatos"
-        texto="Formatos internos listos para completar e imprimir, como la orden de la estación El Esfuerzo."
+        texto="Arqueos, pedidos, traslados, horas, solicitudes y la orden de la estación El Esfuerzo, listos para completar e imprimir."
         icon={FileText}
         onClick={() => ir("formatos")}
       />

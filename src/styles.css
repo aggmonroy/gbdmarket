@@ -231,6 +231,12 @@ html.embed .install-app-btn {
 .fmt-tabla .fmt-sub td { font-weight: 700; }
 .fmt-tabla .fmt-total td { font-weight: 700; background: #f1f1f1; }
 .fmt-alerta { color: #b00020; }
+/* Tablas largas (arqueo): filas más bajas para que todo, hasta la firma, quepa en una hoja carta. */
+.fmt-tabla.fmt-compacta th, .fmt-tabla.fmt-compacta td { height: 20px; padding: 0 4px; line-height: 1.2; }
+.fmt-detalle { font-size: 10px; font-weight: 400; color: #444; }
+.fmt-suma { font-size: 10px; text-align: right; color: #555; }
+.fmt-obs > b { display: block; margin-bottom: 2px; }
+.fmt-obs .fmt-out--block { min-height: 3.6em; }
 .fmt-nota { font-style: italic; text-align: center; }
 .fmt-banda { text-align: center; font-weight: 700; padding: 4px; border: 1px solid var(--report-ink); background: #e7e7e7; }
 .fmt-bloque { break-inside: avoid; }
@@ -272,4 +278,7 @@ textarea.fmt-in { resize: vertical; border: 1px solid var(--report-ink); display
   .fmt-out { display: block; }
   .fmt-sheet { width: 100%; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .fmt-anexo img { height: 220px; }
+  /* La hoja (hasta la firma) va en la primera página; las fotos anexas empiezan en otra. */
+  .fmt-firmas, .fmt-obs { break-inside: avoid; }
+  .fmt-anexos:not(.fmt-anexos--vacio) { break-before: page; border-top: 0; margin-top: 0 !important; }
 }

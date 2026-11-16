@@ -8,6 +8,7 @@ import {
   totalesTraslado,
   trasladoInicial,
   errorSucursalesTraslado,
+  sumarComprobantes,
 } from "../src/lib/formatos";
 
 describe("Arqueo de caja", () => {
@@ -24,6 +25,17 @@ describe("Arqueo de caja", () => {
     expect(r.totalIngreso).toBe(76.6);
     expect(r.diferencia).toBe(6.6);
     expect(r.estado).toBe("Sobrante");
+  });
+
+  it("las celdas de Yappy, BAC, ACH y anulación suman varios comprobantes escritos como +10+15+20", () => {
+    expect(sumarComprobantes("+10+15+20")).toBe(45);
+    expect(sumarComprobantes("3 + 15 + 20")).toBe(38);
+    expect(sumarComprobantes("12.50+7.25")).toBe(19.75);
+    expect(sumarComprobantes("")).toBe(0);
+    const a = arqueoInicial("caja");
+    a.fondo = "0";
+    a.otros = ["+100+50", "", "+10+15+20", "+5+5", "+2"]; // BAC 150, Yappy 45, ACH 10, anulación 2
+    expect(calcularArqueo(a).totalDinero).toBe(207);
   });
 
   it("caja menuda usa comprobantes y fondo de 100", () => {

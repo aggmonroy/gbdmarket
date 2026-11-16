@@ -5,18 +5,28 @@
 
 export const redondear = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
+const suma = (xs: number[]) => redondear(xs.reduce((a, b) => a + b, 0));
+
 /** Convierte lo que escribe la persona ("1,250.50", "B/. 20") a número; vacío o inválido = 0. */
 export function num(v: string | number | null | undefined): number {
   if (typeof v === "number") return Number.isFinite(v) ? v : 0;
   if (!v) return 0;
-  const n = Number(String(v).replace(/,/g, "").replace(/[^\d.-]/g, ""));
+  const n = Number(String(v).replace(/,/g, "").replace(/B\/\.?/gi, "").replace(/[^\d.-]/g, ""));
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Montos escritos en una celda de comprobantes: "+10+15+20" → [10, 15, 20]; "50-5" → [50, -5]. */
+export function partesComprobantes(v: string | null | undefined): number[] {
+  if (!v) return [];
+  const limpio = String(v).replace(/,/g, "").replace(/B\/\.?/gi, "").replace(/\s+/g, "").replace(/^=/, "");
+  return (limpio.match(/[+-]?[^+-]+/g) ?? []).map(num).filter((n) => n !== 0);
+}
+
+/** Suma de los comprobantes de una celda, como en Excel: "+10+15+20" = 45. */
+export const sumarComprobantes = (v: string | null | undefined) => suma(partesComprobantes(v));
+
 export const dinero = (n: number) =>
   n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-const suma = (xs: number[]) => redondear(xs.reduce((a, b) => a + b, 0));
 
 export function hoyISO(d = new Date()): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -80,6 +90,7 @@ export type Arqueo = {
   firmaCargo: string;
   revisadoNombre: string;
   revisadoCargo: string;
+  observaciones: string;
 };
 
 export function arqueoInicial(tipo: ArqueoTipo): Arqueo {
@@ -95,6 +106,7 @@ export function arqueoInicial(tipo: ArqueoTipo): Arqueo {
     firmaCargo: c.firma.cargo,
     revisadoNombre: c.revisado?.nombre ?? "",
     revisadoCargo: c.revisado?.cargo ?? "",
+    observaciones: "",
   };
 }
 
@@ -112,7 +124,8 @@ export function calcularArqueo(a: Pick<Arqueo, "billetes" | "monedas" | "otros" 
   const totalBilletes = suma(lineasBilletes);
   const totalMonedas = suma(lineasMonedas);
   const efectivo = redondear(totalBilletes + totalMonedas);
-  const totalDinero = redondear(efectivo + suma(a.otros.map(num)));
+  // Cada celda de BAC, cheques, Yappy, ACH, anulación o comprobantes admite sumas (+10+15+20).
+  const totalDinero = redondear(efectivo + suma(a.otros.map(sumarComprobantes)));
   const totalIngreso = redondear(totalDinero - num(a.fondo));
   const diferencia = redondear(totalIngreso - num(a.recibos));
   return {

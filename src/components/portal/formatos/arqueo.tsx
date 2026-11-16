@@ -8,6 +8,8 @@ import {
   calcularArqueo,
   dinero,
   fechaCorta,
+  partesComprobantes,
+  sumarComprobantes,
   type Arqueo,
   type ArqueoTipo,
 } from "@/lib/formatos";
@@ -31,7 +33,7 @@ export function ArqueoEditor({ tipo, onVolver }: { tipo: ArqueoTipo; onVolver: (
       icono={tipo === "caja" ? Calculator : Wallet}
       orientacion="portrait"
       archivo={nombreArchivo(tipo === "caja" ? "arqueo-de-caja" : "arqueo-caja-menuda", a.fecha)}
-      ayuda="Escribe las unidades de cada billete y moneda; los totales, la resta del fondo y la diferencia se calculan solos. Abajo puedes anexar las fotos de los comprobantes que llegan por WhatsApp."
+      ayuda="Escribe las unidades de cada billete y moneda; los totales, la resta del fondo y la diferencia se calculan solos. En BAC, cheques, Yappy, ACH, anulación y comprobantes puedes sumar varios montos escribiendo +10+15+20. Abajo puedes anexar las fotos de los comprobantes que llegan por WhatsApp."
       onVolver={onVolver}
       onReiniciar={() => {
         reiniciar();
@@ -45,7 +47,7 @@ export function ArqueoEditor({ tipo, onVolver }: { tipo: ArqueoTipo; onVolver: (
           <Celda type="date" value={a.fecha} onChange={(v) => set("fecha", v)} mostrar={fechaCorta(a.fecha)} label="Fecha" />
         </span>
       </div>
-      <table className="fmt-tabla fmt-arqueo">
+      <table className="fmt-tabla fmt-arqueo fmt-compacta">
         <colgroup>
           <col style={{ width: "34%" }} />
           <col style={{ width: "26%" }} />
@@ -99,14 +101,36 @@ export function ArqueoEditor({ tipo, onVolver }: { tipo: ArqueoTipo; onVolver: (
             <td className="r">B/.</td>
             <td className="r">{dinero(r.efectivo)}</td>
           </tr>
-          {c.otros.map((label, i) => (
-            <tr key={label}>
-              <td colSpan={3}>{label}</td>
-              <td>
-                <Celda numero align="right" value={a.otros[i] ?? ""} onChange={(x) => setLista("otros", i, x)} label={label} placeholder="0.00" mostrar={dinero(Number(a.otros[i]?.replace(/,/g, "")) || 0)} />
-              </td>
-            </tr>
-          ))}
+          {c.otros.map((label, i) => {
+            const valor = a.otros[i] ?? "";
+            const partes = partesComprobantes(valor);
+            const total = sumarComprobantes(valor);
+            return (
+              <tr key={label}>
+                <td colSpan={3}>
+                  {label}
+                  {partes.length > 1 && (
+                    <span className="fmt-detalle">
+                      {" "}({partes.map((n, j) => (j === 0 ? dinero(n) : n < 0 ? ` − ${dinero(-n)}` : ` + ${dinero(n)}`)).join("")})
+                    </span>
+                  )}
+                </td>
+                <td>
+                  <Celda
+                    numero
+                    suma
+                    align="right"
+                    value={valor}
+                    onChange={(x) => setLista("otros", i, x)}
+                    label={`${label} (puedes sumar: +10+15+20)`}
+                    placeholder="+0.00"
+                    mostrar={dinero(total)}
+                  />
+                  {partes.length > 1 && <div className="fmt-noprint fmt-suma">= {dinero(total)}</div>}
+                </td>
+              </tr>
+            );
+          })}
           <tr className="fmt-total">
             <td colSpan={2}>Total de dinero</td>
             <td className="r">B/.</td>
@@ -140,6 +164,16 @@ export function ArqueoEditor({ tipo, onVolver }: { tipo: ArqueoTipo; onVolver: (
       {c.declaracion && (
         <p className="fmt-nota">Declaro que el dinero fue contado en mi presencia y me fue devuelto intacto.</p>
       )}
+      <div className="fmt-obs">
+        <b>Observaciones:</b>
+        <Celda
+          multilinea={3}
+          value={a.observaciones ?? ""}
+          onChange={(v) => set("observaciones", v)}
+          label="Observaciones"
+          placeholder="Notas del arqueo (opcional)"
+        />
+      </div>
       <div className="fmt-firmas">
         <div>
           <LineaDato value={a.firmaNombre} onChange={(v) => set("firmaNombre", v)} pie="" bold />

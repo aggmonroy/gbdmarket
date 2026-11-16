@@ -182,6 +182,8 @@ type CeldaProps = {
   align?: "left" | "center" | "right";
   type?: "text" | "date" | "time";
   numero?: boolean;
+  /** Celda numérica que admite sumas de varios comprobantes (+10+15+20). */
+  suma?: boolean;
   multilinea?: number;
   opciones?: readonly string[];
   /** Sugerencias para elegir, permitiendo también escribir otro valor. */
@@ -200,6 +202,7 @@ export function Celda({
   align = "left",
   type = "text",
   numero,
+  suma,
   multilinea,
   opciones,
   sugerencias,
@@ -238,11 +241,19 @@ export function Celda({
       <input
         {...comunes}
         type={type}
-        inputMode={numero ? "decimal" : undefined}
+        inputMode={numero && !suma ? "decimal" : undefined}
         list={sugerencias ? listaId : undefined}
         value={value}
         placeholder={placeholder}
-        onChange={(e) => onChange(numero ? e.target.value.replace(/[^\d.,-]/g, "") : e.target.value)}
+        onChange={(e) =>
+          onChange(
+            suma
+              ? e.target.value.replace(/[^\d.,+\-\s]/g, "")
+              : numero
+                ? e.target.value.replace(/[^\d.,-]/g, "")
+                : e.target.value,
+          )
+        }
       />
     );
   }

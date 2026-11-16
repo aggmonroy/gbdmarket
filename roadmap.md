@@ -5,6 +5,8 @@
 - [ ] Comprobar registro y edición de una garantía desde una sesión de colaborador; falta una sesión autorizada del portal.
 
 ## Completados
+- [x] Arqueo de caja: sumas tipo +10+15+20 en BAC, cheques, Yappy, ACH y anulación; observaciones antes de la firma; hoja hasta la firma en una sola página carta.
+- [x] Botón "Formatos" de la barra regresa a la lista de formatos.
 - [x] Módulo "Formatos" en el portal con la orden de combustible editable, imprimible y descargable.
 - [x] Agregar los campos solicitados de ubicación del cliente, tipo de servicio, sucursal de compra y datos fijos al formulario y ambos reportes; permitir edición en casos existentes.
 - [x] Excluir acciones y seguimiento del reporte del proveedor, conservándolos en el imprimible.
