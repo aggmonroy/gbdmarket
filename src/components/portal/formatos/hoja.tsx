@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { ArrowLeft, Download, ImagePlus, Loader2, Printer, RotateCcw, X, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ClipboardPaste, Download, ImagePlus, Loader2, Printer, RotateCcw, X, type LucideIcon } from "lucide-react";
 import logo from "@/assets/logo-cooperativa-gbd.png";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -174,7 +174,7 @@ export function EditorFormato({
   );
 }
 
-type CeldaProps = {
+export type CeldaProps = {
   value: string;
   onChange: (v: string) => void;
   /** Texto que se ve al imprimir o descargar (por defecto el mismo valor). */
@@ -386,7 +386,21 @@ async function comprimirImagen(file: File): Promise<string> {
   }
 }
 
-/** Fotos de comprobantes anexas al formato; se imprimen y descargan con la hoja. */
+/** Archivos de imagen dentro de un portapapeles o arrastre. */
+function imagenesDe(data: DataTransfer | null): File[] {
+  if (!data) return [];
+  const desdeItems = Array.from(data.items ?? [])
+    .filter((it) => it.kind === "file" && it.type.startsWith("image/"))
+    .map((it) => it.getAsFile())
+    .filter((f): f is File => !!f);
+  if (desdeItems.length) return desdeItems;
+  return Array.from(data.files ?? []).filter((f) => f.type.startsWith("image/"));
+}
+
+/**
+ * Fotos de comprobantes anexas al formato; se imprimen y descargan con la hoja.
+ * Se pueden anexar eligiendo archivos, pegando (Ctrl+V o "Pegar" en el celular) o arrastrando.
+ */
 export function AnexosImagenes({
   titulo = "Anexos: comprobantes",
   imagenes,
@@ -397,30 +411,115 @@ export function AnexosImagenes({
   onChange: (imgs: ImagenAnexa[]) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const pegarRef = useRef<HTMLDivElement>(null);
   const [cargando, setCargando] = useState(false);
+  const [arrastrando, setArrastrando] = useState(false);
+  // Siempre la lista más reciente, para pegados seguidos.
+  const actuales = useRef(imagenes);
+  actuales.current = imagenes;
 
-  async function agregar(files: FileList | null) {
-    if (!files?.length) return;
+  async function agregar(files: File[] | FileList | null) {
+    const lista = Array.from(files ?? []);
+    if (!lista.length) return;
     setCargando(true);
     const nuevas: ImagenAnexa[] = [];
-    for (const f of Array.from(files)) {
+    for (const f of lista) {
       if (!f.type.startsWith("image/")) {
-        toast.error(`${f.name} no es una imagen`);
+        toast.error(`${f.name || "El archivo"} no es una imagen`);
         continue;
       }
       try {
         nuevas.push({ id: crypto.randomUUID(), src: await comprimirImagen(f), nota: "" });
       } catch {
-        toast.error(`No se pudo leer ${f.name}`);
+        toast.error(`No se pudo leer ${f.name || "la imagen"}`);
       }
     }
-    onChange([...imagenes, ...nuevas]);
+    if (nuevas.length) {
+      onChange([...actuales.current, ...nuevas]);
+      toast.success(nuevas.length === 1 ? "Comprobante anexado" : `${nuevas.length} comprobantes anexados`);
+    }
     setCargando(false);
     if (inputRef.current) inputRef.current.value = "";
   }
+  const agregarRef = useRef(agregar);
+  agregarRef.current = agregar;
+
+  // Ctrl+V en cualquier parte del formato anexa las imágenes copiadas (p. ej. desde WhatsApp Web).
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      if (e.defaultPrevented) return;
+      const files = imagenesDe(e.clipboardData);
+      if (!files.length) return;
+      e.preventDefault();
+      void agregarRef.current(files);
+    };
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  }, []);
+
+  /** Botón "Pegar imagen": lee el portapapeles (pide permiso la primera vez). */
+  async function pegarDesdeBoton() {
+    if (!navigator.clipboard?.read) {
+      pegarRef.current?.focus();
+      toast.info("Mantén presionado el recuadro punteado y elige \"Pegar\".");
+      return;
+    }
+    try {
+      const items = await navigator.clipboard.read();
+      const files: File[] = [];
+      for (const item of items) {
+        const tipo = item.types.find((t) => t.startsWith("image/"));
+        if (tipo) {
+          const blob = await item.getType(tipo);
+          files.push(new File([blob], `comprobante.${tipo.split("/")[1] || "png"}`, { type: tipo }));
+        }
+      }
+      if (files.length) await agregar(files);
+      else toast.error("No hay una imagen copiada. En WhatsApp abre la foto, cópiala y vuelve a intentar.");
+    } catch {
+      pegarRef.current?.focus();
+      toast.info("Mantén presionado el recuadro punteado y elige \"Pegar\".");
+    }
+  }
+
+  /** Algunos teléfonos insertan la imagen pegada como <img> sin pasar el archivo: se recupera de ahí. */
+  async function recogerPegado() {
+    const box = pegarRef.current;
+    if (!box) return;
+    const srcs = Array.from(box.querySelectorAll("img"))
+      .map((img) => img.src)
+      .filter((src) => src.startsWith("data:") || src.startsWith("blob:"));
+    box.innerHTML = "";
+    const files: File[] = [];
+    for (const src of srcs) {
+      try {
+        const blob = await (await fetch(src)).blob();
+        if (blob.type.startsWith("image/")) files.push(new File([blob], "comprobante", { type: blob.type }));
+      } catch {
+        /* imagen no legible */
+      }
+    }
+    if (files.length) await agregar(files);
+  }
 
   return (
-    <div className={cn("fmt-anexos", imagenes.length === 0 && "fmt-anexos--vacio")}>
+    <div
+      className={cn("fmt-anexos", imagenes.length === 0 && "fmt-anexos--vacio", arrastrando && "fmt-anexos--arrastre")}
+      onDragOver={(e) => {
+        if (Array.from(e.dataTransfer.types).includes("Files")) {
+          e.preventDefault();
+          setArrastrando(true);
+        }
+      }}
+      onDragLeave={() => setArrastrando(false)}
+      onDrop={(e) => {
+        const files = imagenesDe(e.dataTransfer);
+        setArrastrando(false);
+        if (!files.length) return;
+        e.preventDefault();
+        void agregar(files);
+      }}
+    >
       <div className="fmt-anexos__tit">{titulo}</div>
       <div className="fmt-anexos__grid">
         {imagenes.map((img, i) => (
@@ -447,23 +546,63 @@ export function AnexosImagenes({
           </figure>
         ))}
       </div>
-      <div className="fmt-noprint mt-2 flex flex-wrap items-center gap-2">
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={(e) => void agregar(e.target.files)}
+      <div className="fmt-noprint mt-2 space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => void agregar(e.target.files)}
+          />
+          <button type="button" className="fmt-btn inline-flex items-center gap-1" onClick={() => inputRef.current?.click()} disabled={cargando}>
+            {cargando ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+            Anexar fotos de comprobantes
+          </button>
+          <button type="button" className="fmt-btn inline-flex items-center gap-1" onClick={() => void pegarDesdeBoton()} disabled={cargando}>
+            <ClipboardPaste className="h-4 w-4" />
+            Pegar imagen copiada
+          </button>
+        </div>
+        <div
+          ref={pegarRef}
+          role="textbox"
+          aria-label="Pegar aquí la imagen copiada de WhatsApp"
+          contentEditable
+          suppressContentEditableWarning
+          className="fmt-pegar"
+          data-placeholder="Pega aquí las capturas copiadas de WhatsApp: Ctrl+V en la computadora, o mantén presionado este recuadro y elige «Pegar» en el celular. También puedes arrastrar las fotos."
+          onPaste={(e) => {
+            const files = imagenesDe(e.clipboardData);
+            if (files.length) {
+              e.preventDefault();
+              void agregar(files);
+              return;
+            }
+            // Sin archivo: espera a que el navegador inserte la imagen y la recupera.
+            setTimeout(() => void recogerPegado(), 0);
+          }}
+          onInput={() => void recogerPegado()}
+          onKeyDown={(e) => {
+            // Solo sirve para pegar: no se escribe texto aquí.
+            const pegar = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v";
+            if (!pegar && e.key.length === 1) e.preventDefault();
+          }}
         />
-        <button type="button" className="fmt-btn inline-flex items-center gap-1" onClick={() => inputRef.current?.click()} disabled={cargando}>
-          {cargando ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
-          Anexar fotos de comprobantes
-        </button>
-        <span className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Capturas de WhatsApp (Yappy, ACH, BAC…). Las fotos no se guardan: se pierden al salir del formato.
-        </span>
+        </p>
       </div>
     </div>
+  );
+}
+
+/** Campo editable sobre una raya dentro de un párrafo ("Yo, ______, cedulado nº ____"). */
+export function EnLinea({ ancho, ...props }: CeldaProps & { ancho: number | string }) {
+  return (
+    <span className="fmt-linea" style={{ width: ancho }}>
+      <Celda align="center" {...props} />
+    </span>
   );
 }

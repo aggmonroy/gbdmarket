@@ -239,3 +239,142 @@ export function errorSucursalesTraslado(t: Pick<Traslado, "origen" | "destino">)
   return null;
 }
 export { fechaLarga } from "./orden-combustible";
+
+// ---------------------------------------------------------------- Requisitos de crédito (REQUISITOS.xlsx)
+
+/** Fila de monto con concepto editable; el monto admite sumas (+10+10+10) como en el Excel. */
+export type LineaMonto = { concepto: string; monto: string };
+
+export const GASTOS_DECLARACION = [
+  "Alimentación",
+  "Servicios básicos",
+  "Gastos educativos",
+  "Transporte/combustible",
+  "Gastos financieros",
+  "Gastos operacionales",
+  "Otros gastos:",
+] as const;
+
+export const FRECUENCIAS_INGRESO = ["MENSUAL", "QUINCENAL", "SEMANAL", "DIARIO"] as const;
+
+export type Declaracion = {
+  fecha: string;
+  nombre: string;
+  numeroCliente: string;
+  cedula: string;
+  profesion: string;
+  direccion: string;
+  frecuencia: string;
+  ingresos: LineaMonto[];
+  costoVentas: string;
+  gastos: LineaMonto[];
+};
+
+export function declaracionInicial(): Declaracion {
+  return {
+    fecha: hoyISO(),
+    nombre: "",
+    numeroCliente: "",
+    cedula: "",
+    profesion: "",
+    direccion: "",
+    frecuencia: "MENSUAL",
+    ingresos: [1, 2, 3, 4].map((n) => ({ concepto: `ACTIVIDAD ${n}`, monto: "" })),
+    costoVentas: "",
+    gastos: GASTOS_DECLARACION.map((concepto) => ({ concepto, monto: "" })),
+  };
+}
+
+/**
+ * Declaración de ingresos de independientes.
+ * Ingresos brutos = total de ingresos − costos de ventas.
+ * Ganancia neta = ingresos brutos − total de gastos (corrige el Excel, que restaba los gastos al total de ingresos).
+ */
+export function calcularDeclaracion(d: Pick<Declaracion, "ingresos" | "costoVentas" | "gastos">) {
+  const totalIngresos = suma(d.ingresos.map((l) => sumarComprobantes(l.monto)));
+  const costoVentas = sumarComprobantes(d.costoVentas);
+  const ingresosBrutos = redondear(totalIngresos - costoVentas);
+  const totalGastos = suma(d.gastos.map((l) => sumarComprobantes(l.monto)));
+  const gananciaNeta = redondear(ingresosBrutos - totalGastos);
+  return { totalIngresos, costoVentas, ingresosBrutos, totalGastos, gananciaNeta };
+}
+
+export const PROVINCIAS_PANAMA = [
+  "Los Santos",
+  "Herrera",
+  "Coclé",
+  "Veraguas",
+  "Panamá",
+  "Panamá Oeste",
+  "Chiriquí",
+  "Colón",
+  "Bocas del Toro",
+  "Darién",
+  "Comarca Guna Yala",
+  "Comarca Emberá-Wounaan",
+  "Comarca Ngäbe-Buglé",
+] as const;
+
+export type ArticuloCliente = { modelo: string; descripcion: string };
+
+export type DatosCliente = {
+  fecha: string;
+  numeroCliente: string;
+  numeroAsociado: string;
+  facturaSistema: string;
+  facturaElectronica: string;
+  nombre: string;
+  cedula: string;
+  telefono: string;
+  email: string;
+  provincia: string;
+  distrito: string;
+  corregimiento: string;
+  comunidad: string;
+  barriada: string;
+  detalles: string;
+  articulos: ArticuloCliente[];
+  lugarTrabajo: string;
+  abono: string;
+  letraMensual: string;
+  letraQuincenal: string;
+  observaciones: string;
+};
+
+export function datosClienteInicial(): DatosCliente {
+  return {
+    fecha: hoyISO(),
+    numeroCliente: "",
+    numeroAsociado: "",
+    facturaSistema: "",
+    facturaElectronica: "",
+    nombre: "",
+    cedula: "",
+    telefono: "",
+    email: "",
+    provincia: "Los Santos",
+    distrito: "",
+    corregimiento: "",
+    comunidad: "",
+    barriada: "",
+    detalles: "",
+    articulos: [
+      { modelo: "", descripcion: "" },
+      { modelo: "", descripcion: "" },
+    ],
+    lugarTrabajo: "",
+    abono: "",
+    letraMensual: "",
+    letraQuincenal: "",
+    observaciones: "",
+  };
+}
+
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+
+/** "2026-11-17" → { dia: "17", mes: "noviembre", anio: "2026" } para "el __ de ____ de ____". */
+export function partesFecha(fecha: string): { dia: string; mes: string; anio: string } {
+  const [y, m, d] = fecha.split("-").map(Number);
+  if (!y || !m || !d || m > 12) return { dia: "", mes: "", anio: "" };
+  return { dia: String(d), mes: MESES[m - 1], anio: String(y) };
+}

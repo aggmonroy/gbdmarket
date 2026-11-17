@@ -4,6 +4,8 @@ import {
   ArrowRightLeft,
   Calculator,
   Clock,
+  Contact,
+  FileSignature,
   Download,
   FolderOpen,
   Fuel,
@@ -12,8 +14,10 @@ import {
   Printer,
   RotateCcw,
   Search,
+  ShieldCheck,
   ShoppingCart,
   Truck,
+  UserCheck,
   Wallet,
   Wrench,
   type LucideIcon,
@@ -25,10 +29,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import logo from "@/assets/logo-cooperativa-gbd.png";
 import {
-  ORDEN_COMBUSTIBLE_DEFAULTS,
+  ESTACIONES,
   ORDEN_COMBUSTIBLE_FIJO,
   fechaLarga,
   periodoFiscal,
+  type EstacionConfig,
+  type EstacionId,
   type OrdenCombustible,
 } from "@/lib/orden-combustible";
 import { ArqueoEditor } from "./formatos/arqueo";
@@ -38,8 +44,7 @@ import { DocumentosEditor } from "./formatos/documentos";
 import { RetirosEditor } from "./formatos/retiros";
 import { HorasEditor } from "./formatos/horas";
 import { CambiosEditor, RolesEditor } from "./formatos/solicitudes";
-
-const STORAGE_KEY = "gbd_formato_orden_combustible";
+import { ApcEditor, DatosClienteEditor, DatosPersonalesEditor, DeclaracionIngresosEditor } from "./formatos/requisitos";
 const hoy = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -47,6 +52,11 @@ const hoy = () => {
 
 type Formato =
   | "el-esfuerzo"
+  | "el-progreso"
+  | "declaracion-ingresos"
+  | "apc"
+  | "datos-personales"
+  | "datos-cliente"
   | "arqueo-caja"
   | "arqueo-caja-menuda"
   | "pedido"
@@ -69,7 +79,12 @@ const FORMATOS: { id: Formato; titulo: string; descripcion: string; icono: Lucid
   { id: "horas", titulo: "Control de horas", descripcion: "Horas y tiempo aplicable por empleado; llegadas tarde en negativo.", icono: Clock, grupo: "Administración" },
   { id: "roles", titulo: "Solicitud de roles", descripcion: "Creación de usuario, asignación o baja de roles y correo.", icono: KeyRound, grupo: "Sistema" },
   { id: "cambios", titulo: "Solicitud de cambios en el sistema", descripcion: "Descripción y justificación del cambio, con aprobación.", icono: Wrench, grupo: "Sistema" },
+  { id: "declaracion-ingresos", titulo: "Declaración de ingresos de independientes", descripcion: "Ingresos por actividad, costos y gastos; calcula ingresos brutos y ganancia neta. Admite sumas +10+10+10.", icono: FileSignature, grupo: "Requisitos de crédito" },
+  { id: "apc", titulo: "Autorización de APC", descripcion: "Autorización de consulta en APC Buró y SVI del Tribunal Electoral; tres copias por hoja.", icono: ShieldCheck, grupo: "Requisitos de crédito" },
+  { id: "datos-personales", titulo: "Autorización de uso de datos personales", descripcion: "Autorización según la Ley 81 de 2019, con lugar, fecha, nombre y cédula.", icono: UserCheck, grupo: "Requisitos de crédito" },
+  { id: "datos-cliente", titulo: "Datos del cliente (Línea Blanca)", descripcion: "Contacto, dirección, lugar de trabajo, artículos con modelo y descripción, y desglose de pagos.", icono: Contact, grupo: "Requisitos de crédito" },
   { id: "el-esfuerzo", titulo: "Estación El Esfuerzo", descripcion: "Orden de combustible para la estación El Esfuerzo, con fecha, vehículo, placa y firmas editables.", icono: Fuel, grupo: "Combustible" },
+  { id: "el-progreso", titulo: "Estación El Progreso", descripcion: "Orden de combustible para Cooperativa El Progreso, R.L. (Sección Línea Blanca), con fecha, vehículo, placa y firmas editables.", icono: Fuel, grupo: "Combustible" },
 ];
 
 export function FormatosPanel() {
@@ -80,7 +95,16 @@ export function FormatosPanel() {
   const volver = () => setFormato(null);
   switch (formato) {
     case "el-esfuerzo":
-      return <OrdenCombustibleEditor onVolver={volver} />;
+    case "el-progreso":
+      return <OrdenCombustibleEditor key={formato} estacion={formato} onVolver={volver} />;
+    case "declaracion-ingresos":
+      return <DeclaracionIngresosEditor onVolver={volver} />;
+    case "apc":
+      return <ApcEditor onVolver={volver} />;
+    case "datos-personales":
+      return <DatosPersonalesEditor onVolver={volver} />;
+    case "datos-cliente":
+      return <DatosClienteEditor onVolver={volver} />;
     case "arqueo-caja":
       return <ArqueoEditor tipo="caja" onVolver={volver} />;
     case "arqueo-caja-menuda":
@@ -134,8 +158,10 @@ export function FormatosPanel() {
   );
 }
 
-function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
-  const [datos, setDatos] = useState<OrdenCombustible>({ fecha: hoy(), ...ORDEN_COMBUSTIBLE_DEFAULTS });
+function OrdenCombustibleEditor({ estacion, onVolver }: { estacion: EstacionId; onVolver: () => void }) {
+  const cfg = ESTACIONES[estacion];
+  const STORAGE_KEY = cfg.storageKey;
+  const [datos, setDatos] = useState<OrdenCombustible>({ fecha: hoy(), ...cfg.defaults });
   const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -147,11 +173,11 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     }
-  }, []);
+  }, [STORAGE_KEY]);
   useEffect(() => {
     const { fecha: _f, ...resto } = datos;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(resto));
-  }, [datos]);
+  }, [STORAGE_KEY, datos]);
 
   const set = (k: keyof OrdenCombustible) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setDatos((d) => ({ ...d, [k]: e.target.value }));
@@ -183,11 +209,11 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
       const blob = await new Promise<Blob>((res, rej) =>
         canvas.toBlob((b) => (b ? res(b) : rej(new Error("No se pudo generar la imagen"))), "image/png"),
       );
-      const filename = `estacion-el-esfuerzo-${datos.fecha}-${datos.placa || "vehiculo"}.png`;
+      const filename = `${cfg.archivo}-${datos.fecha}-${datos.placa || "vehiculo"}.png`;
       const file = new File([blob], filename, { type: "image/png" });
       if (matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: "Estación El Esfuerzo" });
+          await navigator.share({ files: [file], title: cfg.titulo });
           return;
         } catch (err) {
           if (err instanceof DOMException && err.name === "AbortError") return;
@@ -218,7 +244,7 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setDatos({ fecha: hoy(), ...ORDEN_COMBUSTIBLE_DEFAULTS })}
+            onClick={() => setDatos({ fecha: hoy(), ...cfg.defaults })}
           >
             <RotateCcw className="mr-2 h-4 w-4" /> Restablecer
           </Button>
@@ -235,7 +261,7 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
       <Card className="print:hidden">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Fuel className="h-5 w-5 text-primary" /> Estación El Esfuerzo
+            <Fuel className="h-5 w-5 text-primary" /> {cfg.titulo}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-3">
@@ -249,11 +275,13 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
             <Input value={datos.placa} onChange={set("placa")} placeholder="Ej. 913951" />
           </Campo>
           <Campo label="Preparado por">
-            <Input value={datos.preparadoPor} onChange={set("preparadoPor")} />
+            <Input value={datos.preparadoPor} onChange={set("preparadoPor")} placeholder={cfg.conductor ? undefined : "Colaborador"} />
           </Campo>
-          <Campo label="Conductor">
-            <Input value={datos.conductor} onChange={set("conductor")} />
-          </Campo>
+          {cfg.conductor && (
+            <Campo label="Conductor">
+              <Input value={datos.conductor} onChange={set("conductor")} />
+            </Campo>
+          )}
           <Campo label="Autorizado por">
             <Input value={datos.autorizadoPor} onChange={set("autorizadoPor")} />
           </Campo>
@@ -265,8 +293,8 @@ function OrdenCombustibleEditor({ onVolver }: { onVolver: () => void }) {
 
       <div className="overflow-x-auto rounded-md border border-border bg-background p-2 print:overflow-visible print:border-0 print:p-0">
         <div ref={ref} className="fuel-order-sheet">
-          <OrdenCopia datos={datos} />
-          <OrdenCopia datos={datos} />
+          <OrdenCopia datos={datos} cfg={cfg} />
+          <OrdenCopia datos={datos} cfg={cfg} />
         </div>
       </div>
     </div>
@@ -282,7 +310,7 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function OrdenCopia({ datos }: { datos: OrdenCombustible }) {
+function OrdenCopia({ datos, cfg }: { datos: OrdenCombustible; cfg: EstacionConfig }) {
   return (
     <div className="fuel-order">
       <div className="fuel-order__head">
@@ -309,17 +337,22 @@ function OrdenCopia({ datos }: { datos: OrdenCombustible }) {
           <tr>
             <td colSpan={3} className="b big">{fechaLarga(datos.fecha)}</td>
           </tr>
+          {cfg.seccion && (
+            <tr>
+              <td colSpan={3} className="b">{cfg.seccion}</td>
+            </tr>
+          )}
           <tr>
             <td colSpan={3} className="l fuel-order__body">
               <div>
-                Señores: <b>{ORDEN_COMBUSTIBLE_FIJO.estacion}</b>
+                Señores: <b>{cfg.estacion}</b>
               </div>
               <div>Sírvase despachar por cuenta de nuestra empresa</div>
             </td>
           </tr>
           <tr>
             <td>tanque lleno de:</td>
-            <td className="b big">{ORDEN_COMBUSTIBLE_FIJO.combustible}</td>
+            <td className="b big">{cfg.combustible}</td>
             <td className="l">para el vehículo</td>
           </tr>
           <tr>
@@ -352,12 +385,12 @@ function OrdenCopia({ datos }: { datos: OrdenCombustible }) {
           </tr>
           <tr>
             <td className="b big">Preparado por:</td>
-            <td className="b big">Conductor</td>
+            <td className="b big">{cfg.conductor ? "Conductor" : ""}</td>
             <td className="b big">Autorizado por:</td>
           </tr>
           <tr>
             <td className="b">{datos.preparadoPor}</td>
-            <td className="b">{datos.conductor}</td>
+            <td className="b">{cfg.conductor ? datos.conductor : ""}</td>
             <td className="b">{datos.autorizadoPor}</td>
           </tr>
         </tbody>

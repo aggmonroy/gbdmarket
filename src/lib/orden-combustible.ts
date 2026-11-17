@@ -23,6 +23,51 @@ export const ORDEN_COMBUSTIBLE_DEFAULTS: Omit<OrdenCombustible, "fecha"> = {
   autorizadoPor: "Elena Moreno",
 };
 
+export type EstacionId = "el-esfuerzo" | "el-progreso";
+
+export type EstacionConfig = {
+  titulo: string;
+  /** Destinatario de la orden ("Señores: …"). */
+  estacion: string;
+  combustible: string;
+  /** Línea de sección bajo la fecha (solo en algunos formatos). */
+  seccion?: string;
+  /** El formato lleva firma del conductor. */
+  conductor: boolean;
+  archivo: string;
+  storageKey: string;
+  defaults: Omit<OrdenCombustible, "fecha">;
+};
+
+/** Cada estación usa su propio formato (ORDEN DE COMBUSTIBLE.pdf y ORDEN_DE_COMBUSTIBLE_EL_PROGRESO.xlsx). */
+export const ESTACIONES: Record<EstacionId, EstacionConfig> = {
+  "el-esfuerzo": {
+    titulo: "Estación El Esfuerzo",
+    estacion: ORDEN_COMBUSTIBLE_FIJO.estacion,
+    combustible: ORDEN_COMBUSTIBLE_FIJO.combustible,
+    conductor: true,
+    archivo: "estacion-el-esfuerzo",
+    storageKey: "gbd_formato_orden_combustible",
+    defaults: ORDEN_COMBUSTIBLE_DEFAULTS,
+  },
+  "el-progreso": {
+    titulo: "Estación El Progreso",
+    estacion: "COOPERATIVA EL PROGRESO, R.L.",
+    combustible: "DIESEL",
+    seccion: "Sección Linea Blanca",
+    conductor: false,
+    archivo: "estacion-el-progreso",
+    storageKey: "gbd_formato_orden_combustible_el_progreso",
+    defaults: {
+      vehiculo: "NISSAN FRONTIER",
+      placa: "913951",
+      preparadoPor: "",
+      conductor: "",
+      autorizadoPor: "Elena Moreno",
+    },
+  },
+};
+
 /** Periodo fiscal (agosto–julio) al que pertenece la fecha, p. ej. "2026-2027". */
 export function periodoFiscal(fecha: string): string {
   const [y, m] = fecha.split("-").map(Number);
