@@ -138,7 +138,7 @@ export const abrirDocumento = createServerFn({ method: "POST" })
       titulo: string;
       fecha: string;
       estado: "vigente" | "anulado" | "eliminado";
-      datos: unknown;
+      datos: { borrador?: any; anexos?: { id: string; src: string; nota: string }[] } | null;
     };
   });
 
