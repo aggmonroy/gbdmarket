@@ -499,6 +499,136 @@ export type Database = {
         }
         Relationships: []
       }
+      formato_documento_solicitudes: {
+        Row: {
+          accion: string
+          documento_id: string
+          estado: string
+          id: string
+          motivo: string
+          nota_resolucion: string | null
+          resuelto_en: string | null
+          resuelto_por: string | null
+          solicitado_en: string
+          solicitado_por: string | null
+        }
+        Insert: {
+          accion: string
+          documento_id: string
+          estado?: string
+          id?: string
+          motivo: string
+          nota_resolucion?: string | null
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          solicitado_en?: string
+          solicitado_por?: string | null
+        }
+        Update: {
+          accion?: string
+          documento_id?: string
+          estado?: string
+          id?: string
+          motivo?: string
+          nota_resolucion?: string | null
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          solicitado_en?: string
+          solicitado_por?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formato_documento_solicitudes_documento_id_fkey"
+            columns: ["documento_id"]
+            isOneToOne: false
+            referencedRelation: "formato_documentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formato_documento_solicitudes_resuelto_por_fkey"
+            columns: ["resuelto_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formato_documento_solicitudes_solicitado_por_fkey"
+            columns: ["solicitado_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      formato_documentos: {
+        Row: {
+          clave: string
+          created_at: string
+          datos: Json
+          emitido_por: string | null
+          estado: string
+          fecha: string
+          formato: string
+          id: string
+          impresiones: number
+          motivo_resolucion: string | null
+          numero: string
+          resuelto_en: string | null
+          resuelto_por: string | null
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          clave: string
+          created_at?: string
+          datos?: Json
+          emitido_por?: string | null
+          estado?: string
+          fecha?: string
+          formato: string
+          id?: string
+          impresiones?: number
+          motivo_resolucion?: string | null
+          numero: string
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          clave?: string
+          created_at?: string
+          datos?: Json
+          emitido_por?: string | null
+          estado?: string
+          fecha?: string
+          formato?: string
+          id?: string
+          impresiones?: number
+          motivo_resolucion?: string | null
+          numero?: string
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formato_documentos_emitido_por_fkey"
+            columns: ["emitido_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formato_documentos_resuelto_por_fkey"
+            columns: ["resuelto_por"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       garantia_cierre_solicitud: {
         Row: {
           estado: string
@@ -1422,6 +1552,7 @@ export type Database = {
           fecha_vencimiento: string | null
           finalizada_apoyo_en: string | null
           finalizada_responsable_en: string | null
+          formato_solicitud_id: string | null
           garantia_id: string | null
           id: string
           listo_entrega_en: string | null
@@ -1455,6 +1586,7 @@ export type Database = {
           fecha_vencimiento?: string | null
           finalizada_apoyo_en?: string | null
           finalizada_responsable_en?: string | null
+          formato_solicitud_id?: string | null
           garantia_id?: string | null
           id?: string
           listo_entrega_en?: string | null
@@ -1488,6 +1620,7 @@ export type Database = {
           fecha_vencimiento?: string | null
           finalizada_apoyo_en?: string | null
           finalizada_responsable_en?: string | null
+          formato_solicitud_id?: string | null
           garantia_id?: string | null
           id?: string
           listo_entrega_en?: string | null
@@ -1543,6 +1676,13 @@ export type Database = {
             columns: ["embroidery_request_id"]
             isOneToOne: false
             referencedRelation: "embroidery_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_formato_solicitud_id_fkey"
+            columns: ["formato_solicitud_id"]
+            isOneToOne: false
+            referencedRelation: "formato_documento_solicitudes"
             referencedColumns: ["id"]
           },
           {
@@ -1654,6 +1794,7 @@ export type Database = {
       }
       limpiar_cotizaciones_vencidas: { Args: never; Returns: undefined }
       next_numero_cotizacion: { Args: { _fecha: string }; Returns: string }
+      next_numero_documento: { Args: { _fecha: string }; Returns: string }
       next_numero_garantia: { Args: { _fecha: string }; Returns: string }
       next_numero_pedido: { Args: { _fecha: string }; Returns: string }
       next_numero_tarea: {

@@ -57,6 +57,13 @@
       "when": 1794830120291,
       "tag": "0007_drop_public_read_image_buckets",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795014210486,
+      "tag": "0008_formato_documentos_registro",
+      "breakpoints": true
     }
   ]
 }

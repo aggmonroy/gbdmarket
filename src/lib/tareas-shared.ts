@@ -48,6 +48,7 @@ export const ORIGENES_TAREA = [
   "whatsapp",
   "interno",
   "sistema",
+  "documentos",
 ] as const;
 export type OrigenTarea = (typeof ORIGENES_TAREA)[number];
 
@@ -61,6 +62,7 @@ export const ORIGEN_TAREA_LABEL: Record<OrigenTarea, string> = {
   whatsapp: "Contacto por WhatsApp",
   interno: "Registro interno",
   sistema: "Tarea fija del sistema",
+  documentos: "Anulación de documento",
 };
 
 

@@ -4,16 +4,26 @@ import logo from "@/assets/logo-cooperativa-gbd.png";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ESTADO_DOCUMENTO_LABEL } from "@/lib/formatos-registro";
+import { MarcaDocumento, useEmitir, useRegistrable } from "./registro-ctx";
 
 export type Orientacion = "portrait" | "landscape";
 
-/** Borrador del formato en esta pestaña (se borra al cerrar el navegador; no va a la base de datos). */
+/**
+ * Borrador del formato en esta pestaña (se borra al cerrar el navegador).
+ * Al imprimir o descargar, el contenido se guarda en el registro diario de documentos.
+ */
 export function useBorrador<T extends object>(clave: string, crear: () => T) {
   const crearRef = useRef(crear);
   crearRef.current = crear;
   const [datos, setDatos] = useState<T>(crear);
   const cargado = useRef(false);
+  const { reabierto, olvidar } = useRegistrable<T>(clave, datos, (guardado) =>
+    setDatos({ ...crearRef.current(), ...(guardado as object) } as T),
+  );
   useEffect(() => {
+    // Un documento abierto desde el registro no reemplaza el borrador en curso.
+    if (reabierto) return;
     try {
       const raw = sessionStorage.getItem(clave);
       if (raw) setDatos({ ...crearRef.current(), ...JSON.parse(raw) });
@@ -21,16 +31,19 @@ export function useBorrador<T extends object>(clave: string, crear: () => T) {
       sessionStorage.removeItem(clave);
     }
     cargado.current = true;
-  }, [clave]);
+  }, [clave, reabierto]);
   useEffect(() => {
-    if (!cargado.current) return;
+    if (!cargado.current || reabierto) return;
     try {
       sessionStorage.setItem(clave, JSON.stringify(datos));
     } catch {
       /* almacenamiento lleno: el formato sigue funcionando sin borrador */
     }
-  }, [clave, datos]);
-  const reiniciar = () => setDatos(crearRef.current());
+  }, [clave, datos, reabierto]);
+  const reiniciar = () => {
+    olvidar();
+    setDatos(crearRef.current());
+  };
   return [datos, setDatos, reiniciar] as const;
 }
 
@@ -117,11 +130,13 @@ export function EditorFormato({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
+  const { doc, emitir } = useEmitir();
 
   async function descargar() {
     if (!ref.current) return;
     setBusy(true);
     try {
+      await emitir();
       await descargarHoja(ref.current, archivo, titulo);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo generar la imagen");
@@ -150,11 +165,21 @@ export function EditorFormato({
             {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
             Descargar imagen
           </Button>
-          <Button size="sm" onClick={() => imprimirHoja(orientacion)}>
+          <Button
+            size="sm"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              await emitir();
+              setBusy(false);
+              imprimirHoja(orientacion);
+            }}
+          >
             <Printer className="mr-2 h-4 w-4" /> Imprimir
           </Button>
         </div>
       </div>
+      <AvisoDocumento doc={doc} />
       <div className="print:hidden">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <Icono className="h-5 w-5 text-primary" /> {titulo}
@@ -167,9 +192,36 @@ export function EditorFormato({
       <div className="overflow-x-auto rounded-md border border-border bg-background p-2 print:overflow-visible print:border-0 print:p-0">
         <div ref={ref} className={cn("fmt-sheet", orientacion === "landscape" && "fmt-sheet--landscape")}>
           {children}
+          <MarcaDocumento doc={doc} />
         </div>
       </div>
       {despues}
+    </div>
+  );
+}
+
+/** Aviso del documento del registro diario que está abierto. */
+export function AvisoDocumento({ doc }: { doc: ReturnType<typeof useEmitir>["doc"] }) {
+  if (!doc) {
+    return (
+      <p className="text-xs text-muted-foreground print:hidden">
+        Al imprimir o descargar, el documento queda guardado en el registro diario.
+      </p>
+    );
+  }
+  return (
+    <div
+      className={cn(
+        "rounded-md border px-3 py-2 text-sm print:hidden",
+        doc.estado === "vigente" ? "border-border bg-muted/40" : "border-destructive/40 bg-destructive/10 text-destructive",
+      )}
+    >
+      <b>Documento Nº {doc.numero}</b> · {ESTADO_DOCUMENTO_LABEL[doc.estado]}
+      {doc.estado === "vigente"
+        ? doc.modo === "reabierto"
+          ? " · abierto desde el registro. Si lo imprimes sin cambios cuenta como reimpresión; si lo cambias, se guarda como documento nuevo."
+          : " · guardado en el registro diario. Si vuelves a imprimir, se actualiza este mismo documento."
+        : " · se imprime con la marca correspondiente y no se vuelve a registrar."}
     </div>
   );
 }
