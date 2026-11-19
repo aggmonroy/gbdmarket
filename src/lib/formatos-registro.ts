@@ -21,6 +21,10 @@ export const ACCION_DOCUMENTO_LABEL: Record<AccionDocumento, string> = {
   eliminar: "Eliminación",
 };
 
+/** Fecha de hoy en Panamá: el registro es diario según la hora local de la cooperativa. */
+export const hoyPanama = (d = new Date()) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "America/Panama" }).format(d);
+
 /** Solo el administrador anula o elimina directamente y aprueba lo que piden los demás. */
 export const puedeResolverDocumentos = (rol: string) => rol === "admin";
 

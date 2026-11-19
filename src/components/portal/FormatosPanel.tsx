@@ -45,6 +45,12 @@ import { RetirosEditor } from "./formatos/retiros";
 import { HorasEditor } from "./formatos/horas";
 import { CambiosEditor, RolesEditor } from "./formatos/solicitudes";
 import { ApcEditor, DatosClienteEditor, DatosPersonalesEditor, DeclaracionIngresosEditor } from "./formatos/requisitos";
+import { RegistroPanel } from "./formatos/RegistroPanel";
+import { MarcaDocumento, RegistroProvider, useEmitir, useRegistrable, type Apertura } from "./formatos/registro-ctx";
+import { AvisoDocumento } from "./formatos/hoja";
+import { ClipboardList } from "lucide-react";
+
+type Sesion = { token: string; colaborador: { id: string; nombre: string; rol: string } };
 const hoy = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -87,12 +93,54 @@ const FORMATOS: { id: Formato; titulo: string; descripcion: string; icono: Lucid
   { id: "el-progreso", titulo: "Estación El Progreso", descripcion: "Orden de combustible para Cooperativa El Progreso, R.L. (Sección Línea Blanca), con fecha, vehículo, placa y firmas editables.", icono: Fuel, grupo: "Combustible" },
 ];
 
-export function FormatosPanel() {
+export function FormatosPanel({ sesion, inicio = "lista" }: { sesion: Sesion; inicio?: "lista" | "registro" }) {
   const [formato, setFormato] = useState<Formato | null>(null);
+  const [registro, setRegistro] = useState(inicio === "registro");
+  const [apertura, setApertura] = useState<Apertura | null>(null);
   useEffect(() => {
     window.scrollTo({ top: 0 });
-  }, [formato]);
-  const volver = () => setFormato(null);
+  }, [formato, registro]);
+  const volver = () => {
+    setFormato(null);
+    // Si se abrió desde el registro, se regresa al registro.
+    if (apertura) setRegistro(true);
+    setApertura(null);
+  };
+  if (formato) {
+    const info = FORMATOS.find((f) => f.id === formato);
+    return (
+      <RegistroProvider
+        key={`${formato}-${apertura?.id ?? "nuevo"}`}
+        token={sesion.token}
+        formato={formato}
+        titulo={info?.titulo ?? formato}
+        apertura={apertura}
+      >
+        <EditorDe formato={formato} onVolver={volver} />
+      </RegistroProvider>
+    );
+  }
+  if (registro) {
+    return (
+      <RegistroPanel
+        sesion={sesion}
+        onVolver={() => setRegistro(false)}
+        onAbrir={(id, ap) => {
+          if (!FORMATOS.some((f) => f.id === id)) {
+            toast.error("Este formato ya no está disponible");
+            return;
+          }
+          setApertura(ap);
+          setRegistro(false);
+          setFormato(id as Formato);
+        }}
+      />
+    );
+  }
+  return <ListaFormatos onElegir={setFormato} onRegistro={() => setRegistro(true)} />;
+}
+
+function EditorDe({ formato, onVolver: volver }: { formato: Formato; onVolver: () => void }) {
   switch (formato) {
     case "el-esfuerzo":
     case "el-progreso":
@@ -126,15 +174,31 @@ export function FormatosPanel() {
     case "cambios":
       return <CambiosEditor onVolver={volver} />;
   }
+}
+
+function ListaFormatos({ onElegir: setFormato, onRegistro }: { onElegir: (f: Formato) => void; onRegistro: () => void }) {
   const grupos = Array.from(new Set(FORMATOS.map((f) => f.grupo)));
   return (
     <div className="space-y-5">
       <div>
         <h2 className="font-display text-xl font-bold">Formatos</h2>
         <p className="text-sm text-muted-foreground">
-          Formatos internos listos para completar, imprimir o descargar. No se guardan en el sistema.
+          Formatos internos listos para completar, imprimir o descargar. Al imprimir o descargar, cada documento queda
+          guardado en el registro diario.
         </p>
       </div>
+      <button type="button" onClick={onRegistro} className="block w-full text-left">
+        <Card className="border-primary/40 transition hover:border-primary hover:shadow-soft">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ClipboardList className="h-5 w-5 text-primary" /> Registro diario de documentos emitidos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            Consulta y reimprime lo emitido cada día. Las anulaciones y eliminaciones las aprueba el administrador.
+          </CardContent>
+        </Card>
+      </button>
       {grupos.map((g) => (
         <section key={g} className="space-y-2">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{g}</h3>
@@ -164,6 +228,7 @@ function OrdenCombustibleEditor({ estacion, onVolver }: { estacion: EstacionId; 
   const [datos, setDatos] = useState<OrdenCombustible>({ fecha: hoy(), ...cfg.defaults });
   const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { doc, emitir } = useEmitir();
 
   // Recuerda vehículo, placa y firmas usados por última vez en este equipo.
   useEffect(() => {
@@ -178,12 +243,17 @@ function OrdenCombustibleEditor({ estacion, onVolver }: { estacion: EstacionId; 
     const { fecha: _f, ...resto } = datos;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(resto));
   }, [STORAGE_KEY, datos]);
+  // Al abrir un documento del registro se muestra tal como se emitió.
+  const { olvidar } = useRegistrable<OrdenCombustible>(STORAGE_KEY, datos, (g) =>
+    setDatos({ ...cfg.defaults, ...g, fecha: g.fecha || hoy() }),
+  );
 
   const set = (k: keyof OrdenCombustible) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setDatos((d) => ({ ...d, [k]: e.target.value }));
 
   /** Imprime solo el formato, en carta horizontal (dos copias por hoja). */
-  function imprimir() {
+  async function imprimir() {
+    await emitir();
     const root = document.documentElement;
     const style = document.createElement("style");
     style.textContent = "@page { size: letter landscape; margin: 10mm; }";
@@ -203,6 +273,7 @@ function OrdenCombustibleEditor({ estacion, onVolver }: { estacion: EstacionId; 
     if (!el) return;
     setBusy(true);
     try {
+      await emitir();
       await document.fonts.ready;
       const { default: html2canvas } = await import("html2canvas-pro");
       const canvas = await html2canvas(el, { scale: 3, backgroundColor: "#ffffff", logging: false });
@@ -244,7 +315,10 @@ function OrdenCombustibleEditor({ estacion, onVolver }: { estacion: EstacionId; 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setDatos({ fecha: hoy(), ...cfg.defaults })}
+            onClick={() => {
+              olvidar();
+              setDatos({ fecha: hoy(), ...cfg.defaults });
+            }}
           >
             <RotateCcw className="mr-2 h-4 w-4" /> Restablecer
           </Button>
@@ -258,6 +332,7 @@ function OrdenCombustibleEditor({ estacion, onVolver }: { estacion: EstacionId; 
         </div>
       </div>
 
+      <AvisoDocumento doc={doc} />
       <Card className="print:hidden">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -295,6 +370,7 @@ function OrdenCombustibleEditor({ estacion, onVolver }: { estacion: EstacionId; 
         <div ref={ref} className="fuel-order-sheet">
           <OrdenCopia datos={datos} cfg={cfg} />
           <OrdenCopia datos={datos} cfg={cfg} />
+          <MarcaDocumento doc={doc} />
         </div>
       </div>
     </div>

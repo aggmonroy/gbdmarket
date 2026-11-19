@@ -1,6 +1,6 @@
 /**
  * Reglas y valores de los formatos internos del portal (copiados de los Excel originales).
- * Nada de esto se guarda en la base de datos: los formatos se llenan, imprimen y descargan en el equipo.
+ * Los formatos se llenan en el equipo; al imprimir o descargar se guardan en el registro diario de documentos.
  */
 
 export const redondear = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -53,6 +53,8 @@ export const ARQUEO_CONFIG: Record<
     fondo: string;
     totalLabel: string;
     declaracion: boolean;
+    /** Depósitos para realizar y anulaciones/devoluciones antes de las firmas. */
+    depositos: boolean;
     firma: { nombre: string; cargo: string };
     revisado: { nombre: string; cargo: string } | null;
   }
@@ -64,6 +66,7 @@ export const ARQUEO_CONFIG: Record<
     fondo: "500",
     totalLabel: "Total ingreso del día",
     declaracion: true,
+    depositos: true,
     firma: { nombre: "", cargo: "Colaborador" },
     revisado: { nombre: "", cargo: "Administrador" },
   },
@@ -74,6 +77,7 @@ export const ARQUEO_CONFIG: Record<
     fondo: "100",
     totalLabel: "Total",
     declaracion: false,
+    depositos: false,
     firma: { nombre: "Ana Gomez", cargo: "Administradora" },
     revisado: null,
   },
@@ -91,7 +95,30 @@ export type Arqueo = {
   revisadoNombre: string;
   revisadoCargo: string;
   observaciones: string;
+  /** Depósitos para realizar (admiten sumas +10+15+20). */
+  depositoNacional: string;
+  depositoGeneral: string;
+  depositoBac: string;
+  /** Anulaciones y devoluciones: números de documento y monto. */
+  devolucionFactura: string;
+  devolucionMonto: string;
+  anulacionRecibo: string;
+  anulacionMonto: string;
 };
+
+export const DEPOSITOS_ARQUEO = [
+  { campo: "depositoNacional", label: "Banco Nacional (efectivo, cheques y transferencias)" },
+  { campo: "depositoGeneral", label: "Banco General" },
+  { campo: "depositoBac", label: "Voucher de BAC" },
+] as const;
+
+/** Suma de los depósitos para realizar. */
+export const totalDepositos = (a: Pick<Arqueo, "depositoNacional" | "depositoGeneral" | "depositoBac">) =>
+  suma([a.depositoNacional, a.depositoGeneral, a.depositoBac].map(sumarComprobantes));
+
+/** Suma de devoluciones y anulaciones. */
+export const totalAnulaciones = (a: Pick<Arqueo, "devolucionMonto" | "anulacionMonto">) =>
+  suma([a.devolucionMonto, a.anulacionMonto].map(sumarComprobantes));
 
 export function arqueoInicial(tipo: ArqueoTipo): Arqueo {
   const c = ARQUEO_CONFIG[tipo];
@@ -107,6 +134,13 @@ export function arqueoInicial(tipo: ArqueoTipo): Arqueo {
     revisadoNombre: c.revisado?.nombre ?? "",
     revisadoCargo: c.revisado?.cargo ?? "",
     observaciones: "",
+    depositoNacional: "",
+    depositoGeneral: "",
+    depositoBac: "",
+    devolucionFactura: "",
+    devolucionMonto: "",
+    anulacionRecibo: "",
+    anulacionMonto: "",
   };
 }
 

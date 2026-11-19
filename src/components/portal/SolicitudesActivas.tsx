@@ -49,9 +49,12 @@ type Sesion = { token: string; colaborador: { id: string; nombre: string; rol: s
 export function SolicitudesActivas({
   sesion,
   onAbrirCotizacion,
+  onAbrirRegistro,
 }: {
   sesion: Sesion;
   onAbrirCotizacion?: (tareaId: string) => void;
+  /** Abre el registro diario de documentos para aprobar o rechazar la solicitud. */
+  onAbrirRegistro?: () => void;
 }) {
   const rol = sesion.colaborador.rol;
   const soloLectura = rol === "gerente";
@@ -197,6 +200,11 @@ export function SolicitudesActivas({
                     {t.origen === "cotizacion" && onAbrirCotizacion && (
                       <Button size="sm" onClick={() => onAbrirCotizacion(t.id)}>
                         Abrir calculadora de precios
+                      </Button>
+                    )}
+                    {t.origen === "documentos" && onAbrirRegistro && (
+                      <Button size="sm" onClick={onAbrirRegistro}>
+                        Revisar solicitud
                       </Button>
                     )}
                     {t.documento_url && (

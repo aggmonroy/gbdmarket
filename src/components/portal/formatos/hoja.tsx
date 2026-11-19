@@ -643,7 +643,7 @@ export function AnexosImagenes({
           }}
         />
         <p className="text-xs text-muted-foreground">
-          Capturas de WhatsApp (Yappy, ACH, BAC…). Las fotos no se guardan: se pierden al salir del formato.
+          Capturas de WhatsApp (Yappy, ACH, BAC…). Las fotos se guardan con el documento al imprimir o descargar.
         </p>
       </div>
     </div>

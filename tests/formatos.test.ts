@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  totalAnulaciones,
+  totalDepositos,
   arqueoInicial,
   calcularArqueo,
   estadoDiferencia,
@@ -96,5 +98,17 @@ describe("Traslados: sucursal de origen y destino", () => {
     expect(errorSucursalesTraslado({ origen: "Casa Matriz", destino: "" })).toMatch(/destino/);
     expect(errorSucursalesTraslado({ origen: "Casa Matriz", destino: "casa matriz" })).toMatch(/distintas/);
     expect(errorSucursalesTraslado({ origen: "Casa Matriz", destino: "Sucursal Tonosí" })).toBeNull();
+  });
+});
+
+
+describe("arqueo: depósitos y anulaciones", () => {
+  it("suma los depósitos de Banco Nacional, Banco General y voucher de BAC (admite +10+15+20)", () => {
+    const a = { ...arqueoInicial("caja"), depositoNacional: "+100+50", depositoGeneral: "25", depositoBac: "+10+15+20" };
+    expect(totalDepositos(a)).toBe(220);
+  });
+  it("suma devoluciones y anulaciones", () => {
+    const a = { ...arqueoInicial("caja"), devolucionMonto: "12.50", anulacionMonto: "+5+2.5" };
+    expect(totalAnulaciones(a)).toBe(20);
   });
 });

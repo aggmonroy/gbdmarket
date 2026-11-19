@@ -71,6 +71,7 @@ function Portal() {
   const [cotizacionTareaId, setCotizacionTareaId] = useState<string | null>(null);
   // Tocar "Formatos" estando dentro de un formato regresa a la lista.
   const [formatosKey, setFormatosKey] = useState(0);
+  const [formatosInicio, setFormatosInicio] = useState<"lista" | "registro">("lista");
 
   useEffect(() => {
     const s = leerSesion();
@@ -152,7 +153,10 @@ function Portal() {
                 key={v}
                 type="button"
                 onClick={() => {
-                  if (v === "formatos") setFormatosKey((k) => k + 1);
+                  if (v === "formatos") {
+                    setFormatosKey((k) => k + 1);
+                    setFormatosInicio("lista");
+                  }
                   setVista(v);
                 }}
                 className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${
@@ -177,6 +181,11 @@ function Portal() {
               setCotizacionTareaId(id);
               setVista("cotizacion");
             }}
+            onAbrirRegistro={() => {
+              setFormatosInicio("registro");
+              setFormatosKey((k) => k + 1);
+              setVista("formatos");
+            }}
           />
         )}
         {vista === "cotizacion" && cotizacionTareaId && (
@@ -193,7 +202,7 @@ function Portal() {
         {vista === "calendario" && <Calendario sesion={sesion} />}
         {vista === "tareas" && <TareasPanel sesion={sesion} />}
         {vista === "catalogo" && <CatalogoPortal sesion={sesion} />}
-        {vista === "formatos" && <FormatosPanel key={formatosKey} />}
+        {vista === "formatos" && <FormatosPanel key={formatosKey} sesion={sesion} inicio={formatosInicio} />}
         {vista === "calculadora" && (
           <div className="space-y-4">
             <PaseCotizacionCard token={sesion.token} />

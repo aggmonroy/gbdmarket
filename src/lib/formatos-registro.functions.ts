@@ -7,6 +7,7 @@ import {
   accionDocumentoSchema,
   documentoIdSchema,
   estadoTrasAccion,
+  hoyPanama,
   listarRegistroSchema,
   puedeResolverDocumentos,
   puedeSolicitarAnulacion,
@@ -19,8 +20,6 @@ import {
 const COLUMNAS_LISTA =
   "id,numero,formato,clave,titulo,fecha,emitido_por,estado,impresiones,resuelto_en,resuelto_por,motivo_resolucion,created_at,updated_at";
 
-/** Fecha de hoy en Panamá (el registro es diario). */
-const hoyPanama = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Panama" }).format(new Date());
 
 async function documentoVisible(sb: any, s: Sesion, id: string, columnas = "*") {
   const { data, error } = await sb.from("formato_documentos").select(columnas).eq("id", id).maybeSingle();
