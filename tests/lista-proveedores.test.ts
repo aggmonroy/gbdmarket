@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { leerArticulosCopiados, leerPrecio } from "../src/lib/lista-proveedores";
+import { esSoloEnlace, leerArticulosCopiados, leerPrecio } from "../src/lib/lista-proveedores";
 
 describe("artículo copiado de la lista de precios de proveedores", () => {
   it("lee precios con B/., $ y miles", () => {
@@ -42,6 +42,13 @@ describe("artículo copiado de la lista de precios de proveedores", () => {
 
   it("texto sin precio no agrega nada", () => {
     expect(leerArticulosCopiados("Hola, ¿cómo estás?")).toEqual([]);
+  });
+
+  it("«Copiar enlace» no agrega un artículo y se distingue de «Copiar ficha»", () => {
+    const enlace = "https://claude.ai/artifact/MTi9cm8qKR35HAj3MjkMhQ";
+    expect(esSoloEnlace(enlace)).toBe(true);
+    expect(leerArticulosCopiados(enlace)).toEqual([]);
+    expect(esSoloEnlace("Modelo: WT19DSB\nDescripción: Lavadora LG 19 kg\nPrecio: $489.00")).toBe(false);
   });
 });
 

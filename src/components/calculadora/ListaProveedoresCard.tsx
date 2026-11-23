@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ClipboardPaste, ExternalLink } from "lucide-react";
-import { LISTA_PROVEEDORES_URL, leerArticulosCopiados, type ArticuloCopiado } from "@/lib/lista-proveedores";
+import { esSoloEnlace, LISTA_PROVEEDORES_URL, leerArticulosCopiados, type ArticuloCopiado } from "@/lib/lista-proveedores";
 
 /**
  * Botón a la lista de precios de proveedores. Al volver a la calculadora, el artículo
- * copiado (botón «copiar» de la lista) se agrega solo; si el teléfono no deja leer
- * lo copiado, se pega a mano.
+ * copiado con «Copiar ficha» se agrega solo; si el teléfono no deja leer lo copiado,
+ * se pega a mano. «Copiar enlace» no basta porque no incluye los datos del artículo.
  */
 export function ListaProveedoresCard({ onAgregar }: { onAgregar: (a: ArticuloCopiado[]) => void }) {
   const abierta = useRef(false);
@@ -20,7 +20,13 @@ export function ListaProveedoresCard({ onAgregar }: { onAgregar: (a: ArticuloCop
   const procesar = (t: string, avisarSiVacio: boolean) => {
     const arts = leerArticulosCopiados(t);
     if (!arts.length) {
-      if (avisarSiVacio) toast.error("No encontré modelo y precio en lo copiado. Toca «copiar» en un artículo de la lista.");
+      if (avisarSiVacio) {
+        toast.error(
+          esSoloEnlace(t)
+            ? "«Copiar enlace» solo copia la dirección. En la lista, toca «Copiar ficha» para traer modelo, descripción y precio."
+            : "No encontré modelo y precio en lo copiado. En la lista, toca «Copiar ficha» en el artículo.",
+        );
+      }
       return false;
     }
     ultimo.current = t;
@@ -73,7 +79,7 @@ export function ListaProveedoresCard({ onAgregar }: { onAgregar: (a: ArticuloCop
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-[#535E6F]">Lista de precios de proveedores</p>
           <p className="text-[11px] text-[#68758A]">
-            Toca «copiar» en un artículo de la lista y regresa: se agrega con su modelo, descripción y precio de proveedor.
+            En la lista, toca «Copiar ficha» en el artículo (no «Copiar enlace») y regresa: se agrega con su modelo, descripción y precio de proveedor.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

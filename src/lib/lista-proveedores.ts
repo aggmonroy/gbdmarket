@@ -1,9 +1,15 @@
 /**
- * Lista de precios de proveedores (página externa). Al tocar «copiar» en un artículo,
- * el texto queda en el portapapeles y la calculadora lo convierte en un producto.
+ * Lista de precios de proveedores (página externa). Al tocar «Copiar ficha» en un
+ * artículo, el texto queda en el portapapeles y la calculadora lo convierte en producto.
+ * «Copiar enlace» solo copia la dirección y no contiene modelo, descripción ni precio.
  */
 
 export const LISTA_PROVEEDORES_URL = "https://claude.ai/artifact/MTi9cm8qKR35HAj3MjkMhQ";
+
+/** Distingue una dirección copiada sola de la ficha con datos del artículo. */
+export function esSoloEnlace(texto: string | null | undefined): boolean {
+  return /^https?:\/\/\S+$/i.test((texto ?? "").trim());
+}
 
 /** Campo de la calculadora que recibe el precio copiado. */
 export const CAMPO_PRECIO_COPIADO = "precioProveedor" as const;
