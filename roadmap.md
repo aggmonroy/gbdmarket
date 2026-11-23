@@ -22,3 +22,4 @@
 - [x] Enlaces individuales para publicaciones del newsletter (/novedades/:id + compartir).
 - [x] Formato de orden de combustible renombrado "Estación El Esfuerzo" (tarjeta, editor, archivo descargado y tarjeta del menú).
 - [ ] Formato nuevo para la estación El Progreso (diseño diferente) — en espera de que la usuaria suba el archivo.
+- [x] Calculadora: botón «Lista de precios de proveedores» que agrega el artículo copiado (modelo, descripción, precio proveedor); falta probar con el texto real de la lista.

@@ -44,3 +44,22 @@ describe("artículo copiado de la lista de precios de proveedores", () => {
     expect(leerArticulosCopiados("Hola, ¿cómo estás?")).toEqual([]);
   });
 });
+
+import { articuloAProducto, esProductoVacio } from "../src/lib/lista-proveedores-producto";
+import { nuevoProducto } from "../src/lib/pricing-gbd";
+
+describe("artículo copiado → producto de la cotización", () => {
+  it("llena modelo, descripción y precio de proveedor", () => {
+    const p = articuloAProducto({ modelo: "RT38K5930SL", descripcion: "Refrigeradora Samsung 13 pies", precio: 725 });
+    expect(p.referencia).toBe("RT38K5930SL");
+    expect(p.nombre).toBe("RT38K5930SL");
+    expect(p.descripcion).toBe("Refrigeradora Samsung 13 pies");
+    expect(p.precioProveedor).toBe("725");
+    expect(p.precioEtiqueta).toBe("");
+  });
+
+  it("la fila vacía inicial se reemplaza, una con datos no", () => {
+    expect(esProductoVacio(nuevoProducto())).toBe(true);
+    expect(esProductoVacio({ ...nuevoProducto(), precioProveedor: "10" })).toBe(false);
+  });
+});

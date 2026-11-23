@@ -27,6 +27,8 @@ import { ActionBar } from "@/components/calculadora/ActionBar";
 import { EnlaceGeneradorCard } from "@/components/calculadora/EnlaceGeneradorCard";
 import { GobiernoSeccion } from "@/components/calculadora/GobiernoSeccion";
 import { ProductoPicker, type ProductoCatalogo } from "@/components/calculadora/ProductoPicker";
+import { ListaProveedoresCard } from "@/components/calculadora/ListaProveedoresCard";
+import { articuloAProducto, esProductoVacio } from "@/lib/lista-proveedores-producto";
 import { guardarPreciosCotizacionProductos } from "@/lib/productos-portal.functions";
 
 
@@ -112,6 +114,10 @@ export function AsesorPage({
         instalacion: p.quote_installation ? String(p.quote_installation) : "0",
       },
     ]);
+
+  /** Artículos copiados de la lista de proveedores: reemplazan la fila vacía inicial. */
+  const addDesdeListaProveedores = (arts: Parameters<typeof articuloAProducto>[0][]) =>
+    setProductos((prev) => [...prev.filter((p) => !esProductoVacio(p)), ...arts.map(articuloAProducto)]);
 
   const cuotaElegida = totales.planTotal.find((x) => x.meses === plazoElegido);
 
@@ -250,6 +256,8 @@ export function AsesorPage({
             />
           </div>
         )}
+
+        <ListaProveedoresCard onAgregar={addDesdeListaProveedores} />
 
         {esGobierno(tipoCliente) && (
           <GobiernoSeccion
