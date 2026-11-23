@@ -55,15 +55,14 @@ export type DecisionEmision = "crear" | "actualizar" | "reimprimir" | "ninguna";
  * Qué hacer al imprimir o descargar:
  * - sin documento: se registra uno nuevo;
  * - anulado o eliminado: no se vuelve a registrar (se imprime con la marca);
- * - abierto desde el registro y sin cambios: es una reimpresión;
- * - abierto desde el registro con cambios: es un documento nuevo;
- * - emitido en esta sesión: se actualiza el mismo documento.
+ * - sin cambios desde que se emitió o se abrió: es una reimpresión (mismo número);
+ * - con cambios: es un documento nuevo con su propio número, para no
+ *   sobrescribir el anterior (p. ej. dos órdenes de combustible el mismo día).
  */
 export function decidirEmision(doc: DocumentoAbierto | null, contenido: string): DecisionEmision {
   if (!doc) return "crear";
   if (doc.estado !== "vigente") return "ninguna";
-  if (doc.modo === "reabierto") return doc.original === contenido ? "reimprimir" : "crear";
-  return "actualizar";
+  return doc.original === contenido ? "reimprimir" : "crear";
 }
 
 /** Límite del contenido guardado (incluye fotos anexas comprimidas). */

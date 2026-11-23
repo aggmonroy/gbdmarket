@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type MutableRefObject, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { registrarEmision } from "@/lib/formatos-registro.functions";
@@ -155,10 +156,11 @@ export function useEmitir() {
           id: r.id,
           numero: r.numero,
           estado: "vigente",
-          modo: decision === "reimprimir" ? "reabierto" : "nuevo",
+          modo: decision === "reimprimir" ? (ctx.doc?.modo ?? "reabierto") : "nuevo",
           original: contenido,
         };
-        ctx.setDoc(doc);
+        // Pinta el número en la hoja antes de que se imprima o descargue.
+        flushSync(() => ctx.setDoc(doc));
         if (!ctx.apertura || ctx.apertura.clave !== clave) {
           try {
             sessionStorage.setItem(claveDoc(clave), JSON.stringify(doc));

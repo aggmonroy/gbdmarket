@@ -49,8 +49,12 @@ describe("registro diario de documentos", () => {
     expect(decidirEmision(doc({ modo: "reabierto" }), "B")).toBe("crear");
   });
 
-  it("volver a imprimir en la misma sesión actualiza el mismo documento", () => {
-    expect(decidirEmision(doc({ modo: "nuevo" }), "B")).toBe("actualizar");
+  it("imprimir otro documento con datos distintos crea uno nuevo, sin sobrescribir el anterior", () => {
+    expect(decidirEmision(doc({ modo: "nuevo" }), "B")).toBe("crear");
+  });
+
+  it("volver a imprimir el mismo documento sin cambios es reimpresión", () => {
+    expect(decidirEmision(doc({ modo: "nuevo" }), "A")).toBe("reimprimir");
   });
 
   it("un documento anulado no se vuelve a registrar", () => {
