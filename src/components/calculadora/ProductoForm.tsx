@@ -85,6 +85,14 @@ export function ProductoForm({ producto, index, tipoCliente, calc, onChange, onR
             )}
           </div>
           <div className="flex-1">
+            <label className="text-[10px] uppercase tracking-wide text-[#68758A] font-bold">Modelo</label>
+            <input
+              value={producto.referencia || ""}
+              onChange={(e) => onChange(producto.id, "referencia", e.target.value)}
+              placeholder="Ej. RT38K5930SL"
+              maxLength={80}
+              className="w-full mt-0.5 mb-2 border border-[#DBE2EB] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#1F6DD8]"
+            />
             <label className="text-[10px] uppercase tracking-wide text-[#68758A] font-bold">Descripción</label>
             <textarea
               value={producto.descripcion || ""}

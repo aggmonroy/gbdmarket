@@ -59,7 +59,7 @@ describe("artículo copiado → producto de la cotización", () => {
   it("llena modelo, descripción y precio de proveedor", () => {
     const p = articuloAProducto({ modelo: "RT38K5930SL", descripcion: "Refrigeradora Samsung 13 pies", precio: 725 });
     expect(p.referencia).toBe("RT38K5930SL");
-    expect(p.nombre).toBe("RT38K5930SL");
+    expect(p.nombre).toBe("Refrigeradora Samsung 13 pies");
     expect(p.descripcion).toBe("Refrigeradora Samsung 13 pies");
     expect(p.precioProveedor).toBe("725");
     expect(p.precioEtiqueta).toBe("");
@@ -68,5 +68,15 @@ describe("artículo copiado → producto de la cotización", () => {
   it("la fila vacía inicial se reemplaza, una con datos no", () => {
     expect(esProductoVacio(nuevoProducto())).toBe(true);
     expect(esProductoVacio({ ...nuevoProducto(), precioProveedor: "10" })).toBe(false);
+  });
+});
+
+describe("«Copiar ficha» con formato de WhatsApp", () => {
+  it("llena modelo, descripción y precio aunque traiga emojis, negritas y enlace", () => {
+    const ficha = "📦 *Refrigeradora Samsung 13 pies*\n• *Modelo:* RT38K5930SL\n• *Precio:* B/. 725.00\n🔗 https://claude.ai/artifact/abc";
+    const [a] = leerArticulosCopiados(ficha);
+    expect(a?.modelo).toBe("RT38K5930SL");
+    expect(a?.descripcion).toBe("Refrigeradora Samsung 13 pies");
+    expect(a?.precio).toBe(725);
   });
 });

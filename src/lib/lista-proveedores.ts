@@ -125,11 +125,32 @@ function celdasDe(linea: string): string[] | null {
 }
 
 /**
+ * «Copiar ficha» puede traer adornos de WhatsApp: viñetas, emojis, *negritas*, títulos y el enlace.
+ * Se quitan para dejar solo "Etiqueta: valor" y el texto del artículo.
+ */
+export function limpiarFicha(texto: string): string {
+  const t = texto.replace(/\r\n?/g, "\n").trim();
+  if (/^[[{]/.test(t)) return t;
+  return t
+    .split("\n")
+    .map((l) =>
+      l
+        .replace(/[*_~`]+/g, "")
+        .replace(/^[\s\p{Extended_Pictographic}\uFE0F\u200D•·▪►▶➤✔☑#>]+/u, "")
+        .replace(/\s*(?:\p{Extended_Pictographic}|\uFE0F)+\s*/gu, " ")
+        .trim(),
+    )
+    .filter((l) => !/^(?:[^:]{0,30}:\s*)?https?:\/\/\S+$/i.test(l) && !/^[-=_—–\s]{3,}$/.test(l))
+    .join("\n")
+    .trim();
+}
+
+/**
  * Convierte lo copiado de la lista de precios en uno o varios artículos.
  * Acepta JSON, filas de tabla (tabulador, "|", " - " o ";") y líneas "Etiqueta: valor".
  */
 export function leerArticulosCopiados(texto: string | null | undefined): ArticuloCopiado[] {
-  const t = (texto ?? "").trim();
+  const t = limpiarFicha(texto ?? "");
   if (!t || t.length > 20000) return [];
 
   if (/^[[{]/.test(t)) {

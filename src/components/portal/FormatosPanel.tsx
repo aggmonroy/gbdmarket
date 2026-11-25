@@ -44,6 +44,7 @@ import { DocumentosEditor } from "./formatos/documentos";
 import { RetirosEditor } from "./formatos/retiros";
 import { HorasEditor } from "./formatos/horas";
 import { CambiosEditor, RolesEditor } from "./formatos/solicitudes";
+import { ExpedienteCreditoEditor } from "./formatos/expediente";
 import { ApcEditor, DatosClienteEditor, DatosPersonalesEditor, DeclaracionIngresosEditor } from "./formatos/requisitos";
 import { RegistroPanel } from "./formatos/RegistroPanel";
 import { MarcaDocumento, RegistroProvider, useEmitir, useRegistrable, type Apertura } from "./formatos/registro-ctx";
@@ -63,6 +64,7 @@ type Formato =
   | "apc"
   | "datos-personales"
   | "datos-cliente"
+  | "expediente-credito"
   | "arqueo-caja"
   | "arqueo-caja-menuda"
   | "pedido"
@@ -85,6 +87,7 @@ const FORMATOS: { id: Formato; titulo: string; descripcion: string; icono: Lucid
   { id: "horas", titulo: "Control de horas", descripcion: "Horas y tiempo aplicable por empleado; llegadas tarde en negativo.", icono: Clock, grupo: "Administración" },
   { id: "roles", titulo: "Solicitud de roles", descripcion: "Creación de usuario, asignación o baja de roles y correo.", icono: KeyRound, grupo: "Sistema" },
   { id: "cambios", titulo: "Solicitud de cambios en el sistema", descripcion: "Descripción y justificación del cambio, con aprobación.", icono: Wrench, grupo: "Sistema" },
+  { id: "expediente-credito", titulo: "Expediente de crédito (todo en un documento)", descripcion: "Datos del cliente y APC en la primera hoja, Ley 81 en la segunda y declaración de ingresos; se llenan desde los datos del cliente y cada documento se puede quitar o añadir.", icono: Contact, grupo: "Requisitos de crédito" },
   { id: "declaracion-ingresos", titulo: "Declaración de ingresos de independientes", descripcion: "Ingresos por actividad, costos y gastos; calcula ingresos brutos y ganancia neta. Admite sumas +10+10+10.", icono: FileSignature, grupo: "Requisitos de crédito" },
   { id: "apc", titulo: "Autorización de APC", descripcion: "Autorización de consulta en APC Buró y SVI del Tribunal Electoral; tres copias por hoja.", icono: ShieldCheck, grupo: "Requisitos de crédito" },
   { id: "datos-personales", titulo: "Autorización de uso de datos personales", descripcion: "Autorización según la Ley 81 de 2019, con lugar, fecha, nombre y cédula.", icono: UserCheck, grupo: "Requisitos de crédito" },
@@ -151,6 +154,8 @@ function EditorDe({ formato, onVolver: volver }: { formato: Formato; onVolver: (
       return <ApcEditor onVolver={volver} />;
     case "datos-personales":
       return <DatosPersonalesEditor onVolver={volver} />;
+    case "expediente-credito":
+      return <ExpedienteCreditoEditor onVolver={volver} />;
     case "datos-cliente":
       return <DatosClienteEditor onVolver={volver} />;
     case "arqueo-caja":

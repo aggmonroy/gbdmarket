@@ -6,7 +6,7 @@ export function articuloAProducto(a: ArticuloCopiado): ProductoInput {
   const descripcion = [a.descripcion, a.proveedor && `Proveedor: ${a.proveedor}`].filter(Boolean).join(" · ");
   return {
     ...nuevoProducto(),
-    nombre: a.modelo || a.descripcion,
+    nombre: a.descripcion || a.modelo,
     referencia: a.modelo,
     descripcion,
     precioProveedor: String(a.precio),

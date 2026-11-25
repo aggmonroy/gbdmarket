@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import { Contact, FileSignature, ShieldCheck, UserCheck, X } from "lucide-react";
 import {
   FRECUENCIAS_INGRESO,
@@ -18,6 +19,8 @@ import {
   type LineaMonto,
 } from "@/lib/formatos";
 import { Celda, ControlFilas, EditorFormato, Encabezado, EnLinea, editarFila, nombreArchivo, useBorrador } from "./hoja";
+
+export type Setter<T> = Dispatch<SetStateAction<T>>;
 
 const COOP = "Cooperativa de Servicios Integrales Gladys B. de Ducasa, R.L.";
 
@@ -88,9 +91,6 @@ function FilasMonto({
 /** Declaración de ingresos de independientes (REQUISITOS.xlsx, hoja DECLARACIÓN DE INGRESOS). */
 export function DeclaracionIngresosEditor({ onVolver }: { onVolver: () => void }) {
   const [d, setD, reiniciar] = useBorrador<Declaracion>("gbd_formato_declaracion_ingresos", declaracionInicial);
-  const set = <K extends keyof Declaracion>(k: K) => (v: Declaracion[K]) => setD((x) => ({ ...x, [k]: v }));
-  const r = calcularDeclaracion(d);
-
   return (
     <EditorFormato
       titulo="Declaración de ingresos de independientes"
@@ -101,6 +101,16 @@ export function DeclaracionIngresosEditor({ onVolver }: { onVolver: () => void }
       onVolver={onVolver}
       onReiniciar={reiniciar}
     >
+      <DeclaracionHoja d={d} setD={setD} />
+    </EditorFormato>
+  );
+}
+
+export function DeclaracionHoja({ d, setD }: { d: Declaracion; setD: Setter<Declaracion> }) {
+  const set = <K extends keyof Declaracion>(k: K) => (v: Declaracion[K]) => setD((x) => ({ ...x, [k]: v }));
+  const r = calcularDeclaracion(d);
+  return (
+    <>
       <div className="fmt-carta">
         <div className="fmt-derecha">
           <span className="fmt-w-40">
@@ -190,13 +200,13 @@ export function DeclaracionIngresosEditor({ onVolver }: { onVolver: () => void }
           </div>
         </div>
       </div>
-    </EditorFormato>
+    </>
   );
 }
 
 // ---------------------------------------------------------------- APC
 
-type Apc = { nombre: string; cedula: string };
+export type Apc = { nombre: string; cedula: string };
 
 /** Autorización de APC (REQUISITOS.xlsx): tres copias por hoja con los mismos datos. */
 export function ApcEditor({ onVolver }: { onVolver: () => void }) {
@@ -211,7 +221,15 @@ export function ApcEditor({ onVolver }: { onVolver: () => void }) {
       onVolver={onVolver}
       onReiniciar={reiniciar}
     >
-      {[0, 1, 2].map((n) => (
+      <ApcHoja a={a} setA={setA} copias={3} />
+    </EditorFormato>
+  );
+}
+
+export function ApcHoja({ a, setA, copias }: { a: Apc; setA: Setter<Apc>; copias: number }) {
+  return (
+    <>
+      {Array.from({ length: copias }, (_, n) => n).map((n) => (
         <section key={n} className="fmt-apc">
           <div className="fmt-apc__tit">AUTORIZACIÓN</div>
           <p className="fmt-legal">
@@ -236,7 +254,7 @@ export function ApcEditor({ onVolver }: { onVolver: () => void }) {
           </div>
         </section>
       ))}
-    </EditorFormato>
+    </>
   );
 }
 
@@ -262,7 +280,7 @@ const FINALIDADES = [
   "Cumplir con requerimientos de entes reguladores o de fiscalización, aseguradoras y demás instituciones financieras con las cuales la cooperativa mantenga relación contractual para fines únicos y exclusivos de la cooperativa.",
 ] as const;
 
-type DatosPersonales = { lugar: string; fecha: string; nombre: string; cedula: string };
+export type DatosPersonales = { lugar: string; fecha: string; nombre: string; cedula: string };
 
 /** Autorización para uso de datos personales (REQUISITOS.xlsx). */
 export function DatosPersonalesEditor({ onVolver }: { onVolver: () => void }) {
@@ -272,8 +290,6 @@ export function DatosPersonalesEditor({ onVolver }: { onVolver: () => void }) {
     nombre: "",
     cedula: "",
   }));
-  const set = (k: keyof DatosPersonales) => (v: string) => setP((x) => ({ ...x, [k]: v }));
-  const f = partesFecha(p.fecha);
   return (
     <EditorFormato
       titulo="Autorización de uso de datos personales"
@@ -284,6 +300,16 @@ export function DatosPersonalesEditor({ onVolver }: { onVolver: () => void }) {
       onVolver={onVolver}
       onReiniciar={reiniciar}
     >
+      <DatosPersonalesHoja p={p} setP={setP} />
+    </EditorFormato>
+  );
+}
+
+export function DatosPersonalesHoja({ p, setP }: { p: DatosPersonales; setP: Setter<DatosPersonales> }) {
+  const set = (k: keyof DatosPersonales) => (v: string) => setP((x) => ({ ...x, [k]: v }));
+  const f = partesFecha(p.fecha);
+  return (
+    <>
       <div className="fmt-datos">
         <div className="fmt-apc__tit">AUTORIZACIÓN PARA USO DE DATOS PERSONALES</div>
         <p>
@@ -350,7 +376,7 @@ export function DatosPersonalesEditor({ onVolver }: { onVolver: () => void }) {
           </div>
         </div>
       </div>
-    </EditorFormato>
+    </>
   );
 }
 
@@ -359,12 +385,6 @@ export function DatosPersonalesEditor({ onVolver }: { onVolver: () => void }) {
 /** Datos del cliente, Sección Línea Blanca (REQUISITOS.xlsx). */
 export function DatosClienteEditor({ onVolver }: { onVolver: () => void }) {
   const [c, setC, reiniciar] = useBorrador<DatosCliente>("gbd_formato_datos_cliente", datosClienteInicial);
-  const set = (k: Exclude<keyof DatosCliente, "articulos">) => (v: string) => setC((x) => ({ ...x, [k]: v }));
-  const setArticulo = (i: number, k: keyof ArticuloCliente, v: string) => setC((x) => ({ ...x, articulos: editarFila(x.articulos, i, k, v) }));
-  const campo = (k: Exclude<keyof DatosCliente, "articulos">, label: string, extra?: Partial<Parameters<typeof Celda>[0]>) => (
-    <Celda value={c[k]} onChange={set(k)} label={label} {...extra} />
-  );
-
   return (
     <EditorFormato
       titulo="Datos del cliente (Línea Blanca)"
@@ -375,6 +395,20 @@ export function DatosClienteEditor({ onVolver }: { onVolver: () => void }) {
       onVolver={onVolver}
       onReiniciar={reiniciar}
     >
+      <DatosClienteHoja c={c} setC={setC} />
+    </EditorFormato>
+  );
+}
+
+export function DatosClienteHoja({ c, setC }: { c: DatosCliente; setC: Setter<DatosCliente> }) {
+  const set = (k: Exclude<keyof DatosCliente, "articulos">) => (v: string) => setC((x) => ({ ...x, [k]: v }));
+  const setArticulo = (i: number, k: keyof ArticuloCliente, v: string) => setC((x) => ({ ...x, articulos: editarFila(x.articulos, i, k, v) }));
+  const campo = (k: Exclude<keyof DatosCliente, "articulos">, label: string, extra?: Partial<Parameters<typeof Celda>[0]>) => (
+    <Celda value={c[k]} onChange={set(k)} label={label} {...extra} />
+  );
+
+  return (
+    <>
       <Encabezado titulo="DATOS DEL CLIENTE SECCIÓN LÍNEA BLANCA">
         <div className="fmt-head__fecha">
           <span className="fmt-w-40">
@@ -518,6 +552,6 @@ export function DatosClienteEditor({ onVolver }: { onVolver: () => void }) {
         <b>OBSERVACIONES:</b>
         {campo("observaciones", "Observaciones", { multilinea: 3 })}
       </div>
-    </EditorFormato>
+    </>
   );
 }
