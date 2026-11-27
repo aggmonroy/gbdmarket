@@ -412,3 +412,41 @@ export function partesFecha(fecha: string): { dia: string; mes: string; anio: st
   if (!y || !m || !d || m > 12) return { dia: "", mes: "", anio: "" };
   return { dia: String(d), mes: MESES[m - 1], anio: String(y) };
 }
+
+// ---------------------------------------------------------------- Inventario por sucursal
+export type MovimientoTraslado = { numero: string; fecha: string; origen: string; destino: string; lineas: LineaTraslado[] };
+export type ExistenciaSucursal = { articulo: string; codigo: string; entradas: number; salidas: number; disponible: number };
+
+const normSuc = (s: string) => s.trim().replace(/\s+/g, " ");
+const claveArt = (l: { articulo: string; codigo: string }) =>
+  (l.codigo.trim() ? `c:${l.codigo.trim().toUpperCase()}` : `a:${l.articulo.trim().toLowerCase()}`);
+
+/** Consolida los traslados vigentes: suma la cantidad en el destino y la resta del origen. */
+export function consolidarInventario(movs: MovimientoTraslado[]): Record<string, ExistenciaSucursal[]> {
+  const mapa = new Map<string, Map<string, ExistenciaSucursal>>();
+  const mov = (suc: string, l: LineaTraslado, cant: number, entrada: boolean) => {
+    const s = normSuc(suc);
+    if (!s) return;
+    const m = mapa.get(s) ?? new Map<string, ExistenciaSucursal>();
+    mapa.set(s, m);
+    const k = claveArt(l);
+    const e = m.get(k) ?? { articulo: l.articulo.trim(), codigo: l.codigo.trim(), entradas: 0, salidas: 0, disponible: 0 };
+    if (!e.articulo && l.articulo.trim()) e.articulo = l.articulo.trim();
+    if (entrada) e.entradas += cant;
+    else e.salidas += cant;
+    e.disponible = e.entradas - e.salidas;
+    m.set(k, e);
+  };
+  for (const t of movs) {
+    for (const l of t.lineas ?? []) {
+      const cant = num(l.cantidad);
+      if (!cant || (!l.articulo.trim() && !l.codigo.trim())) continue;
+      mov(t.destino, l, cant, true);
+      mov(t.origen, l, cant, false);
+    }
+  }
+  const out: Record<string, ExistenciaSucursal[]> = {};
+  for (const [s, m] of [...mapa.entries()].sort((a, b) => a[0].localeCompare(b[0])))
+    out[s] = [...m.values()].sort((a, b) => a.articulo.localeCompare(b.articulo));
+  return out;
+}

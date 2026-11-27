@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { admin, requireAdminSesion, verifySesion, type Sesion } from "./garantias.server";
 import { generarNumeroTarea, nombresColaboradores } from "./tareas.server";
 import {
@@ -300,4 +301,35 @@ export const resolverSolicitudDocumento = createServerFn({ method: "POST" })
       `${ACCION_DOCUMENTO_LABEL[accion]} ${data.aprobar ? "aprobada" : "rechazada"}${data.nota ? ` · ${data.nota}` : ""}`,
     );
     return { ok: true };
+  });
+
+/** Traslados vigentes para el inventario consolidado por sucursal. */
+export const listarTrasladosInventario = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ token: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    await verifySesion(data.token);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("formato_documentos")
+      .select("numero,fecha,datos")
+      .in("formato", ["traslado-linea-blanca", "traslado-progreso"])
+      .eq("estado", "vigente")
+      .order("fecha", { ascending: true })
+      .limit(5000);
+    if (error) throw new Error(error.message);
+    return (rows ?? []).map((r: any) => {
+      const b = r.datos?.borrador ?? {};
+      return {
+        numero: r.numero as string,
+        fecha: r.fecha as string,
+        origen: String(b.origen ?? ""),
+        destino: String(b.destino ?? ""),
+        lineas: (Array.isArray(b.lineas) ? b.lineas : []).map((l: any) => ({
+          articulo: String(l?.articulo ?? ""),
+          cantidad: String(l?.cantidad ?? ""),
+          codigo: String(l?.codigo ?? ""),
+          precio: String(l?.precio ?? ""),
+        })),
+      };
+    });
   });

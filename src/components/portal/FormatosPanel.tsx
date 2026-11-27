@@ -47,6 +47,7 @@ import { CambiosEditor, RolesEditor } from "./formatos/solicitudes";
 import { ExpedienteCreditoEditor } from "./formatos/expediente";
 import { ApcEditor, DatosClienteEditor, DatosPersonalesEditor, DeclaracionIngresosEditor } from "./formatos/requisitos";
 import { RegistroPanel } from "./formatos/RegistroPanel";
+import { InventarioPanel } from "./formatos/InventarioPanel";
 import { MarcaDocumento, RegistroProvider, useEmitir, useRegistrable, type Apertura } from "./formatos/registro-ctx";
 import { AvisoDocumento } from "./formatos/hoja";
 import { ClipboardList } from "lucide-react";
@@ -100,9 +101,10 @@ export function FormatosPanel({ sesion, inicio = "lista" }: { sesion: Sesion; in
   const [formato, setFormato] = useState<Formato | null>(null);
   const [registro, setRegistro] = useState(inicio === "registro");
   const [apertura, setApertura] = useState<Apertura | null>(null);
+  const [inventario, setInventario] = useState(false);
   useEffect(() => {
     window.scrollTo({ top: 0 });
-  }, [formato, registro]);
+  }, [formato, registro, inventario]);
   const volver = () => {
     setFormato(null);
     // Si se abrió desde el registro, se regresa al registro.
@@ -140,7 +142,8 @@ export function FormatosPanel({ sesion, inicio = "lista" }: { sesion: Sesion; in
       />
     );
   }
-  return <ListaFormatos onElegir={setFormato} onRegistro={() => setRegistro(true)} />;
+  if (inventario) return <InventarioPanel token={sesion.token} onVolver={() => setInventario(false)} />;
+  return <ListaFormatos onElegir={setFormato} onRegistro={() => setRegistro(true)} onInventario={() => setInventario(true)} />;
 }
 
 function EditorDe({ formato, onVolver: volver }: { formato: Formato; onVolver: () => void }) {
@@ -181,7 +184,7 @@ function EditorDe({ formato, onVolver: volver }: { formato: Formato; onVolver: (
   }
 }
 
-function ListaFormatos({ onElegir: setFormato, onRegistro }: { onElegir: (f: Formato) => void; onRegistro: () => void }) {
+function ListaFormatos({ onElegir: setFormato, onRegistro, onInventario }: { onElegir: (f: Formato) => void; onRegistro: () => void; onInventario: () => void }) {
   const grupos = Array.from(new Set(FORMATOS.map((f) => f.grupo)));
   return (
     <div className="space-y-5">
@@ -201,6 +204,18 @@ function ListaFormatos({ onElegir: setFormato, onRegistro }: { onElegir: (f: For
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             Consulta y reimprime lo emitido cada día. Las anulaciones y eliminaciones las aprueba el administrador.
+          </CardContent>
+        </Card>
+      </button>
+      <button type="button" onClick={onInventario} className="block w-full text-left">
+        <Card className="border-primary/40 transition hover:border-primary hover:shadow-soft">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ClipboardList className="h-5 w-5 text-primary" /> Inventario por sucursal
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            Listado consolidado de lo recibido y enviado en cada sucursal según los traslados de mercancía.
           </CardContent>
         </Card>
       </button>
